@@ -6,8 +6,8 @@ Front End development - UI
 
 ## Extra Sources
 https://fastcampus.co.kr/
-ID : itleaderkyc@postech.ac.kr
-PW : teamisland2020
+
+ID : itleaderkyc@postech.ac.kr PW : teamisland2020
 
 1) AWS/DOCKER CLOUD SERVER DEVELOPMENT
 
