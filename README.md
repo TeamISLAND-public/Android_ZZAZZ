@@ -20,6 +20,8 @@ https://sangbumchoi.github.io/year-archive/
 
   Tag with ZZAZZ will be updated with related journal, We have to concern about the method how to share daeho's knowledge
   
+https://www.youtube.com/watch?v=iaSUYvmCekI
+  
 ### Competitive Analysis
   https://www.notion.so/teamisland/443acd1ba88f4395876d436b40276f75?v=02afa744af444ccdbd3c1e583a0df5bd
   
