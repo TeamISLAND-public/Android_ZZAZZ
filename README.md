@@ -15,6 +15,8 @@ https://fastcampus.co.kr/
   3) FRONTEND, REACT
   4) DATA SCIENCE
   
+https://poiemaweb.com/
+  
 ### Core Study
 https://sangbumchoi.github.io/year-archive/
 
