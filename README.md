@@ -14,8 +14,14 @@ https://fastcampus.co.kr/
   2) ANDROID, IOS APPLICATION DEVELOPMENT
   3) FRONTEND, REACT
   4) DATA SCIENCE
-  
+
+Basic UI/UX about Web Programming
+
 https://poiemaweb.com/
+
+Tensorflow Lite Example
+
+https://www.tensorflow.org/lite/examples
   
 ### Core Study
 https://sangbumchoi.github.io/year-archive/
