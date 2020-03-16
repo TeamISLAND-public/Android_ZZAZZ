@@ -41,4 +41,4 @@ https://www.youtube.com/watch?v=iaSUYvmCekI
   MIT LICENSE
 
 ## Developers
-Sangbum Choi, DaeHo Kim
+Sangbum Choi, DaeHo Kim, TeaGyu Park
