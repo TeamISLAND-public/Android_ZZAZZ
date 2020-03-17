@@ -1,4 +1,4 @@
-package org.pytorch.helloworld;
+package org.pytorch.appzzazz;
 
 import android.content.Context;
 import android.graphics.Bitmap;

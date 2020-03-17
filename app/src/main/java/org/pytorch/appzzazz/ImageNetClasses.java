@@ -1,4 +1,4 @@
-package org.pytorch.helloworld;
+package org.pytorch.appzzazz;
 
 public class ImageNetClasses {
   public static String[] IMAGENET_CLASSES = new String[]{
