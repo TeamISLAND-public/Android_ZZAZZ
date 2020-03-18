@@ -29,11 +29,16 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
 
     Bitmap bitmap = null;
+    Bitmap bitmap1 = null;
+    Bitmap bitmap2 = null;
     Module module = null;
     try {
       // creating bitmap from packaged into app android asset 'image.jpg',
       // app/src/main/assets/image.jpg
       bitmap = BitmapFactory.decodeStream(getAssets().open("image.jpg"));
+      bitmap1 = BitmapFactory.decodeStream(getAssets().open("car.jfif"));
+      bitmap2 = BitmapFactory.decodeStream(getAssets().open("image.jpg"));
+
       // loading serialized torchscript module from packaged into app android asset model.pt,
       // app/src/model/assets/model.pt
       module = Module.load(assetFilePath(this, "model.pt"));
@@ -45,9 +50,10 @@ public class MainActivity extends AppCompatActivity {
     // showing image on UI
     ImageView imageView = findViewById(R.id.image);
     imageView.setImageBitmap(bitmap);
+    imageView.setImageBitmap(bitmap1);
 
     // preparing input tensor
-    final Tensor inputTensor = TensorImageUtils.bitmapToFloat32Tensor(bitmap,
+    final Tensor inputTensor = TensorImageUtils.bitmapToFloat32Tensor(bitmap1,
         TensorImageUtils.TORCHVISION_NORM_MEAN_RGB, TensorImageUtils.TORCHVISION_NORM_STD_RGB);
 
     // running the model
