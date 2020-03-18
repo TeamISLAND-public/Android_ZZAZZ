@@ -1,2 +1,1 @@
-include ':app'
-rootProject.name='HelloWorldApp'
+include ':app', ':posenet'
