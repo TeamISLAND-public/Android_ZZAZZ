@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.example.test.R
 
 class Fragment1 : Fragment() {
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

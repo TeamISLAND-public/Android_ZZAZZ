@@ -22,9 +22,9 @@ class MainActivity : AppCompatActivity() {
         tab_layout.addTab(tab_layout.newTab().setText("Two"))
         tab_layout.addTab(tab_layout.newTab().setText("Three"))
 
-        val paperAdapter = FragmentPagerAdapter(supportFragmentManager, 3)
+        val pagerAdapter = FragmentPagerAdapter(supportFragmentManager, 3)
 //        val adapter = ThreePagerAdpater(LayoutInflater.from(this@MainActivity))
-        view_pager.adapter = paperAdapter
+        view_pager.adapter = pagerAdapter
 
         tab_layout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
