@@ -12,8 +12,13 @@ class Main2Activity : AppCompatActivity() {
         setContentView(R.layout.activity_main2)
 
         goto4.setOnClickListener {
-            val int = Intent(this@Main2Activity, Main4Activity::class.java)
-            startActivity(int)
+            startActivity(Intent(this@Main2Activity, Main4Activity::class.java))
+        }
+
+        goto1.setOnClickListener {
+            val intent = Intent(this@Main2Activity, Main1Activity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
         }
     }
 }

@@ -12,8 +12,7 @@ class Main3Activity : AppCompatActivity() {
         setContentView(R.layout.activity_main3)
 
         goto5.setOnClickListener {
-            val int = Intent(this@Main3Activity, Main5Activity::class.java)
-            startActivity(int)
+            startActivity(Intent(this@Main3Activity, Main5Activity::class.java))
         }
     }
 }
