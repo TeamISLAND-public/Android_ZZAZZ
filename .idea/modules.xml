@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/VideoTrimmer-master.iml" filepath="$PROJECT_DIR$/VideoTrimmer-master.iml" group="VideoTrimmer-master" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="VideoTrimmer-master/app" />
+      <module fileurl="file://$PROJECT_DIR$/video_trimmer_library/video_trimmer_library.iml" filepath="$PROJECT_DIR$/video_trimmer_library/video_trimmer_library.iml" group="VideoTrimmer-master/video_trimmer_library" />
+    </modules>
+  </component>
+</project>
