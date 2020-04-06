@@ -15,7 +15,7 @@ class Fragment3 : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("life_cycle", "F onCreateView")
+        Log.d("life_cycle", "3F onCreateView")
 
         return inflater.inflate(R.layout.fragment_three, container, false)
     }
