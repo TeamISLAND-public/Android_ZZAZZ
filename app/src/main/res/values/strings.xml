@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">AppZZAZZ</string>
     <string name="goto2">goto2</string>
     <string name="goto3">goto3</string>
+    <string name="take_video">take video</string>
+    <string name="select_video">select video</string>
 </resources>
