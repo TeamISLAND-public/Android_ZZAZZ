@@ -2,7 +2,6 @@ package com.example.test
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -19,16 +17,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d("life_cycle", "onCreate")
-
-        val view = layoutInflater.inflate(R.layout.activity_main, null)
 
         tab_layout.addTab(tab_layout.newTab().setText("One"))
         tab_layout.addTab(tab_layout.newTab().setText("Two"))
         tab_layout.addTab(tab_layout.newTab().setText("Three"))
-        Log.d("TabLayout", "Add Tabs")
 
         val pagerAdapter = FragmentPagerAdapter(supportFragmentManager, 3)
+//        val adapter = ThreePagerAdpater(LayoutInflater.from(this@MainActivity))
         view_pager.adapter = pagerAdapter
 
         tab_layout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -67,5 +62,47 @@ class FragmentPagerAdapter(
 
     override fun getCount(): Int {
         return tabCount
+    }
+}
+
+class ThreePagerAdpater(
+    val layoutInflater: LayoutInflater
+) : PagerAdapter() {
+
+    override fun instantiateItem(container: ViewGroup, position: Int): Any {
+        when (position) {
+            0 -> {
+                val view = layoutInflater.inflate(R.layout.fragment_one, container, false)
+                container.addView(view)
+                return view
+            }
+            1 -> {
+                val view = layoutInflater.inflate(R.layout.fragment_two, container, false)
+                container.addView(view)
+                return view
+            }
+            2 -> {
+                val view = layoutInflater.inflate(R.layout.fragment_three, container, false)
+                container.addView(view)
+                return view
+            }
+            else -> {
+                val view = layoutInflater.inflate(R.layout.fragment_one, container, false)
+                container.addView(view)
+                return view
+            }
+        }
+    }
+
+    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+        container.removeView(`object` as View)
+    }
+
+    override fun isViewFromObject(view: View, `object`: Any): Boolean {
+        return view === `object` as View
+    }
+
+    override fun getCount(): Int {
+        return 3
     }
 }

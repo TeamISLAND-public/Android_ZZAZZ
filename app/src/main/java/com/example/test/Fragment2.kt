@@ -15,7 +15,7 @@ class Fragment2 : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("life_cycle", "F2 onCreateView")
+        Log.d("life_cycle", "F onCreateView")
 
         return inflater.inflate(R.layout.fragment_two, container, false)
     }
