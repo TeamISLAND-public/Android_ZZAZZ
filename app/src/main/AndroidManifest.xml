@@ -14,10 +14,10 @@
         android:theme="@style/AppTheme">
         <activity android:name=".Main5Activity" />
         <activity android:name=".Main4Activity" />
-        <activity android:name=".Main3Activity" />
-        <activity android:name=".Main2Activity" />
+        <activity android:name=".AfterSelectionActivity" />
+        <activity android:name=".BeforeSelectionActivity" />
         <activity
-            android:name=".Main1Activity"
+            android:name=".MainActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

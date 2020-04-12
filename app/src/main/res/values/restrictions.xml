@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--fps limit-->
+    <integer name="fps_limit">60</integer>
+    <!--len limit in ms-->
+    <integer name="length_limit">60000</integer>
+</resources>
