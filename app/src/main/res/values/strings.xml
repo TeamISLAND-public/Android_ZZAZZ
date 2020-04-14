@@ -1,9 +1,10 @@
 <resources>
-    <string name="app_name">AppZZAZZ</string>
+    <string name="app_name" translatable="false">AppZZAZZ</string>
+    <string name="selected_video_uri" translatable="false">pre_trim_selected_video_uri</string>
     <string name="video_select">Video Selection…</string>
     <string name="goto3">goto3</string>
     <string name="take_video">take video</string>
     <string name="select_video">select video</string>
     <string name="video_restrictions">Video fps restrictions = %d ,length = %d.</string>
-    <string name="selected_video_uri">video_uri</string>
+    <string name="fps_exceeded">fps exceeded</string>
 </resources>
