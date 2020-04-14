@@ -10,10 +10,10 @@
         android:layout_height="match_parent"
         android:layout_gravity="center" />
 
-<!--    <Button-->
-<!--        android:id="@+id/play_button"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:text="Start" />-->
+    <Button
+        android:id="@+id/play_button"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:text="Start" />
 
 </LinearLayout>
