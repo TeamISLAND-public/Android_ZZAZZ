@@ -16,7 +16,6 @@ class MainActivity : AppCompatActivity() {
 
         val video = findViewById<VideoView>(R.id.video_view)
         val playBtn = findViewById<Button>(R.id.play_button)
-        var checkFinish = false
 
         val controller = MediaController(this)
         controller.hide()
@@ -39,10 +38,6 @@ class MainActivity : AppCompatActivity() {
                 video.pause()
                 playBtn.text = "Play"
             } else {
-                if (checkFinish) {
-                    video.seekTo(0)
-                    checkFinish = false
-                }
                 video.start()
                 playBtn.text = "Pause"
             }
@@ -50,7 +45,6 @@ class MainActivity : AppCompatActivity() {
             video.setOnCompletionListener {
                 video.pause()
                 playBtn.text = "Play"
-                checkFinish = true
             }
         }
     }
