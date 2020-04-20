@@ -33,19 +33,26 @@ class MainActivity : AppCompatActivity() {
             }
         }, 100)
 
-        playBtn.setOnClickListener {
-            if (video.isPlaying) {
-                video.pause()
-                playBtn.text = "Play"
-            } else {
-                video.start()
-                playBtn.text = "Pause"
-            }
+        // the function for change text of button
+        fun setText(prev: CharSequence): CharSequence {
+            if (prev == "Play") return "Pause"
+            return "Play"
+        }
 
-            video.setOnCompletionListener {
-                video.pause()
-                playBtn.text = "Play"
+        playBtn.setOnClickListener {
+            video.run {
+                if (isPlaying)
+                    start()
+                else
+                    pause()
             }
+            playBtn.text = setText(playBtn.text)
+        }
+
+        // changing text of button is needed
+        video.setOnCompletionListener {
+            video.pause()
+            playBtn.text = setText(playBtn.text)
         }
     }
 }
