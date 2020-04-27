@@ -10,10 +10,15 @@
         android:layout_height="match_parent"
         android:layout_gravity="center" />
 
+    <SeekBar
+        android:id="@+id/play_bar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+
     <Button
         android:id="@+id/play_button"
         android:layout_width="100dp"
         android:layout_height="50dp"
-        android:text="Start" />
+        android:text="Play" />
 
 </LinearLayout>
