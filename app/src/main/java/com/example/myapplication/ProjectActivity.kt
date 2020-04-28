@@ -69,11 +69,7 @@ class ProjectActivity : AppCompatActivity() {
 
         playBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             // while dragging
-            override fun onProgressChanged(
-                seekBar: SeekBar?,
-                progress: Int,
-                fromUser: Boolean
-            ) {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 position = progress
                 video.seekTo(position)
                 Log.d("progress", video.currentPosition.toString() + " currentFocus")
