@@ -7,6 +7,8 @@ import android.widget.Button
 import android.widget.SeekBar
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.tabs.TabLayout
+import kotlinx.android.synthetic.main.activity_project.*
 
 class ProjectActivity : AppCompatActivity() {
 
@@ -23,6 +25,7 @@ class ProjectActivity : AppCompatActivity() {
         playBtn = findViewById(R.id.play_button)
 
         videoInit()
+        tabInit()
     }
 
     private fun videoInit() {
@@ -107,5 +110,26 @@ class ProjectActivity : AppCompatActivity() {
             playBtn.text = setTextPlay()
             position = 0
         }
+    }
+
+    private fun tabInit() {
+        effect_tab.addTab(effect_tab.newTab().setText(getString(R.string.tab1_name)))
+        effect_tab.addTab(effect_tab.newTab().setText(getString(R.string.tab2_name)))
+
+        val pagerAdapter = FragmentPagerAdapter(supportFragmentManager, 3)
+        view_pager.adapter = pagerAdapter
+
+        effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                view_pager.currentItem = tab!!.position
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+            }
+        })
+        view_pager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(effect_tab))
     }
 }
