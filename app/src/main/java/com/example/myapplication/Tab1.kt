@@ -30,30 +30,3 @@ class Tab1  : Fragment() {
         return view
     }
 }
-
-class CustomAdapter(
-    val list: ArrayList<String>,
-    val layoutInflater: LayoutInflater
-) : BaseAdapter() {
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view = layoutInflater.inflate(R.layout.item_view, null, true)
-        val item = view.findViewById<TextView>(R.id.item)
-
-        item.setText(list[position])
-        Log.d("itemText", list[position])
-
-        return view
-    }
-
-    override fun getItem(position: Int): Any {
-        return list[position]
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    override fun getCount(): Int {
-        return list.size
-    }
-}
