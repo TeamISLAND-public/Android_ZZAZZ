@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 
+// List Adapter for effect tab
 class CustomAdapter(
     private val list: ArrayList<String>,
     private val layoutInflater: LayoutInflater

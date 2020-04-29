@@ -28,6 +28,7 @@ class ProjectActivity : AppCompatActivity() {
         tabInit()
     }
 
+    // prepare the video
     private fun videoInit() {
         val intent = intent
 //        val duration = intent.getIntExtra("duration")
@@ -49,6 +50,7 @@ class ProjectActivity : AppCompatActivity() {
         videoStart()
     }
 
+    // start the video
     private fun videoStart() {
         var position: Int = 0
         video.seekTo(position)
@@ -112,6 +114,7 @@ class ProjectActivity : AppCompatActivity() {
         }
     }
 
+    // make effect tab
     private fun tabInit() {
         effect_tab.addTab(effect_tab.newTab().setText(getString(R.string.tab1_name)))
         effect_tab.addTab(effect_tab.newTab().setText(getString(R.string.tab2_name)))
