@@ -12,8 +12,6 @@
         android:supportsRtl="true"
         android:allowBackup="false"
         android:theme="@style/AppTheme">
-        <activity android:name=".Main5Activity" />
-        <activity android:name=".Main4Activity" />
         <activity android:name=".TrimmingActivity" />
         <activity
             android:name=".BeforeSelectionActivity"
