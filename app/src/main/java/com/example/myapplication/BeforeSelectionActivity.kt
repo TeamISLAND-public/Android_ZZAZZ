@@ -10,6 +10,7 @@ import android.media.MediaFormat.KEY_FRAME_RATE
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Button
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
@@ -61,6 +62,9 @@ class BeforeSelectionActivity : AppCompatActivity() {
 
         take_video_button.setOnClickListener { warnAndRun { dispatchTakeVideoIntent() } }
         take_video_from_gallery_button.setOnClickListener { warnAndRun { dispatchGetVideoIntent() } }
+
+        val btn = findViewById<Button>(R.id.gotoProjectActivity)
+        btn.setOnClickListener { startActivity(Intent(this@BeforeSelectionActivity, ProjectActivity::class.java)) }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
