@@ -25,14 +25,14 @@ Activity 파일에는 다음과같은 규격이 잘 맞지 않을 수 있다고 
 이기 때문에 현재는 이러한 방식으로 진행한다.
 
 ## 앱 째즈 레퍼지토리 규약
-"""
+    """
     com.example.myappliction
     --/ui
       --/ProjectActivity
       --/TrimActivity
     --/utils
     --/functions
-"""
+    """
 
 ## push/pull
 현재 app_ui branch가 master인 상황
