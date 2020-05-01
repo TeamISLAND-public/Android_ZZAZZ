@@ -19,6 +19,8 @@ class AfterSelectionActivity : AppCompatActivity() {
 
         val btn = findViewById<Button>(R.id.gotoProjectActivity)
         val intent = Intent(this, ProjectActivity::class.java)
+        // This should be edited.
+        // duration is duration of video, uri is uri parse of video
         val value = TrimToProjectValue(5184, "android.resource://" + packageName + "/" + R.raw.test_5s)
         intent.putExtra("value", value)
         btn.setOnClickListener { startActivity(intent) }
