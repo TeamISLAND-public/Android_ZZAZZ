@@ -1,3 +1,9 @@
+//"""
+//Descriptions:
+//    we have to get duration and uri parse from trim activity to project activity
+//    functions should be overridden like describeContetns
+//"""
+
 package com.example.myapplication
 
 import android.os.Parcel
@@ -7,8 +13,7 @@ class TrimToProjectValue(var duration: Int, var uri: String?) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readString()
-    ) {
-    }
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(duration)
