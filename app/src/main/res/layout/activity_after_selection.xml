@@ -8,6 +8,16 @@
     android:orientation="vertical"
     tools:context=".TrimmingActivity">
 
+    <org.florescu.android.rangeseekbar.RangeSeekBar
+        android:id="@+id/rangeBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:absoluteMaxValue="30"
+        app:absoluteMinValue="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <VideoView
         android:id="@+id/videoView"
         android:layout_width="wrap_content"
@@ -17,11 +27,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
