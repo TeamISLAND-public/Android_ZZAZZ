@@ -30,16 +30,16 @@ class ProjectActivity : AppCompatActivity() {
 
     // prepare the video
     private fun videoInit() {
-        val intent = intent
-//        val duration = intent.getIntExtra("duration")
-//        val uri = intent.getIntExtra("Uri")
+        val value = intent.getParcelableExtra<TrimToProjectValue>("value")
+        val duration = value.duration
+        val uri = value.uri
         // duration of test file is 5184ms
-        val duration = 5184
+//        val duration = 5184
 
         video.setMediaController(null)
 
-//        video.setVideoURI(Uri.parse(uri))
-        video.setVideoURI(Uri.parse("android.resource://" + packageName + "/" + R.raw.test_5s))
+        video.setVideoURI(Uri.parse(uri))
+//        video.setVideoURI(Uri.parse("android.resource://" + packageName + "/" + R.raw.test_5s))
 
         // when ready to play video
         video.setOnPreparedListener {

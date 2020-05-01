@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
+    android:orientation="vertical"
     tools:context=".AfterSelectionActivity">
 
     <VideoView
@@ -12,4 +13,10 @@
         android:layout_height="wrap_content"
         tools:layout_editor_absoluteX="164dp"
         tools:layout_editor_absoluteY="319dp" />
+
+    <Button
+        android:id="@+id/gotoProjectActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="gotoProjectActivity" />
 </LinearLayout>
