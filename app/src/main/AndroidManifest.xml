@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".AfterSelectionActivity" />
+        <activity android:name=".TrimmingActivity" />
         <activity
             android:name=".BeforeSelectionActivity"
             android:launchMode="singleTop" />

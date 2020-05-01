@@ -81,7 +81,7 @@ class BeforeSelectionActivity : AppCompatActivity() {
             Toast.makeText(this, getString(R.string.fps_exceeded), LENGTH_LONG).show()
             return
         }
-        val intent = Intent(this, AfterSelectionActivity::class.java).also {
+        val intent = Intent(this, TrimmingActivity::class.java).also {
             it.putExtra(getString(R.string.selected_video_uri), videoUri)
         }
         startActivity(intent)

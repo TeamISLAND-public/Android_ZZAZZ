@@ -8,7 +8,7 @@ import kotlinx.android.synthetic.main.activity_after_selection.*
 /**
  * Activity for video trimming.
  */
-class AfterSelectionActivity : AppCompatActivity() {
+class TrimmingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
