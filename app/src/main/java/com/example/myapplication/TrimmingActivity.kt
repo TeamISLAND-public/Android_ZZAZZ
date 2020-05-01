@@ -10,11 +10,22 @@ import org.florescu.android.rangeseekbar.RangeSeekBar
 
 class TrimmingActivity : AppCompatActivity() {
 
-    private fun barUpdateHandler(a: RangeSeekBar<Int>) {
-        val i = a.selectedMinValue * 1000
-        Log.d("@@@", "Milsec${i}")
-        videoView.seekTo(i)
+    private fun playVideo() {
+        if (videoView.currentPosition < rangeBar.selectedMinValue.toInt() * 1000) {
+            videoView.seekTo(rangeBar.selectedMinValue.toInt() * 1000)
+        }
+        playButton.text = "Pause"
+        playButton.setOnClickListener { stopVideo() }
         videoView.start()
+    }
+
+    private fun stopVideo() {
+        if (videoView.currentPosition > rangeBar.selectedMinValue.toInt() * 1000) {
+            videoView.seekTo(rangeBar.selectedMinValue.toInt() * 1000)
+        }
+        videoView.pause()
+        playButton.text = "Start"
+        playButton.setOnClickListener { playVideo() }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,17 +33,20 @@ class TrimmingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_after_selection)
         val video_uri = intent.getParcelableExtra<Uri>(getString(R.string.selected_video_uri))
         if (video_uri == null) {
-            Toast.makeText(this, "Invalid video URI; Contact the developer.", Toast.LENGTH_LONG)
-                .show()
+            Toast.makeText(this, getString(R.string.error_contact_devs), Toast.LENGTH_LONG).show()
             return
         }
-        val rangeBar2 = rangeBar as RangeSeekBar<Int>
         videoView.setVideoURI(video_uri)
-        videoView.setOnCompletionListener { }
-        videoView.start()
-        videoView.setOnCompletionListener { videoView.start() }
-        rangeBar2.setOnRangeSeekBarChangeListener { a: RangeSeekBar<Int>, _: Number, _: Number ->
-            barUpdateHandler(a)
+        videoView.setOnCompletionListener {
+            stopVideo()
+            videoView.seekTo(1)
+        }
+        stopVideo()
+        rangeBar.setOnRangeSeekBarChangeListener { _: RangeSeekBar<out Number>, _: Number, _: Number ->
+            Log.d(
+                "@@@",
+                "starts at ${rangeBar.selectedMinValue} ends at ${rangeBar.selectedMaxValue}"
+            )
         }
     }
 }
