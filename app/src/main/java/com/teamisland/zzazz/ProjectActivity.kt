@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.teamisland.zzazz
 
 import android.net.Uri
 import android.os.Bundle
