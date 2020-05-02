@@ -13,7 +13,7 @@
         android:allowBackup="false"
         android:theme="@style/AppTheme">
         <activity android:name=".Main5Activity" />
-        <activity android:name=".Main4Activity" />
+        <activity android:name=".ProjectActivity" />
         <activity android:name=".AfterSelectionActivity" />
         <activity
             android:name=".BeforeSelectionActivity"
