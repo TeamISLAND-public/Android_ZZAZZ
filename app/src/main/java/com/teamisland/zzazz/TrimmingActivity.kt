@@ -1,5 +1,6 @@
 package com.teamisland.zzazz
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -87,6 +88,14 @@ class TrimmingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_after_selection)
+
+        val intent = Intent(this, ProjectActivity::class.java)
+        // This should be edited.
+        // duration is duration of video, uri is uri parse of video
+        val value =
+            TrimToProjectValue(5184, "android.resource://" + packageName + "/" + R.raw.test_5s)
+        intent.putExtra("value", value)
+        gotoProjectActivity.setOnClickListener { startActivity(intent) }
 
         video_uri = intent.getParcelableExtra(getString(R.string.selected_video_uri)) ?: return
         video_view.setVideoURI(video_uri)

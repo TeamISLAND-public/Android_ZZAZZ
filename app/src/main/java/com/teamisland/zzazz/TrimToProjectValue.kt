@@ -4,7 +4,7 @@
 //    functions should be overridden like describeContetns
 //"""
 
-package com.example.myapplication
+package com.teamisland.zzazz
 
 import android.os.Parcel
 import android.os.Parcelable

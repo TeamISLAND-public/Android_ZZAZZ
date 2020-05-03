@@ -14,7 +14,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Main5Activity" />
         <activity android:name=".ProjectActivity" />
         <activity android:name=".TrimmingActivity" />
         <activity
