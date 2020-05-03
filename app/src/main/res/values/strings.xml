@@ -7,4 +7,5 @@
     <string name="select_video">select video</string>
     <string name="video_restrictions">Video fps restrictions = %d ,length = %d.</string>
     <string name="fps_exceeded">fps exceeded</string>
+    <string name="debugger_tag" translatable="false">\"AppZZAZZ Debugger says: \"</string>
 </resources>
