@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.teamisland.zzazz
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -9,22 +9,23 @@ import android.media.MediaFormat.KEY_DURATION
 import android.media.MediaFormat.KEY_FRAME_RATE
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_before_selection.*
 
+/**
+ * Activity before video trimming.
+ * Here you can choose video, or take it yourself.
+ * Hands the uri of the video to next activity.
+ */
 class BeforeSelectionActivity : AppCompatActivity() {
-
-    private val _REQUEST_VIDEO_CAPTURE = 1
-    private val _REQUEST_VIDEO_SELECT = 2
 
     private fun dispatchTakeVideoIntent() {
         Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { takeVideoIntent ->
             takeVideoIntent.resolveActivity(
                 packageManager
-            )?.also { startActivityForResult(takeVideoIntent, _REQUEST_VIDEO_CAPTURE) }
+            )?.also { startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE) }
         }
     }
 
@@ -35,7 +36,7 @@ class BeforeSelectionActivity : AppCompatActivity() {
         ).also { getVideoIntent ->
             getVideoIntent.resolveActivity(packageManager)?.also {
                 startActivityForResult(
-                    Intent.createChooser(getVideoIntent, "Select Video"), _REQUEST_VIDEO_SELECT
+                    Intent.createChooser(getVideoIntent, "Select Video"), REQUEST_VIDEO_SELECT
                 )
             }
         }
@@ -66,13 +67,12 @@ class BeforeSelectionActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != Activity.RESULT_OK) return
-        val videoUri = data!!.data ?: return
+        val videoUri = (data ?: return).data ?: return
         val data_two = MediaExtractor()
         data_two.setDataSource(this@BeforeSelectionActivity, videoUri, null)
         val video_info = data_two.getTrackFormat(0)
         val video_duration = video_info.getLong(KEY_DURATION)
         val video_fps = video_info.getInteger(KEY_FRAME_RATE)
-        Log.d("video characteristics", "$video_duration microsecond at $video_fps fps")
         if (video_duration > resources.getInteger(R.integer.length_limit) * 1000) {
             Toast.makeText(this, getString(R.string.length_exceeded), LENGTH_LONG).show()
             return
@@ -81,10 +81,15 @@ class BeforeSelectionActivity : AppCompatActivity() {
             Toast.makeText(this, getString(R.string.fps_exceeded), LENGTH_LONG).show()
             return
         }
-        val intent = Intent(this, AfterSelectionActivity::class.java).also {
+        val intent = Intent(this, TrimmingActivity::class.java).also {
             it.putExtra(getString(R.string.selected_video_uri), videoUri)
         }
         startActivity(intent)
         finish()
+    }
+
+    companion object {
+        private const val REQUEST_VIDEO_CAPTURE = 1
+        private const val REQUEST_VIDEO_SELECT = 2
     }
 }
