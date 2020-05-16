@@ -7,30 +7,12 @@
     android:gravity="center"
     tools:context=".ui.TrimmingActivity">
 
-    <VideoView
-        android:id="@+id/video_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@+id/trim_range_bar"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <it.sephiroth.android.library.rangeseekbar.RangeSeekBar
-        android:id="@+id/trim_range_bar"
-        style="@style/Base.Sephiroth.Widget.RangeSeekBar"
+    <com.teamisland.zzazz.utils.VideoTrimmerView
+        android:id="@+id/videoTrimmer"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="35dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/play_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="256dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -46,21 +28,6 @@
         android:textColor="#44FF9A"
         android:textSize="22sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="47dp"
-        android:background="@android:color/transparent"
-        android:fontFamily="@font/camptonbolddemo"
-        android:text="@string/trim_title"
-        android:textColor="#FFFFFF"
-        android:textSize="26sp"
-        app:layout_constraintEnd_toStartOf="@+id/gotoProjectActivity"
-        app:layout_constraintHorizontal_bias="0.721"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

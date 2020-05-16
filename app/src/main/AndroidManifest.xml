@@ -8,13 +8,13 @@
         android:required="false" />
 
     <application
-        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:allowBackup="false"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ui.RestrictionActivity"></activity>
+        <activity android:name=".ui.RestrictionActivity" />
         <activity android:name=".ui.ExportActivity" />
         <activity android:name=".ui.EndActicity" />
         <activity android:name=".ui.TrimmingActivity" />

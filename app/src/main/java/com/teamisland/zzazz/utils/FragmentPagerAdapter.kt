@@ -7,16 +7,16 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 class FragmentPagerAdapter(
     fragmentManager: FragmentManager,
     val tabCount: Int
-) : FragmentStatePagerAdapter(fragmentManager) {
+) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     override fun getItem(position: Int): Fragment {
-        when (position) {
+        return when (position) {
             0 -> {
-                return Tab1()
+                Tab1()
             }
             1 -> {
-                return Tab2()
+                Tab2()
             }
-            else -> return Tab1()
+            else -> Tab1()
         }
     }
 
