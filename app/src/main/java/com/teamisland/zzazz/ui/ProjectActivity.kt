@@ -1,4 +1,4 @@
-package com.teamisland.zzazz
+package com.teamisland.zzazz.ui
 
 import android.net.Uri
 import android.os.Bundle
@@ -8,6 +8,9 @@ import android.widget.SeekBar
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayout
+import com.teamisland.zzazz.utils.FragmentPagerAdapter
+import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.TrimToProjectValue
 import kotlinx.android.synthetic.main.activity_project.*
 
 class ProjectActivity : AppCompatActivity() {
@@ -119,7 +122,11 @@ class ProjectActivity : AppCompatActivity() {
         effect_tab.addTab(effect_tab.newTab().setText(getString(R.string.tab1_name)))
         effect_tab.addTab(effect_tab.newTab().setText(getString(R.string.tab2_name)))
 
-        val pagerAdapter = FragmentPagerAdapter(supportFragmentManager, 3)
+        val pagerAdapter =
+            FragmentPagerAdapter(
+                supportFragmentManager,
+                3
+            )
         view_pager.adapter = pagerAdapter
 
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {

@@ -1,4 +1,4 @@
-package com.teamisland.zzazz
+package com.teamisland.zzazz.utils
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager

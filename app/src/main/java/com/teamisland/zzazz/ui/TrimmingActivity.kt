@@ -1,12 +1,14 @@
-package com.teamisland.zzazz
+package com.teamisland.zzazz.ui
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.TrimToProjectValue
 import it.sephiroth.android.library.rangeseekbar.RangeSeekBar
-import kotlinx.android.synthetic.main.activity_after_selection.*
+import kotlinx.android.synthetic.main.activity_trimming.*
 
 /**
  * Activity for video trimming.
@@ -87,13 +89,16 @@ class TrimmingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_after_selection)
+        setContentView(R.layout.activity_trimming)
 
         val intent = Intent(this, ProjectActivity::class.java)
         // This should be edited.
         // duration is duration of video, uri is uri parse of video
         val value =
-            TrimToProjectValue(5184, "android.resource://" + packageName + "/" + R.raw.test_5s)
+            TrimToProjectValue(
+                5184,
+                "android.resource://" + packageName + "/" + R.raw.test_5s
+            )
         intent.putExtra("value", value)
         gotoProjectActivity.setOnClickListener { startActivity(intent) }
 

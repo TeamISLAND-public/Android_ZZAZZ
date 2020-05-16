@@ -1,13 +1,26 @@
 <resources>
-    <string name="app_name" translatable="false">AppZZAZZ</string>
-    <string name="selected_video_uri" translatable="false">pre_trim_selected_video_uri</string>
-    <string name="video_select">Video Selection…</string>
-    <string name="goto3">goto3</string>
-    <string name="take_video">take video</string>
-    <string name="select_video">select video</string>
-    <string name="video_restrictions">Video fps restrictions = %d ,length = %d.</string>
-    <string name="fps_exceeded">fps exceeded</string>
+    <!--    string of introactivity-->
+    <string name="take_video">CAMERA</string>
+    <string name="select_video">LOAD</string>
+    <string name="video_restrictions">video length should not over = %d ,length = %d.</string>
+    <string name="alert_2">see this message no more</string>
+
+    <!--    string of trimmingactivity-->
+
+    <string name="trim_done">done</string>
+    <string name="trim_title">Trim</string>
+
+    <!--    string of projectactivity-->
     <string name="tab1_name">One</string>
     <string name="tab2_name">Two</string>
+
+    <!--    string of exportactivity-->
+    <string name="export_title">Export</string>
+    <string name="export_button">Stop Exporting</string>
+
+    <!--    string of alert-->
+    <string name="selected_video_uri" translatable="false">pre_trim_selected_video_uri</string>
+    <string name="video_select">Video Selection…</string>
+    <string name="fps_exceeded">fps exceeded</string>
     <string name="debugger_tag" translatable="false">\"AppZZAZZ Debugger says: \"</string>
 </resources>
