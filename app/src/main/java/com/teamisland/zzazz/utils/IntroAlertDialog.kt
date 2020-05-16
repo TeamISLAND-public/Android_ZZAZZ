@@ -2,7 +2,12 @@ package com.teamisland.zzazz.utils
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Gravity
+import android.view.Window
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
@@ -17,6 +22,14 @@ class IntroAlertDialog(context: Context?, val run_function: () -> Unit) : AlertD
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intro_alertdialog)
+
+        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        window?.setGravity(Gravity.CENTER)
+
+        window?.setLayout(
+            (264 * Resources.getSystem().displayMetrics.density).toInt(),
+            (165 * Resources.getSystem().displayMetrics.density).toInt()
+        )
 
         textView = findViewById(R.id.intro_alert_text)
         checkBox = findViewById(R.id.checkBox)
