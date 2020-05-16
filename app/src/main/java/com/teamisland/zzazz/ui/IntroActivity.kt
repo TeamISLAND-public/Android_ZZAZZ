@@ -15,6 +15,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.IntroAlertDialog
 import kotlinx.android.synthetic.main.activity_intro.*
 import kotlinx.android.synthetic.main.activity_intro_alertdialog.*
 
@@ -51,9 +52,7 @@ class IntroActivity : AppCompatActivity() {
     }
 
     private fun warnAndRun(run_function: () -> (Unit)) {
-        val builder = AlertDialog.Builder(this@IntroActivity)
-//        View view = infl
-        builder.setView(R.layout.activity_intro_alertdialog)
+        val builder = IntroAlertDialog(this@IntroActivity, run_function)
 //        Button a = (Button) builder.find
 //        val inflater = layoutInflater
 ////      Custom dialog
@@ -68,7 +67,8 @@ class IntroActivity : AppCompatActivity() {
 //        )
 //        builder.setPositiveButton("Yes") { _: DialogInterface, _: Int -> run_function() }
 //        builder.setNegativeButton("No") { _: DialogInterface, _: Int -> }
-        builder.create().show()
+        builder.create()
+        builder.show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
