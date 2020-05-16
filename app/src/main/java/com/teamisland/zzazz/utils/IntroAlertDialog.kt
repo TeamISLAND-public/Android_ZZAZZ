@@ -37,6 +37,9 @@ class IntroAlertDialog(context: Context?, val run_function: () -> Unit) : AlertD
 
         textView.text = context.getString(R.string.video_restrictions)
         checkBox.text = context.getString(R.string.alert_2)
-        button.setOnClickListener { run_function() }
+        button.setOnClickListener {
+            dismiss()
+            run_function()
+        }
     }
 }

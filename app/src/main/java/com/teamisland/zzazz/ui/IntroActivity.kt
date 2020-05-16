@@ -53,20 +53,6 @@ class IntroActivity : AppCompatActivity() {
 
     private fun warnAndRun(run_function: () -> (Unit)) {
         val builder = IntroAlertDialog(this@IntroActivity, run_function)
-//        Button a = (Button) builder.find
-//        val inflater = layoutInflater
-////      Custom dialog
-//        builder.setView(inflater.inflate(R.layout.activity_intro_alertdialog, null))
-//        builder.f
-//        builder.setMessage(
-//            getString(
-//                R.string.video_restrictions,
-//                resources.getInteger(R.integer.fps_limit),
-//                resources.getInteger(R.integer.length_limit) / 1000
-//            )
-//        )
-//        builder.setPositiveButton("Yes") { _: DialogInterface, _: Int -> run_function() }
-//        builder.setNegativeButton("No") { _: DialogInterface, _: Int -> }
         builder.create()
         builder.show()
     }
