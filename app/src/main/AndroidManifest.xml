@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:allowBackup="false"
+        android:allowBackup="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".ui.RestrictionActivity" />
         <activity android:name=".ui.ExportActivity" />
