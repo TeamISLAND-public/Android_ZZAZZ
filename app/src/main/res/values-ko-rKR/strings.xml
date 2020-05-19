@@ -16,6 +16,7 @@
 
     <!--    string of exportactivity-->
     <string name="export_title">Export</string>
+    <string name="export_text">Exporting Video</string>
     <string name="export_button">Stop Exporting</string>
 
 
