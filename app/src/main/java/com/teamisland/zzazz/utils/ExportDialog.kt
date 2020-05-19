@@ -16,6 +16,7 @@ class ExportDialog(context: Context) : Dialog(context) {
 
     private lateinit var textView: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var progressTextView: TextView
     private lateinit var button: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +29,7 @@ class ExportDialog(context: Context) : Dialog(context) {
 
         textView = findViewById(R.id.export_text)
         progressBar = findViewById(R.id.export_progress)
+        progressTextView = findViewById(R.id.progress_text)
         button = findViewById(R.id.export_dialog_button)
 
         textView.text = context.getString(R.string.export_text)
