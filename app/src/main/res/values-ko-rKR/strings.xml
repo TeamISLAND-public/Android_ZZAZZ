@@ -8,19 +8,20 @@
     <string name="alert_2">see this message no more</string>
 
     <!--    string of trimmingactivity-->
-    <string name="trim_done">done</string>
     <string name="trim_title">Trim</string>
+
     <!--    string of projectactivity-->
     <string name="tab1_name">One</string>
     <string name="tab2_name">Two</string>
 
     <!--    string of exportactivity-->
-    <string name="export_title">Export</string>
+    <string name="export_title">Preview</string>
     <string name="export_text">Exporting Video</string>
     <string name="export_button">Stop Exporting</string>
-
+    <string name="share_text">Share with</string>
 
     <!--    string of alert-->
+    <string name="done">done</string>
     <string name="video_select">Video Selection…</string>
     <string name="fps_exceeded">fps exceeded</string>
     <string name="length_exceeded">length exceeded</string>

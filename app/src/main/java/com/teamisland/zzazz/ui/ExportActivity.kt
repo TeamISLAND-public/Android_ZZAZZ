@@ -22,8 +22,10 @@ class ExportActivity : AppCompatActivity() {
 
 
         val value = intent.getParcelableExtra<VideoIntent>("value")
-        duration = value.duration
-        uri = value.uri.toString()
+//        duration = value.duration
+//        uri = value.uri.toString()
+        duration = 0
+        uri = ""
 
         videoInit()
 
