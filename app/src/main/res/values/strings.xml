@@ -14,9 +14,10 @@
 
     <!--    string of exportactivity-->
     <string name="export_title">Preview</string>
-    <string name="export_text">Exporting Video</string>
-    <string name="export_button">Stop Exporting</string>
+    <string name="export_text">exporting video</string>
+    <string name="export_stop">stop</string>
     <string name="share_text">Share with</string>
+    <string name="save">Saved in gallery</string>
 
     <!--    string of alert-->
     <string name="selected_video_uri" translatable="false">pre_trim_selected_video_uri</string>

@@ -33,6 +33,6 @@ class ExportDialog(context: Context) : Dialog(context) {
         button = findViewById(R.id.export_dialog_button)
 
         textView.text = context.getString(R.string.export_text)
-        button.text = context.getString(R.string.export_button)
+        button.text = context.getString(R.string.export_stop)
     }
 }
