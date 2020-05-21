@@ -9,11 +9,11 @@
 
     <Button
         android:id="@+id/back"
-        android:background="@drawable/back"
         android:layout_width="9dp"
         android:layout_height="17dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="24dp"
+        android:background="@drawable/back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -21,6 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="23dp"
+        android:fontFamily="@font/camptonbolddemo"
         android:text="@string/export_title"
         android:textColor="#FFFFFF"
         android:textSize="22sp"
@@ -34,6 +35,7 @@
         android:layout_marginTop="23dp"
         android:layout_marginEnd="20dp"
         android:background="#000000"
+        android:fontFamily="@font/camptonmedium"
         android:text="@string/done"
         android:textAllCaps="false"
         android:textColor="#44FF9A"
@@ -72,6 +74,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="25dp"
+        android:fontFamily="@font/camptonmedium"
         android:text="00:00"
         android:textColor="#FFFFFF"
         android:textSize="10sp"
@@ -84,6 +87,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="25dp"
+        android:fontFamily="@font/camptonmedium"
         android:textColor="#FFFFFF"
         android:textSize="10sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -96,6 +100,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="75dp"
         android:background="#000000"
+        android:fontFamily="@font/camptonmedium"
         android:text="@string/share_text"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"

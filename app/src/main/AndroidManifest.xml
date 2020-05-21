@@ -16,7 +16,6 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".ui.RestrictionActivity" />
         <activity android:name=".ui.ExportActivity" />
-        <activity android:name=".ui.EndActicity" />
         <activity android:name=".ui.TrimmingActivity" />
         <activity android:name=".ui.ProjectActivity" /> <!-- <activity -->
         <!-- android:name=".ui.IntroActivity" -->
