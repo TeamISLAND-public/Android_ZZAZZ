@@ -9,7 +9,7 @@ package com.teamisland.zzazz.utils
 import android.os.Parcel
 import android.os.Parcelable
 
-class TrimToProjectValue(var duration: Int, var uri: String?) : Parcelable {
+class VideoIntent(var duration: Int, var uri: String?) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readString()
@@ -24,12 +24,12 @@ class TrimToProjectValue(var duration: Int, var uri: String?) : Parcelable {
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<TrimToProjectValue> {
-        override fun createFromParcel(parcel: Parcel): TrimToProjectValue {
-            return TrimToProjectValue(parcel)
+    companion object CREATOR : Parcelable.Creator<VideoIntent> {
+        override fun createFromParcel(parcel: Parcel): VideoIntent {
+            return VideoIntent(parcel)
         }
 
-        override fun newArray(size: Int): Array<TrimToProjectValue?> {
+        override fun newArray(size: Int): Array<VideoIntent?> {
             return arrayOfNulls(size)
         }
     }
