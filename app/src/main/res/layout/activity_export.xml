@@ -109,7 +109,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/preview" />
 
-
     <Button
         android:id="@+id/buttonToExport"
         android:layout_width="100dp"
