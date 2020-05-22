@@ -6,27 +6,21 @@
     <string name="alert_2">see this message no more</string>
 
     <!--    string of trimmingactivity-->
+
+    <string name="trim_done">done</string>
     <string name="trim_title">Trim</string>
-    <string name="go_to_project_activity" translatable="false">done</string>
-    <string name="go_to_the_main_page">Go to the main page.</string>
 
     <!--    string of projectactivity-->
     <string name="tab1_name">One</string>
     <string name="tab2_name">Two</string>
 
     <!--    string of exportactivity-->
-    <string name="export_title">Preview</string>
-    <string name="export_text">exporting video</string>
-    <string name="export_stop">stop</string>
-    <string name="start_preview">00:00</string>
-    <string name="save_text">Save</string>
-    <string name="share_text">Share with</string>
-    <string name="save">Saved in gallery</string>
-    <string name="file_name">ZZAZZ</string>
+    <string name="export_title">Export</string>
+    <string name="export_text">Exporting Video</string>
+    <string name="export_button">Stop Exporting</string>
 
     <!--    string of alert-->
-    <string name="done">done</string>
-    <string name="video_too_long">Video size is too big</string>
+    <string name="selected_video_uri" translatable="false">pre_trim_selected_video_uri</string>
     <string name="video_select">Video Selection…</string>
     <string name="fps_exceeded">fps exceeded</string>
     <string name="debugger_tag" translatable="false">\"AppZZAZZ Debugger says: \"</string>
@@ -34,6 +28,4 @@
     <string name="video_saved_at">Video has been saved at %s</string>
     <string name="choose_from_gallery">Choose From Gallery</string>
     <string name="play_indicator">Play Indicator</string>
-    <string name="one_frame_advance">+1 Frame</string>
-    <string name="one_frame_retreat">-1 Frame</string>
 </resources>
