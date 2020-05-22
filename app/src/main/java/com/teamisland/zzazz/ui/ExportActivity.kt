@@ -1,17 +1,24 @@
 package com.teamisland.zzazz.ui
 
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.view.Gravity
+import android.view.Window
 import android.widget.SeekBar
+import android.widget.Toast
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.MobileAds
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.ExportDialog
 import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_export.*
+import kotlinx.android.synthetic.main.export_dialog.*
+import kotlinx.android.synthetic.main.finish_toast.*
 import kotlin.properties.Delegates
 
 class ExportActivity : AppCompatActivity() {
@@ -33,10 +40,41 @@ class ExportActivity : AppCompatActivity() {
         videoInit()
 
         buttonToExport.setOnClickListener {
-            val dialog = ExportDialog(this@ExportActivity)
+            val dialog = Dialog(this)
             dialog.setCancelable(false)
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            dialog.setContentView(R.layout.export_dialog)
             dialog.create()
             dialog.show()
+            val window = dialog.window
+
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window?.setGravity(Gravity.CENTER)
+
+            var percentage: Int = 0
+            dialog.progress_text.text = "$percentage%"
+            val handler = Handler()
+
+            Thread(Runnable {
+                while (percentage<100) {
+                    percentage++
+                    Thread.sleep(100)
+
+                    handler.post {
+                        dialog.export_progress.progress = percentage
+                        dialog.progress_text.text = "$percentage%"
+                        if (percentage == 100) {
+                            dialog.dismiss()
+                            val layout = layoutInflater.inflate(R.layout.finish_toast, finish)
+                            val toast = Toast(this)
+                            toast.setGravity(Gravity.CENTER, 0, 0)
+                            toast.duration = Toast.LENGTH_SHORT
+                            toast.view = layout
+                            toast.show()
+                        }
+                    }
+                }
+            }).start()
         }
 
         share_instagram.setOnClickListener {
