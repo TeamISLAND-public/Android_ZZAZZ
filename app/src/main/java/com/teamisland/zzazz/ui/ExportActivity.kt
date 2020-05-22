@@ -5,6 +5,9 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.SeekBar
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.MobileAds
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.ExportDialog
 import com.teamisland.zzazz.utils.VideoIntent
@@ -51,6 +54,11 @@ class ExportActivity : AppCompatActivity() {
             intent.setPackage("com.kakao.talk")
             startActivity(intent)
         }
+
+        // test ad
+        MobileAds.initialize(this) {}
+        val adRequest = AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build()
+        adView.loadAd(adRequest)
     }
 
     private fun videoInit() {
