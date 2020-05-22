@@ -66,6 +66,13 @@
         android:layout_marginLeft="25dp"
         android:layout_marginTop="343dp"
         android:layout_marginRight="25dp"
+        android:maxHeight="3dp"
+        android:padding="11.5dp"
+        android:progressBackgroundTint="#292F3F"
+        android:progressTint="#49FF9A"
+        android:splitTrack="false"
+        android:thumb="@drawable/seekbar_thumb"
+        android:thumbOffset="11.5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
