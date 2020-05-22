@@ -46,15 +46,16 @@
     <VideoView
         android:id="@+id/preview"
         android:layout_width="match_parent"
-        android:layout_height="202dp"
+        android:layout_height="0dp"
         android:layout_marginTop="118dp"
+        app:layout_constraintDimensionRatio="3:2"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/preview_play"
         android:layout_width="46dp"
         android:layout_height="43dp"
-        android:layout_marginTop="78dp"
+        app:layout_constraintBottom_toBottomOf="@id/preview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/preview" />
@@ -64,7 +65,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
-        android:layout_marginTop="343dp"
+        android:layout_marginTop="30dp"
         android:layout_marginRight="25dp"
         android:maxHeight="3dp"
         android:padding="11.5dp"
@@ -75,7 +76,7 @@
         android:thumbOffset="11.5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/preview" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -104,22 +105,24 @@
     <TextView
         android:id="@+id/share_text"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="75dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="22dp"
         android:background="#000000"
         android:fontFamily="@font/camptonmedium"
+        android:gravity="center"
         android:text="@string/share_text"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/preview" />
+        app:layout_constraintTop_toBottomOf="@id/video_length" />
 
     <Button
         android:id="@+id/buttonToExport"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:layout_marginBottom="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -154,5 +157,16 @@
             android:background="@drawable/kakaotalk" />
 
     </LinearLayout>
+
+    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
