@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.TrimToProjectValue
+import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_project.*
 
 class ProjectActivity : AppCompatActivity() {
@@ -33,16 +33,14 @@ class ProjectActivity : AppCompatActivity() {
 
     // prepare the video
     private fun videoInit() {
-        val value = intent.getParcelableExtra<TrimToProjectValue>("value")
+        val value = intent.getParcelableExtra<VideoIntent>("value")
         val duration = value.duration
         val uri = value.uri
-        // duration of test file is 5184ms
 //        val duration = 5184
 
         video.setMediaController(null)
 
         video.setVideoURI(Uri.parse(uri))
-//        video.setVideoURI(Uri.parse("android.resource://" + packageName + "/" + R.raw.test_5s))
 
         // when ready to play video
         video.setOnPreparedListener {

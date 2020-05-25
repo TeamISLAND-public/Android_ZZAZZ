@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.lb.video_trimmer_library.interfaces.VideoTrimmingListener
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.TrimToProjectValue
+import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_trimming.*
 import java.io.File
 
@@ -147,7 +147,7 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener {
         // This should be edited.
         // duration is duration of video, uri is uri parse of video
         val value =
-            TrimToProjectValue(
+            VideoIntent(
                 5184,
                 "android.resource://" + packageName + "/" + R.raw.test_5s
             )
