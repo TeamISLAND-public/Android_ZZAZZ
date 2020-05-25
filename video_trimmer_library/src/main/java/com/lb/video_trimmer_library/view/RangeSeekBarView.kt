@@ -34,6 +34,9 @@ import androidx.annotation.ColorInt
 import com.lb.video_trimmer_library.interfaces.OnRangeSeekBarListener
 import kotlin.math.absoluteValue
 
+/**
+ * Ranged seekbar with current position bar.
+ */
 @Suppress("LeakingThis")
 open class RangeSeekBarView @JvmOverloads constructor(
     context: Context,
@@ -41,7 +44,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) :
     View(context, attrs, defStyleAttr) {
-    enum class ThumbType(val index: kotlin.Int) {
+    enum class ThumbType(val index: Int) {
         LEFT(0), RIGHT(1)
     }
 
@@ -53,14 +56,22 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private val thumbTouchExtraMultiplier = initThumbTouchExtraMultiplier()
     private val thumbs = arrayOf(Thumb(ThumbType.LEFT.index), Thumb(ThumbType.RIGHT.index))
     private var currentThumb = ThumbType.LEFT.index
-    private var currentPos = 0.0
     private var firstRun: Boolean = true
     private var listeners = HashSet<OnRangeSeekBarListener>()
     private var maxWidth: Float = 0.toFloat()
     private var pixelRangeMax: Float = 0.toFloat()
     private var pixelRangeMin: Float = 0.toFloat()
     private var viewWidth: Int = 0
+
+    /**
+     * Thumb width.
+     */
     val thumbWidth: Int = initThumbWidth(context)
+
+    /**
+     * Current video position in percentage.
+     */
+    var currentPos: Float = 0F
 
 
     init {
@@ -81,15 +92,21 @@ open class RangeSeekBarView @JvmOverloads constructor(
         strokePaint.color = 0xff44FF9A.toInt()
 
         edgePaint.isAntiAlias = true
-        edgePaint.color = 0xff44FF9A.toInt()
+        edgePaint.color = 0xffffffff.toInt()
+        edgePaint.strokeWidth =
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                2f,
+                context.resources.displayMetrics
+            )
     }
 
     @ColorInt
     open fun initShadowColor(): Int = 0xB1000000.toInt()
 
-    open fun initThumbTouchExtraMultiplier() = 1.0f
+    open fun initThumbTouchExtraMultiplier(): Float = 1.0f
 
-    open fun initThumbWidth(context: Context) =
+    open fun initThumbWidth(context: Context): Int =
         TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             27f,
@@ -123,30 +140,32 @@ open class RangeSeekBarView @JvmOverloads constructor(
         if (thumbs.isEmpty())
             return
         // draw shadows outside of selected range
-//        for (thumb in thumbs) {
-//            if (thumb.index == ThumbType.LEFT.index) {
-//                val x = thumb.pos + paddingLeft
-//                if (x > pixelRangeMin)
-//                    canvas.drawRect(
-//                        thumbWidth.toFloat(),
-//                        0f,
-//                        (x + thumbWidth),
-//                        height.toFloat(),
-//                        shadowPaint
-//                    )
-//            } else {
-//                val x = thumb.pos - paddingRight
-//                if (x < pixelRangeMax)
-//                    canvas.drawRect(
-//                        x,
-//                        0f,
-//                        (viewWidth - thumbWidth).toFloat(),
-//                        height.toFloat(),
-//                        shadowPaint
-//                    )
-//            }
-//        }
+        for (thumb in thumbs) {
+            if (thumb.index == ThumbType.LEFT.index) {
+                val x = thumb.pos + paddingLeft
+                if (x > pixelRangeMin)
+                    canvas.drawRect(
+                        thumbWidth.toFloat(),
+                        0f,
+                        (x + thumbWidth),
+                        height.toFloat(),
+                        shadowPaint
+                    )
+            } else {
+                val x = thumb.pos - paddingRight
+                if (x < pixelRangeMax)
+                    canvas.drawRect(
+                        x,
+                        0f,
+                        (viewWidth - thumbWidth).toFloat(),
+                        height.toFloat(),
+                        shadowPaint
+                    )
+            }
+        }
         //draw stroke around selected range
+        val currentMarker = (width.toFloat() - 2 * thumbWidth) * currentPos + thumbWidth
+        canvas.drawLine(currentMarker, 0f, currentMarker, height.toFloat(), edgePaint)
         canvas.drawRect(
             (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth),
             0f,
