@@ -55,6 +55,7 @@ class VideoTrimmerView @JvmOverloads constructor(
     override fun onVideoPlaybackReachingTime(timeInMs: Int) {
         val seconds = context.getString(R.string.short_seconds)
         playbackTimeTextView.text = "${stringForTime(timeInMs)} $seconds"
+        rangeSeekBarView
     }
 
     override fun onGotVideoFileSize(videoFileSize: Long) {

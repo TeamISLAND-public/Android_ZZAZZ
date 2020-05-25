@@ -46,38 +46,42 @@ open class RangeSeekBarView @JvmOverloads constructor(
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
-    private val thumbTouchExtraMultiplier = initThumbTouchExtraMultiplier()
-    private val thumbs = arrayOf(Thumb(ThumbType.LEFT.index), Thumb(ThumbType.RIGHT.index))
-    private var listeners = HashSet<OnRangeSeekBarListener>()
-    private var maxWidth: Float = 0.toFloat()
-    val thumbWidth = initThumbWidth(context)
-    private var viewWidth: Int = 0
-    private var pixelRangeMin: Float = 0.toFloat()
-    private var pixelRangeMax: Float = 0.toFloat()
+    private val edgePaint = Paint()
     private val scaleRangeMax: Float = 100f
-    private var firstRun: Boolean = true
     private val shadowPaint = Paint()
     private val strokePaint = Paint()
-    private val edgePaint = Paint()
+    private val thumbTouchExtraMultiplier = initThumbTouchExtraMultiplier()
+    private val thumbs = arrayOf(Thumb(ThumbType.LEFT.index), Thumb(ThumbType.RIGHT.index))
     private var currentThumb = ThumbType.LEFT.index
+    private var currentPos = 0.0
+    private var firstRun: Boolean = true
+    private var listeners = HashSet<OnRangeSeekBarListener>()
+    private var maxWidth: Float = 0.toFloat()
+    private var pixelRangeMax: Float = 0.toFloat()
+    private var pixelRangeMin: Float = 0.toFloat()
+    private var viewWidth: Int = 0
+    val thumbWidth: Int = initThumbWidth(context)
 
 
     init {
         isFocusable = true
         isFocusableInTouchMode = true
+
         shadowPaint.isAntiAlias = true
         shadowPaint.color = initShadowColor()
+
         strokePaint.isAntiAlias = true
         strokePaint.style = Paint.Style.STROKE
         strokePaint.strokeWidth =
             TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
-                2f,
+                6f,
                 context.resources.displayMetrics
             )
-        strokePaint.color = 0xffffffff.toInt()
+        strokePaint.color = 0xff44FF9A.toInt()
+
         edgePaint.isAntiAlias = true
-        edgePaint.color = 0xffffffff.toInt()
+        edgePaint.color = 0xff44FF9A.toInt()
     }
 
     @ColorInt
@@ -119,29 +123,29 @@ open class RangeSeekBarView @JvmOverloads constructor(
         if (thumbs.isEmpty())
             return
         // draw shadows outside of selected range
-        for (thumb in thumbs) {
-            if (thumb.index == ThumbType.LEFT.index) {
-                val x = thumb.pos + paddingLeft
-                if (x > pixelRangeMin)
-                    canvas.drawRect(
-                        thumbWidth.toFloat(),
-                        0f,
-                        (x + thumbWidth),
-                        height.toFloat(),
-                        shadowPaint
-                    )
-            } else {
-                val x = thumb.pos - paddingRight
-                if (x < pixelRangeMax)
-                    canvas.drawRect(
-                        x,
-                        0f,
-                        (viewWidth - thumbWidth).toFloat(),
-                        height.toFloat(),
-                        shadowPaint
-                    )
-            }
-        }
+//        for (thumb in thumbs) {
+//            if (thumb.index == ThumbType.LEFT.index) {
+//                val x = thumb.pos + paddingLeft
+//                if (x > pixelRangeMin)
+//                    canvas.drawRect(
+//                        thumbWidth.toFloat(),
+//                        0f,
+//                        (x + thumbWidth),
+//                        height.toFloat(),
+//                        shadowPaint
+//                    )
+//            } else {
+//                val x = thumb.pos - paddingRight
+//                if (x < pixelRangeMax)
+//                    canvas.drawRect(
+//                        x,
+//                        0f,
+//                        (viewWidth - thumbWidth).toFloat(),
+//                        height.toFloat(),
+//                        shadowPaint
+//                    )
+//            }
+//        }
         //draw stroke around selected range
         canvas.drawRect(
             (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth),
@@ -150,24 +154,40 @@ open class RangeSeekBarView @JvmOverloads constructor(
             height.toFloat(),
             strokePaint
         )
-        //draw edges
-        val circleRadius = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            6f,
-            context.resources.displayMetrics
-        )
-        canvas.drawCircle(
+        //left
+        canvas.drawRect(
             (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth),
-            height.toFloat() / 2f,
-            circleRadius,
-            edgePaint
+            0f,
+            (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth) + 3f,
+            height.toFloat(),
+            strokePaint
         )
-        canvas.drawCircle(
+        //right
+        canvas.drawRect(
+            thumbs[ThumbType.RIGHT.index].pos - paddingRight - 3f,
+            0f,
             thumbs[ThumbType.RIGHT.index].pos - paddingRight,
-            height.toFloat() / 2f,
-            circleRadius,
-            edgePaint
+            height.toFloat(),
+            strokePaint
         )
+        //draw edges
+//        val circleRadius = TypedValue.applyDimension(
+//            TypedValue.COMPLEX_UNIT_DIP,
+//            6f,
+//            context.resources.displayMetrics
+//        )
+//        canvas.drawCircle(
+//            (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth),
+//            height.toFloat() / 2f,
+//            circleRadius,
+//            edgePaint
+//        )
+//        canvas.drawCircle(
+//            thumbs[ThumbType.RIGHT.index].pos - paddingRight,
+//            height.toFloat() / 2f,
+//            circleRadius,
+//            edgePaint
+//        )
     }
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {
