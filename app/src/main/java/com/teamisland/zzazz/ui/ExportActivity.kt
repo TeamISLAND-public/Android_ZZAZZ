@@ -1,5 +1,6 @@
 package com.teamisland.zzazz.ui
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
@@ -7,11 +8,13 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.view.Gravity
 import android.view.Window
 import android.widget.SeekBar
 import android.widget.Toast
+import androidx.core.net.toFile
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.teamisland.zzazz.R
@@ -19,13 +22,16 @@ import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_export.*
 import kotlinx.android.synthetic.main.export_dialog.*
 import kotlinx.android.synthetic.main.finish_toast.*
+import java.io.FileOutputStream
 import kotlin.properties.Delegates
 
+@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class ExportActivity : AppCompatActivity() {
 
     private lateinit var uri: String
     private var duration by Delegates.notNull<Int>()
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
@@ -35,7 +41,7 @@ class ExportActivity : AppCompatActivity() {
 //        duration = value.duration
 //        uri = value.uri.toString()
         duration = 0
-        uri = ""
+        uri = "android.resource://$packageName/raw/test_5s.mp4"
 
         videoInit()
 
@@ -51,29 +57,41 @@ class ExportActivity : AppCompatActivity() {
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             window?.setGravity(Gravity.CENTER)
 
-            var percentage: Int = 0
-            dialog.progress_text.text = "$percentage%"
+            val input = getFileStreamPath(uri).inputStream()
+//            val input = contentResolver.openInputStream(Uri.parse(uri))
+            val output = FileOutputStream(getExternalFilesDir(Environment.DIRECTORY_MOVIES))
+            val data = ByteArray(1024)
+            var total = 0
+            var count: Int
+            dialog.progress_text.text = "$total%"
             val handler = Handler()
 
             Thread(Runnable {
-                while (percentage<100) {
-                    percentage++
+                do {
+                    count = input.read(data)
+                    total += count
                     Thread.sleep(100)
 
                     handler.post {
-                        dialog.export_progress.progress = percentage
-                        dialog.progress_text.text = "$percentage%"
-                        if (percentage == 100) {
-                            dialog.dismiss()
-                            val layout = layoutInflater.inflate(R.layout.finish_toast, finish)
-                            val toast = Toast(this)
-                            toast.setGravity(Gravity.CENTER, 0, 0)
-                            toast.duration = Toast.LENGTH_SHORT
-                            toast.view = layout
-                            toast.show()
-                        }
+                        dialog.export_progress.progress =
+                            ((total * 100) / Uri.parse(uri).toFile().length()).toInt()
+                        dialog.progress_text.text =
+                            (((total * 100) / Uri.parse(uri).toFile()
+                                .length()).toInt()).toString() + "%"
                     }
-                }
+
+                    output.write(data, 0, count)
+                } while (count != -1)
+                output.flush()
+                output.close()
+                input.close()
+                dialog.dismiss()
+                val layout = layoutInflater.inflate(R.layout.finish_toast, finish)
+                val toast = Toast(this)
+                toast.setGravity(Gravity.CENTER, 0, 0)
+                toast.duration = Toast.LENGTH_SHORT
+                toast.view = layout
+                toast.show()
             }).start()
         }
 

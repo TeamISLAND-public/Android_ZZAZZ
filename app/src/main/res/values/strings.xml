@@ -18,6 +18,7 @@
     <string name="export_stop">stop</string>
     <string name="share_text">Share with</string>
     <string name="save">Saved in gallery</string>
+    <string name="file_name">ZZAZZ</string>
 
     <!--    string of alert-->
     <string name="selected_video_uri" translatable="false">pre_trim_selected_video_uri</string>
