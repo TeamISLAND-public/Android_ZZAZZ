@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedAttribute">
+
+    <!-- normal -->
+    <font
+        android:font="@font/camptonmedium"
+        android:fontStyle="normal"
+        android:fontWeight="500"
+        app:font="@font/camptonmedium"
+        app:fontStyle="normal"
+        app:fontWeight="500" />
+
+    <!-- light -->
+    <font
+        android:font="@font/camptonlightdemo"
+        android:fontStyle="italic"
+        android:fontWeight="400"
+        app:font="@font/camptonlightdemo"
+        app:fontStyle="italic"
+        app:fontWeight="400" />
+
+    <!-- bold -->
+    <font
+        android:font="@font/camptonbolddemo"
+        android:fontStyle="normal"
+        android:fontWeight="700"
+        app:font="@font/camptonbolddemo"
+        app:fontStyle="normal"
+        app:fontWeight="700" />
+
+</font-family>

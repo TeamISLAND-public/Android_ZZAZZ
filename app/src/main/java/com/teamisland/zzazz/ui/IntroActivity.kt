@@ -1,4 +1,4 @@
-package com.teamisland.zzazz
+package com.teamisland.zzazz.ui
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -9,23 +9,31 @@ import android.media.MediaFormat.KEY_DURATION
 import android.media.MediaFormat.KEY_FRAME_RATE
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.LayoutInflater
+import android.widget.Button
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_before_selection.*
+import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.IntroAlertDialog
+import kotlinx.android.synthetic.main.activity_intro.*
+import kotlinx.android.synthetic.main.activity_intro_alertdialog.*
 
 /**
  * Activity before video trimming.
  * Here you can choose video, or take it yourself.
  * Hands the uri of the video to next activity.
  */
-class BeforeSelectionActivity : AppCompatActivity() {
+
+class IntroActivity : AppCompatActivity() {
 
     private fun dispatchTakeVideoIntent() {
         Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { takeVideoIntent ->
             takeVideoIntent.resolveActivity(
                 packageManager
-            )?.also { startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE) }
+            )?.also { startActivityForResult(takeVideoIntent,
+                REQUEST_VIDEO_CAPTURE
+            ) }
         }
     }
 
@@ -36,29 +44,22 @@ class BeforeSelectionActivity : AppCompatActivity() {
         ).also { getVideoIntent ->
             getVideoIntent.resolveActivity(packageManager)?.also {
                 startActivityForResult(
-                    Intent.createChooser(getVideoIntent, "Select Video"), REQUEST_VIDEO_SELECT
+                    Intent.createChooser(getVideoIntent, "Select Video"),
+                    REQUEST_VIDEO_SELECT
                 )
             }
         }
     }
 
     private fun warnAndRun(run_function: () -> (Unit)) {
-        val builder = AlertDialog.Builder(this@BeforeSelectionActivity)
-        builder.setMessage(
-            getString(
-                R.string.video_restrictions,
-                resources.getInteger(R.integer.fps_limit),
-                resources.getInteger(R.integer.length_limit) / 1000
-            )
-        )
-        builder.setPositiveButton("Yes") { _: DialogInterface, _: Int -> run_function() }
-        builder.setNegativeButton("No") { _: DialogInterface, _: Int -> }
-        builder.create().show()
+        val builder = IntroAlertDialog(this@IntroActivity, run_function)
+        builder.create()
+        builder.show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_before_selection)
+        setContentView(R.layout.activity_intro)
 
         take_video_button.setOnClickListener { warnAndRun { dispatchTakeVideoIntent() } }
         take_video_from_gallery_button.setOnClickListener { warnAndRun { dispatchGetVideoIntent() } }
@@ -69,7 +70,7 @@ class BeforeSelectionActivity : AppCompatActivity() {
         if (resultCode != Activity.RESULT_OK) return
         val videoUri = (data ?: return).data ?: return
         val data_two = MediaExtractor()
-        data_two.setDataSource(this@BeforeSelectionActivity, videoUri, null)
+        data_two.setDataSource(this@IntroActivity, videoUri, null)
         val video_info = data_two.getTrackFormat(0)
         val video_duration = video_info.getLong(KEY_DURATION)
         val video_fps = video_info.getInteger(KEY_FRAME_RATE)

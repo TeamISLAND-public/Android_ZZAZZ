@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="video_select">비디오 선택…</string>
-    <string name="goto3">3으로 가기</string>
-    <string name="take_video">비디오 촬영</string>
-    <string name="select_video">비디오 선택</string>
-    <string name="video_restrictions">비디오 프레임률 제한은 %dfps, 길이 제한은 %d초 입니다.</string>
-    <string name="length_exceeded">길이 제한 초과</string>
-    <string name="fps_exceeded">프레임률 제한 초과</string>
-    <string name="tab1_name">1번</string>
-    <string name="tab2_name">2번</string>
+<!--    TODO translating in to korean-->
+    <!--    string of introactivity-->
+    <string name="take_video">CAMERA</string>
+    <string name="select_video">LOAD</string>
+    <string name="video_restrictions">video length should not over  = %d ,length = %d.</string>
+    <string name="alert_2">see this message no more</string>
+
+    <!--    string of trimmingactivity-->
+    <string name="trim_done">done</string>
+    <string name="trim_title">Trim</string>
+    <!--    string of projectactivity-->
+    <string name="tab1_name">One</string>
+    <string name="tab2_name">Two</string>
+
+    <!--    string of exportactivity-->
+    <string name="export_title">Export</string>
+    <string name="export_button">Stop Exporting</string>
+
+
+    <!--    string of alert-->
+    <string name="video_select">Video Selection…</string>
+    <string name="fps_exceeded">fps exceeded</string>
+    <string name="length_exceeded">length exceeded</string>
+    <string name="short_seconds">s</string>
+    <string name="play_indicator">Play Indicator</string>
+    <string name="video_saved_at">Video has been saved at %s</string>
+    <string name="choose_from_gallery">Choose From Gallery</string>
 </resources>

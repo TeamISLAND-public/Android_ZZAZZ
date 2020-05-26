@@ -1,0 +1,3 @@
+<manifest package="com.lb.video_trimmer_library">
+    <!--<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>-->
+</manifest>

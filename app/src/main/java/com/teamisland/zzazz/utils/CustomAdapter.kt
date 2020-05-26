@@ -1,10 +1,11 @@
-package com.teamisland.zzazz
+package com.teamisland.zzazz.utils
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import com.teamisland.zzazz.R
 
 // List Adapter for effect tab
 class CustomAdapter(
