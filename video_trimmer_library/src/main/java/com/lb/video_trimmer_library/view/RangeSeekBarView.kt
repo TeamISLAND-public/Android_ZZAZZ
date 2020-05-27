@@ -34,6 +34,9 @@ import androidx.annotation.ColorInt
 import com.lb.video_trimmer_library.interfaces.OnRangeSeekBarListener
 import kotlin.math.absoluteValue
 
+/**
+ * Ranged seekbar with current position bar.
+ */
 @Suppress("LeakingThis")
 open class RangeSeekBarView @JvmOverloads constructor(
     context: Context,
@@ -41,51 +44,69 @@ open class RangeSeekBarView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) :
     View(context, attrs, defStyleAttr) {
-    enum class ThumbType(val index: kotlin.Int) {
+    enum class ThumbType(val index: Int) {
         LEFT(0), RIGHT(1)
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
-    private val thumbTouchExtraMultiplier = initThumbTouchExtraMultiplier()
-    private val thumbs = arrayOf(Thumb(ThumbType.LEFT.index), Thumb(ThumbType.RIGHT.index))
-    private var listeners = HashSet<OnRangeSeekBarListener>()
-    private var maxWidth: Float = 0.toFloat()
-    val thumbWidth = initThumbWidth(context)
-    private var viewWidth: Int = 0
-    private var pixelRangeMin: Float = 0.toFloat()
-    private var pixelRangeMax: Float = 0.toFloat()
+    private val edgePaint = Paint()
     private val scaleRangeMax: Float = 100f
-    private var firstRun: Boolean = true
     private val shadowPaint = Paint()
     private val strokePaint = Paint()
-    private val edgePaint = Paint()
+    private val thumbTouchExtraMultiplier = initThumbTouchExtraMultiplier()
+    private val thumbs = arrayOf(Thumb(ThumbType.LEFT.index), Thumb(ThumbType.RIGHT.index))
     private var currentThumb = ThumbType.LEFT.index
+    private var firstRun: Boolean = true
+    private var listeners = HashSet<OnRangeSeekBarListener>()
+    private var maxWidth: Float = 0.toFloat()
+    private var pixelRangeMax: Float = 0.toFloat()
+    private var pixelRangeMin: Float = 0.toFloat()
+    private var viewWidth: Int = 0
+
+    /**
+     * Thumb width.
+     */
+    val thumbWidth: Int = initThumbWidth(context)
+
+    /**
+     * Current video position in percentage.
+     */
+    var currentPos: Float = 0F
 
 
     init {
         isFocusable = true
         isFocusableInTouchMode = true
+
         shadowPaint.isAntiAlias = true
         shadowPaint.color = initShadowColor()
+
         strokePaint.isAntiAlias = true
         strokePaint.style = Paint.Style.STROKE
         strokePaint.strokeWidth =
             TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
+                6f,
+                context.resources.displayMetrics
+            )
+        strokePaint.color = 0xff44FF9A.toInt()
+
+        edgePaint.isAntiAlias = true
+        edgePaint.color = 0xffffffff.toInt()
+        edgePaint.strokeWidth =
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
                 2f,
                 context.resources.displayMetrics
             )
-        strokePaint.color = 0xffffffff.toInt()
-        edgePaint.isAntiAlias = true
-        edgePaint.color = 0xffffffff.toInt()
     }
 
     @ColorInt
     open fun initShadowColor(): Int = 0xB1000000.toInt()
 
-    open fun initThumbTouchExtraMultiplier() = 1.0f
+    open fun initThumbTouchExtraMultiplier(): Float = 1.0f
 
-    open fun initThumbWidth(context: Context) =
+    open fun initThumbWidth(context: Context): Int =
         TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             27f,
@@ -143,6 +164,8 @@ open class RangeSeekBarView @JvmOverloads constructor(
             }
         }
         //draw stroke around selected range
+        val currentMarker = (width.toFloat() - 2 * thumbWidth) * currentPos + thumbWidth
+        canvas.drawLine(currentMarker, 0f, currentMarker, height.toFloat(), edgePaint)
         canvas.drawRect(
             (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth),
             0f,
@@ -150,24 +173,40 @@ open class RangeSeekBarView @JvmOverloads constructor(
             height.toFloat(),
             strokePaint
         )
-        //draw edges
-        val circleRadius = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            6f,
-            context.resources.displayMetrics
-        )
-        canvas.drawCircle(
+        //left
+        canvas.drawRect(
             (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth),
-            height.toFloat() / 2f,
-            circleRadius,
-            edgePaint
+            0f,
+            (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth) + 3f,
+            height.toFloat(),
+            strokePaint
         )
-        canvas.drawCircle(
+        //right
+        canvas.drawRect(
+            thumbs[ThumbType.RIGHT.index].pos - paddingRight - 3f,
+            0f,
             thumbs[ThumbType.RIGHT.index].pos - paddingRight,
-            height.toFloat() / 2f,
-            circleRadius,
-            edgePaint
+            height.toFloat(),
+            strokePaint
         )
+        //draw edges
+//        val circleRadius = TypedValue.applyDimension(
+//            TypedValue.COMPLEX_UNIT_DIP,
+//            6f,
+//            context.resources.displayMetrics
+//        )
+//        canvas.drawCircle(
+//            (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth),
+//            height.toFloat() / 2f,
+//            circleRadius,
+//            edgePaint
+//        )
+//        canvas.drawCircle(
+//            thumbs[ThumbType.RIGHT.index].pos - paddingRight,
+//            height.toFloat() / 2f,
+//            circleRadius,
+//            edgePaint
+//        )
     }
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {

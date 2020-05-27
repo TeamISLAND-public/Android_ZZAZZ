@@ -28,6 +28,7 @@ package com.lb.video_trimmer_library
 import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaMetadataRetriever
+import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Handler
@@ -40,6 +41,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.VideoView
 import androidx.annotation.UiThread
+import androidx.core.app.ActivityCompat
 import com.lb.video_trimmer_library.interfaces.OnProgressVideoListener
 import com.lb.video_trimmer_library.interfaces.OnRangeSeekBarListener
 import com.lb.video_trimmer_library.interfaces.VideoTrimmingListener
@@ -49,6 +51,7 @@ import com.lb.video_trimmer_library.utils.UiThreadExecutor
 import com.lb.video_trimmer_library.view.RangeSeekBarView
 import com.lb.video_trimmer_library.view.TimeLineView
 import java.io.File
+import java.lang.Long.parseLong
 import java.lang.ref.WeakReference
 
 abstract class BaseVideoTrimmerView @JvmOverloads constructor(
@@ -74,6 +77,7 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
     private var originSizeFile: Long = 0
     private var resetSeekBar = true
     private val messageHandler = MessageHandler(this)
+    private var videoDuration = 0L
 
     init {
         initRootView()
@@ -166,12 +170,8 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
     @UiThread
     fun initiateTrimming() {
         pauseVideo()
-        val mediaMetadataRetriever = MediaMetadataRetriever()
-        mediaMetadataRetriever.setDataSource(context, src)
-        val metadataKeyDuration =
-            java.lang.Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION))
         if (timeVideo < MIN_TIME_FRAME) {
-            if (metadataKeyDuration - endPosition > MIN_TIME_FRAME - timeVideo) {
+            if (videoDuration - endPosition > MIN_TIME_FRAME - timeVideo) {
                 endPosition += MIN_TIME_FRAME - timeVideo
             } else if (startPosition > MIN_TIME_FRAME - timeVideo) {
                 startPosition -= MIN_TIME_FRAME - timeVideo
@@ -374,6 +374,9 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
             }
         }
         videoView.setVideoURI(src)
+        val mediaMetadataRetriever = MediaMetadataRetriever()
+        mediaMetadataRetriever.setDataSource(context, src)
+        videoDuration = parseLong(mediaMetadataRetriever.extractMetadata(METADATA_KEY_DURATION))
         videoView.requestFocus()
         timeLineView.setVideo(src!!)
     }
