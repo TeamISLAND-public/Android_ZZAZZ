@@ -47,6 +47,7 @@ class ExportActivity : AppCompatActivity() {
 
         videoInit()
 
+        // set translucent the image when they are not installed
         if (!isInstall("com.instagram.android")) {
             share_instagram.alpha = 0.5F
         }
