@@ -43,7 +43,7 @@ class ExportActivity : AppCompatActivity() {
 
         val value = intent.getParcelableExtra<VideoIntent>("value")
 //        uri = value.uri.toString()
-        uri = ""
+        uri = "android.resource://$packageName/" + R.raw.test_5s
 
         videoInit()
 
@@ -82,7 +82,7 @@ class ExportActivity : AppCompatActivity() {
             }
 
             val input =
-                contentResolver.openInputStream(Uri.parse("android.resource://$packageName/" + R.raw.test_5s))
+                contentResolver.openInputStream(Uri.parse(uri))
             val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
             val dir = File(dirString)
             if (!dir.exists()) {
@@ -95,18 +95,19 @@ class ExportActivity : AppCompatActivity() {
             val file = "$dirString/$filename.mp4"
             val output = FileOutputStream(File(file))
             val data = ByteArray(1024)
+            val len = input!!.available()
             var total = 0
             var count: Int
             dialog.progress_text.text = "$total%"
             val handler = Handler()
 
             Thread(Runnable {
-                count = input!!.read(data)
+                count = input.read(data)
                 while (count != -1) {
                     total += count
 
                     handler.post {
-                        dialog.progress_text.text = "$count%"
+                        dialog.progress_text.text = (total / len * 100).toString() + "%"
                     }
 
                     output.write(data, 0, count)
@@ -150,7 +151,6 @@ class ExportActivity : AppCompatActivity() {
     private fun videoInit() {
         preview.setMediaController(null)
         preview.setVideoURI(Uri.parse(uri))
-//        preview.setVideoURI(Uri.parse("android.resource://$packageName/" + R.raw.test_5s))
         duration = preview.duration
 
         preview.setOnPreparedListener {
