@@ -1,8 +1,10 @@
 package com.teamisland.zzazz.ui
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -14,15 +16,18 @@ import android.view.Gravity
 import android.view.Window
 import android.widget.SeekBar
 import android.widget.Toast
-import androidx.core.net.toFile
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_export.*
 import kotlinx.android.synthetic.main.export_dialog.*
-import kotlinx.android.synthetic.main.finish_toast.*
+import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.properties.Delegates
 
 @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
@@ -31,19 +36,23 @@ class ExportActivity : AppCompatActivity() {
     private lateinit var uri: String
     private var duration by Delegates.notNull<Int>()
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "SimpleDateFormat", "InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
 
-
         val value = intent.getParcelableExtra<VideoIntent>("value")
-//        duration = value.duration
 //        uri = value.uri.toString()
-        duration = 0
-        uri = "android.resource://$packageName/raw/test_5s.mp4"
+        uri = ""
 
         videoInit()
+
+        if (!isInstall("com.instagram.android")) {
+            share_instagram.alpha = 0.5F
+        }
+        if (!isInstall("com.kakaotalk.android")) {
+            share_kakaotalk.alpha = 0.5F
+        }
 
         buttonToExport.setOnClickListener {
             val dialog = Dialog(this)
@@ -57,9 +66,33 @@ class ExportActivity : AppCompatActivity() {
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             window?.setGravity(Gravity.CENTER)
 
-            val input = getFileStreamPath(uri).inputStream()
-//            val input = contentResolver.openInputStream(Uri.parse(uri))
-            val output = FileOutputStream(getExternalFilesDir(Environment.DIRECTORY_MOVIES))
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    1
+                );
+            }
+
+            val input =
+                contentResolver.openInputStream(Uri.parse("android.resource://$packageName/" + R.raw.test_5s))
+            val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
+            val dir = File(dirString)
+            if (!dir.exists()) {
+                dir.mkdirs()
+            }
+            val time = System.currentTimeMillis()
+            val date = Date(time)
+            val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
+            val filename = nameFormat.format(date)
+            val file = "$dirString/$filename.mp4"
+            val output = FileOutputStream(File(file))
             val data = ByteArray(1024)
             var total = 0
             var count: Int
@@ -67,32 +100,28 @@ class ExportActivity : AppCompatActivity() {
             val handler = Handler()
 
             Thread(Runnable {
-                do {
-                    count = input.read(data)
+                count = input!!.read(data)
+                while (count != -1) {
                     total += count
-                    Thread.sleep(100)
 
                     handler.post {
-                        dialog.export_progress.progress =
-                            ((total * 100) / Uri.parse(uri).toFile().length()).toInt()
-                        dialog.progress_text.text =
-                            (((total * 100) / Uri.parse(uri).toFile()
-                                .length()).toInt()).toString() + "%"
+                        dialog.progress_text.text = "$count%"
                     }
 
                     output.write(data, 0, count)
-                } while (count != -1)
+                    count = input.read(data)
+                }
                 output.flush()
                 output.close()
                 input.close()
                 dialog.dismiss()
-                val layout = layoutInflater.inflate(R.layout.finish_toast, finish)
-                val toast = Toast(this)
-                toast.setGravity(Gravity.CENTER, 0, 0)
-                toast.duration = Toast.LENGTH_SHORT
-                toast.view = layout
-                toast.show()
             }).start()
+
+            val toast = Toast(this)
+            val layout = layoutInflater.inflate(R.layout.finish_toast, null)
+            toast.setGravity(Gravity.CENTER, 0, 0)
+            toast.view = layout
+            toast.show()
         }
 
         share_instagram.setOnClickListener {
@@ -120,6 +149,8 @@ class ExportActivity : AppCompatActivity() {
     private fun videoInit() {
         preview.setMediaController(null)
         preview.setVideoURI(Uri.parse(uri))
+//        preview.setVideoURI(Uri.parse("android.resource://$packageName/" + R.raw.test_5s))
+        duration = preview.duration
 
         preview.setOnPreparedListener {
             preview_progress.max = duration
@@ -186,6 +217,26 @@ class ExportActivity : AppCompatActivity() {
             preview.pause()
             preview_play.text = setTextPlay()
             position = 0
+        }
+    }
+
+    private fun isInstall(packageName: String): Boolean {
+        val intent = packageManager.getLaunchIntentForPackage(packageName)
+        return intent != null
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            1 -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    return
+                }
+                return
+            }
         }
     }
 }
