@@ -65,7 +65,7 @@ class IntroActivity : AppCompatActivity() {
         take_video_from_gallery_button.setOnClickListener { warnAndRun { dispatchGetVideoIntent() } }
 
         gotoExportActivity.setOnClickListener {
-            val intent = Intent(this, ExportActivity::class.java)
+            val intent = Intent(this, ProjectActivity::class.java)
             startActivity(intent)
         }
     }

@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.os.BadParcelableException
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
@@ -24,8 +25,11 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_export.*
 import kotlinx.android.synthetic.main.export_dialog.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.properties.Delegates
@@ -36,14 +40,110 @@ class ExportActivity : AppCompatActivity() {
     private lateinit var uri: String
     private var duration by Delegates.notNull<Int>()
 
-    @SuppressLint("SetTextI18n", "SimpleDateFormat", "InflateParams")
+    @Suppress("BlockingMethodInNonBlockingContext")
+    @SuppressLint("SimpleDateFormat", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
 
         val value = intent.getParcelableExtra<VideoIntent>("value")
 //        uri = value.uri.toString()
-        uri = "android.resource://$packageName/" + R.raw.test_5s
+        uri = "android.resource://$packageName/" + R.raw.test
+
+        var checkStop = false
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                1
+            );
+        }
+
+        val dialog = Dialog(this)
+        dialog.setCancelable(false)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.export_dialog)
+        dialog.create()
+        dialog.show()
+        val window = dialog.window
+
+        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        window?.setGravity(Gravity.CENTER)
+
+        val input = contentResolver.openInputStream(Uri.parse(uri))
+
+        val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
+        val dir = File(dirString)
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+        val time = System.currentTimeMillis()
+        val date = Date(time)
+        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
+        val filename = nameFormat.format(date)
+        val file = "$dirString/$filename.mp4"
+        val output = FileOutputStream(File(file))
+
+        val data = ByteArray(1024)
+        val len = input!!.available()
+        var total = 0
+        var count: Int
+        val handler = Handler()
+        dialog.progress_text.text = "$total%"
+
+        val exporting = GlobalScope.launch {
+            count = try {
+                input.read(data)
+            } catch (e: Exception) {
+                -1
+            }
+            while (count != -1) {
+                total += count
+
+                handler.post {
+                    dialog.progress_text.text =
+                        (total.toDouble() / len * 100).toInt().toString() + "%"
+                }
+
+                try {
+                    output.write(data, 0, count)
+                    count = input.read(data)
+                } catch (e: Exception) {
+                    checkStop = true
+                    break
+                }
+            }
+
+            if (!checkStop) {
+                input.close()
+                output.flush()
+                output.close()
+                dialog.dismiss()
+
+                handler.post {
+                    val toast = Toast(this@ExportActivity)
+                    val layout = layoutInflater.inflate(R.layout.finish_toast, null)
+                    toast.setGravity(Gravity.CENTER, 0, 0)
+                    toast.view = layout
+                    toast.show()
+                }
+            }
+        }
+
+        dialog.export_stop.setOnClickListener {
+            input.close()
+            output.close()
+            dialog.dismiss()
+            File(file).delete()
+            exporting.cancel()
+            finish()
+        }
 
         videoInit()
 
@@ -53,77 +153,6 @@ class ExportActivity : AppCompatActivity() {
         }
         if (!isInstall("com.kakaotalk.android")) {
             share_kakaotalk.alpha = 0.5F
-        }
-
-        buttonToExport.setOnClickListener {
-            val dialog = Dialog(this)
-            dialog.setCancelable(false)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setContentView(R.layout.export_dialog)
-            dialog.create()
-            dialog.show()
-            val window = dialog.window
-
-            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            window?.setGravity(Gravity.CENTER)
-
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    1
-                );
-            }
-
-            val input =
-                contentResolver.openInputStream(Uri.parse(uri))
-            val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
-            val dir = File(dirString)
-            if (!dir.exists()) {
-                dir.mkdirs()
-            }
-            val time = System.currentTimeMillis()
-            val date = Date(time)
-            val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
-            val filename = nameFormat.format(date)
-            val file = "$dirString/$filename.mp4"
-            val output = FileOutputStream(File(file))
-            val data = ByteArray(1024)
-            val len = input!!.available()
-            var total = 0
-            var count: Int
-            dialog.progress_text.text = "$total%"
-            val handler = Handler()
-
-            Thread(Runnable {
-                count = input.read(data)
-                while (count != -1) {
-                    total += count
-
-                    handler.post {
-                        dialog.progress_text.text = (total / len * 100).toString() + "%"
-                    }
-
-                    output.write(data, 0, count)
-                    count = input.read(data)
-                }
-                output.flush()
-                output.close()
-                input.close()
-                dialog.dismiss()
-            }).start()
-
-            val toast = Toast(this)
-            val layout = layoutInflater.inflate(R.layout.finish_toast, null)
-            toast.setGravity(Gravity.CENTER, 0, 0)
-            toast.view = layout
-            toast.show()
         }
 
         share_instagram.setOnClickListener {
@@ -224,6 +253,10 @@ class ExportActivity : AppCompatActivity() {
     private fun isInstall(packageName: String): Boolean {
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         return intent != null
+    }
+
+    fun getToast(): Toast {
+        return Toast(this)
     }
 
     override fun onRequestPermissionsResult(
