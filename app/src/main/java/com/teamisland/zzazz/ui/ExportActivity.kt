@@ -231,13 +231,7 @@ class ExportActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        when (requestCode) {
-            1 -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    return
-                }
+        if (requestCode == 1) 
                 return
-            }
-        }
     }
 }
