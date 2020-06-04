@@ -163,7 +163,7 @@ class ExportActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "video/*"
             intent.putExtra(Intent.EXTRA_STREAM, uri)
-            intent.setPackage("com.icon_instagram.android")
+            intent.setPackage("com.instagram.android")
             startActivity(intent)
         }
 
