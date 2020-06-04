@@ -6,21 +6,25 @@ import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Outline
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.os.BadParcelableException
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.view.Gravity
+import android.view.View
+import android.view.ViewOutlineProvider
 import android.view.Window
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_export.*
@@ -148,10 +152,10 @@ class ExportActivity : AppCompatActivity() {
         videoInit()
 
         // set translucent the image when they are not installed
-        if (!isInstall("com.instagram.android")) {
+        if (!isInstall("com.icon_instagram.android")) {
             share_instagram.alpha = 0.5F
         }
-        if (!isInstall("com.kakaotalk.android")) {
+        if (!isInstall("com.icon_kakaotalk.android")) {
             share_kakaotalk.alpha = 0.5F
         }
 
@@ -159,7 +163,7 @@ class ExportActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "video/*"
             intent.putExtra(Intent.EXTRA_STREAM, uri)
-            intent.setPackage("com.instagram.android")
+            intent.setPackage("com.icon_instagram.android")
             startActivity(intent)
         }
 
@@ -173,14 +177,20 @@ class ExportActivity : AppCompatActivity() {
 
         // test ad
         MobileAds.initialize(this) {}
-        val adRequest = AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build()
-        adView.loadAd(adRequest)
+
+        //This is for test device which is the emulator
+        //We have to remove the code which sets test device id before releasing application
+        val testDeviceIds = mutableListOf("33BE2250B43518CCDA7DE426D04EE231")
+        val configuration = RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
+        MobileAds.setRequestConfiguration(configuration)
     }
 
     private fun videoInit() {
         preview.setMediaController(null)
         preview.setVideoURI(Uri.parse(uri))
+        preview.requestFocus()
         duration = preview.duration
+        preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
 
         preview.setOnPreparedListener {
             preview_progress.max = duration
@@ -190,25 +200,47 @@ class ExportActivity : AppCompatActivity() {
         videoStart()
     }
 
-
     private fun videoStart() {
         var position: Int = 0
         preview.seekTo(position)
 
+        preview.setOnClickListener {
+            preview_play.visibility = View.VISIBLE
+            val animationUtils = AnimationUtils.loadAnimation(this, R.anim.stay)
+            val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
+
+            fadeOut.setAnimationListener(object :Animation.AnimationListener{
+                override fun onAnimationRepeat(animation: Animation?) {
+                }
+
+                override fun onAnimationEnd(animation: Animation?) {
+                    preview_play.visibility = View.GONE
+                }
+
+                override fun onAnimationStart(animation: Animation?) {
+                }
+
+            })
+
+            animationUtils.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationRepeat(animation: Animation?) {
+                }
+
+                override fun onAnimationEnd(animation: Animation?) {
+                    preview_play.startAnimation(fadeOut)
+                }
+
+                override fun onAnimationStart(animation: Animation?) {
+                }
+
+            })
+
+            preview_play.startAnimation(animationUtils)
+        }
+
         preview.run {
             position = currentPosition
             preview_progress.progress = position
-        }
-
-        // the function for change text of button
-        fun changeText(prev: CharSequence): CharSequence {
-            if (prev == "Play") return "Pause"
-            return "Play"
-        }
-
-        // the function for set text of button to play
-        fun setTextPlay(): CharSequence {
-            return "Play"
         }
 
         preview_progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -223,7 +255,6 @@ class ExportActivity : AppCompatActivity() {
                 preview.pause()
                 position = preview.currentPosition
                 preview.seekTo(position)
-                preview_play.text = setTextPlay()
             }
 
             // when user stops touching
@@ -235,17 +266,19 @@ class ExportActivity : AppCompatActivity() {
             if (preview.isPlaying) {
                 preview.pause()
                 position = preview.currentPosition
+                preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+//                preview_play.background = getDrawable(R.drawable.shadow_effect)
+                preview_play.outlineProvider = CustomOutlineProvider()
+                preview_play.clipToOutline = true
             } else {
-                preview.seekTo(position)
                 preview.start()
+                preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
             }
-            preview_play.text = changeText(preview_play.text)
         }
 
         // changing text of button is needed
         preview.setOnCompletionListener {
             preview.pause()
-            preview_play.text = setTextPlay()
             position = 0
         }
     }
@@ -253,10 +286,6 @@ class ExportActivity : AppCompatActivity() {
     private fun isInstall(packageName: String): Boolean {
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         return intent != null
-    }
-
-    fun getToast(): Toast {
-        return Toast(this)
     }
 
     override fun onRequestPermissionsResult(
@@ -272,5 +301,11 @@ class ExportActivity : AppCompatActivity() {
                 return
             }
         }
+    }
+}
+
+private class CustomOutlineProvider : ViewOutlineProvider() {
+    override fun getOutline(view: View?, outline: Outline?) {
+        outline!!.setRoundRect(0, 0, view!!.width, view.height, 10F)
     }
 }
