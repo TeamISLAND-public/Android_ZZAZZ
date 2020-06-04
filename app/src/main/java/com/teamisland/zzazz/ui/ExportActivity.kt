@@ -8,11 +8,13 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Outline
 import android.graphics.drawable.ColorDrawable
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewOutlineProvider
@@ -42,7 +44,7 @@ import kotlin.properties.Delegates
 class ExportActivity : AppCompatActivity() {
 
     private lateinit var uri: String
-    private var duration by Delegates.notNull<Int>()
+    private var duration: Int = 0
 
     @Suppress("BlockingMethodInNonBlockingContext")
     @SuppressLint("SimpleDateFormat", "SetTextI18n")
@@ -189,7 +191,13 @@ class ExportActivity : AppCompatActivity() {
         preview.setMediaController(null)
         preview.setVideoURI(Uri.parse(uri))
         preview.requestFocus()
-        duration = preview.duration
+        MediaMetadataRetriever().also {
+            it.setDataSource(this, Uri.parse(uri))
+            val time = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            duration = time.toInt()
+            Log.d("duration", duration.toString())
+        }
+
         preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
 
         preview.setOnPreparedListener {
@@ -204,10 +212,10 @@ class ExportActivity : AppCompatActivity() {
         var position: Int = 0
         preview.seekTo(position)
 
+        val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
+
         preview.setOnClickListener {
             preview_play.visibility = View.VISIBLE
-            val animationUtils = AnimationUtils.loadAnimation(this, R.anim.stay)
-            val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
 
             fadeOut.setAnimationListener(object :Animation.AnimationListener{
                 override fun onAnimationRepeat(animation: Animation?) {
@@ -219,23 +227,9 @@ class ExportActivity : AppCompatActivity() {
 
                 override fun onAnimationStart(animation: Animation?) {
                 }
-
             })
 
-            animationUtils.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationRepeat(animation: Animation?) {
-                }
-
-                override fun onAnimationEnd(animation: Animation?) {
-                    preview_play.startAnimation(fadeOut)
-                }
-
-                override fun onAnimationStart(animation: Animation?) {
-                }
-
-            })
-
-            preview_play.startAnimation(animationUtils)
+            preview_play.startAnimation(fadeOut)
         }
 
         preview.run {
@@ -274,6 +268,7 @@ class ExportActivity : AppCompatActivity() {
                 preview.start()
                 preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
             }
+            preview_play.startAnimation(fadeOut)
         }
 
         // changing text of button is needed
