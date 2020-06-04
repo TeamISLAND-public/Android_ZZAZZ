@@ -30,6 +30,7 @@ import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_export.*
+import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.export_dialog.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -38,7 +39,6 @@ import java.io.FileOutputStream
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.properties.Delegates
 
 @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class ExportActivity : AppCompatActivity() {
@@ -46,8 +46,7 @@ class ExportActivity : AppCompatActivity() {
     private lateinit var uri: String
     private var duration: Int = 0
 
-    @Suppress("BlockingMethodInNonBlockingContext")
-    @SuppressLint("SimpleDateFormat", "SetTextI18n")
+    @SuppressLint("SetTextI18n", "SimpleDateFormat", "InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
@@ -63,12 +62,19 @@ class ExportActivity : AppCompatActivity() {
             )
             != PackageManager.PERMISSION_GRANTED
         ) {
-
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                 1
             )
+        }
+
+        // set translucent the image when they are not installed
+        if (!isInstall("com.instagram.android")) {
+            share_instagram.alpha = 0.5F
+        }
+        if (!isInstall("com.kakaotalk.android")) {
+            share_kakaotalk.alpha = 0.5F
         }
 
         val dialog = Dialog(this)
@@ -82,87 +88,76 @@ class ExportActivity : AppCompatActivity() {
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         window?.setGravity(Gravity.CENTER)
 
+        val input = contentResolver.openInputStream(Uri.parse(uri))
 
-        dialog.dismiss()
+        val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
+        val dir = File(dirString)
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+        val time = System.currentTimeMillis()
+        val date = Date(time)
+        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
+        val filename = nameFormat.format(date)
+        val file = "$dirString/$filename.mp4"
+        val output = FileOutputStream(File(file))
 
-//        val input = contentResolver.openInputStream(Uri.parse(uri))
-//
-//        val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
-//        val dir = File(dirString)
-//        if (!dir.exists()) {
-//            dir.mkdirs()
-//        }
-//        val time = System.currentTimeMillis()
-//        val date = Date(time)
-//        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
-//        val filename = nameFormat.format(date)
-//        val file = "$dirString/$filename.mp4"
-//        val output = FileOutputStream(File(file))
-//
-//        val data = ByteArray(1024)
-//        val len = input!!.available()
-//        var total = 0
-//        var count: Int
-//        val handler = Handler()
-//        dialog.progress_text.text = "$total%"
-//
-//        val exporting = GlobalScope.launch {
-//            count = try {
-//                input.read(data)
-//            } catch (e: Exception) {
-//                -1
-//            }
-//            while (count != -1) {
-//                total += count
-//
-//                handler.post {
-//                    dialog.progress_text.text =
-//                        (total.toDouble() / len * 100).toInt().toString() + "%"
-//                }
-//
-//                try {
-//                    output.write(data, 0, count)
-//                    count = input.read(data)
-//                } catch (e: Exception) {
-//                    checkStop = true
-//                    break
-//                }
-//            }
-//
-//            if (!checkStop) {
-//                input.close()
-//                output.flush()
-//                output.close()
-//                dialog.dismiss()
-//
-//                handler.post {
-//                    val toast = Toast(this@ExportActivity)
-//                    val layout = layoutInflater.inflate(R.layout.finish_toast, null)
-//                    toast.setGravity(Gravity.CENTER, 0, 0)
-//                    toast.view = layout
-//                    toast.show()
-//                }
-//            }
-//        }
-//
-//        dialog.export_stop.setOnClickListener {
-//            input.close()
-//            output.close()
-//            dialog.dismiss()
-//            File(file).delete()
-//            exporting.cancel()
-//            finish()
-//        }
+        val data = ByteArray(1024)
+        val len = input!!.available()
+        var total = 0
+        var count: Int
+        val handler = Handler()
+        dialog.progress_text.text = "$total%"
+
+        val exporting = GlobalScope.launch {
+            count = try {
+                input.read(data)
+            } catch (e: Exception) {
+                -1
+            }
+            while (count != -1) {
+                total += count
+
+                handler.post {
+                    dialog.progress_text.text =
+                        (total.toDouble() / len * 100).toInt().toString() + "%"
+                }
+
+                try {
+                    output.write(data, 0, count)
+                    count = input.read(data)
+                } catch (e: Exception) {
+                    checkStop = true
+                    break
+                }
+            }
+
+            if (!checkStop) {
+                input.close()
+                output.flush()
+                output.close()
+                dialog.dismiss()
+
+                handler.post {
+                    val toast = Toast(this@ExportActivity)
+                    val layout = layoutInflater.inflate(R.layout.finish_toast, null)
+                    toast.setGravity(Gravity.CENTER, 0, 0)
+                    toast.view = layout
+                    toast.show()
+                }
+            }
+        }
+
+        dialog.export_stop.setOnClickListener {
+            input.close()
+            output.close()
+            dialog.dismiss()
+            File(file).delete()
+            exporting.cancel()
+            finish()
+        }
 
         videoInit()
-
-        // set translucent the image when they are not installed
-        if (!isInstall("com.instagram.android")) {
-            share_instagram.alpha = 0.5F
-        }
-        if (!isInstall("com.kakaotalk.android")) {
-            share_kakaotalk.alpha = 0.5F
-        }
 
         share_instagram.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND)
@@ -186,7 +181,8 @@ class ExportActivity : AppCompatActivity() {
         //This is for test device which is the emulator
         //We have to remove the code which sets test device id before releasing application
         val testDeviceIds = mutableListOf("33BE2250B43518CCDA7DE426D04EE231")
-        val configuration = RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
+        val configuration =
+            RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
         MobileAds.setRequestConfiguration(configuration)
     }
 
@@ -322,14 +318,8 @@ class ExportActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        when (requestCode) {
-            1 -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    return
-                }
-                return
-            }
-        }
+        if (requestCode == 1)
+            return
     }
 }
 
