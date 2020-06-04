@@ -30,13 +30,12 @@ import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_export.*
-import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.export_dialog.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.Exception
+import java.lang.Runnable
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -45,6 +44,7 @@ class ExportActivity : AppCompatActivity() {
 
     private lateinit var uri: String
     private var duration: Int = 0
+    private var finishExport: Boolean = false
 
     @SuppressLint("SetTextI18n", "SimpleDateFormat", "InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,6 +137,7 @@ class ExportActivity : AppCompatActivity() {
                 output.flush()
                 output.close()
                 dialog.dismiss()
+                finishExport = true
 
                 handler.post {
                     val toast = Toast(this@ExportActivity)
@@ -144,6 +145,9 @@ class ExportActivity : AppCompatActivity() {
                     toast.setGravity(Gravity.CENTER, 0, 0)
                     toast.view = layout
                     toast.show()
+
+                    preview.seekTo(0)
+                    preview.start()
                 }
             }
         }
@@ -209,8 +213,6 @@ class ExportActivity : AppCompatActivity() {
 
     private fun videoStart() {
         var end = false
-        preview.seekTo(0)
-        preview.start()
 
         var done = false
         done_export.setOnClickListener {
