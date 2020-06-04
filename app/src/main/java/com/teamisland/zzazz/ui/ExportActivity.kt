@@ -44,7 +44,6 @@ class ExportActivity : AppCompatActivity() {
 
     private lateinit var uri: String
     private var duration: Int = 0
-    private var finishExport: Boolean = false
 
     @SuppressLint("SetTextI18n", "SimpleDateFormat", "InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,9 +52,12 @@ class ExportActivity : AppCompatActivity() {
 
         val value = intent.getParcelableExtra<VideoIntent>("value")
 //        uri = value.uri.toString()
+        //This is for test
         uri = "android.resource://$packageName/" + R.raw.test
 
         var checkStop = false
+
+        //Check permission
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -90,11 +92,14 @@ class ExportActivity : AppCompatActivity() {
 
         val input = contentResolver.openInputStream(Uri.parse(uri))
 
+        //Make file directory for saving the video
         val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
         val dir = File(dirString)
         if (!dir.exists()) {
             dir.mkdirs()
         }
+
+        //Video name is depended by time
         val time = System.currentTimeMillis()
         val date = Date(time)
         val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
@@ -109,6 +114,7 @@ class ExportActivity : AppCompatActivity() {
         val handler = Handler()
         dialog.progress_text.text = "$total%"
 
+        //Use coroutine for exporting
         val exporting = GlobalScope.launch {
             count = try {
                 input.read(data)
@@ -137,7 +143,6 @@ class ExportActivity : AppCompatActivity() {
                 output.flush()
                 output.close()
                 dialog.dismiss()
-                finishExport = true
 
                 handler.post {
                     val toast = Toast(this@ExportActivity)
@@ -194,17 +199,16 @@ class ExportActivity : AppCompatActivity() {
         preview.setMediaController(null)
         preview.setVideoURI(Uri.parse(uri))
         preview.requestFocus()
+
+        //Get duration from uri & set duration
         MediaMetadataRetriever().also {
             it.setDataSource(this, Uri.parse(uri))
             val time = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
             duration = time.toInt()
         }
         preview_progress.max = duration
-
         preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
-
         preview.setOnPreparedListener {
-            preview_progress.max = duration
             preview_progress.progress = 0
         }
 
@@ -212,13 +216,17 @@ class ExportActivity : AppCompatActivity() {
     }
 
     private fun videoStart() {
+        //This is for video is end
+        //When video is end, preview will start from first
         var end = false
 
+        //This is for done button
         var done = false
         done_export.setOnClickListener {
             done = true
         }
 
+        //Use thread to link seekBar from video
         preview.setOnPreparedListener {
             Thread(Runnable {
                 do {
@@ -236,7 +244,6 @@ class ExportActivity : AppCompatActivity() {
         }
 
         val fadeOut = AnimationUtils.loadAnimation(this@ExportActivity, R.anim.fade_out)
-
         preview.setOnClickListener {
             preview_play.visibility = View.VISIBLE
 
@@ -244,6 +251,7 @@ class ExportActivity : AppCompatActivity() {
                 override fun onAnimationRepeat(animation: Animation?) {
                 }
 
+                // button needs to be vanished
                 override fun onAnimationEnd(animation: Animation?) {
                     preview_play.visibility = View.GONE
                 }
@@ -257,7 +265,10 @@ class ExportActivity : AppCompatActivity() {
 
         preview_progress.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
+            //This is for check user is dragging
             var drag = false
+
+            //This is for check the state of video before user dragging
             var playing = true
 
             // while dragging
