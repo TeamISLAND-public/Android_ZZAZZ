@@ -208,7 +208,7 @@ class ExportActivity : AppCompatActivity() {
             duration = time.toInt()
             val minute = duration / 60000
             val second = duration / 1000 - minute * 60
-            video_length.text = "$minute:$second"
+            video_length.text = String.format("%02d:%02d", minute, second)
         }
         preview_progress.max = duration
         preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
