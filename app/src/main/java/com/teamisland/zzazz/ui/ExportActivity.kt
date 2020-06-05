@@ -310,6 +310,21 @@ class ExportActivity : AppCompatActivity() {
                 preview.start()
                 preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
             }
+
+            preview_play.visibility = View.VISIBLE
+            fadeOut.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationRepeat(animation: Animation?) {
+                }
+
+                // button needs to be vanished
+                override fun onAnimationEnd(animation: Animation?) {
+                    preview_play.visibility = View.GONE
+                }
+
+                override fun onAnimationStart(animation: Animation?) {
+                }
+            })
+
             preview_play.startAnimation(fadeOut)
         }
 

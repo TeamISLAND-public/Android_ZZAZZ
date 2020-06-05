@@ -61,11 +61,6 @@ class IntroActivity : AppCompatActivity() {
 
         take_video_button.setOnClickListener { warnAndRun { dispatchTakeVideoIntent() } }
         take_video_from_gallery_button.setOnClickListener { warnAndRun { dispatchGetVideoIntent() } }
-
-        gotoExportActivity.setOnClickListener {
-            val intent = Intent(this, ProjectActivity::class.java)
-            startActivity(intent)
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
