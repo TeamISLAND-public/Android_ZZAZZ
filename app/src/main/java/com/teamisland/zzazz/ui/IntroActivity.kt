@@ -1,23 +1,18 @@
 package com.teamisland.zzazz.ui
 
 import android.app.Activity
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.media.MediaExtractor
 import android.media.MediaFormat.KEY_DURATION
 import android.media.MediaFormat.KEY_FRAME_RATE
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.LayoutInflater
-import android.widget.Button
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.IntroAlertDialog
 import kotlinx.android.synthetic.main.activity_intro.*
-import kotlinx.android.synthetic.main.activity_intro_alertdialog.*
 
 /**
  * Activity before video trimming.
@@ -31,15 +26,18 @@ class IntroActivity : AppCompatActivity() {
         Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { takeVideoIntent ->
             takeVideoIntent.resolveActivity(
                 packageManager
-            )?.also { startActivityForResult(takeVideoIntent,
-                REQUEST_VIDEO_CAPTURE
-            ) }
+            )?.also {
+                startActivityForResult(
+                    takeVideoIntent,
+                    REQUEST_VIDEO_CAPTURE
+                )
+            }
         }
     }
 
     private fun dispatchGetVideoIntent() {
         Intent(
-            Intent.ACTION_PICK,
+            Intent.ACTION_OPEN_DOCUMENT,
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         ).also { getVideoIntent ->
             getVideoIntent.resolveActivity(packageManager)?.also {
@@ -63,11 +61,6 @@ class IntroActivity : AppCompatActivity() {
 
         take_video_button.setOnClickListener { warnAndRun { dispatchTakeVideoIntent() } }
         take_video_from_gallery_button.setOnClickListener { warnAndRun { dispatchGetVideoIntent() } }
-
-        gotoExportActivity.setOnClickListener {
-            val intent = Intent(this, ExportActivity::class.java)
-            startActivity(intent)
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

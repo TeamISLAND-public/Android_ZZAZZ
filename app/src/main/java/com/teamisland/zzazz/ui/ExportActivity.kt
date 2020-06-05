@@ -6,35 +6,44 @@ import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Outline
 import android.graphics.drawable.ColorDrawable
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.util.Log
 import android.view.Gravity
+import android.view.View
+import android.view.ViewOutlineProvider
 import android.view.Window
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_export.*
 import kotlinx.android.synthetic.main.export_dialog.*
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
+import java.lang.Exception
+import java.lang.Runnable
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.properties.Delegates
 
 @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class ExportActivity : AppCompatActivity() {
 
     private lateinit var uri: String
-    private var duration by Delegates.notNull<Int>()
+    private var duration: Int = 0
 
     @SuppressLint("SetTextI18n", "SimpleDateFormat", "InflateParams")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,9 +52,24 @@ class ExportActivity : AppCompatActivity() {
 
         val value = intent.getParcelableExtra<VideoIntent>("value")
 //        uri = value.uri.toString()
-        uri = "android.resource://$packageName/" + R.raw.test_5s
+        //This is for test
+        uri = "android.resource://$packageName/" + R.raw.test
 
-        videoInit()
+        var checkStop = false
+
+        //Check permission
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                1
+            )
+        }
 
         // set translucent the image when they are not installed
         if (!isInstall("com.instagram.android")) {
@@ -55,76 +79,94 @@ class ExportActivity : AppCompatActivity() {
             share_kakaotalk.alpha = 0.5F
         }
 
-        buttonToExport.setOnClickListener {
-            val dialog = Dialog(this)
-            dialog.setCancelable(false)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setContentView(R.layout.export_dialog)
-            dialog.create()
-            dialog.show()
-            val window = dialog.window
+        val dialog = Dialog(this)
+        dialog.setCancelable(false)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.export_dialog)
+        dialog.create()
+        dialog.show()
+        val window = dialog.window
 
-            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            window?.setGravity(Gravity.CENTER)
+        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        window?.setGravity(Gravity.CENTER)
 
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-                != PackageManager.PERMISSION_GRANTED
-            ) {
+        val input = contentResolver.openInputStream(Uri.parse(uri))
 
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    1
-                );
+        //Make file directory for saving the video
+        val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
+        val dir = File(dirString)
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+
+        //Video name is depended by time
+        val time = System.currentTimeMillis()
+        val date = Date(time)
+        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
+        val filename = nameFormat.format(date)
+        val file = "$dirString/$filename.mp4"
+        val output = FileOutputStream(File(file))
+
+        val data = ByteArray(1024)
+        val len = input!!.available()
+        var total = 0
+        var count: Int
+        val handler = Handler()
+        dialog.progress_text.text = "$total%"
+
+        //Use coroutine for exporting
+        val exporting = GlobalScope.launch {
+            count = try {
+                input.read(data)
+            } catch (e: Exception) {
+                -1
             }
+            while (count != -1) {
+                total += count
 
-            val input =
-                contentResolver.openInputStream(Uri.parse(uri))
-            val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
-            val dir = File(dirString)
-            if (!dir.exists()) {
-                dir.mkdirs()
-            }
-            val time = System.currentTimeMillis()
-            val date = Date(time)
-            val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
-            val filename = nameFormat.format(date)
-            val file = "$dirString/$filename.mp4"
-            val output = FileOutputStream(File(file))
-            val data = ByteArray(1024)
-            val len = input!!.available()
-            var total = 0
-            var count: Int
-            dialog.progress_text.text = "$total%"
-            val handler = Handler()
+                handler.post {
+                    dialog.progress_text.text =
+                        (total.toDouble() / len * 100).toInt().toString() + "%"
+                }
 
-            Thread(Runnable {
-                count = input.read(data)
-                while (count != -1) {
-                    total += count
-
-                    handler.post {
-                        dialog.progress_text.text = (total / len * 100).toString() + "%"
-                    }
-
+                try {
                     output.write(data, 0, count)
                     count = input.read(data)
+                } catch (e: Exception) {
+                    checkStop = true
+                    break
                 }
+            }
+
+            if (!checkStop) {
+                input.close()
                 output.flush()
                 output.close()
-                input.close()
                 dialog.dismiss()
-            }).start()
 
-            val toast = Toast(this)
-            val layout = layoutInflater.inflate(R.layout.finish_toast, null)
-            toast.setGravity(Gravity.CENTER, 0, 0)
-            toast.view = layout
-            toast.show()
+                handler.post {
+                    val toast = Toast(this@ExportActivity)
+                    val layout = layoutInflater.inflate(R.layout.finish_toast, null)
+                    toast.setGravity(Gravity.CENTER, 0, 0)
+                    toast.view = layout
+                    toast.show()
+
+                    preview.seekTo(0)
+                    preview.start()
+                }
+            }
         }
+
+        dialog.export_stop.setOnClickListener {
+            input.close()
+            output.close()
+            dialog.dismiss()
+            File(file).delete()
+            exporting.cancel()
+            finish()
+        }
+
+        videoInit()
 
         share_instagram.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND)
@@ -144,80 +186,157 @@ class ExportActivity : AppCompatActivity() {
 
         // test ad
         MobileAds.initialize(this) {}
-        val adRequest = AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build()
-        adView.loadAd(adRequest)
+
+        //This is for test device which is the emulator
+        //We have to remove the code which sets test device id before releasing application
+        val testDeviceIds = mutableListOf("33BE2250B43518CCDA7DE426D04EE231")
+        val configuration =
+            RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build()
+        MobileAds.setRequestConfiguration(configuration)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun videoInit() {
         preview.setMediaController(null)
         preview.setVideoURI(Uri.parse(uri))
-        duration = preview.duration
+        preview.requestFocus()
 
+        //Get duration from uri & set duration
+        MediaMetadataRetriever().also {
+            it.setDataSource(this, Uri.parse(uri))
+            val time = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            duration = time.toInt()
+            val minute = duration / 60000
+            val second = duration / 1000 - minute * 60
+            video_length.text = String.format("%02d:%02d", minute, second)
+        }
+        preview_progress.max = duration
+        preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
         preview.setOnPreparedListener {
-            preview_progress.max = duration
             preview_progress.progress = 0
         }
 
         videoStart()
     }
 
-
     private fun videoStart() {
-        var position: Int = 0
-        preview.seekTo(position)
+        //This is for video is end
+        //When video is end, preview will start from first
+        var end = false
 
-        preview.run {
-            position = currentPosition
-            preview_progress.progress = position
+        //This is for done button
+        var done = false
+        done_export.setOnClickListener {
+            done = true
         }
 
-        // the function for change text of button
-        fun changeText(prev: CharSequence): CharSequence {
-            if (prev == "Play") return "Pause"
-            return "Play"
+        //Use thread to link seekBar from video
+        preview.setOnPreparedListener {
+            Thread(Runnable {
+                do {
+                    preview_progress.post {
+                        preview_progress.progress = preview.currentPosition
+                        Log.d("time", preview.currentPosition.toString())
+                    }
+                    try {
+                        Thread.sleep(10)
+                    } catch (e: InterruptedException) {
+                        e.printStackTrace()
+                    }
+                } while (!done)
+            }).start()
         }
 
-        // the function for set text of button to play
-        fun setTextPlay(): CharSequence {
-            return "Play"
+        val fadeOut = AnimationUtils.loadAnimation(this@ExportActivity, R.anim.fade_out)
+        preview.setOnClickListener {
+            preview_play.visibility = View.VISIBLE
+
+            fadeOut.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationRepeat(animation: Animation?) {
+                }
+
+                // button needs to be vanished
+                override fun onAnimationEnd(animation: Animation?) {
+                    preview_play.visibility = View.GONE
+                }
+
+                override fun onAnimationStart(animation: Animation?) {
+                }
+            })
+
+            preview_play.startAnimation(fadeOut)
         }
 
-        preview_progress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        preview_progress.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
+            //This is for check user is dragging
+            var drag = false
+
+            //This is for check the state of video before user dragging
+            var playing = true
+
             // while dragging
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                position = progress
-                preview.seekTo(position)
+            override fun onProgressChanged(
+                seekBar: SeekBar?,
+                progress: Int,
+                fromUser: Boolean
+            ) {
+                if (drag)
+                    preview.seekTo(progress)
             }
 
             // when user starts dragging
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                playing = preview.isPlaying
                 preview.pause()
-                position = preview.currentPosition
-                preview.seekTo(position)
-                preview_play.text = setTextPlay()
+                drag = true
             }
 
             // when user stops touching
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                preview.seekTo(preview_progress.progress)
+                drag = false
+                if (playing)
+                    preview.start()
             }
         })
 
         preview_play.setOnClickListener {
             if (preview.isPlaying) {
                 preview.pause()
-                position = preview.currentPosition
+                preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+//                preview_play.background = getDrawable(R.drawable.shadow_effect)
+                preview_play.outlineProvider = CustomOutlineProvider()
+                preview_play.clipToOutline = true
             } else {
-                preview.seekTo(position)
+                if (end)
+                    preview.seekTo(0)
                 preview.start()
+                preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
             }
-            preview_play.text = changeText(preview_play.text)
+
+            preview_play.visibility = View.VISIBLE
+            fadeOut.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationRepeat(animation: Animation?) {
+                }
+
+                // button needs to be vanished
+                override fun onAnimationEnd(animation: Animation?) {
+                    preview_play.visibility = View.GONE
+                }
+
+                override fun onAnimationStart(animation: Animation?) {
+                }
+            })
+
+            preview_play.startAnimation(fadeOut)
         }
 
         // changing text of button is needed
         preview.setOnCompletionListener {
             preview.pause()
-            preview_play.text = setTextPlay()
-            position = 0
+            preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+            end = true
         }
     }
 
@@ -231,7 +350,13 @@ class ExportActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode == 1) 
-                return
+        if (requestCode == 1)
+            return
+    }
+}
+
+private class CustomOutlineProvider : ViewOutlineProvider() {
+    override fun getOutline(view: View?, outline: Outline?) {
+        outline!!.setRoundRect(0, 0, view!!.width, view.height, 10F)
     }
 }

@@ -30,6 +30,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:id="@+id/done_export"
         android:layout_width="41dp"
         android:layout_height="20dp"
         android:layout_marginTop="23dp"
@@ -51,10 +52,13 @@
         app:layout_constraintDimensionRatio="1.8:1"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <ImageButton
         android:id="@+id/preview_play"
-        android:layout_width="46dp"
-        android:layout_height="43dp"
+        android:layout_width="49dp"
+        android:layout_height="55dp"
+        android:background="#00FFFFFF"
+        android:elevation="2dp"
+        android:scaleType="centerInside"
         app:layout_constraintBottom_toBottomOf="@id/preview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -118,15 +122,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/video_length" />
 
-    <Button
-        android:id="@+id/buttonToExport"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginBottom="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <LinearLayout
         android:layout_width="171dp"
         android:layout_height="48dp"
@@ -142,7 +137,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="start"
-            android:background="@drawable/instagram" />
+            android:background="@drawable/icon_instagram" />
 
         <View
             android:layout_width="0dp"
@@ -154,7 +149,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="end"
-            android:background="@drawable/ic_kakaotalk" />
+            android:background="@drawable/icon_kakaotalk" />
 
     </LinearLayout>
 
