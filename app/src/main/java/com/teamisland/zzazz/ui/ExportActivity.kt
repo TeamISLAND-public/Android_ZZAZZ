@@ -195,6 +195,7 @@ class ExportActivity : AppCompatActivity() {
         MobileAds.setRequestConfiguration(configuration)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun videoInit() {
         preview.setMediaController(null)
         preview.setVideoURI(Uri.parse(uri))
@@ -205,6 +206,9 @@ class ExportActivity : AppCompatActivity() {
             it.setDataSource(this, Uri.parse(uri))
             val time = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
             duration = time.toInt()
+            val minute = duration / 60000
+            val second = duration / 1000 - minute * 60
+            video_length.text = "$minute:$second"
         }
         preview_progress.max = duration
         preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
