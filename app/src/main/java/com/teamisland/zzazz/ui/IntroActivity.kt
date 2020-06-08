@@ -7,6 +7,8 @@ import android.media.MediaFormat.KEY_DURATION
 import android.media.MediaFormat.KEY_FRAME_RATE
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
@@ -58,6 +60,22 @@ class IntroActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intro)
+
+        val fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
+        fadeIn.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(animation: Animation?) {
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+            }
+
+            override fun onAnimationStart(animation: Animation?) {
+            }
+
+        })
+
+        take_video_button.startAnimation(fadeIn)
+        take_video_from_gallery_button.startAnimation(fadeIn)
 
         take_video_button.setOnClickListener { warnAndRun { dispatchTakeVideoIntent() } }
         take_video_from_gallery_button.setOnClickListener { warnAndRun { dispatchGetVideoIntent() } }
