@@ -2,7 +2,6 @@ package com.teamisland.zzazz.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Application
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewOutlineProvider
@@ -40,13 +38,13 @@ import java.lang.Runnable
 import java.text.SimpleDateFormat
 import java.util.*
 
-@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class ExportActivity : AppCompatActivity() {
 
     private lateinit var uri: String
     private var duration: Int = 0
 
-    @SuppressLint("SetTextI18n", "SimpleDateFormat", "InflateParams")
+    @SuppressLint("SimpleDateFormat", "SetTextI18n", "InflateParams")
+    @Suppress("BlockingMethodInNonBlockingContext")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
