@@ -31,12 +31,11 @@ class VideoTrimmerView @JvmOverloads constructor(
 
     override fun initRootView() {
         LayoutInflater.from(context).inflate(R.layout.video_trimmer, this, true)
-        fab.setOnClickListener { initiateTrimming() }
     }
 
     override fun getTimeLineView(): TimeLineView = timeLineView
 
-    override fun getTimeInfoContainer(): View = timeTextContainer
+    override fun getTimeInfoContainer(): View = rangeSeekBarView
 
     override fun getPlayView(): View = playIndicatorView
 
@@ -48,18 +47,16 @@ class VideoTrimmerView @JvmOverloads constructor(
 
     override fun onRangeUpdated(startTimeInMs: Int, endTimeInMs: Int) {
         val seconds = context.getString(R.string.short_seconds)
-        trimTimeRangeTextView.text =
-            "${stringForTime(startTimeInMs)} $seconds - ${stringForTime(endTimeInMs)} $seconds"
+//        trimTimeRangeTextView.text =
+//            "${stringForTime(startTimeInMs)} $seconds - ${stringForTime(endTimeInMs)} $seconds"
     }
 
     override fun onVideoPlaybackReachingTime(timeInMs: Int) {
         val seconds = context.getString(R.string.short_seconds)
-        playbackTimeTextView.text = "${stringForTime(timeInMs)} $seconds"
-//        rangeSeekBarView.currentPos = (timeInMs.toFloat() / videoView.duration)
+        rangeSeekBarView.currentPos = (timeInMs.toFloat() / videoView.duration)
         rangeSeekBarView.invalidate()
     }
 
     override fun onGotVideoFileSize(videoFileSize: Long) {
-        videoFileSizeTextView.text = Formatter.formatShortFileSize(context, videoFileSize)
     }
 }

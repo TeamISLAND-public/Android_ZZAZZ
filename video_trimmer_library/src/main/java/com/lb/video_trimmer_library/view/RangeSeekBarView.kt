@@ -109,7 +109,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
     open fun initThumbWidth(context: Context): Int =
         TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
-            27f,
+            33f,
             context.resources.displayMetrics
         ).toInt().coerceAtLeast(1)
 

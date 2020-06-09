@@ -5,6 +5,8 @@ import android.content.Intent
 import android.media.MediaExtractor
 import android.media.MediaFormat.KEY_DURATION
 import android.media.MediaFormat.KEY_FRAME_RATE
+import android.media.MediaMetadata
+import android.media.MediaMetadataRetriever
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.animation.Animation
@@ -85,19 +87,18 @@ class IntroActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != Activity.RESULT_OK) return
         val videoUri = (data ?: return).data ?: return
-        val data_two = MediaExtractor()
-        data_two.setDataSource(this@IntroActivity, videoUri, null)
-        val video_info = data_two.getTrackFormat(0)
-        val video_duration = video_info.getLong(KEY_DURATION)
-        val video_fps = video_info.getInteger(KEY_FRAME_RATE)
+        val data_two = MediaMetadataRetriever()
+        data_two.setDataSource(this@IntroActivity, videoUri)
+        val video_duration =
+            data_two.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toInt()
         if (video_duration > resources.getInteger(R.integer.length_limit) * 1000) {
             Toast.makeText(this, getString(R.string.length_exceeded), LENGTH_LONG).show()
             return
         }
-        if (video_fps > resources.getInteger(R.integer.fps_limit)) {
-            Toast.makeText(this, getString(R.string.fps_exceeded), LENGTH_LONG).show()
-            return
-        }
+//        if (video_fps > resources.getInteger(R.integer.fps_limit)) {
+//            Toast.makeText(this, getString(R.string.fps_exceeded), LENGTH_LONG).show()
+//            return
+//        }
         val intent = Intent(this, TrimmingActivity::class.java).also {
             it.putExtra(getString(R.string.selected_video_uri), videoUri)
         }
