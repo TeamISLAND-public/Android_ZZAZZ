@@ -234,6 +234,11 @@ class ExportActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        back.setOnClickListener {
+            done = true
+            finish()
+        }
+
         //Use thread to link seekBar from video
         preview.setOnPreparedListener {
             Thread(Runnable {
