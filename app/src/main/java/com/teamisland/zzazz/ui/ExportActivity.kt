@@ -2,6 +2,7 @@ package com.teamisland.zzazz.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Application
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -228,6 +229,9 @@ class ExportActivity : AppCompatActivity() {
         var done = false
         done_export.setOnClickListener {
             done = true
+            val intent = Intent(this, IntroActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
         }
 
         //Use thread to link seekBar from video
@@ -236,7 +240,6 @@ class ExportActivity : AppCompatActivity() {
                 do {
                     preview_progress.post {
                         preview_progress.progress = preview.currentPosition
-                        Log.d("time", preview.currentPosition.toString())
                     }
                     try {
                         Thread.sleep(10)
