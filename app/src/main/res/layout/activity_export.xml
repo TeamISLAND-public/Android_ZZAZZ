@@ -110,7 +110,7 @@
 
     <TextView
         android:id="@+id/save_text"
-        android:layout_width="84dp"
+        android:layout_width="wrap_content"
         android:layout_height="21dp"
         android:layout_marginTop="85dp"
         android:background="#000000"
@@ -121,7 +121,7 @@
         android:textColor="#FFFFFF"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintHorizontal_bias="0.2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/preview" />
 
@@ -157,7 +157,7 @@
         android:textColor="#FFFFFF"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.7"
+        app:layout_constraintHorizontal_bias="0.77"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/preview" />
 
