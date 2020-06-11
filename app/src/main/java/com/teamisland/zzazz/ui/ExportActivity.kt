@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewOutlineProvider
@@ -39,13 +38,13 @@ import java.lang.Runnable
 import java.text.SimpleDateFormat
 import java.util.*
 
-@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class ExportActivity : AppCompatActivity() {
 
     private lateinit var uri: String
     private var duration: Int = 0
 
-    @SuppressLint("SetTextI18n", "SimpleDateFormat", "InflateParams")
+    @SuppressLint("SimpleDateFormat", "SetTextI18n", "InflateParams")
+    @Suppress("BlockingMethodInNonBlockingContext")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
@@ -228,6 +227,14 @@ class ExportActivity : AppCompatActivity() {
         var done = false
         done_export.setOnClickListener {
             done = true
+            val intent = Intent(this, IntroActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        }
+
+        back.setOnClickListener {
+            done = true
+            finish()
         }
 
         //Use thread to link seekBar from video
@@ -236,7 +243,6 @@ class ExportActivity : AppCompatActivity() {
                 do {
                     preview_progress.post {
                         preview_progress.progress = preview.currentPosition
-                        Log.d("time", preview.currentPosition.toString())
                     }
                     try {
                         Thread.sleep(10)
