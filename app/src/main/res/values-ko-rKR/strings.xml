@@ -18,6 +18,8 @@
     <string name="export_title">Preview</string>
     <string name="export_text">exporting video</string>
     <string name="export_stop">stop</string>
+    <string name="start_preview">00:00</string>
+    <string name="save_text">Save</string>
     <string name="share_text">Share with</string>
     <string name="save">Saved in gallery</string>
     <string name="file_name">ZZAZZ</string>
