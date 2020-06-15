@@ -69,7 +69,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="8dp"
         android:layout_marginRight="25dp"
         android:maxHeight="3dp"
         android:padding="11.5dp"
@@ -86,31 +86,69 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="25dp"
+        android:layout_marginTop="38dp"
         android:fontFamily="@font/camptonmedium"
-        android:text="00:00"
+        android:text="@string/start_preview"
         android:textColor="#FFFFFF"
         android:textSize="10sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/preview_progress"
+        app:layout_constraintTop_toBottomOf="@id/preview"
         tools:ignore="SmallSp" />
 
     <TextView
         android:id="@+id/video_length"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="38dp"
         android:layout_marginEnd="25dp"
         android:fontFamily="@font/camptonmedium"
         android:textColor="#FFFFFF"
         android:textSize="10sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/preview_progress"
+        app:layout_constraintTop_toBottomOf="@id/preview"
         tools:ignore="SmallSp" />
 
     <TextView
-        android:id="@+id/share_text"
+        android:id="@+id/save_text"
         android:layout_width="wrap_content"
-        android:layout_height="42dp"
-        android:layout_marginTop="22dp"
+        android:layout_height="21dp"
+        android:layout_marginTop="85dp"
+        android:background="#000000"
+        android:fontFamily="@font/camptonmedium"
+        android:gravity="center"
+        android:text="@string/save_text"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/preview" />
+
+    <Button
+        android:id="@+id/save"
+        android:layout_width="32dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/save"
+        app:layout_constraintEnd_toEndOf="@id/save_text"
+        app:layout_constraintStart_toStartOf="@id/save_text"
+        app:layout_constraintTop_toBottomOf="@id/save_text" />
+
+    <View
+        android:layout_width="0.25dp"
+        android:layout_height="97dp"
+        android:layout_marginTop="80dp"
+        android:background="#50FFFFFF"
+        app:layout_constraintEnd_toStartOf="@id/share_text"
+        app:layout_constraintStart_toEndOf="@id/save_text"
+        app:layout_constraintTop_toBottomOf="@id/preview" />
+
+    <TextView
+        android:id="@+id/share_text"
+        android:layout_width="84dp"
+        android:layout_height="21dp"
+        android:layout_marginTop="85dp"
         android:background="#000000"
         android:fontFamily="@font/camptonmedium"
         android:gravity="center"
@@ -119,23 +157,24 @@
         android:textColor="#FFFFFF"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.77"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video_length" />
+        app:layout_constraintTop_toBottomOf="@id/preview" />
 
     <LinearLayout
-        android:layout_width="171dp"
-        android:layout_height="48dp"
+        android:layout_width="123dp"
+        android:layout_height="38dp"
         android:layout_marginTop="12dp"
         android:background="#000000"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/share_text"
+        app:layout_constraintStart_toStartOf="@id/share_text"
         app:layout_constraintTop_toBottomOf="@id/share_text">
 
         <Button
             android:id="@+id/share_instagram"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:layout_gravity="start"
             android:background="@drawable/icon_instagram" />
 
@@ -146,8 +185,8 @@
 
         <Button
             android:id="@+id/share_kakaotalk"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:layout_gravity="end"
             android:background="@drawable/icon_kakaotalk" />
 
