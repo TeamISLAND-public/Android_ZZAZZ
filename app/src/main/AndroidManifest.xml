@@ -36,14 +36,24 @@
         <!-- android:name=".ui.IntroActivity" -->
         <!-- android:launchMode="singleTop" /> -->
         <activity
-            android:name=".ui.IntroActivity"
-            android:launchMode="singleTop">
+            android:name=".ui.SplashActivity"
+            android:noHistory="true"
+            android:screenOrientation="fullSensor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.IntroActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/NoAnimation" />
+        <activity android:name=".ui.TrimmingActivity" />
+        <activity android:name=".ui.ProjectActivity" />
+        <activity android:name=".ui.RestrictionActivity" />
+        <activity android:name=".ui.ExportActivity" />
+        <activity android:name=".ui.EndActicity" />
     </application>
 
 </manifest>
