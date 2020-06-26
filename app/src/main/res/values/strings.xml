@@ -9,8 +9,8 @@
     <string name="trim_title">Trim</string>
 
     <!--    string of projectactivity-->
-    <string name="tab1_name">One</string>
-    <string name="tab2_name">Two</string>
+    <string name="project_title">Project</string>
+    <string name="export">export</string>
 
     <!--    string of exportactivity-->
     <string name="export_title">Preview</string>

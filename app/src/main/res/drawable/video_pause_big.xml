@@ -2,12 +2,12 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:drawable="@drawable/preview_pause_rectangle_right"
-        android:gravity="center_vertical|center_horizontal"
-        android:right="19dp" />
+    android:drawable="@drawable/video_pause_rectangle_right"
+    android:gravity="center_vertical|center_horizontal"
+    android:right="19dp" />
 
     <item
-        android:drawable="@drawable/preview_pause_rectangle_left"
+        android:drawable="@drawable/video_pause_rectangle_left"
         android:gravity="center_vertical|center_horizontal"
         android:left="19dp" />
 

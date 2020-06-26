@@ -108,7 +108,7 @@ class ExportActivity : AppCompatActivity() {
             video_length.text = String.format("%02d:%02d", minute, second)
         }
         preview_progress.max = duration
-        preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
+        preview_play.setImageDrawable(getDrawable(R.drawable.video_pause_big))
         preview.setOnPreparedListener {
             preview_progress.progress = 0
         }
@@ -227,15 +227,15 @@ class ExportActivity : AppCompatActivity() {
         preview_play.setOnClickListener {
             if (preview.isPlaying) {
                 preview.pause()
-                preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
-//                preview_play.background = getDrawable(R.drawable.shadow_effect)
+                preview_play.setImageDrawable(getDrawable(R.drawable.video_play_big))
+//                video_play_big.background = getDrawable(R.drawable.shadow_effect)
                 preview_play.outlineProvider = CustomOutlineProvider()
                 preview_play.clipToOutline = true
             } else {
                 if (end)
                     preview.seekTo(0)
                 preview.start()
-                preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
+                preview_play.setImageDrawable(getDrawable(R.drawable.video_pause_big))
             }
 
             preview_play.visibility = View.VISIBLE
@@ -258,7 +258,7 @@ class ExportActivity : AppCompatActivity() {
         // changing text of button is needed
         preview.setOnCompletionListener {
             preview.pause()
-            preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+            preview_play.setImageDrawable(getDrawable(R.drawable.video_play_big))
             end = true
         }
     }
