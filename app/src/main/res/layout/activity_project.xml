@@ -1,91 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/slide"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:gravity="bottom"
+    app:umanoDragView="@id/effect_tab"
+    app:umanoOverlay="false"
     tools:context=".ui.ProjectActivity">
 
-    <Button
-        android:id="@+id/back"
-        android:layout_width="9dp"
-        android:layout_height="17dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="21dp"
-        android:background="@drawable/back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/project_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:fontFamily="@font/camptonbolddemo"
-        android:text="@string/project_title"
-        android:textColor="#FFFFFF"
-        android:textSize="22sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/done_export"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#000000"
-        android:fontFamily="@font/camptonmedium"
-        android:text="@string/export"
-        android:textAllCaps="false"
-        android:textColor="#44FF9A"
-        android:textSize="17sp"
-        app:layout_constraintBottom_toBottomOf="@id/project_name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/project_name" />
-
-    <VideoView
-        android:id="@+id/video_display"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="64dp"
-        app:layout_constraintDimensionRatio="1.8:1"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent"
+        android:background="#000000">
 
-    <ImageButton
-        android:id="@+id/project_play"
-        android:layout_width="18dp"
-        android:layout_height="17dp"
-        android:layout_marginTop="18dp"
-        android:background="#00FFFFFF"
-        android:elevation="2dp"
-        android:scaleType="centerInside"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video_display" />
+        <Button
+            android:id="@+id/back"
+            android:layout_width="9dp"
+            android:layout_height="17dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="21dp"
+            android:background="@drawable/back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/project_next"
-        android:layout_width="23dp"
-        android:layout_height="13dp"
-        android:layout_marginStart="51dp"
-        android:background="#00FFFFFF"
-        android:elevation="2dp"
-        android:scaleType="centerInside"
-        app:layout_constraintStart_toStartOf="@id/project_play"
-        app:layout_constraintTop_toTopOf="@id/project_play"
-        app:layout_constraintBottom_toBottomOf="@id/project_play"/>
+        <TextView
+            android:id="@+id/project_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:fontFamily="@font/camptonbolddemo"
+            android:text="@string/project_title"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/project_back"
-        android:layout_width="23dp"
-        android:layout_height="13dp"
-        android:layout_marginEnd="52dp"
-        android:background="#00FFFFFF"
-        android:elevation="2dp"
-        android:scaleType="centerInside"
-        app:layout_constraintEnd_toEndOf="@id/project_play"
-        app:layout_constraintTop_toTopOf="@id/project_play"
-        app:layout_constraintBottom_toBottomOf="@id/project_play"/>
+        <Button
+            android:id="@+id/gotoExportActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#000000"
+            android:fontFamily="@font/camptonmedium"
+            android:text="@string/export"
+            android:textAllCaps="false"
+            android:textColor="#44FF9A"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toBottomOf="@id/project_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/project_name" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/video_display"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="64dp"
+            app:layout_constraintDimensionRatio="1.8:1"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/project_play"
+            android:layout_width="18dp"
+            android:layout_height="17dp"
+            android:layout_marginTop="18dp"
+            android:background="#00FFFFFF"
+            android:elevation="2dp"
+            android:scaleType="centerInside"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/video_display" />
+
+        <ImageButton
+            android:id="@+id/project_next"
+            android:layout_width="23dp"
+            android:layout_height="13dp"
+            android:layout_marginStart="51dp"
+            android:background="#00FFFFFF"
+            android:elevation="2dp"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="@id/project_play"
+            app:layout_constraintStart_toStartOf="@id/project_play"
+            app:layout_constraintTop_toTopOf="@id/project_play" />
+
+        <ImageButton
+            android:id="@+id/project_back"
+            android:layout_width="23dp"
+            android:layout_height="13dp"
+            android:layout_marginEnd="52dp"
+            android:background="#00FFFFFF"
+            android:elevation="2dp"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="@id/project_play"
+            app:layout_constraintEnd_toEndOf="@id/project_play"
+            app:layout_constraintTop_toTopOf="@id/project_play" />
+
+        <Button
+            android:id="@+id/add_effect_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/add_effect_button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/effect_tab"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#2F2F3E">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/camptonbolddemo"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/check_effect"
+            android:layout_width="11dp"
+            android:layout_height="12dp"
+            android:layout_marginEnd="26dp"
+            android:background="@drawable/check_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/effect_tab" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>

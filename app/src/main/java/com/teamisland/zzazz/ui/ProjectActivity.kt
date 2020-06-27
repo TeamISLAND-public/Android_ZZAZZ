@@ -1,51 +1,92 @@
 package com.teamisland.zzazz.ui
 
-import android.net.Uri
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
+import androidx.slidingpanelayout.widget.SlidingPaneLayout
+import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
 import kotlinx.android.synthetic.main.activity_project.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.properties.Delegates
 
 class ProjectActivity : AppCompatActivity() {
 
-    private lateinit var uri: String
+    private var maxFrame by Delegates.notNull<Int>()
+    private var fps by Delegates.notNull<Long>()
+    private lateinit var playing: Job
+    private var isPlaying: Boolean = true
+    private var frame: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
 
-        uri = "android.resource://$packageName/" + R.raw.test
-
-        video_display.setMediaController(null)
-        video_display.setVideoURI(Uri.parse(uri))
-        video_display.requestFocus()
+        fps = 30L
+        maxFrame = 100
 
         project_back.setImageDrawable(getDrawable(R.drawable.video_back))
         project_next.setImageDrawable(getDrawable(R.drawable.video_next))
 
-        var isPlaying: Boolean = true
         var end = false
         project_play.setImageDrawable(getDrawable(R.drawable.video_play_small))
         project_play.setOnClickListener {
             isPlaying = if (isPlaying) {
                 if (end) {
-                    video_display.seekTo(0)
                     end = false
                 }
                 project_play.setImageDrawable(getDrawable(R.drawable.video_pause_small))
-                video_display.start()
                 false
             } else {
                 project_play.setImageDrawable(getDrawable(R.drawable.video_play_small))
-                video_display.pause()
                 true
             }
         }
 
-        video_display.setOnCompletionListener {
-            video_display.pause()
-            project_play.setImageDrawable(getDrawable(R.drawable.video_play_small))
-            end = true
+        slide.anchorPoint = 0.5f
+        slide.getChildAt(1).setOnClickListener(null)
+        slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+
+        add_effect_button.setOnClickListener {
+            slide.panelState = SlidingUpPanelLayout.PanelState.ANCHORED
+        }
+
+        check_effect.setOnClickListener {
+            slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+        }
+
+//        playBitmap()
+
+        val intent = Intent(this, ExportActivity::class.java)
+        gotoExportActivity.setOnClickListener {
+            playing.cancel()
+            startActivity(intent)
+        }
+    }
+
+    private fun playBitmap() {
+        val handler = Handler()
+        playing = GlobalScope.launch {
+            while (isPlaying) {
+                if (frame == maxFrame) {
+                    isPlaying = false
+                    handler.post {
+                        project_play.setImageDrawable(getDrawable(R.drawable.video_play_small))
+                    }
+                    frame = 0
+                } else {
+                    handler.postDelayed(Runnable {
+//                        var bitmap: Bitmap
+//                        video_display.setImageBitmap(bitmap)
+                    }, 1000 / fps)
+                    frame++
+                }
+            }
         }
     }
 
