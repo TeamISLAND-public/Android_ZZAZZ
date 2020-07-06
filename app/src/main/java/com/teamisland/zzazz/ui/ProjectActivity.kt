@@ -3,7 +3,6 @@ package com.teamisland.zzazz.ui
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.view.MotionEvent
@@ -18,9 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import java.net.URI
 import java.nio.ByteBuffer
-import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.properties.Delegates
