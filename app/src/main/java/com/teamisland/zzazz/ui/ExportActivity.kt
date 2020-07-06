@@ -43,12 +43,13 @@ class ExportActivity : AppCompatActivity() {
 
     private lateinit var uri: String
     private var duration: Int = 0
+    //This is for done button
+    private var done = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
 
-        val value = intent.getParcelableExtra<VideoIntent>("value")
 //        uri = value.uri.toString()
         //This is for test
         uri = "android.resource://$packageName/" + R.raw.test
@@ -56,9 +57,11 @@ class ExportActivity : AppCompatActivity() {
         // set translucent the image when they are not installed
         if (!isInstall("com.instagram.android")) {
             share_instagram.alpha = 0.5F
+            share_instagram.isEnabled = true
         }
-        if (!isInstall("com.kakaotalk.android")) {
+        if (!isInstall("com.kakao.talk")) {
             share_kakaotalk.alpha = 0.5F
+            share_kakaotalk.isEnabled = false
         }
 
         videoInit()
@@ -68,6 +71,7 @@ class ExportActivity : AppCompatActivity() {
         }
 
         share_instagram.setOnClickListener {
+            preview.pause()
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "video/*"
             intent.putExtra(Intent.EXTRA_STREAM, uri)
@@ -76,6 +80,7 @@ class ExportActivity : AppCompatActivity() {
         }
 
         share_kakaotalk.setOnClickListener {
+            preview.pause()
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "video/*"
             intent.putExtra(Intent.EXTRA_STREAM, uri)
@@ -140,8 +145,6 @@ class ExportActivity : AppCompatActivity() {
         //When video is end, preview will start from first
         var end = false
 
-        //This is for done button
-        var done = false
         done_export.setOnClickListener {
             done = true
             val intent = Intent(this, IntroActivity::class.java)
@@ -192,10 +195,10 @@ class ExportActivity : AppCompatActivity() {
 
         preview_progress.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
-            //This is for check user is dragging
+            //This is for check_green user is dragging
             var drag = false
 
-            //This is for check the state of video before user dragging
+            //This is for check_green the state of video before user dragging
             var playing = true
 
             // while dragging
@@ -296,7 +299,7 @@ class ExportActivity : AppCompatActivity() {
         val input = contentResolver.openInputStream(Uri.parse(uri))
 
         //Make file directory for saving the video
-        val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
+        val dirString = Environment.getExternalStorageState().toString() + "/ZZAZZ"
         val dir = File(dirString)
         if (!dir.exists()) {
             dir.mkdirs()
