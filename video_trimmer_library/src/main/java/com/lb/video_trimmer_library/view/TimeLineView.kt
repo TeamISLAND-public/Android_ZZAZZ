@@ -45,7 +45,11 @@ open class TimeLineView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) :
     View(context, attrs, defStyleAttr) {
-    private var videoUri: Uri? = null
+    /**
+     * Uri of the video attached.
+     */
+    var videoUri: Uri? = null
+        private set
 
     @Suppress("LeakingThis")
 //    private var bitmapList: LongSparseArray<Bitmap>? = null
@@ -59,9 +63,13 @@ open class TimeLineView @JvmOverloads constructor(
 
     private fun getBitmap(viewWidth: Int, viewHeight: Int) {
         // Set thumbnail properties (Thumbs are squares)
+        if (videoUri == null) {
+            println("Error: videoUri is null")
+            return
+        }
         @Suppress("UnnecessaryVariable")
         val thumbSize = viewHeight
-        val numThumbs = ceil((viewWidth.toFloat() / thumbSize).toDouble()).toInt()
+        val numThumbs = ceil(viewWidth.toDouble() / thumbSize).toInt()
         bitmapList.clear()
         if (isInEditMode) {
             val bitmap = ThumbnailUtils.extractThumbnail(

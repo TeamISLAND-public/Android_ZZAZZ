@@ -86,7 +86,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
         strokePaint.strokeWidth =
             TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
-                6f,
+                3f,
                 context.resources.displayMetrics
             )
         strokePaint.color = 0xff44FF9A.toInt()
@@ -140,13 +140,35 @@ open class RangeSeekBarView @JvmOverloads constructor(
         if (thumbs.isEmpty())
             return
         // draw shadows outside of selected range
+        val hOffset = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            27f,
+            context.resources.displayMetrics
+        )
+        val hOffset2 = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            13f,
+            context.resources.displayMetrics
+        )
+        val hOffset3 =
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                14f,
+                context.resources.displayMetrics
+            )
+        val wOffset =
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                3f,
+                context.resources.displayMetrics
+            )
         for (thumb in thumbs) {
             if (thumb.index == ThumbType.LEFT.index) {
                 val x = thumb.pos + paddingLeft
                 if (x > pixelRangeMin)
                     canvas.drawRect(
                         thumbWidth.toFloat(),
-                        0f,
+                        hOffset,
                         (x + thumbWidth),
                         height.toFloat(),
                         shadowPaint
@@ -156,7 +178,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
                 if (x < pixelRangeMax)
                     canvas.drawRect(
                         x,
-                        0f,
+                        hOffset,
                         (viewWidth - thumbWidth).toFloat(),
                         height.toFloat(),
                         shadowPaint
@@ -165,48 +187,33 @@ open class RangeSeekBarView @JvmOverloads constructor(
         }
         //draw stroke around selected range
         val currentMarker = (width.toFloat() - 2 * thumbWidth) * currentPos + thumbWidth
-        canvas.drawLine(currentMarker, 0f, currentMarker, height.toFloat(), edgePaint)
+
+        canvas.drawLine(currentMarker, hOffset2, currentMarker, height.toFloat(), edgePaint)
+
         canvas.drawRect(
             (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth),
-            0f,
+            hOffset,
             thumbs[ThumbType.RIGHT.index].pos - paddingRight,
-            height.toFloat(),
+            height.toFloat() - hOffset3,
             strokePaint
         )
+
         //left
         canvas.drawRect(
+            (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth) - wOffset,
+            hOffset,
             (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth),
-            0f,
-            (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth) + 3f,
-            height.toFloat(),
+            height.toFloat() - hOffset3,
             strokePaint
         )
         //right
         canvas.drawRect(
-            thumbs[ThumbType.RIGHT.index].pos - paddingRight - 3f,
-            0f,
             thumbs[ThumbType.RIGHT.index].pos - paddingRight,
-            height.toFloat(),
+            hOffset,
+            thumbs[ThumbType.RIGHT.index].pos - paddingRight + wOffset,
+            height.toFloat() - hOffset3,
             strokePaint
         )
-        //draw edges
-//        val circleRadius = TypedValue.applyDimension(
-//            TypedValue.COMPLEX_UNIT_DIP,
-//            6f,
-//            context.resources.displayMetrics
-//        )
-//        canvas.drawCircle(
-//            (thumbs[ThumbType.LEFT.index].pos + paddingLeft + thumbWidth),
-//            height.toFloat() / 2f,
-//            circleRadius,
-//            edgePaint
-//        )
-//        canvas.drawCircle(
-//            thumbs[ThumbType.RIGHT.index].pos - paddingRight,
-//            height.toFloat() / 2f,
-//            circleRadius,
-//            edgePaint
-//        )
     }
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {

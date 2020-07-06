@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:contentDescription="@string/play_indicator"
-            app:srcCompat="@drawable/icon_video_play" />
+            app:srcCompat="@drawable/ic_video_play" />
 
     </FrameLayout>
 
@@ -42,7 +42,9 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="33dp"
+            android:layout_marginTop="27dp"
             android:layout_marginEnd="33dp"
+            android:layout_marginBottom="14dp"
             app:layout_constraintBottom_toBottomOf="@+id/rangeSeekBarView"
             app:layout_constraintEnd_toEndOf="@+id/rangeSeekBarView"
             app:layout_constraintStart_toStartOf="@+id/rangeSeekBarView"
@@ -51,9 +53,7 @@
         <com.teamisland.zzazz.utils.RangeSeekBarViewWithProgress
             android:id="@+id/rangeSeekBarView"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="27dp"
-            android:layout_marginBottom="14.5dp"
+            android:layout_height="81dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

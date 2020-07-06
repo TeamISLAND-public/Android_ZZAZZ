@@ -33,6 +33,7 @@ class VideoTrimmerView @JvmOverloads constructor(
         LayoutInflater.from(context).inflate(R.layout.video_trimmer, this, true)
     }
 
+
     override fun getTimeLineView(): TimeLineView = timeLineView
 
     override fun getTimeInfoContainer(): View = rangeSeekBarView
