@@ -39,7 +39,7 @@
         android:fontFamily="@font/camptonmedium"
         android:text="@string/done"
         android:textAllCaps="false"
-        android:textColor="#44FF9A"
+        android:textColor="@color/ZZAZZGreen"
         android:textSize="17sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
