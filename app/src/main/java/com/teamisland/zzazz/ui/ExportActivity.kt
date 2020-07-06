@@ -299,7 +299,7 @@ class ExportActivity : AppCompatActivity() {
         val input = contentResolver.openInputStream(Uri.parse(uri))
 
         //Make file directory for saving the video
-        val dirString = Environment.getExternalStorageState().toString() + "/ZZAZZ"
+        val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
         val dir = File(dirString)
         if (!dir.exists()) {
             dir.mkdirs()
