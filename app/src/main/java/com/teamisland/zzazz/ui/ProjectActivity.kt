@@ -2,6 +2,8 @@ package com.teamisland.zzazz.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.view.MotionEvent
@@ -14,10 +16,18 @@ import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.net.URI
+import java.nio.ByteBuffer
+import java.nio.file.Files
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.properties.Delegates
 
 class ProjectActivity : AppCompatActivity() {
 
+    private lateinit var video: Array<Bitmap>
     private var maxFrame by Delegates.notNull<Int>()
     private var fps by Delegates.notNull<Long>()
     private lateinit var playing: Job
@@ -29,8 +39,8 @@ class ProjectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
 
-        fps = 30L
-        maxFrame = 100
+//        fps = intent.getLongExtra("fps")
+//        maxFrame = intent.getIntExtra("frame")
 
         project_back.setImageDrawable(getDrawable(R.drawable.video_back))
         project_back.setOnTouchListener { _, event ->
@@ -126,6 +136,7 @@ class ProjectActivity : AppCompatActivity() {
                 }
 
                 MotionEvent.ACTION_UP -> {
+                    saveProject()
                     save_project.alpha = 1F
                 }
             }
@@ -144,6 +155,7 @@ class ProjectActivity : AppCompatActivity() {
                 MotionEvent.ACTION_UP -> {
                     gotoExportActivity.alpha = 1F
                     playing.cancel()
+//                    intent.putExtra("Uri", exportProject())
                     startActivity(intent)
                 }
             }
@@ -151,6 +163,7 @@ class ProjectActivity : AppCompatActivity() {
         }
     }
 
+    // play video
     private fun playBitmap() {
         val handler = Handler()
         playing = GlobalScope.launch {
@@ -163,8 +176,7 @@ class ProjectActivity : AppCompatActivity() {
                     frame = 0
                 } else {
                     handler.postDelayed(Runnable {
-//                        var bitmap: Bitmap
-//                        video_display.setImageBitmap(bitmap)
+//                        video_display.setImageBitmap(video[frame])
                     }, 1000 / fps)
                     frame++
                 }
@@ -196,5 +208,38 @@ class ProjectActivity : AppCompatActivity() {
             }
         })
         effect_view_pager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(effect_tab))
+    }
+
+    private fun saveProject() {
+
+    }
+
+    // export project to export activity
+    @Suppress("BlockingMethodInNonBlockingContext")
+    @SuppressLint("SimpleDateFormat")
+    private fun exportProject(): String {
+        val time = System.currentTimeMillis()
+        val date = Date(time)
+        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
+        val filename = nameFormat.format(date)
+        val file = filesDir.absoluteFile.path + "/$filename.mp4"
+        val output = FileOutputStream(File(file))
+
+        frame = 0
+        GlobalScope.launch {
+            while (frame <= maxFrame) {
+                // convert bitmap to bytes
+                val size = video[frame].rowBytes * video[frame].height
+                val bytes = ByteBuffer.allocate(size)
+                video[frame].copyPixelsToBuffer(bytes)
+                val byteArray = ByteArray(size)
+                bytes.get(byteArray, 0, byteArray.size)
+
+                output.write(byteArray)
+                frame++
+            }
+        }
+
+        return file
     }
 }

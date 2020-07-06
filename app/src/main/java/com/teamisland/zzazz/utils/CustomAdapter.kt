@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.teamisland.zzazz.R
 
-// List Adapter for effect tab
+// RecyclerView Adapter for effect tab (horizontal list)
 class CustomAdapter(
     private val list: ArrayList<String>,
     private val context: Context,

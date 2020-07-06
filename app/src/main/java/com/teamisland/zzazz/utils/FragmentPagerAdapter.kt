@@ -4,6 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 
+// connect tab and pager
 class FragmentPagerAdapter(
     fragmentManager: FragmentManager,
     private val tabCount: Int

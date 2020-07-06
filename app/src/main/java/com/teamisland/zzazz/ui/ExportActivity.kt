@@ -48,10 +48,9 @@ class ExportActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
 
-        val value = intent.getParcelableExtra<VideoIntent>("value")
-//        uri = value.uri.toString()
         //This is for test
         uri = "android.resource://$packageName/" + R.raw.test
+//        uri = intent.getStringExtra("Uri")
 
         // set translucent the image when they are not installed
         if (!isInstall("com.instagram.android")) {
@@ -296,7 +295,7 @@ class ExportActivity : AppCompatActivity() {
         val input = contentResolver.openInputStream(Uri.parse(uri))
 
         //Make file directory for saving the video
-        val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
+        val dirString = Environment.getExternalStorageState().toString() + "/ZZAZZ"
         val dir = File(dirString)
         if (!dir.exists()) {
             dir.mkdirs()
