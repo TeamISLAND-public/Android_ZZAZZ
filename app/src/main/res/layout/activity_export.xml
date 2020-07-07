@@ -4,18 +4,203 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000000"
     tools:context=".ui.ExportActivity">
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/back"
+        android:layout_width="9dp"
+        android:layout_height="17dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="167dp"
-        android:background="@drawable/export_stopexporting"
-        android:text="Stop export"
+        android:layout_marginTop="23dp"
+        android:fontFamily="@font/camptonbolddemo"
+        android:text="@string/export_title"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/done_export"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_marginTop="23dp"
+        android:background="#000000"
+        android:fontFamily="@font/camptonmedium"
+        android:text="@string/done"
+        android:textAllCaps="false"
+        android:textColor="#44FF9A"
+        android:textSize="17sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <VideoView
+        android:id="@+id/preview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="118dp"
+        app:layout_constraintDimensionRatio="1.8:1"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/preview_play"
+        android:layout_width="49dp"
+        android:layout_height="55dp"
+        android:background="#00FFFFFF"
+        android:elevation="2dp"
+        android:scaleType="centerInside"
+        app:layout_constraintBottom_toBottomOf="@id/preview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/preview" />
+
+    <SeekBar
+        android:id="@+id/preview_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="25dp"
+        android:maxHeight="3dp"
+        android:padding="11.5dp"
+        android:progressBackgroundTint="#292F3F"
+        android:progressTint="#49FF9A"
+        android:splitTrack="false"
+        android:thumb="@drawable/seekbar_thumb"
+        android:thumbOffset="11.5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/preview" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="38dp"
+        android:fontFamily="@font/camptonmedium"
+        android:text="@string/start_preview"
+        android:textColor="#FFFFFF"
+        android:textSize="10sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/preview"
+        tools:ignore="SmallSp" />
+
+    <TextView
+        android:id="@+id/video_length"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="38dp"
+        android:layout_marginEnd="25dp"
+        android:fontFamily="@font/camptonmedium"
+        android:textColor="#FFFFFF"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/preview"
+        tools:ignore="SmallSp" />
+
+    <TextView
+        android:id="@+id/save_text"
+        android:layout_width="wrap_content"
+        android:layout_height="21dp"
+        android:layout_marginTop="85dp"
+        android:background="#000000"
+        android:fontFamily="@font/camptonmedium"
+        android:gravity="center"
+        android:text="@string/save_text"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/preview" />
+
+    <Button
+        android:id="@+id/save"
+        android:layout_width="32dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/save"
+        app:layout_constraintEnd_toEndOf="@id/save_text"
+        app:layout_constraintStart_toStartOf="@id/save_text"
+        app:layout_constraintTop_toBottomOf="@id/save_text" />
+
+    <View
+        android:layout_width="0.25dp"
+        android:layout_height="97dp"
+        android:layout_marginTop="80dp"
+        android:background="#50FFFFFF"
+        app:layout_constraintEnd_toStartOf="@id/share_text"
+        app:layout_constraintStart_toEndOf="@id/save_text"
+        app:layout_constraintTop_toBottomOf="@id/preview" />
+
+    <TextView
+        android:id="@+id/share_text"
+        android:layout_width="84dp"
+        android:layout_height="21dp"
+        android:layout_marginTop="85dp"
+        android:background="#000000"
+        android:fontFamily="@font/camptonmedium"
+        android:gravity="center"
+        android:text="@string/share_text"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.77"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/preview" />
+
+    <LinearLayout
+        android:layout_width="123dp"
+        android:layout_height="38dp"
+        android:layout_marginTop="12dp"
+        android:background="#000000"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@id/share_text"
+        app:layout_constraintStart_toStartOf="@id/share_text"
+        app:layout_constraintTop_toBottomOf="@id/share_text">
+
+        <Button
+            android:id="@+id/share_instagram"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_gravity="start"
+            android:background="@drawable/icon_instagram" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/share_kakaotalk"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_gravity="end"
+            android:background="@drawable/icon_kakaotalk" />
+
+    </LinearLayout>
+
+    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
