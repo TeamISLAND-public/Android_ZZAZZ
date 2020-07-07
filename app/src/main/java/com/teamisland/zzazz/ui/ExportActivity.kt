@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewOutlineProvider
@@ -28,7 +29,6 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_export.*
 import kotlinx.android.synthetic.main.export_dialog.*
 import kotlinx.coroutines.*
@@ -43,8 +43,15 @@ class ExportActivity : AppCompatActivity() {
 
     private lateinit var uri: String
     private var duration: Int = 0
+
     //This is for done button
     private var done = false
+
+    override fun onRestart() {
+        super.onRestart()
+        preview.seekTo(0)
+        preview.start()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,24 +77,22 @@ class ExportActivity : AppCompatActivity() {
             videoSave()
         }
 
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.type = "video/*"
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
+
         share_instagram.setOnClickListener {
             preview.pause()
-            preview.seekTo(0)
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.type = "video/*"
-            intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
-            intent.setPackage("com.instagram.android")
-            startActivity(intent)
+            preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+            shareIntent.setPackage("com.instagram.android")
+            startActivity(shareIntent)
         }
 
         share_kakaotalk.setOnClickListener {
             preview.pause()
-            preview.seekTo(0)
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.type = "video/*"
-            intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
-            intent.setPackage("com.kakao.talk")
-            startActivity(intent)
+            preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+            shareIntent.setPackage("com.kakao.talk")
+            startActivity(shareIntent)
         }
 
         //This is for test device which is the emulator
