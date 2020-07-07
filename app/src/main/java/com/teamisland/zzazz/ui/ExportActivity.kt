@@ -72,6 +72,7 @@ class ExportActivity : AppCompatActivity() {
 
         share_instagram.setOnClickListener {
             preview.pause()
+            preview.seekTo(0)
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "video/*"
             intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
@@ -81,6 +82,7 @@ class ExportActivity : AppCompatActivity() {
 
         share_kakaotalk.setOnClickListener {
             preview.pause()
+            preview.seekTo(0)
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "video/*"
             intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
