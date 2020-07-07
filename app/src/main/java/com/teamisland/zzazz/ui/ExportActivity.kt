@@ -50,8 +50,8 @@ class ExportActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
 
-//        uri = value.uri.toString()
         //This is for test
+//        uri = intent.getStringExtra("uri")
         uri = "android.resource://$packageName/" + R.raw.test
 
         // set translucent the image when they are not installed
