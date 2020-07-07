@@ -1,17 +1,15 @@
 package com.teamisland.zzazz.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.MotionEvent
-import androidx.annotation.RawRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toFile
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
@@ -22,7 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.Exception
+import java.io.InputStream
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
@@ -52,7 +50,8 @@ class ProjectActivity : AppCompatActivity() {
         fps = 30L
         maxFrame = 5184
         video = ArrayList(maxFrame + 1)
-        uri = Uri.parse(intent.getStringExtra("uri"))
+//        uri = Uri.parse(intent.getStringExtra("uri"))
+        uri = Uri.parse("android.resource://" + packageName + "/" + R.raw.test_5s)
 
         val mediaMetadataRetriever = MediaMetadataRetriever()
 //        mediaMetadataRetriever.setDataSource(uri.path)

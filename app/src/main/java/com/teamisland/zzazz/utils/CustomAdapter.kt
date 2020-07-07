@@ -5,13 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.teamisland.zzazz.R
 
 // RecyclerView Adapter for effect tab (horizontal list)
 class CustomAdapter(
-    private val list: ArrayList<String>,
+    private val list: ArrayList<Int>,
     private val context: Context,
     private val onClickItem: View.OnClickListener
 ) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
@@ -27,13 +28,11 @@ class CustomAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = list[position]
-        holder.textView.text = item
-//        holder.textView.tag = item
-//        holder.textView.setOnClickListener(onClickItem)
+        holder.imageView.setImageResource(list[position])
+        holder.imageView.setOnClickListener(onClickItem)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val textView = itemView.findViewById<TextView>(R.id.item)!!
+        val imageView = itemView.findViewById<ImageView>(R.id.item)!!
     }
 }

@@ -13,8 +13,8 @@ class ItemDecoration {
             parent: RecyclerView,
             state: RecyclerView.State
         ) {
-            outRect.top = 20
-            outRect.left = 10
+            outRect.top = 50
+            outRect.left = 50
             view.layoutParams.width = 80
             view.layoutParams.height = 80
         }
