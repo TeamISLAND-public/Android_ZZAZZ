@@ -74,7 +74,7 @@ class ExportActivity : AppCompatActivity() {
             preview.pause()
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "video/*"
-            intent.putExtra(Intent.EXTRA_STREAM, uri)
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
             intent.setPackage("com.instagram.android")
             startActivity(intent)
         }
@@ -83,7 +83,7 @@ class ExportActivity : AppCompatActivity() {
             preview.pause()
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "video/*"
-            intent.putExtra(Intent.EXTRA_STREAM, uri)
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
             intent.setPackage("com.kakao.talk")
             startActivity(intent)
         }
@@ -382,10 +382,10 @@ class ExportActivity : AppCompatActivity() {
         if (requestCode == 1)
             return
     }
-}
 
-private class CustomOutlineProvider : ViewOutlineProvider() {
-    override fun getOutline(view: View?, outline: Outline?) {
-        outline!!.setRoundRect(0, 0, view!!.width, view.height, 10F)
+    private class CustomOutlineProvider : ViewOutlineProvider() {
+        override fun getOutline(view: View?, outline: Outline?) {
+            outline!!.setRoundRect(0, 0, view!!.width, view.height, 10F)
+        }
     }
 }
