@@ -49,8 +49,8 @@ class ExportActivity : AppCompatActivity() {
         setContentView(R.layout.activity_export)
 
         //This is for test
-        uri = "android.resource://$packageName/" + R.raw.test
-//        uri = intent.getStringExtra("Uri")
+        uri = "android.resource://$packageName/" + R.raw.test_5s
+//        uri = intent.getParcelableExtra<Uri>("Uri")
 
         // set translucent the image when they are not installed
         if (!isInstall("com.instagram.android")) {
@@ -378,10 +378,10 @@ class ExportActivity : AppCompatActivity() {
         if (requestCode == 1)
             return
     }
-}
 
-private class CustomOutlineProvider : ViewOutlineProvider() {
-    override fun getOutline(view: View?, outline: Outline?) {
-        outline!!.setRoundRect(0, 0, view!!.width, view.height, 10F)
+    private class CustomOutlineProvider : ViewOutlineProvider() {
+        override fun getOutline(view: View?, outline: Outline?) {
+            (outline ?: return).setRoundRect(0, 0, view!!.width, view.height, 10F)
+        }
     }
 }

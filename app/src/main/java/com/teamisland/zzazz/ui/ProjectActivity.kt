@@ -3,10 +3,15 @@ package com.teamisland.zzazz.ui
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.MotionEvent
+import androidx.annotation.RawRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toFile
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
@@ -17,20 +22,24 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import java.lang.Exception
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 class ProjectActivity : AppCompatActivity() {
 
-    private lateinit var video: Array<Bitmap>
+    private lateinit var uri: Uri
+    private lateinit var video: ArrayList<Bitmap>
     private var maxFrame by Delegates.notNull<Int>()
     private var fps by Delegates.notNull<Long>()
     private lateinit var playing: Job
     private var isPlaying: Boolean = true
     private var frame: Int = 0
 
+    @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +47,23 @@ class ProjectActivity : AppCompatActivity() {
 
 //        fps = intent.getLongExtra("fps")
 //        maxFrame = intent.getIntExtra("frame")
+//        uri = intent.getParcelableExtra("Uri")
+
+        fps = 30L
+        maxFrame = 5184
+        video = ArrayList(maxFrame + 1)
+        uri = Uri.parse(intent.getStringExtra("uri"))
+
+        val mediaMetadataRetriever = MediaMetadataRetriever()
+//        mediaMetadataRetriever.setDataSource(uri.path)
+        for (i in 1..maxFrame + 1) {
+            video.add(
+                mediaMetadataRetriever.getFrameAtTime(
+                    (1000000 * i).toLong(),
+                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+                )
+            )
+        }
 
         project_back.setImageDrawable(getDrawable(R.drawable.video_back))
         project_back.setOnTouchListener { _, event ->
@@ -140,7 +166,7 @@ class ProjectActivity : AppCompatActivity() {
             true
         }
 
-//        playBitmap()
+        playBitmap()
 
         val intent = Intent(this, ExportActivity::class.java)
         gotoExportActivity.setOnTouchListener { _, event ->
