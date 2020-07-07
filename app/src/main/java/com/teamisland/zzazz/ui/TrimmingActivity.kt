@@ -110,7 +110,7 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener {
     }
 
     /**
-     * check {[android.media.MediaPlayer.OnErrorListener]}
+     * check_green {[android.media.MediaPlayer.OnErrorListener]}
      */
     override fun onErrorWhileViewingVideo(what: Int, extra: Int) {
         //trimmingProgressView.visibility = View.GONE

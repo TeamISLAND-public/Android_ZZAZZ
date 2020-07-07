@@ -28,7 +28,6 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_export.*
 import kotlinx.android.synthetic.main.export_dialog.*
 import kotlinx.coroutines.*
@@ -44,6 +43,16 @@ class ExportActivity : AppCompatActivity() {
     private lateinit var uri: String
     private var duration: Int = 0
 
+    //This is for done button
+    private var done = false
+
+    override fun onRestart() {
+        super.onRestart()
+        preview.seekTo(0)
+        preview.start()
+        preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
@@ -55,9 +64,11 @@ class ExportActivity : AppCompatActivity() {
         // set translucent the image when they are not installed
         if (!isInstall("com.instagram.android")) {
             share_instagram.alpha = 0.5F
+            share_instagram.isEnabled = false
         }
-        if (!isInstall("com.kakaotalk.android")) {
+        if (!isInstall("com.kakao.talk")) {
             share_kakaotalk.alpha = 0.5F
+            share_kakaotalk.isEnabled = false
         }
 
         videoInit()
@@ -66,20 +77,24 @@ class ExportActivity : AppCompatActivity() {
             videoSave()
         }
 
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
+            type = "video/*"
+        }
+
         share_instagram.setOnClickListener {
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.type = "video/*"
-            intent.putExtra(Intent.EXTRA_STREAM, uri)
-            intent.setPackage("com.instagram.android")
-            startActivity(intent)
+            preview.pause()
+            preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+            shareIntent.setPackage("com.instagram.android")
+            startActivity(shareIntent)
         }
 
         share_kakaotalk.setOnClickListener {
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.type = "video/*"
-            intent.putExtra(Intent.EXTRA_STREAM, uri)
-            intent.setPackage("com.kakao.talk")
-            startActivity(intent)
+            preview.pause()
+            preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+            shareIntent.setPackage("com.kakao.talk")
+            startActivity(shareIntent)
         }
 
         //This is for test device which is the emulator
@@ -107,7 +122,7 @@ class ExportActivity : AppCompatActivity() {
             video_length.text = String.format("%02d:%02d", minute, second)
         }
         preview_progress.max = duration
-        preview_play.setImageDrawable(getDrawable(R.drawable.video_pause_big))
+        preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
         preview.setOnPreparedListener {
             preview_progress.progress = 0
         }
@@ -139,8 +154,6 @@ class ExportActivity : AppCompatActivity() {
         //When video is end, preview will start from first
         var end = false
 
-        //This is for done button
-        var done = false
         done_export.setOnClickListener {
             done = true
             val intent = Intent(this, IntroActivity::class.java)
@@ -191,10 +204,10 @@ class ExportActivity : AppCompatActivity() {
 
         preview_progress.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
-            //This is for check user is dragging
+            //This is for check_green user is dragging
             var drag = false
 
-            //This is for check the state of video before user dragging
+            //This is for check_green the state of video before user dragging
             var playing = true
 
             // while dragging
@@ -226,15 +239,15 @@ class ExportActivity : AppCompatActivity() {
         preview_play.setOnClickListener {
             if (preview.isPlaying) {
                 preview.pause()
-                preview_play.setImageDrawable(getDrawable(R.drawable.video_play_big))
-//                video_play_big.background = getDrawable(R.drawable.shadow_effect)
+                preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+//                preview_play.background = getDrawable(R.drawable.shadow_effect)
                 preview_play.outlineProvider = CustomOutlineProvider()
                 preview_play.clipToOutline = true
             } else {
                 if (end)
                     preview.seekTo(0)
                 preview.start()
-                preview_play.setImageDrawable(getDrawable(R.drawable.video_pause_big))
+                preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
             }
 
             preview_play.visibility = View.VISIBLE
@@ -257,7 +270,7 @@ class ExportActivity : AppCompatActivity() {
         // changing text of button is needed
         preview.setOnCompletionListener {
             preview.pause()
-            preview_play.setImageDrawable(getDrawable(R.drawable.video_play_big))
+            preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
             end = true
         }
     }

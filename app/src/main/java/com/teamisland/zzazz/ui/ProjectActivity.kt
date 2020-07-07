@@ -1,7 +1,6 @@
 package com.teamisland.zzazz.ui
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
@@ -20,7 +19,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
