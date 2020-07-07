@@ -51,6 +51,7 @@ class ExportActivity : AppCompatActivity() {
         super.onRestart()
         preview.seekTo(0)
         preview.start()
+        preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
