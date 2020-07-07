@@ -78,9 +78,11 @@ class ExportActivity : AppCompatActivity() {
             videoSave()
         }
 
-        val shareIntent = Intent(Intent.ACTION_SEND)
-        shareIntent.type = "video/*"
-        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
+            type = "video/*"
+        }
 
         share_instagram.setOnClickListener {
             preview.pause()
