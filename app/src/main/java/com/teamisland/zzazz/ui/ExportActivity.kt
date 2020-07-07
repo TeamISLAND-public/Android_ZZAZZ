@@ -57,7 +57,7 @@ class ExportActivity : AppCompatActivity() {
         // set translucent the image when they are not installed
         if (!isInstall("com.instagram.android")) {
             share_instagram.alpha = 0.5F
-            share_instagram.isEnabled = true
+            share_instagram.isEnabled = false
         }
         if (!isInstall("com.kakao.talk")) {
             share_kakaotalk.alpha = 0.5F
@@ -299,7 +299,7 @@ class ExportActivity : AppCompatActivity() {
         val input = contentResolver.openInputStream(Uri.parse(uri))
 
         //Make file directory for saving the video
-        val dirString = Environment.getExternalStorageState().toString() + "/ZZAZZ"
+        val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
         val dir = File(dirString)
         if (!dir.exists()) {
             dir.mkdirs()
