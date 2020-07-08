@@ -54,11 +54,11 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener {
 
     private fun takePermission() {
         if (ActivityCompat.checkSelfPermission(
-                this,
+                this@TrimmingActivity,
                 READ_EXTERNAL_STORAGE
             ) != PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(
-                this,
+                this@TrimmingActivity,
                 WRITE_EXTERNAL_STORAGE
             ) != PackageManager.PERMISSION_GRANTED
         ) {

@@ -26,6 +26,7 @@ package com.lb.video_trimmer_library.view
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.os.Environment
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
