@@ -50,7 +50,7 @@
             app:layout_constraintStart_toStartOf="@+id/rangeSeekBarView"
             app:layout_constraintTop_toTopOf="@+id/rangeSeekBarView" />
 
-        <com.teamisland.zzazz.utils.RangeSeekBarViewWithProgress
+        <com.lb.video_trimmer_library.view.RangeSeekBarView
             android:id="@+id/rangeSeekBarView"
             android:layout_width="match_parent"
             android:layout_height="81dp"

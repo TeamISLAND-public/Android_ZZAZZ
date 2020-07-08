@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.lb.video_trimmer_library.interfaces.VideoTrimmingListener
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_trimming.*
 import java.io.File
 
@@ -26,20 +25,7 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trimming)
-
-        val intent = Intent(this, ProjectActivity::class.java)
-        // This should be edited.
-        // duration is duration of video, uri is uri parse of video
-        val value =
-            VideoIntent(
-                5184,
-                "android.resource://" + packageName + "/" + R.raw.test_5s
-            )
-        intent.putExtra("value", value)
-
-        video_uri = getIntent().getParcelableExtra(getString(R.string.selected_video_uri))
-        gotoProjectActivity.setOnClickListener { startActivity(intent) }
-
+        video_uri = intent.getParcelableExtra(getString(R.string.selected_video_uri))
         videoTrimmer.setMaxDurationInMs(resources.getInteger(R.integer.length_limit))
         videoTrimmer.setOnK4LVideoListener(this)
         takePermission()
@@ -51,6 +37,19 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener {
         videoTrimmer.setVideoURI(video_uri ?: return)
         videoTrimmer.setVideoInformationVisibility(true)
         backButton.setOnClickListener { onBackPressed() }
+        println(trimmedVideoFile)
+        gotoProjectActivity.setOnClickListener {
+            val intent = Intent(this, ProjectActivity::class.java)
+            videoTrimmer.initiateTrimming()
+            val uriToSend = Uri.fromFile(trimmedVideoFile)
+            intent.putExtra("Trimmed_uri", uriToSend)
+            startActivity(intent)
+        }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        startActivity(Intent(this, IntroActivity::class.java))
     }
 
     private fun takePermission() {
@@ -103,9 +102,6 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener {
         } else {
             val msg = getString(R.string.video_saved_at, uri.path)
             Toast.makeText(this@TrimmingActivity, msg, Toast.LENGTH_SHORT).show()
-            val intent = Intent(Intent.ACTION_VIEW, uri)
-            intent.setDataAndType(uri, "video/mp4")
-            startActivity(intent)
         }
         finish()
     }

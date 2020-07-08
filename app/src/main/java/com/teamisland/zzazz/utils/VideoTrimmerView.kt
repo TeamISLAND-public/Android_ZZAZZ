@@ -11,6 +11,7 @@ import com.lb.video_trimmer_library.view.RangeSeekBarView
 import com.lb.video_trimmer_library.view.TimeLineView
 import com.teamisland.zzazz.R
 import kotlinx.android.synthetic.main.video_trimmer.view.*
+import org.jetbrains.annotations.Nullable
 
 class VideoTrimmerView @JvmOverloads constructor(
     context: Context,
@@ -52,7 +53,7 @@ class VideoTrimmerView @JvmOverloads constructor(
     }
 
     override fun onVideoPlaybackReachingTime(timeInMs: Int) {
-        rangeSeekBarView.setCurrent(timeInMs.toFloat() / videoView.duration)
+        rangeSeekBarView.currentPos = timeInMs.toFloat() / videoView.duration
         rangeSeekBarView.invalidate()
     }
 

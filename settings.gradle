@@ -1,2 +1,2 @@
 rootProject.name='ZZAZZ'
-include ':app'
+include ':app', ':video_trimmer_library'
