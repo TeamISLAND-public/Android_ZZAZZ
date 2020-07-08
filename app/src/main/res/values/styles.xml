@@ -9,7 +9,6 @@
     <!-- No Animation Activity -->
     <style name="NoAnimation" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowAnimationStyle">@null</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     </style>
 
 </resources>
