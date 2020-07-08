@@ -52,8 +52,8 @@ class VideoTrimmerView @JvmOverloads constructor(
     }
 
     override fun onVideoPlaybackReachingTime(timeInMs: Int) {
-//        rangeSeekBarView.currentPos = (timeInMs.toFloat() / videoView.duration)
-//        rangeSeekBarView.invalidate()
+        rangeSeekBarView.currentPos = (timeInMs.toFloat() / videoView.duration)
+        rangeSeekBarView.invalidate()
     }
 
     override fun onGotVideoFileSize(videoFileSize: Long) {

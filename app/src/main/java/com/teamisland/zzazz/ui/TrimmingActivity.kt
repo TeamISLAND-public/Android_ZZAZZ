@@ -50,6 +50,7 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener {
         videoTrimmer.setDestinationFile(trimmedVideoFile)
         videoTrimmer.setVideoURI(video_uri ?: return)
         videoTrimmer.setVideoInformationVisibility(true)
+        backButton.setOnClickListener { onBackPressed() }
     }
 
     private fun takePermission() {
