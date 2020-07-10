@@ -134,6 +134,7 @@ class ExportActivity : AppCompatActivity() {
         videoStart()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun videoStart() {
         preview.seekTo(0)
         preview.start()
@@ -162,17 +163,37 @@ class ExportActivity : AppCompatActivity() {
         //When video is end, preview will start from first
         var end = false
 
-        done_export.setOnClickListener {
-            done = true
-            val intent = Intent(this, IntroActivity::class.java)
-            intent.flags =
-                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
+        done_export.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    share.alpha = 0.4F
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    share.alpha = 1F
+                    done = true
+                    val intent = Intent(this, IntroActivity::class.java)
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
+                }
+            }
+            true
         }
 
-        back.setOnClickListener {
-            done = true
-            finish()
+        back.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    share.alpha = 0.4F
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    share.alpha = 1F
+                    done = true
+                    finish()
+                }
+            }
+            true
         }
 
         //Use thread to link seekBar from video
