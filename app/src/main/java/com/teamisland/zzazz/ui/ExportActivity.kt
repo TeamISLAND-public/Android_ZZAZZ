@@ -166,11 +166,11 @@ class ExportActivity : AppCompatActivity() {
         done_export.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    share.alpha = 0.4F
+                    done_export.alpha = 0.4F
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    share.alpha = 1F
+                    done_export.alpha = 1F
                     done = true
                     val intent = Intent(this, IntroActivity::class.java)
                     intent.flags =
@@ -184,11 +184,11 @@ class ExportActivity : AppCompatActivity() {
         back.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    share.alpha = 0.4F
+                    back.alpha = 0.4F
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    share.alpha = 1F
+                    back.alpha = 1F
                     done = true
                     finish()
                 }
