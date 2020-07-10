@@ -26,13 +26,18 @@ package com.teamisland.zzazz.video_trimmer_library.view
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Paint.Style.*
+import android.graphics.Path
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import androidx.annotation.ColorInt
 import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
+import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView.ThumbType.LEFT
+import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView.ThumbType.RIGHT
 import kotlin.math.absoluteValue
 
 /**
@@ -45,18 +50,30 @@ open class RangeSeekBarView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) :
     View(context, attrs, defStyleAttr) {
+
+    /**
+     * ThumbType.
+     * @property index Index of thumb
+     */
     enum class ThumbType(val index: Int) {
-        LEFT(0), RIGHT(1)
+        /**
+         * Left thumb; start
+         */
+        LEFT(0),
+
+        /**
+         * Right thumb; end
+         */
+        RIGHT(1)
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
     private val edgePaint = Paint()
-    private val scaleRangeMax: Float = 100f
     private val shadowPaint = Paint()
     private val strokePaint = Paint()
+    private val trianglePaint = Paint()
     private val strokeBoxPaint = Paint()
-    private val thumbTouchExtraMultiplier = initThumbTouchExtraMultiplier()
-    private val thumbs = arrayOf(Thumb(ThumbType.LEFT.index), Thumb(ThumbType.RIGHT.index))
+    private val thumbs = arrayOf(Thumb(LEFT.index), Thumb(RIGHT.index))
     private var firstRun: Boolean = true
     private var listeners = HashSet<OnRangeSeekBarListener>()
     private var maxWidth: Float = 0.toFloat()
@@ -66,6 +83,10 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private lateinit var frameAdvance: Button
     private lateinit var frameRetreat: Button
     private var currentThumb: Int = -1
+    private var videoDuration: Int = 0
+    private var videoFpsMillisecond: Int = 0
+    private val leftTriangle = Path()
+    private val rightTriangle = Path()
 
     /**
      * Thumb width.
@@ -73,61 +94,89 @@ open class RangeSeekBarView @JvmOverloads constructor(
     val thumbWidth: Int = initThumbWidth(context)
 
     /**
-     * Current video position in percentage.
+     * Get start point in ms.
      */
-    var currentPos: Float = 0F
+    fun getStart(): Int = thumbs[LEFT.index].value
+
+    /**
+     * Get endpoint in ms.
+     */
+    fun getEnd(): Int = thumbs[RIGHT.index].value
+
+    private fun float2DP(float: Float): Float {
+        return TypedValue.applyDimension(COMPLEX_UNIT_DIP, float, context.resources.displayMetrics)
+    }
+
+    /**
+     * Sets the duration of the video.
+     */
+    fun setDuration(duration: Int) {
+        videoDuration = duration
+        thumbs[LEFT.index].value = 0
+        thumbs[RIGHT.index].value = duration
+    }
+
+    /**
+     * Sets the fps of the video.
+     */
+    fun setFPS(fps: Int) {
+        videoFpsMillisecond = 1000 / fps
+    }
+
+    private fun setStrokePaint() {
+        strokePaint.isAntiAlias = true
+        strokePaint.style = FILL
+        strokePaint.strokeWidth = float2DP(3f)
+        strokePaint.color = 0xffe6e6e6.toInt()
+    }
+
+    private fun setShadowPaint() {
+        shadowPaint.isAntiAlias = true
+        shadowPaint.color = initShadowColor()
+    }
+
+    private fun setStrokeBoxPaint() {
+        strokeBoxPaint.isAntiAlias = true
+        strokeBoxPaint.style = STROKE
+        strokeBoxPaint.strokeWidth = float2DP(4f)
+        strokeBoxPaint.color = 0xffe6e6e6.toInt()
+    }
+
+    private fun setEdgePaint() {
+        edgePaint.isAntiAlias = true
+        edgePaint.color = 0xffffffff.toInt()
+        edgePaint.strokeWidth = float2DP(2f)
+    }
+
+    private fun setTrianglePaint() {
+        trianglePaint.color = 0xff070707.toInt()
+        trianglePaint.isAntiAlias = true
+        trianglePaint.style = FILL_AND_STROKE
+    }
 
     init {
         isFocusable = true
         isFocusableInTouchMode = true
 
-        shadowPaint.isAntiAlias = true
-        shadowPaint.color = initShadowColor()
-
-        strokePaint.isAntiAlias = true
-        strokePaint.style = Paint.Style.FILL_AND_STROKE
-        strokePaint.strokeWidth =
-            TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                3f,
-                context.resources.displayMetrics
-            )
-        strokePaint.color = 0xffe6e6e6.toInt()
-
-        strokeBoxPaint.isAntiAlias = true
-        strokeBoxPaint.style = Paint.Style.STROKE
-        strokeBoxPaint.strokeWidth =
-            TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                1f,
-                context.resources.displayMetrics
-            )
-        strokeBoxPaint.color = 0xffe6e6e6.toInt()
-
-        edgePaint.isAntiAlias = true
-        edgePaint.color = 0xffffffff.toInt()
-        edgePaint.strokeWidth =
-            TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                2f,
-                context.resources.displayMetrics
-            )
+        setStrokePaint()
+        setShadowPaint()
+        setStrokeBoxPaint()
+        setEdgePaint()
+        setTrianglePaint()
     }
 
+    /**
+     * Sets frame move button.
+     */
     fun setButtons(advance: Button, retreat: Button) {
         frameAdvance = advance
         frameRetreat = retreat
         setButtonVisibility()
-        val step = 1f
         advance.setOnClickListener {
-            println(thumbs[0].pos)
-            println(thumbs[1].pos)
-            incrementThumbPos(currentThumb, step)
+            incrementThumbPos(currentThumb, videoFpsMillisecond)
         }
         retreat.setOnClickListener {
-            println(thumbs[0].pos)
-            println(thumbs[1].pos)
-            incrementThumbPos(currentThumb, -step)
+            incrementThumbPos(currentThumb, -videoFpsMillisecond)
         }
     }
 
@@ -137,35 +186,44 @@ open class RangeSeekBarView @JvmOverloads constructor(
                 frameAdvance.visibility = GONE
                 frameRetreat.visibility = GONE
             }
-            ThumbType.LEFT.index -> {
-                frameAdvance.visibility = VISIBLE
-                frameRetreat.visibility = VISIBLE
+            LEFT.index -> {
+                frameAdvance.visibility =
+                    if (thumbs[LEFT.index].value + videoFpsMillisecond < thumbs[RIGHT.index].value) VISIBLE else INVISIBLE
+                frameRetreat.visibility =
+                    if (thumbs[LEFT.index].value - videoFpsMillisecond >= 0) VISIBLE else INVISIBLE
             }
-            ThumbType.RIGHT.index -> {
-                frameAdvance.visibility = VISIBLE
-                frameRetreat.visibility = VISIBLE
+            RIGHT.index -> {
+                frameAdvance.visibility =
+                    if (thumbs[RIGHT.index].value + videoFpsMillisecond <= videoDuration) VISIBLE else INVISIBLE
+                frameRetreat.visibility =
+                    if (thumbs[LEFT.index].value < thumbs[RIGHT.index].value - videoFpsMillisecond) VISIBLE else INVISIBLE
             }
         }
     }
 
+    /**
+     * Color of the shadow.
+     */
     @ColorInt
-    open fun initShadowColor(): Int = 0xB1000000.toInt()
+    open fun initShadowColor(): Int = 0xB3070707.toInt()
 
-    open fun initThumbTouchExtraMultiplier(): Float = 0.0f
+    /**
+     * Thumb width.
+     */
+    open fun initThumbWidth(context: Context): Int = float2DP(20f).toInt().coerceAtLeast(1)
 
-    open fun initThumbWidth(context: Context): Int =
-        TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            20f,
-            context.resources.displayMetrics
-        ).toInt().coerceAtLeast(1)
-
+    /**
+     * Initialize maxWidth.
+     */
     fun initMaxWidth() {
-        maxWidth = thumbs[ThumbType.RIGHT.index].pos - thumbs[ThumbType.LEFT.index].pos
-        onSeekStop(this, ThumbType.LEFT.index, thumbs[ThumbType.LEFT.index].value)
-        onSeekStop(this, ThumbType.RIGHT.index, thumbs[ThumbType.RIGHT.index].value)
+        maxWidth = thumbs[RIGHT.index].pos - thumbs[LEFT.index].pos
+        onSeekStop(this, LEFT.index, thumbs[LEFT.index].value)
+        onSeekStop(this, RIGHT.index, thumbs[RIGHT.index].value)
     }
 
+    /**
+     * [View.onMeasure]
+     */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         viewWidth = measuredWidth
@@ -173,7 +231,6 @@ open class RangeSeekBarView @JvmOverloads constructor(
         pixelRangeMax = (viewWidth - 2 * thumbWidth).toFloat()
         if (firstRun) {
             for ((index, thumb) in thumbs.withIndex()) {
-                thumb.value = scaleRangeMax * index
                 thumb.pos = (pixelRangeMax - thumbWidth) * index
             }
             // Fire listener callback
@@ -182,13 +239,17 @@ open class RangeSeekBarView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * [View.onDraw]
+     * Draws the view.
+     */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (thumbs.isEmpty())
             return
         // draw shadows outside of selected range
         for (thumb in thumbs) {
-            if (thumb.index == ThumbType.LEFT.index) {
+            if (thumb.index == LEFT.index) {
                 val x = thumb.pos
                 if (x > pixelRangeMin)
                     canvas.drawRect(
@@ -211,32 +272,93 @@ open class RangeSeekBarView @JvmOverloads constructor(
             }
         }
         //draw stroke around selected range
+        val leftPosStart = thumbs[LEFT.index].pos
+        val leftPosEnd = leftPosStart + thumbWidth
+        val rightPosStart = thumbs[RIGHT.index].pos + thumbWidth
+        val rightPosEnd = thumbs[RIGHT.index].pos + thumbWidth * 2
+
+        strokePaint.color = 0xff474747.toInt()
+        strokeBoxPaint.color = 0xff474747.toInt()
+
+        //shadowed selector
         canvas.drawRect(
-            thumbs[ThumbType.LEFT.index].pos,
+            pixelRangeMin,
             0f,
-            thumbs[ThumbType.RIGHT.index].pos + thumbWidth,
+            pixelRangeMax + 2 * thumbWidth,
             height.toFloat(),
             strokeBoxPaint
         )
-
         //left
         canvas.drawRect(
-            thumbs[ThumbType.LEFT.index].pos,
             0f,
-            thumbs[ThumbType.LEFT.index].pos + thumbWidth,
+            0f,
+            thumbWidth.toFloat(),
             height.toFloat(),
             strokePaint
         )
         //right
         canvas.drawRect(
-            thumbs[ThumbType.RIGHT.index].pos + thumbWidth,
+            pixelRangeMax + thumbWidth,
             0f,
-            thumbs[ThumbType.RIGHT.index].pos + thumbWidth * 2,
+            pixelRangeMax + 2 * thumbWidth,
             height.toFloat(),
             strokePaint
         )
+
+        if (getStart() == 0 && getEnd() == videoDuration) {
+            strokePaint.color = 0xff474747.toInt()
+            strokeBoxPaint.color = 0xff474747.toInt()
+            trianglePaint.color = 0xfffdfdfd.toInt()
+        } else {
+            strokePaint.color = 0xffe6e6e6.toInt()
+            strokeBoxPaint.color = 0xffe6e6e6.toInt()
+            trianglePaint.color = 0xff070707.toInt()
+        }
+
+        //selector
+        canvas.drawRect(
+            leftPosStart,
+            0f,
+            rightPosEnd,
+            height.toFloat(),
+            strokeBoxPaint
+        )
+        //left
+        canvas.drawRect(
+            leftPosStart,
+            0f,
+            leftPosEnd,
+            height.toFloat(),
+            strokePaint
+        )
+        //right
+        canvas.drawRect(
+            rightPosStart,
+            0f,
+            rightPosEnd,
+            height.toFloat(),
+            strokePaint
+        )
+        leftTriangle.reset()
+        leftTriangle.moveTo(leftPosStart + float2DP(15f), float2DP(15f))
+        leftTriangle.lineTo(leftPosStart + float2DP(15f), float2DP(25f))
+        leftTriangle.lineTo(leftPosStart + float2DP(6f), float2DP(20f))
+        leftTriangle.close()
+
+        rightTriangle.reset()
+        rightTriangle.moveTo(rightPosStart + float2DP(5f), float2DP(15f))
+        rightTriangle.lineTo(rightPosStart + float2DP(5f), float2DP(25f))
+        rightTriangle.lineTo(rightPosStart + float2DP(14f), float2DP(20f))
+        rightTriangle.close()
+
+        canvas.drawPath(leftTriangle, trianglePaint)
+        canvas.drawPath(rightTriangle, trianglePaint)
     }
 
+    /**
+     * [View.onTouchEvent]
+     * Moves thumb.
+     */
     override fun onTouchEvent(ev: MotionEvent): Boolean {
         val mThumb: Thumb
         val mThumb2: Thumb
@@ -263,7 +385,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 mThumb = thumbs[currentThumb]
                 mThumb2 =
-                    thumbs[if (currentThumb == ThumbType.LEFT.index) ThumbType.RIGHT.index else ThumbType.LEFT.index]
+                    thumbs[if (currentThumb == LEFT.index) RIGHT.index else LEFT.index]
                 // Calculate the distance moved
                 val dx = coordinate - mThumb.lastTouchX
                 val newX = mThumb.pos + dx
@@ -301,76 +423,68 @@ open class RangeSeekBarView @JvmOverloads constructor(
         return false
     }
 
-    private fun checkPositionThumb(
-        thumbLeft: Thumb,
-        thumbRight: Thumb,
-        dx: Float,
-        isLeftMove: Boolean
-    ) {
-        if (isLeftMove && dx < 0) {
-            if (thumbRight.pos - (thumbLeft.pos + dx) > maxWidth) {
-                thumbRight.pos = thumbLeft.pos + dx + maxWidth
-                setThumbPos(ThumbType.RIGHT.index, thumbRight.pos)
-            }
-        } else if (!isLeftMove && dx > 0) {
-            if (thumbRight.pos + dx - thumbLeft.pos > maxWidth) {
-                thumbLeft.pos = thumbRight.pos + dx - maxWidth
-                setThumbPos(ThumbType.LEFT.index, thumbLeft.pos)
-            }
-        }
+//    private fun checkPositionThumb(
+//        thumbLeft: Thumb,
+//        thumbRight: Thumb,
+//        dx: Float,
+//        isLeftMove: Boolean
+//    ) {
+//        if (isLeftMove && dx < 0) {
+//            if (thumbRight.pos - (thumbLeft.pos + dx) > maxWidth) {
+//                thumbRight.pos = thumbLeft.pos + dx + maxWidth
+//                setThumbPos(RIGHT.index, thumbRight.pos)
+//            }
+//        } else if (!isLeftMove && dx > 0) {
+//            if (thumbRight.pos + dx - thumbLeft.pos > maxWidth) {
+//                thumbLeft.pos = thumbRight.pos + dx - maxWidth
+//                setThumbPos(LEFT.index, thumbLeft.pos)
+//            }
+//        }
+//    }
+
+    private fun pixelToScale(pixelValue: Float): Int {
+        return (pixelValue * videoDuration / pixelRangeMax).toInt()
     }
 
-    private fun pixelToScale(index: Int, pixelValue: Float): Float {
-        val scale = pixelValue * 100 / pixelRangeMax
-        return if (index == 0) {
-            val pxThumb = scale * thumbWidth / 100
-            scale + pxThumb * 100 / pixelRangeMax
-        } else {
-            val pxThumb = (100 - scale) * thumbWidth / 100
-            scale - pxThumb * 100 / pixelRangeMax
-        }
-    }
-
-    private fun scaleToPixel(index: Int, scaleValue: Float): Float {
-        val px = scaleValue * pixelRangeMax / 100
-        return if (index == 0) {
-            val pxThumb = scaleValue * thumbWidth / 100
-            px - pxThumb
-        } else {
-            val pxThumb = (100 - scaleValue) * thumbWidth / 100
-            px + pxThumb
-        }
+    private fun scaleToPixel(scaleValue: Int): Float {
+        return scaleValue * pixelRangeMax / videoDuration
     }
 
     private fun calculateThumbValue(index: Int) {
         if (index < thumbs.size && thumbs.isNotEmpty()) {
             val th = thumbs[index]
-            th.value = pixelToScale(index, th.pos)
+            th.value = pixelToScale(th.pos)
             onSeek(this, index, th.value)
+            setButtonVisibility()
         }
     }
 
     private fun calculateThumbPos(index: Int) {
-        if (index < thumbs.size && !thumbs.isEmpty()) {
+        if (index < thumbs.size && thumbs.isNotEmpty()) {
             val th = thumbs[index]
-            th.pos = scaleToPixel(index, th.value)
+            th.pos = scaleToPixel(th.value)
+            onSeek(this, index, th.value)
+            setButtonVisibility()
         }
     }
 
-    private fun getThumbValue(index: Int): Float {
-        if (index == -1) return 0f
+    private fun getThumbValue(index: Int): Int {
+        if (index == -1) return 0
         return thumbs[index].value
     }
 
-    fun setThumbValue(index: Int, value: Float) {
+    /**
+     * Sets thumb value.
+     */
+    private fun setThumbValue(index: Int, value: Int) {
         thumbs[index].value = value
         calculateThumbPos(index)
         // Tell the view we want a complete redraw
         invalidate()
     }
 
-    private fun incrementThumbPos(index: Int, second: Float) {
-        setThumbPos(index, thumbs[index].pos + second)
+    private fun incrementThumbPos(index: Int, millisecond: Int) {
+        setThumbValue(index, thumbs[index].value + millisecond)
     }
 
     private fun setThumbPos(index: Int, pos: Float) {
@@ -389,7 +503,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
         //        Log.d("AppLog", "xPos:$xPos -> x: $x")
         for (thumb in thumbs) {
             val thumbPos =
-                if (thumb.index == ThumbType.LEFT.index) thumb.pos + thumbWidth / 2 else thumb.pos + thumbWidth * 3 / 2
+                if (thumb.index == LEFT.index) thumb.pos + thumbWidth / 2 else thumb.pos + thumbWidth * 3 / 2
 //            Log.d("AppLog", "thumb ${thumb.index} pos: $thumbPos")
             // Find thumb closest to x coordinate
             val xMin = thumbPos - thumbWidth / 2
@@ -406,29 +520,47 @@ open class RangeSeekBarView @JvmOverloads constructor(
         return closest
     }
 
+    /**
+     * Adds [OnRangeSeekBarListener] to the view.
+     */
     fun addOnRangeSeekBarListener(listener: OnRangeSeekBarListener) {
         listeners.add(listener)
     }
 
-    private fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Float) {
+    private fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
         listeners.forEach { item -> item.onCreate(rangeSeekBarView, index, value) }
     }
 
-    private fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Float) {
+    private fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
         listeners.forEach { item -> item.onSeek(rangeSeekBarView, index, value) }
     }
 
-    private fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Float) {
+    private fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
         listeners.forEach { item -> item.onSeekStart(rangeSeekBarView, index, value) }
     }
 
-    private fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Float) {
+    private fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
         listeners.forEach { item -> item.onSeekStop(rangeSeekBarView, index, value) }
     }
 
+    /**
+     * Thumb data container class.
+     * @property index Index of the thumb.
+     */
     class Thumb(val index: Int = 0) {
-        var value: Float = 0f
+        /**
+         * Value of the thumb.
+         */
+        var value: Int = 0
+
+        /**
+         * Position of the thumb.
+         */
         var pos: Float = 0f
+
+        /**
+         * Last coordinate X of touch.
+         */
         var lastTouchX: Float = 0f
     }
 

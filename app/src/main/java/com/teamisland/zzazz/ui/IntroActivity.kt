@@ -2,8 +2,6 @@ package com.teamisland.zzazz.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.media.MediaMetadataRetriever
-import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.animation.Animation
@@ -12,7 +10,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.GetVideoFPS
+import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.IntroAlertDialog
 import kotlinx.android.synthetic.main.activity_intro.*
 
@@ -83,30 +81,27 @@ class IntroActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != Activity.RESULT_OK) return
-        val videoUri = (data ?: return).data ?: return
-        val mediaMetadataRetriever = MediaMetadataRetriever()
-        mediaMetadataRetriever.setDataSource(this@IntroActivity, videoUri)
-        val videoDuration =
-            mediaMetadataRetriever.extractMetadata(METADATA_KEY_DURATION).toInt()
-        mediaMetadataRetriever.release()
-        val videoFps = GetVideoFPS.getFPS(this, videoUri)
 
+        if (resultCode != Activity.RESULT_OK) return
+
+        val videoUri = (data ?: return).data ?: return
+
+        val videoFps = GetVideoData.getFPS(this@IntroActivity, videoUri)
         if (videoFps > resources.getInteger(R.integer.fps_limit)) {
             Toast.makeText(this, getString(R.string.fps_exceeded), LENGTH_LONG).show()
             return
         }
+
+        val videoDuration = GetVideoData.getDuration(this@IntroActivity, videoUri)
         if (videoDuration > resources.getInteger(R.integer.length_limit) * 1000) {
             Toast.makeText(this, getString(R.string.length_exceeded), LENGTH_LONG).show()
             //return
         }
 
-        val intent = Intent(this, TrimmingActivity::class.java).also {
+        Intent(this, TrimmingActivity::class.java).also {
             it.putExtra(VIDEO_URI, videoUri)
+            startActivity(it)
         }
-        println("length $videoDuration, fps $videoFps")
-        startActivity(intent)
-        finish()
     }
 
     companion object {
@@ -114,6 +109,7 @@ class IntroActivity : AppCompatActivity() {
          * Uri of the video retrieved.
          */
         const val VIDEO_URI: String = "pretrim_video_uri"
+
         private const val REQUEST_VIDEO_CAPTURE = 1
         private const val REQUEST_VIDEO_SELECT = 2
     }

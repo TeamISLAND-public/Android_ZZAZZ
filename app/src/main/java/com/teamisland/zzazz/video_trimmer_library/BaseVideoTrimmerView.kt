@@ -162,19 +162,19 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
         }
 
         rangeSeekBarView.addOnRangeSeekBarListener(object : OnRangeSeekBarListener {
-            override fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Float) {
+            override fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
                 // Do nothing
             }
 
-            override fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Float) {
+            override fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
                 onSeekThumbs(index, value)
             }
 
-            override fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Float) {
+            override fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
                 // Do nothing
             }
 
-            override fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Float) {
+            override fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
                 onStopSeekThumbs()
             }
         })
@@ -286,7 +286,7 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
         rangeSeekBarView.initMaxWidth()
     }
 
-    private fun onSeekThumbs(index: Int, value: Float) {
+    private fun onSeekThumbs(index: Int, value: Int) {
         when (index) {
             RangeSeekBarView.ThumbType.LEFT.index -> {
                 startPosition = (duration * value / 100L).toInt()

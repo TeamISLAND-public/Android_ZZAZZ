@@ -3,9 +3,16 @@ package com.teamisland.zzazz.utils
 import android.content.Context
 import android.media.MediaExtractor
 import android.media.MediaFormat
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 
-object GetVideoFPS {
+/**
+ * Video data query.
+ */
+object GetVideoData {
+    /**
+     * Returns target video fps.
+     */
     fun getFPS(context: Context, uri: Uri): Int {
         val mediaExtractor = MediaExtractor()
         var videoFps = 24
@@ -18,8 +25,18 @@ object GetVideoFPS {
                     videoFps = format.getInteger(MediaFormat.KEY_FRAME_RATE)
                 }
             }
-            mediaExtractor.release()
         }
+        mediaExtractor.release()
         return videoFps
+    }
+
+    fun getDuration(context: Context, uri: Uri): Int {
+        val mediaMetadataRetriever = MediaMetadataRetriever()
+        mediaMetadataRetriever.setDataSource(context, uri)
+        val res =
+            mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                .toInt()
+        mediaMetadataRetriever.release()
+        return res
     }
 }
