@@ -23,7 +23,7 @@
  */
 @file:Suppress("LeakingThis")
 
-package com.lb.video_trimmer_library
+package com.teamisland.zzazz.video_trimmer_library
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -39,21 +39,24 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.TextView
 import android.widget.VideoView
 import androidx.annotation.UiThread
-import androidx.core.app.ActivityCompat
-import com.lb.video_trimmer_library.interfaces.OnProgressVideoListener
-import com.lb.video_trimmer_library.interfaces.OnRangeSeekBarListener
-import com.lb.video_trimmer_library.interfaces.VideoTrimmingListener
-import com.lb.video_trimmer_library.utils.BackgroundExecutor
-import com.lb.video_trimmer_library.utils.TrimVideoUtils
-import com.lb.video_trimmer_library.utils.UiThreadExecutor
-import com.lb.video_trimmer_library.view.RangeSeekBarView
-import com.lb.video_trimmer_library.view.TimeLineView
+import com.teamisland.zzazz.video_trimmer_library.interfaces.OnProgressVideoListener
+import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
+import com.teamisland.zzazz.video_trimmer_library.interfaces.VideoTrimmingListener
+import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
+import com.teamisland.zzazz.video_trimmer_library.utils.TrimVideoUtils
+import com.teamisland.zzazz.video_trimmer_library.utils.UiThreadExecutor
+import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
+import com.teamisland.zzazz.video_trimmer_library.view.TimeLineView
 import java.io.File
 import java.lang.Long.parseLong
 import java.lang.ref.WeakReference
 
+/**
+ * Basic class for VideoTrimming.
+ */
 abstract class BaseVideoTrimmerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet,
@@ -78,6 +81,8 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
     private var resetSeekBar = true
     private val messageHandler = MessageHandler(this)
     private var videoDuration = 0L
+    private var doneButton: TextView? = null
+    protected var trimText: TextView? = null
 
     init {
         initRootView()
@@ -91,8 +96,26 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
         setUpMargins()
     }
 
+    fun getTrimtext(): String {
+        if (timeVideo <= 60000) {
+            val totalSeconds = timeVideo / 1000
+            val seconds = totalSeconds % 60
+            val minutes = totalSeconds / 60 % 60
+            return java.util.Formatter().format("%02d:%02d", minutes, seconds)
+                .toString() + "Trimmed"
+        } else {
+            return "Video size is too big"
+        }
+    }
+
+    /**
+     * Setup initial views.
+     */
     abstract fun initRootView()
 
+    /**
+     * Gets [TimeLineView].
+     */
     abstract fun getTimeLineView(): TimeLineView
 
     abstract fun getTimeInfoContainer(): View
@@ -166,6 +189,9 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
         timeLineView.layoutParams = lp
     }
 
+    /**
+     * Initiate video trimming.
+     */
     @Suppress("unused")
     @UiThread
     fun initiateTrimming() {
@@ -178,20 +204,19 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
             }
         }
         //notify that video trimming started
-        if (videoTrimmingListener != null)
-            videoTrimmingListener!!.onTrimStarted()
+        (videoTrimmingListener ?: return).onTrimStarted()
         BackgroundExecutor.execute(
             object : BackgroundExecutor.Task(null, 0L, null) {
                 override fun execute() {
                     try {
                         TrimVideoUtils.startTrim(
                             context,
-                            src!!,
-                            dstFile!!,
+                            src ?: return,
+                            dstFile ?: return,
                             startPosition.toLong(),
                             endPosition.toLong(),
                             duration.toLong(),
-                            videoTrimmingListener!!
+                            videoTrimmingListener ?: return
                         )
                     } catch (e: Throwable) {
                         Thread.getDefaultUncaughtExceptionHandler()
@@ -246,15 +271,15 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
     }
 
     private fun setSeekBarPosition() {
-        if (duration >= maxDurationInMs) {
-            startPosition = duration / 2 - maxDurationInMs / 2
-            endPosition = duration / 2 + maxDurationInMs / 2
-            rangeSeekBarView.setThumbValue(0, startPosition * 100f / duration)
-            rangeSeekBarView.setThumbValue(1, endPosition * 100f / duration)
-        } else {
-            startPosition = 0
-            endPosition = duration
-        }
+//        if (duration >= maxDurationInMs) {
+//            startPosition = duration / 2 - maxDurationInMs / 2
+//            endPosition = duration / 2 + maxDurationInMs / 2
+//            rangeSeekBarView.setThumbValue(0, startPosition * 100f / duration)
+//            rangeSeekBarView.setThumbValue(1, endPosition * 100f / duration)
+//        } else {
+        startPosition = 0
+        endPosition = duration
+//        }
         setProgressBarPosition(startPosition)
         videoView.seekTo(startPosition)
         timeVideo = duration
@@ -275,6 +300,8 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
 
         onRangeUpdated(startPosition, endPosition)
         timeVideo = endPosition - startPosition
+        doneButton?.isEnabled = timeVideo <= 60000
+        trimText?.text = getTrimtext()
     }
 
     private fun onStopSeekThumbs() {
@@ -286,7 +313,7 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
         videoView.seekTo(startPosition)
     }
 
-    private fun notifyProgressUpdate(all: Boolean) {
+    internal fun notifyProgressUpdate(all: Boolean) {
         if (duration == 0) return
         val position = videoView.currentPosition
         if (all)
@@ -305,6 +332,15 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
         }
         setProgressBarPosition(time)
         onVideoPlaybackReachingTime(time)
+    }
+
+
+    /**
+     * Sets done button to handle.
+     * @param button Target button.
+     */
+    fun setDoneButton(button: TextView) {
+        doneButton = button
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
@@ -377,6 +413,8 @@ abstract class BaseVideoTrimmerView @JvmOverloads constructor(
         val mediaMetadataRetriever = MediaMetadataRetriever()
         mediaMetadataRetriever.setDataSource(context, src)
         videoDuration = parseLong(mediaMetadataRetriever.extractMetadata(METADATA_KEY_DURATION))
+        if (videoDuration > 60000)
+            doneButton?.isEnabled = false
         videoView.requestFocus()
         timeLineView.setVideo(src!!)
     }

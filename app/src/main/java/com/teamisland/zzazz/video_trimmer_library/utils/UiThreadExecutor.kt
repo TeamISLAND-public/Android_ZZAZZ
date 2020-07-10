@@ -16,7 +16,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.lb.video_trimmer_library.utils
+package com.teamisland.zzazz.video_trimmer_library.utils
 
 import android.os.Handler
 import android.os.Looper

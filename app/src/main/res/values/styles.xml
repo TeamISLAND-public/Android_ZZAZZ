@@ -4,11 +4,13 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!--  disabling upper window label bar-->
         <item name="windowNoTitle">true</item>
+        <item name="colorPrimaryDark">@color/Black</item>
     </style>
 
     <!-- No Animation Activity -->
     <style name="NoAnimation" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowAnimationStyle">@null</item>
+        <item name="colorPrimaryDark">@color/Black</item>
     </style>
 
 </resources>

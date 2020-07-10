@@ -21,7 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.VideoIntent
+//import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.export_dialog.*
 import kotlinx.coroutines.GlobalScope

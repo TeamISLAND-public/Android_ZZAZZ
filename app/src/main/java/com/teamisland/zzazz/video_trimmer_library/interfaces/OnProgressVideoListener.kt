@@ -21,27 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.lb.video_trimmer_library.interfaces
+package com.teamisland.zzazz.video_trimmer_library.interfaces
 
-import android.net.Uri
-import androidx.annotation.UiThread
-
-interface VideoTrimmingListener {
-    @UiThread
-    fun onVideoPrepared()
-
-    @UiThread
-    fun onTrimStarted()
-
-    /**
-     * @param uri the result, trimmed video, or null if failed
-     */
-    @UiThread
-    fun onFinishedTrimming(uri: Uri?)
-
-    /**
-     * check {[android.media.MediaPlayer.OnErrorListener]}
-     */
-    @UiThread
-    fun onErrorWhileViewingVideo(what: Int, extra: Int)
+interface OnProgressVideoListener {
+    fun updateProgress(time: Int, max: Int, scale: Float)
 }

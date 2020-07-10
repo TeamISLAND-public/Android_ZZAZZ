@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.lb.video_trimmer_library.view
+package com.teamisland.zzazz.video_trimmer_library.view
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -35,8 +35,8 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.util.AttributeSet
 import android.view.View
-import com.lb.video_trimmer_library.utils.BackgroundExecutor
-import com.lb.video_trimmer_library.utils.UiThreadExecutor
+import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
+import com.teamisland.zzazz.video_trimmer_library.utils.UiThreadExecutor
 import kotlin.math.ceil
 
 open class TimeLineView @JvmOverloads constructor(
@@ -67,7 +67,6 @@ open class TimeLineView @JvmOverloads constructor(
             println("Error: videoUri is null")
             return
         }
-        @Suppress("UnnecessaryVariable")
         val thumbSize = viewHeight
         val numThumbs = ceil(viewWidth.toDouble() / thumbSize).toInt()
         bitmapList.clear()
@@ -95,16 +94,11 @@ open class TimeLineView @JvmOverloads constructor(
                             .toLong() * 1000L
                     val interval = videoLengthInMs / numThumbs
                     for (i in 0 until numThumbs) {
-                        var bitmap: Bitmap? = if (VERSION.SDK_INT >= VERSION_CODES.O_MR1)
-                            mediaMetadataRetriever.getScaledFrameAtTime(
-                                i * interval,
-                                MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
-                                thumbSize,
-                                thumbSize
-                            )
-                        else mediaMetadataRetriever.getFrameAtTime(
+                        var bitmap: Bitmap? = mediaMetadataRetriever.getScaledFrameAtTime(
                             i * interval,
-                            MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+                            MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
+                            thumbSize,
+                            thumbSize
                         )
                         if (bitmap != null)
                             bitmap = ThumbnailUtils.extractThumbnail(bitmap, thumbSize, thumbSize)
@@ -143,6 +137,10 @@ open class TimeLineView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Sets video Uri.
+     * @param [data] Uri of the target video.
+     */
     fun setVideo(data: Uri) {
         videoUri = data
     }

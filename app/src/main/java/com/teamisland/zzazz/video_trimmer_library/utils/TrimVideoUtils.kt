@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.lb.video_trimmer_library.utils
+package com.teamisland.zzazz.video_trimmer_library.utils
 
 import android.content.Context
 import android.media.*
@@ -37,7 +37,7 @@ import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator
 import com.googlecode.mp4parser.authoring.tracks.AppendTrack
 import com.googlecode.mp4parser.authoring.tracks.CroppedTrack
-import com.lb.video_trimmer_library.interfaces.VideoTrimmingListener
+import com.teamisland.zzazz.video_trimmer_library.interfaces.VideoTrimmingListener
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -49,7 +49,15 @@ object TrimVideoUtils {
 
     @JvmStatic
     @WorkerThread
-    fun startTrim(context: Context, inputVideoUri: Uri, outputTrimmedVideoFile: File, startMs: Long, endMs: Long, durationInMs: Long, callback: VideoTrimmingListener) {
+    fun startTrim(
+        context: Context,
+        inputVideoUri: Uri,
+        outputTrimmedVideoFile: File,
+        startMs: Long,
+        endMs: Long,
+        durationInMs: Long,
+        callback: VideoTrimmingListener
+    ) {
 //        Log.d("AppLog", "startTrim")
         outputTrimmedVideoFile.parentFile.mkdirs()
         outputTrimmedVideoFile.delete()
@@ -66,14 +74,23 @@ object TrimVideoUtils {
 //            Log.d("AppLog", "trying to trim using mp4parser...")
             try {
                 val inputFilePath = FileUtils.getPath(context, inputVideoUri)
-                succeeded = genVideoUsingMp4Parser(inputFilePath, outputTrimmedVideoFile, startMs, endMs)
+                succeeded =
+                    genVideoUsingMp4Parser(inputFilePath, outputTrimmedVideoFile, startMs, endMs)
             } catch (e: Exception) {
             }
 //            Log.d("AppLog", "succeeded using mp4parser? $succeeded")
         }
         if (!succeeded) {
 //            Log.d("AppLog", "trying to trim using Android framework API...")
-            succeeded = genVideoUsingMuxer(context, inputVideoUri, outputTrimmedVideoFile.absolutePath, startMs, endMs, true, true)
+            succeeded = genVideoUsingMuxer(
+                context,
+                inputVideoUri,
+                outputTrimmedVideoFile.absolutePath,
+                startMs,
+                endMs,
+                true,
+                true
+            )
 //            Log.d("AppLog", "succeeded trimming using Android framework API?$succeeded")
         }
         Handler(Looper.getMainLooper()).post {
@@ -83,7 +100,12 @@ object TrimVideoUtils {
     }
 
     @Throws(IOException::class)
-    private fun genVideoUsingMp4Parser(filePath: String?, dst: File, startMs: Long, endMs: Long): Boolean {
+    private fun genVideoUsingMp4Parser(
+        filePath: String?,
+        dst: File,
+        startMs: Long,
+        endMs: Long
+    ): Boolean {
         if (filePath.isNullOrBlank() || !File(filePath).exists())
             return false
         // NOTE: Switched to using FileDataSourceViaHeapImpl since it does not use memory mapping (VM).
@@ -150,7 +172,15 @@ object TrimVideoUtils {
     //https://stackoverflow.com/a/44653626/878126 https://android.googlesource.com/platform/packages/apps/Gallery2/+/634248d/src/com/android/gallery3d/app/VideoUtils.java
     @JvmStatic
     @WorkerThread
-    private fun genVideoUsingMuxer(context: Context, uri: Uri, dstPath: String, startMs: Long, endMs: Long, useAudio: Boolean, useVideo: Boolean): Boolean {
+    private fun genVideoUsingMuxer(
+        context: Context,
+        uri: Uri,
+        dstPath: String,
+        startMs: Long,
+        endMs: Long,
+        useAudio: Boolean,
+        useVideo: Boolean
+    ): Boolean {
         // Set up MediaExtractor to read from the source.
         val extractor = MediaExtractor()
         //       val isRawResId=uri.scheme == "android.resource" && uri.host == context.packageName && !uri.pathSegments.isNullOrEmpty())
@@ -187,7 +217,8 @@ object TrimVideoUtils {
             // Set up the orientation and starting time for extractor.
             val retrieverSrc = MediaMetadataRetriever()
             retrieverSrc.setDataSource(fileDescriptor)
-            val degreesString = retrieverSrc.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)
+            val degreesString =
+                retrieverSrc.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)
             if (degreesString != null) {
                 val degrees = Integer.parseInt(degreesString)
                 if (degrees >= 0)
@@ -219,8 +250,10 @@ object TrimVideoUtils {
                     } else {
                         bufferInfo.flags = extractor.sampleFlags
                         trackIndex = extractor.sampleTrackIndex
-                        muxer.writeSampleData(indexMap.get(trackIndex), dstBuf,
-                                bufferInfo)
+                        muxer.writeSampleData(
+                            indexMap.get(trackIndex), dstBuf,
+                            bufferInfo
+                        )
                         extractor.advance()
                     }
                 }
@@ -239,7 +272,11 @@ object TrimVideoUtils {
     }
 
 
-    private fun correctTimeToSyncSample(@NonNull track: Track, cutHere: Double, next: Boolean): Double {
+    private fun correctTimeToSyncSample(
+        @NonNull track: Track,
+        cutHere: Double,
+        next: Boolean
+    ): Double {
         val timeOfSyncSamples = DoubleArray(track.syncSamples.size)
         var currentSample: Long = 0
         var currentTime = 0.0
@@ -247,7 +284,8 @@ object TrimVideoUtils {
             val delta = track.sampleDurations[i]
             if (Arrays.binarySearch(track.syncSamples, currentSample + 1) >= 0) {
                 // samples always start with 1 but we start with zero therefore +1
-                timeOfSyncSamples[Arrays.binarySearch(track.syncSamples, currentSample + 1)] = currentTime
+                timeOfSyncSamples[Arrays.binarySearch(track.syncSamples, currentSample + 1)] =
+                    currentTime
             }
             currentTime += delta.toDouble() / track.trackMetaData.timescale.toDouble()
             ++currentSample

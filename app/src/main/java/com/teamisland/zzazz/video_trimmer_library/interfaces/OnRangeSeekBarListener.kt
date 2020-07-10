@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.lb.video_trimmer_library.interfaces
+package com.teamisland.zzazz.video_trimmer_library.interfaces
 
-import com.lb.video_trimmer_library.view.RangeSeekBarView
+import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 
 interface OnRangeSeekBarListener {
     fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Float)

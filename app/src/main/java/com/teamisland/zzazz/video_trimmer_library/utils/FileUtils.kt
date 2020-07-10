@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.lb.video_trimmer_library.utils
+package com.teamisland.zzazz.video_trimmer_library.utils
 
 import android.annotation.SuppressLint
 import android.content.ContentUris
