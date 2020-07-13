@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.util.Range
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.animation.Animation
@@ -39,6 +40,13 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener, OnRangeSeek
     private fun stopVideo() {
         playButton.isActivated = false
         mainVideoView.pause()
+    }
+
+    private fun testVideoPositionInRange(): Boolean {
+        val now = mainVideoView.currentPosition
+        with(rangeSeekBarView) {
+            return Range(getStart(), getEnd()).contains(now)
+        }
     }
 
     private fun testVideoRange() {
@@ -113,12 +121,19 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener, OnRangeSeek
                 mainVideoView.pause()
             } else {
                 playButton.isActivated = true
+                if (!testVideoPositionInRange())
+                    mainVideoView.seekTo(rangeSeekBarView.getStart())
                 mainVideoView.start()
                 Thread(Runnable {
                     do {
-                        currentPositionView.post {
-                            currentPositionView.setMarkerPos(mainVideoView.currentPosition.toDouble() * 100 / videoDuration)
+                        val now = mainVideoView.currentPosition
+                        with(currentPositionView) {
+                            post {
+                                setMarkerPos(now.toDouble() * 100 / videoDuration)
+                            }
                         }
+                        if (!testVideoPositionInRange())
+                            stopVideo()
                         try {
                             Thread.sleep(10)
                         } catch (e: InterruptedException) {
@@ -140,6 +155,8 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener, OnRangeSeek
         currentPositionView.setListener(this)
         currentPositionView.setRange(rangeSeekBarView)
 
+        selectedThumbView.setRange(rangeSeekBarView)
+
         timeLineView.setVideo(videoUri)
 
         mainVideoView.setVideoURI(videoUri)
@@ -157,18 +174,15 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener, OnRangeSeek
                 this,
                 videoUri,
                 trimmedVideoFile,
-                rangeSeekBarView.getStart() * 1L,
-                rangeSeekBarView.getEnd() * 1L,
-                GetVideoData.getDuration(this, videoUri) * 1L,
+                rangeSeekBarView.getStart().toLong(),
+                rangeSeekBarView.getEnd().toLong(),
+                GetVideoData.getDuration(this, videoUri).toLong(),
                 this
             )
         }
     }
 
-    /**
-     * Applies the change in trimming range.
-     */
-    fun applyTrimRangeChanges() {
+    private fun applyTrimRangeChanges() {
         val seekDur = rangeSeekBarView.getEnd() - rangeSeekBarView.getStart()
         if (seekDur <= 60000) {
             val totalSeconds = seekDur / 1000
@@ -284,6 +298,10 @@ class TrimmingActivity : AppCompatActivity(), VideoTrimmingListener, OnRangeSeek
     override fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
         println("onSeekStop")
         applyTrimRangeChanges()
+    }
+
+    override fun onDeselect(rangeSeekBarView: RangeSeekBarView) {
+        //do nothing.
     }
 
     /**[IPositionChangeListener]*/

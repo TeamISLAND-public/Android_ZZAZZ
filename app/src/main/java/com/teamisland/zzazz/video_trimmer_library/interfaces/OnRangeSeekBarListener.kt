@@ -33,4 +33,6 @@ interface OnRangeSeekBarListener {
     fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int)
 
     fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int)
+
+    fun onDeselect(rangeSeekBarView: RangeSeekBarView)
 }

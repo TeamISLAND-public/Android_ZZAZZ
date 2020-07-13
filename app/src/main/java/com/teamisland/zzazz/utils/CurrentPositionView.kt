@@ -161,7 +161,8 @@ open class CurrentPositionView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP -> {
                 textView.visibility = GONE
-                return false
+                invalidate()
+                return true
             }
             MotionEvent.ACTION_MOVE -> {
                 // Calculate the distance moved

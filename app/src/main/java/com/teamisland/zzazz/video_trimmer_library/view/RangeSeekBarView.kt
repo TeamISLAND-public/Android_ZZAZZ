@@ -89,6 +89,11 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private val rightTriangle = Path()
 
     /**
+     * Video duration in ms.
+     */
+    fun getDuration(): Int = videoDuration
+
+    /**
      * Thumb width.
      */
     val thumbWidth: Int = initThumbWidth(context)
@@ -368,8 +373,10 @@ open class RangeSeekBarView @JvmOverloads constructor(
                 // Remember where we started
                 currentThumb = getClosestThumb(coordinate)
                 setButtonVisibility()
-                if (currentThumb == -1)
+                if (currentThumb == -1) {
+                    onDeselect(this)
                     return false
+                }
                 mThumb = thumbs[currentThumb]
                 mThumb.lastTouchX = coordinate
                 onSeekStart(this, currentThumb, mThumb.value)
@@ -541,6 +548,10 @@ open class RangeSeekBarView @JvmOverloads constructor(
 
     private fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
         listeners.forEach { item -> item.onSeekStop(rangeSeekBarView, index, value) }
+    }
+
+    private fun onDeselect(rangeSeekBarView: RangeSeekBarView) {
+        listeners.forEach { item -> item.onDeselect(rangeSeekBarView) }
     }
 
     /**
