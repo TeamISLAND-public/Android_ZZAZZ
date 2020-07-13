@@ -28,7 +28,7 @@ Final destination of making application ZZAZZ
 Activity 파일에는 다음과같은 규격이 잘 맞지 않을 수 있다고 생각할 수 있지만 전반적으로 Activity 파일을 위한 function에 대한 파일들이 주를 이룰 것
 이기 때문에 현재는 이러한 방식으로 진행한다.
 
-## 앱 째즈 레퍼지토리 규약
+## appzzazz repository rules
     """
     com.example.myappliction
     --/ui
@@ -45,7 +45,7 @@ Activity 파일에는 다음과같은 규격이 잘 맞지 않을 수 있다고 
 
 예시
 
-상범: app_core_pytorch_openpose_vgg19
+상범: 다른 repository 생성
 
 대호: app_ui_trimactivity_seekbar (trim에 관한것)
 
@@ -76,7 +76,7 @@ https://www.notion.so/teamisland/template-PR-commit-issue-4309cb91450d4afd867f21
 git config --global commit.template ~/.gitmessage.txt
 를 통해서 마무리할 수 있다.
 
-## comment
+## comment - reviewer
 (필수) PR에 대한 코멘트가 있을 경우 상세하게 답변, 코멘트할 것이 없을 경우에는 없다고 답변
 기한의 경우 PR올린 시점으로부터 다음 스크럼 전까지 코멘트를 달고 최대한 일찍 달아서 담당자가 그에 대한 피드백을 할 수 있도록 한다.
 request를 했을 경우 reviewer가 모두 approve를 했을 때 그 다음으로 merge를 할 수 있다.
