@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.*
+import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -34,9 +35,9 @@ import kotlin.math.hypot
 /**
  * Activity for export project.
  */
-class ExportActivity : AppCompatActivity() {
+class  ExportActivity : AppCompatActivity() {
 
-    private lateinit var uri: String
+    private lateinit var uri: Uri
     private var duration: Int = 0
     private lateinit var fadeOut: Animation
 
@@ -57,14 +58,14 @@ class ExportActivity : AppCompatActivity() {
     /**
      * When the activity is created
      */
+    @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
 
         //This is for test
-//        uri = intent.getStringExtra("uri")
-        uri = "android.resource://$packageName/" + R.raw.test
+        uri = intent.getParcelableExtra("URI")
 
         videoInit()
 
@@ -92,7 +93,7 @@ class ExportActivity : AppCompatActivity() {
                     share.alpha = 1F
                     val shareIntent = Intent().apply {
                         action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_STREAM, Uri.parse(uri))
+                        putExtra(Intent.EXTRA_STREAM, uri)
                         type = "video/*"
                     }
                     startActivity(shareIntent)
@@ -113,12 +114,12 @@ class ExportActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun videoInit() {
         preview.setMediaController(null)
-        preview.setVideoURI(Uri.parse(uri))
+        preview.setVideoURI(uri)
         preview.requestFocus()
 
         //Get duration from uri & set duration
         MediaMetadataRetriever().also {
-            it.setDataSource(this, Uri.parse(uri))
+            it.setDataSource(this, uri)
             val time = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
             duration = time.toInt()
             val minute = duration / 60000
@@ -276,7 +277,9 @@ class ExportActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
+    @Suppress("BlockingMethodInNonBlockingContext",
+        "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
+    )
     @SuppressLint("SimpleDateFormat", "SetTextI18n", "InflateParams")
     private fun videoSave() {
         fadeOut.start()
@@ -297,7 +300,7 @@ class ExportActivity : AppCompatActivity() {
             )
         }
 
-        val input = contentResolver.openInputStream(Uri.parse(uri))
+        val input = contentResolver.openInputStream(Uri.fromFile(File(uri.path)))
 
         //Make file directory for saving the video
         val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
