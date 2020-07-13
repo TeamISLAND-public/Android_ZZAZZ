@@ -11,7 +11,6 @@ import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.*
-import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -36,7 +35,7 @@ import java
 /**
  * Activity for export project.
  */
-class  ExportActivity : AppCompatActivity() {
+class ExportActivity : AppCompatActivity() {
 
     private lateinit var uri: Uri
     private var duration: Int = 0
@@ -278,7 +277,8 @@ class  ExportActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext",
+    @Suppress(
+        "BlockingMethodInNonBlockingContext",
         "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
     )
     @SuppressLint("SimpleDateFormat", "SetTextI18n", "InflateParams")
@@ -304,19 +304,18 @@ class  ExportActivity : AppCompatActivity() {
         val input = contentResolver.openInputStream(Uri.fromFile(File(uri.path)))
 
         //Make file directory for saving the video
-        val dirString = Environment.getExternalStorageDirectory().toString() + "/ZZAZZ"
+        val dirString =
+            Environment.getExternalStorageDirectory().absolutePath + "/Gallery/ZZAZZ"
         val dir = File(dirString)
-        if (!dir.exists()) {
-            dir.mkdirs()
-        }
+        if (!dir.exists()) dir.mkdirs()
 
         //Video name is depended by time
         val time = System.currentTimeMillis()
         val date = Date(time)
         val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
         val filename = nameFormat.format(date)
-        val file = "$dirString/$filename.mp4"
-        val output = FileOutputStream(File(file))
+        val file = File("$dirString/$filename.mp4")
+        val output = FileOutputStream(file)
 
         val data = ByteArray(1024)
         var total = 0
