@@ -47,7 +47,7 @@ Activity 파일에는 다음과같은 규격이 잘 맞지 않을 수 있다고 
 
 상범: app_core_pytorch_openpose_vgg19
 
-대호: app_ui_trimactivity_seekbar (trim에 관한것
+대호: app_ui_trimactivity_seekbar (trim에 관한것)
 
 태규: app_ui_projectactivity_seekbar (trim에 관한것)
 
@@ -56,14 +56,51 @@ Activity 파일에는 다음과같은 규격이 잘 맞지 않을 수 있다고 
 
 ## pull request
 
-(필수) Pull Request를 올릴 때 comment로 자신의 코드는 대략적으로 이렇고 build.gradle, implementation에서 새로운 API 기능들을 사용했을 경우 언급
+(필수) Pull Request를 올릴 때 commit을 제외하고도 comment로 자신의 코드는 대략적으로 이렇고 build.gradle, implementation에서 새로운 API 기능들을 사용했을 경우 언급
 을 해준다. EX) Recyclerview, AppCompatActivity(이미 너무 자주 사용되고 있는 것)
-추가적으로 주요 핵심 코드에 대한 파일명을 언급해줘서 Reviewer입장에서 어떤 파일들을 확인해야하는지 빠르게 찾을 수 있도록 하게 해준다.
+추가적으로 주요 핵심 코드에 대한 commit을 언급해줘서 Reviewer입장에서 어떤 파일들을 확인해야하는지 빠르게 찾을 수 있도록 하게 해준다.
 
 이후에 행해지는 액션들의 경우 모두 comment의 룰을 따르게 된다.
+추가적으로 생기는 모든 conflict 상황에서 대해서는 branch 주인이 fix하는 것을 원칙으로 한다.
 
-추가적으로 생기는 모든 conflict 상황에서 대해서는 CTO와 branch 주인이 fix하는 것을 원칙으로 한다.
+## commit
+처음에 android studio, 그리고 git bash에 해당되는 repository에 접근한다.
+touch ~/.gitmessage.txt
+vim ~/.gitmessage.txt
 
+그리고 그 gitmessage의 경우
+------------------------------------------------------------------------------
+# <타입>: <제목>
+
+##### 제목은 최대 50 글자까지만 입력 ############## -> |
+
+
+# 본문은 위에 작성
+######## 본문은 한 줄에 최대 72 글자까지만 입력 ########################### -> |
+
+# 꼬릿말은 아래에 작성: ex) #이슈 번호
+
+# --- COMMIT END ---
+# <타입> 리스트
+#   feat    : 기능 (새로운 기능)
+#   fix     : 버그 (버그 수정)
+#   refactor: 리팩토링
+#   style   : 스타일 (코드 형식, 세미콜론 추가: 비즈니스 로직에 변경 없음)
+#   docs    : 문서 (문서 추가, 수정, 삭제)
+#   test    : 테스트 (테스트 코드 추가, 수정, 삭제: 비즈니스 로직에 변경 없음)
+#   chore   : 기타 변경사항 (빌드 스크립트 수정 등)
+# ------------------
+#     제목 첫 글자를 대문자로
+#     제목은 명령문으로
+#     제목 끝에 마침표(.) 금지
+#     제목과 본문을 한 줄 띄워 분리하기
+#     본문은 "어떻게" 보다 "무엇을", "왜"를 설명한다.
+#     본문에 여러줄의 메시지를 작성할 땐 "-"로 구분
+# ------------------
+---------------------------------------------------------------------------------
+다음과 같이 작성을 하고
+git config --global commit.template ~/.gitmessage.txt
+를 통해서 마무리할 수 있다.
 
 ## comment
 (필수) PR에 대한 코멘트가 있을 경우 상세하게 답변, 코멘트할 것이 없을 경우에는 없다고 답변
