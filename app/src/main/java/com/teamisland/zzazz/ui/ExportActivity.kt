@@ -323,6 +323,8 @@ class ExportActivity : AppCompatActivity() {
 
         var isExport = false
         var isFinished = false
+
+        //during saving
         GlobalScope.launch {
             handler.post {
                 save.visibility = View.GONE
@@ -362,6 +364,7 @@ class ExportActivity : AppCompatActivity() {
             }
         }
 
+        // after saved
         GlobalScope.launch {
             while (!isFinished) {
                 while (isExport) {
