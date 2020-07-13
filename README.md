@@ -69,9 +69,9 @@ touch ~/.gitmessage.txt
 vim ~/.gitmessage.txt
 
 그리고 그 gitmessage의 경우
-------------------------------------------------------------------------------
+
 https://www.notion.so/teamisland/template-PR-commit-issue-4309cb91450d4afd867f2174ebb52e70#417d1e7fb17548f6a515c777a247cb76
----------------------------------------------------------------------------------
+
 다음과 같이 작성을 하고
 git config --global commit.template ~/.gitmessage.txt
 를 통해서 마무리할 수 있다.
