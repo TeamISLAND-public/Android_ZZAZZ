@@ -21,7 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.VideoIntent
+//import com.teamisland.zzazz.utils.VideoIntent
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.export_dialog.*
 import kotlinx.coroutines.GlobalScope
@@ -34,13 +34,13 @@ import java.util.*
 
 class ProjectActivity : AppCompatActivity() {
 
-    private lateinit var uri: String
+    private lateinit var uri: Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
 
-        uri = "android.resource://$packageName/" + R.raw.test
+        uri = intent.getParcelableExtra(TrimmingActivity.VIDEO_URI)!!
 
         buttonToExport.setOnClickListener {
             val intent = Intent(this, ExportActivity::class.java)
@@ -60,7 +60,7 @@ class ProjectActivity : AppCompatActivity() {
 
         video_view.setMediaController(null)
 
-        video_view.setVideoURI(Uri.parse(uri))
+        video_view.setVideoURI(uri)
 
         // when ready to play video
         video_view.setOnPreparedListener {

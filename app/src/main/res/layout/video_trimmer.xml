@@ -3,20 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/Black">
 
     <FrameLayout
         android:id="@+id/videoViewContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/black">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black"
+        app:layout_constraintBottom_toTopOf="@+id/trimmingContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
         <VideoView
             android:id="@+id/videoView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="370dp"
             android:layout_gravity="center"
-            tools:foreground="@tools:sample/backgrounds/scenic" />
+            tools:foreground="@tools:sample/backgrounds/scenic[1]" />
 
         <ImageView
             android:id="@+id/playIndicatorView"
@@ -24,94 +30,67 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:contentDescription="@string/play_indicator"
-            app:srcCompat="@drawable/icon_video_play" />
+            app:srcCompat="@drawable/ic_video_play" />
 
     </FrameLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:fabSize="auto"
-        app:layout_constraintBottom_toTopOf="@id/timeTextContainer"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_crop"
-        tools:ignore="RtlCompat" />
 
-    <View
-        android:id="@+id/backgroundView"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:background="#33ffffff"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="@id/timeTextContainer" />
-
-
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/trimmingContainer"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:layout_height="81.5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <com.lb.video_trimmer_library.view.TimeLineView
-            android:id="@+id/timeLineView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <com.teamisland.zzazz.utils.RangeSeekBarViewWithProgress
+        <com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
             android:id="@+id/rangeSeekBarView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintTop_toTopOf="@id/timeLineView"
+            android:layout_height="81dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:background="#3300ffff" />
-    </FrameLayout>
 
-    <FrameLayout
-        android:id="@+id/timeTextContainer"
-        android:layout_width="match_parent"
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/trimmingContainer"
-        tools:visibility="visible">
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/trimmingContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/videoViewContainer">
 
-        <TextView
-            android:id="@+id/videoFileSizeTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:textColor="#fff"
-            android:textIsSelectable="false"
-            android:textSize="12sp"
-            tools:ignore="RtlCompat"
-            tools:text="33 MB" />
+        <Button
+            android:id="@+id/frameMinus"
+            android:layout_width="88dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/frame_move_button"
+            android:fontFamily="@font/archivo"
+            android:text="@string/one_frame_retreat"
+            android:textColor="@color/btn_text"
+            android:textSize="13sp"
+            style="?android:attr/borderlessButtonStyle"/>
 
-        <TextView
-            android:id="@+id/trimTimeRangeTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:textColor="#fff"
-            android:textIsSelectable="false"
-            android:textSize="12sp"
-            tools:ignore="RtlCompat"
-            tools:text="0:00 .. 1:00" />
-
-        <TextView
-            android:id="@+id/playbackTimeTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:textColor="#fff"
-            android:textIsSelectable="false"
-            android:textSize="12sp"
-            tools:ignore="RtlCompat"
-            tools:text="0:30" />
-
-    </FrameLayout>
+        <Button
+            android:id="@+id/framePlus"
+            android:layout_width="88dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/frame_move_button"
+            android:fontFamily="@font/archivo"
+            android:text="@string/one_frame_advance"
+            android:textColor="@color/btn_text"
+            android:textSize="13sp"
+            style="?android:attr/borderlessButtonStyle"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
