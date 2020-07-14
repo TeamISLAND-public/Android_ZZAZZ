@@ -3,6 +3,7 @@ package com.teamisland.zzazz.ui
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,10 +12,12 @@ import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.*
+import android.provider.MediaStore
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.SeekBar
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -57,6 +60,7 @@ class ExportActivity : AppCompatActivity() {
     /**
      * When the activity is created
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -276,6 +280,7 @@ class ExportActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Suppress(
         "BlockingMethodInNonBlockingContext",
         "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
@@ -302,19 +307,28 @@ class ExportActivity : AppCompatActivity() {
 
         val input = contentResolver.openInputStream(Uri.fromFile(File(uri.path)))
 
-        //Make file directory for saving the video
-        val dirString =
-            Environment.getExternalStorageDirectory().absolutePath + "/Gallery/ZZAZZ"
-        val dir = File(dirString)
-        if (!dir.exists()) dir.mkdirs()
-
         //Video name is depended by time
         val time = System.currentTimeMillis()
         val date = Date(time)
         val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
         val filename = nameFormat.format(date)
-        val file = File("$dirString/$filename.mp4")
-        val output = FileOutputStream(file)
+
+
+        val contentValues = ContentValues()
+        contentValues.put(
+            MediaStore.Files.FileColumns.RELATIVE_PATH,
+            Environment.DIRECTORY_MOVIES + "/ZZAZZ"
+        )
+        contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename)
+        contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "video/*")
+        contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 1)
+
+        val outputUri =
+            contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+        val parcelFileDescriptor = contentResolver.openFileDescriptor(outputUri!!, "w", null)
+
+        val output = FileOutputStream(parcelFileDescriptor!!.fileDescriptor)
 
         val data = ByteArray(1024)
         var total = 0
@@ -349,9 +363,7 @@ class ExportActivity : AppCompatActivity() {
 
                 try {
                     output.write(data, 0, count)
-                    if (input != null) {
-                        count = input.read(data)
-                    }
+                    if (input != null) count = input.read(data)
                 } catch (e: Exception) {
                     checkStop = true
                     break
@@ -362,6 +374,9 @@ class ExportActivity : AppCompatActivity() {
                 input?.close()
                 output.flush()
                 output.close()
+                contentValues.clear()
+                contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 0)
+                contentResolver.update(outputUri, contentValues, null, null)
                 isExport = true
             }
         }
