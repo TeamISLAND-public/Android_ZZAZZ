@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
@@ -96,7 +97,14 @@ class ExportActivity : AppCompatActivity() {
                     share.alpha = 1F
                     Intent().apply {
                         action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_STREAM, uri)
+                        putExtra(
+                            Intent.EXTRA_STREAM,
+                            FileProvider.getUriForFile(
+                                this@ExportActivity,
+                                "com.teamisland.zzazz.fileprovider",
+                                File(uri.path)
+                            )
+                        )
                         type = "video/*"
                         startActivity(Intent.createChooser(this, "Share"))
                     }
