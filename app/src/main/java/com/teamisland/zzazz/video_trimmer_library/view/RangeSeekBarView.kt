@@ -29,6 +29,7 @@ import android.graphics.Paint
 import android.graphics.Paint.Style.*
 import android.graphics.Path
 import android.util.AttributeSet
+import android.util.Range
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.MotionEvent
@@ -107,6 +108,11 @@ open class RangeSeekBarView @JvmOverloads constructor(
      * Get endpoint in ms.
      */
     fun getEnd(): Int = thumbs[RIGHT.index].value
+
+    /**
+     * Get range selected in ms.
+     */
+    fun getRange() = Range(thumbs[LEFT.index].value, thumbs[RIGHT.index].value)
 
     private fun float2DP(float: Float): Float {
         return TypedValue.applyDimension(COMPLEX_UNIT_DIP, float, context.resources.displayMetrics)
