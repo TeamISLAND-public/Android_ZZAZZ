@@ -270,7 +270,10 @@ class ExportActivity : AppCompatActivity() {
                 preview.pause()
                 preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
             } else {
-                if (end) preview.seekTo(0)
+                if (end) {
+                    preview.seekTo(0)
+                    end = false
+                }
                 preview.start()
                 preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
             }
