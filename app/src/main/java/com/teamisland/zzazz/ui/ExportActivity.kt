@@ -184,10 +184,11 @@ class ExportActivity : AppCompatActivity() {
                 MotionEvent.ACTION_UP -> {
                     done_export.alpha = 1F
                     done = true
-                    val intent = Intent(this, IntroActivity::class.java)
-                    intent.flags =
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(intent)
+                    Intent(this, IntroActivity::class.java).apply {
+                        flags =
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        startActivity(this)
+                    }
                 }
             }
             true
@@ -260,8 +261,7 @@ class ExportActivity : AppCompatActivity() {
                 preview.seekTo(preview_progress.progress)
                 drag = false
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_normal_thumb)
-                if (playing)
-                    preview.start()
+                if (playing) preview.start()
             }
         })
 
@@ -269,10 +269,8 @@ class ExportActivity : AppCompatActivity() {
             if (preview.isPlaying) {
                 preview.pause()
                 preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
-//                preview_play.background = getDrawable(R.drawable.shadow_effect)
             } else {
-                if (end)
-                    preview.seekTo(0)
+                if (end) preview.seekTo(0)
                 preview.start()
                 preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
             }
