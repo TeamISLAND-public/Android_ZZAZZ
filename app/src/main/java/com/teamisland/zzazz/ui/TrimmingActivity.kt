@@ -185,17 +185,18 @@ class TrimmingActivity : AppCompatActivity() {
                     override fun onFinishedTrimming(uri: Uri?) {
                         Toast.makeText(this@TrimmingActivity, "$uri", LENGTH_SHORT).show()
                         finish()
-                        Intent(this@TrimmingActivity, ProjectActivity::class.java).also {
-                            it.putExtra(VIDEO_FPS, videoFps)
-                            it.putExtra(
-                                VIDEO_DUR,
-                                GetVideoData.getDuration(this@TrimmingActivity, uri ?: return@also)
+                        Intent(this@TrimmingActivity, ProjectActivity::class.java).apply {
+                            putExtra(VIDEO_FPS, videoFps)
+                            val duration = GetVideoData.getDuration(
+                                this@TrimmingActivity,
+                                uri ?: return onErrorWhileViewingVideo(0, 0)
                             )
-                            it.putExtra(VIDEO_URI, uri)
-                            println("uri in str $uri")
-                            val s = contentResolver.openInputStream(uri)
-
-                            startActivity(it)
+                            putExtra(
+                                VIDEO_DUR,
+                                duration
+                            )
+                            putExtra(VIDEO_URI, uri)
+                            startActivity(this)
                         }
                     }
 
@@ -227,7 +228,7 @@ class TrimmingActivity : AppCompatActivity() {
             mainVideoView.start()
             Thread(Runnable {
                 do {
-                    val now = mainVideoView.currentPosition
+                    val now = rangeSeekBarView.getRange().clamp(mainVideoView.currentPosition)
                     with(currentPositionView) {
                         setMarkerPos(now * 100.0 / videoDuration)
                     }

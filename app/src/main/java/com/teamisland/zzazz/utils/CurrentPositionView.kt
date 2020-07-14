@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
+import kotlin.math.abs
 
 
 /**
@@ -75,6 +76,7 @@ open class CurrentPositionView @JvmOverloads constructor(
         markerPaint.color = 0xffffffff.toInt()
         markerPaint.style = STROKE
         markerPaint.strokeWidth = float2DP(5f)
+        markerPaint.strokeCap = Paint.Cap.ROUND
 
         textView.fontFeatureSettings = "@font/archivo"
         textView.textSize = 10F
@@ -103,9 +105,9 @@ open class CurrentPositionView @JvmOverloads constructor(
 
         canvas.drawLine(
             getPointInViewWidth(),
-            height - float2DP(50f),
+            height - float2DP(47.5f),
             getPointInViewWidth(),
-            height.toFloat(),
+            height.toFloat() - float2DP(2.5f),
             markerPaint
         )
 
@@ -118,7 +120,7 @@ open class CurrentPositionView @JvmOverloads constructor(
     }
 
     private fun isClicked(pos: Float): Boolean {
-        return kotlin.math.abs(getPointInViewWidth() - pos) < float2DP(5f)
+        return abs(getPointInViewWidth() - pos) < float2DP(5f)
     }
 
     /**
@@ -145,10 +147,10 @@ open class CurrentPositionView @JvmOverloads constructor(
                 // Calculate the distance moved
                 val dx = coordinate - lastX
                 markerPos = lastPos + dx.toDouble() * 100 / (width - 2 * float2DP(20f))
-                if (markerPos < range.getStart() * 100.0 / videoDuration) markerPos =
-                    range.getStart() * 100.0 / videoDuration
-                if (markerPos > range.getEnd() * 100.0 / videoDuration) markerPos =
-                    range.getEnd() * 100.0 / videoDuration
+                if (markerPos < range.getStart() * 100.0 / videoDuration)
+                    markerPos = range.getStart() * 100.0 / videoDuration
+                if (markerPos > range.getEnd() * 100.0 / videoDuration)
+                    markerPos = range.getEnd() * 100.0 / videoDuration
                 if (markerPos < 0.0) markerPos = 0.0
                 if (markerPos > 100.0) markerPos = 100.0
                 listener.onChange(markerPos)
