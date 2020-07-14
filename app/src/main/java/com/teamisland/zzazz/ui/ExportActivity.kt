@@ -311,7 +311,7 @@ class ExportActivity : AppCompatActivity() {
         val time = System.currentTimeMillis()
         val date = Date(time)
         val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
-        val filename = nameFormat.format(date)
+        val filename = nameFormat.format(date) + ".mp4"
 
 
         val contentValues = ContentValues()
