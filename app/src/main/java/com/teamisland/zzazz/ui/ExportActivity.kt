@@ -209,10 +209,14 @@ class ExportActivity : AppCompatActivity() {
             true
         }
 
+        //This is for check_green the state of video before user dragging
+        var playing = true
+
         //Use thread to link seekBar from video
         preview.setOnPreparedListener {
             Thread(Runnable {
                 do {
+                    if (preview.currentPosition == duration) preview.pause()
                     preview_progress.post {
                         preview_progress.progress = preview.currentPosition
                     }
@@ -233,9 +237,6 @@ class ExportActivity : AppCompatActivity() {
             SeekBar.OnSeekBarChangeListener {
             //This is for check_green user is dragging
             var drag = false
-
-            //This is for check_green the state of video before user dragging
-            var playing = true
 
             // while dragging
             override fun onProgressChanged(
@@ -261,7 +262,15 @@ class ExportActivity : AppCompatActivity() {
                 preview.seekTo(preview_progress.progress)
                 drag = false
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_normal_thumb)
-                if (playing) preview.start()
+                when {
+                    preview_progress.progress == duration -> {
+                        end = true
+                        playing = false
+                        preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+                    }
+                    playing -> preview.start()
+                    else -> end = false
+                }
             }
         })
 
@@ -283,7 +292,7 @@ class ExportActivity : AppCompatActivity() {
 
         // changing text of button is needed
         preview.setOnCompletionListener {
-            preview.pause()
+            preview.seekTo(duration)
             preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
             end = true
         }
@@ -321,7 +330,6 @@ class ExportActivity : AppCompatActivity() {
         val date = Date(time)
         val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
         val filename = nameFormat.format(date) + ".mp4"
-
 
         val contentValues = ContentValues()
         contentValues.put(
