@@ -94,12 +94,12 @@ class ExportActivity : AppCompatActivity() {
 
                 MotionEvent.ACTION_UP -> {
                     share.alpha = 1F
-                    val shareIntent = Intent().apply {
+                    Intent().apply {
                         action = Intent.ACTION_SEND
                         putExtra(Intent.EXTRA_STREAM, uri)
                         type = "video/*"
+                        startActivity(Intent.createChooser(this, "Share"))
                     }
-                    startActivity(shareIntent)
                 }
             }
             true
