@@ -3,6 +3,7 @@
     <color name="Background">#070707</color>
     <color name="DialogBackground">#B2070707</color>
     <color name="ZZAZZWhite">#F2F2F2</color>
+    <color name="ContentsText80">#CCFFFFFF</color>
     <color name="White">#FFF</color>
     <color name="Black">#000</color>
 </resources>
