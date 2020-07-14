@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
@@ -19,7 +18,6 @@ import kotlinx.android.synthetic.main.activity_intro.*
  * Here you can choose video, or take it yourself.
  * Hands the uri of the video to next activity.
  */
-
 class IntroActivity : AppCompatActivity() {
 
     private fun dispatchTakeVideoIntent() {
@@ -40,6 +38,7 @@ class IntroActivity : AppCompatActivity() {
             Intent.ACTION_OPEN_DOCUMENT,
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         ).also { getVideoIntent ->
+            getVideoIntent.type = "video/*"
             getVideoIntent.resolveActivity(packageManager)?.also {
                 startActivityForResult(
                     Intent.createChooser(getVideoIntent, "Select Video"),
@@ -55,23 +54,14 @@ class IntroActivity : AppCompatActivity() {
         builder.show()
     }
 
+    /**
+     * [AppCompatActivity.onCreate]
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intro)
 
         val fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
-        fadeIn.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationRepeat(animation: Animation?) {
-            }
-
-            override fun onAnimationEnd(animation: Animation?) {
-            }
-
-            override fun onAnimationStart(animation: Animation?) {
-            }
-
-        })
-
         take_video_button.startAnimation(fadeIn)
         take_video_from_gallery_button.startAnimation(fadeIn)
 
@@ -79,6 +69,9 @@ class IntroActivity : AppCompatActivity() {
         take_video_from_gallery_button.setOnClickListener { warnAndRun { dispatchGetVideoIntent() } }
     }
 
+    /**
+     * Retrieve uri from request. Checks whether the uri is valid under the restrictions.
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -97,6 +90,7 @@ class IntroActivity : AppCompatActivity() {
             Toast.makeText(this, getString(R.string.length_exceeded), LENGTH_LONG).show()
             //return
         }
+        println(videoUri)
 
         Intent(this, TrimmingActivity::class.java).also {
             it.putExtra(VIDEO_URI, videoUri)
@@ -108,7 +102,7 @@ class IntroActivity : AppCompatActivity() {
         /**
          * Uri of the video retrieved.
          */
-        const val VIDEO_URI: String = "pretrim_video_uri"
+        const val VIDEO_URI: String = "pre_trim_video_uri"
 
         private const val REQUEST_VIDEO_CAPTURE = 1
         private const val REQUEST_VIDEO_SELECT = 2

@@ -49,6 +49,7 @@ class TrimmingActivity : AppCompatActivity() {
     }
 
     private lateinit var videoUri: Uri
+    private lateinit var trimmedVideoFile: File
     internal var videoDuration: Int = 0
     internal var videoFps: Int = 0
 
@@ -86,7 +87,7 @@ class TrimmingActivity : AppCompatActivity() {
         val parentFolder = getExternalFilesDir(null) ?: return
         parentFolder.mkdirs()
         val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
-        val trimmedVideoFile = File(parentFolder, fileName)
+        trimmedVideoFile = File(parentFolder, fileName)
 
         backButton.setOnClickListener { onBackPressed() }
 
@@ -191,6 +192,9 @@ class TrimmingActivity : AppCompatActivity() {
                                 GetVideoData.getDuration(this@TrimmingActivity, uri ?: return@also)
                             )
                             it.putExtra(VIDEO_URI, uri)
+                            println("uri in str $uri")
+                            val s = contentResolver.openInputStream(uri)
+
                             startActivity(it)
                         }
                     }
