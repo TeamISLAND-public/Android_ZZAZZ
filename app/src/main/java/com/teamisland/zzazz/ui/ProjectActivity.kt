@@ -6,16 +6,15 @@ import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
-//import com.teamisland.zzazz.utils.VideoIntent
+import com.teamisland.zzazz.utils.BitmapVideo
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
 import kotlinx.android.synthetic.main.activity_project.*
-import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -30,11 +29,11 @@ import kotlin.properties.Delegates
 class ProjectActivity : AppCompatActivity() {
 
     private lateinit var uri: Uri
-    private lateinit var video: ArrayList<Bitmap>
+    private lateinit var video: BitmapVideo
+    private lateinit var bitmapList: ArrayList<Bitmap>
     private var maxFrame by Delegates.notNull<Int>()
     private var fps by Delegates.notNull<Long>()
     private lateinit var playing: Job
-    private var isPlaying: Boolean = true
     private var frame: Int = 0
 
     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
@@ -43,57 +42,26 @@ class ProjectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
 
-//        fps = intent.getLongExtra("fps")
-//        maxFrame = intent.getIntExtra("frame")
-//        uri = intent.getParcelableExtra("Uri")
-
-        fps = 30L
-        maxFrame = 5184
-        video = ArrayList(maxFrame + 1)
-//        uri = Uri.parse(intent.getStringExtra("uri"))
-        uri = Uri.parse("android.resource://" + packageName + "/" + R.raw.test_5s)
+        fps = intent.getIntExtra(TrimmingActivity.VIDEO_FPS, 0).toLong()
+        val duration = intent.getIntExtra(TrimmingActivity.VIDEO_DUR, 0)
+        maxFrame = (duration / 1000 * fps).toInt()
+        bitmapList = ArrayList(maxFrame + 1)
+        val trimmedUri: Uri = intent.getParcelableExtra(TrimmingActivity.VIDEO_URI)
+        uri = FileProvider.getUriForFile(
+            this,
+            "com.teamisland.zzazz.fileprovider",
+            File(trimmedUri.path)
+        )
 
         val mediaMetadataRetriever = MediaMetadataRetriever()
-//        mediaMetadataRetriever.setDataSource(uri.path)
-        for (i in 1..maxFrame + 1) {
-            video.add(
-                mediaMetadataRetriever.getFrameAtTime(
-                    (1000000 * i).toLong(),
-                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC
-                )
-            )
+        mediaMetadataRetriever.setDataSource(this, uri)
+
+        for (i in 1..maxFrame) {
+            bitmapList.add(mediaMetadataRetriever.getFrameAtIndex(i))
         }
 
-        project_back.setImageDrawable(getDrawable(R.drawable.video_back))
-        project_back.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    project_back.alpha = 0.5F
-                }
+        video = BitmapVideo(fps, bitmapList, video_display, project_play)
 
-                MotionEvent.ACTION_UP -> {
-                    project_back.alpha = 1F
-                }
-            }
-            true
-        }
-
-        project_next.setImageDrawable(getDrawable(R.drawable.video_next))
-        project_next.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    project_next.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    project_next.alpha = 1F
-                }
-            }
-            true
-        }
-
-        var end = false
-        project_play.setImageDrawable(getDrawable(R.drawable.video_play_small))
         project_play.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -101,14 +69,11 @@ class ProjectActivity : AppCompatActivity() {
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    isPlaying = if (isPlaying) {
-                        if (end) {
-                            end = false
-                        }
-                        project_play.setImageDrawable(getDrawable(R.drawable.video_pause_small))
+                    video.isPlaying = if (video.isPlaying) {
+                        video.pause()
                         false
                     } else {
-                        project_play.setImageDrawable(getDrawable(R.drawable.video_play_small))
+                        video.start()
                         true
                     }
                     project_play.alpha = 1F
@@ -184,28 +149,14 @@ class ProjectActivity : AppCompatActivity() {
             true
         }
 
-        backButton.setOnClickListener { onBackPressed() }
+        back.setOnClickListener { onBackPressed() }
     }
 
     // play video
     private fun playBitmap() {
-        val handler = Handler()
-        playing = GlobalScope.launch {
-            while (isPlaying) {
-                if (frame == maxFrame) {
-                    isPlaying = false
-                    handler.post {
-                        project_play.setImageDrawable(getDrawable(R.drawable.video_play_small))
-                    }
-                    frame = 0
-                } else {
-                    handler.postDelayed(Runnable {
-//                        video_display.setImageBitmap(video[frame])
-                    }, 1000 / fps)
-                    frame++
-                }
-            }
-        }
+        video.seekTo(0)
+        video.start()
+        project_play.isSelected = true
     }
 
     // make effect tab
@@ -253,9 +204,9 @@ class ProjectActivity : AppCompatActivity() {
         GlobalScope.launch {
             while (frame <= maxFrame) {
                 // convert bitmap to bytes
-                val size = video[frame].rowBytes * video[frame].height
+                val size = bitmapList[frame].rowBytes * bitmapList[frame].height
                 val bytes = ByteBuffer.allocate(size)
-                video[frame].copyPixelsToBuffer(bytes)
+                bitmapList[frame].copyPixelsToBuffer(bytes)
                 val byteArray = ByteArray(size)
                 bytes.get(byteArray, 0, byteArray.size)
 
