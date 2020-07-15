@@ -4,7 +4,7 @@
     android:viewportWidth="18"
     android:viewportHeight="18">
   <path
-      android:pathData="M13.2354,9L9.0001,13.7059M9.0001,13.7059L4.7648,9M9.0001,13.7059L9.0001,1"
+      android:pathData="M13.2353,8.0588L17,8.0588L17,17L9,17L1,17L1,8.0588L4.7647,8.0588"
       android:strokeAlpha="0.9"
       android:strokeLineJoin="round"
       android:strokeWidth="1.5"
@@ -12,7 +12,7 @@
       android:strokeColor="#E5ffffff"
       android:strokeLineCap="round"/>
   <path
-      android:pathData="M17,10.4118L17,17L1,17L1,10.4118"
+      android:pathData="M4.7646,5.7059L8.9999,1M8.9999,1L13.2352,5.7059M8.9999,1L8.9999,13.7059"
       android:strokeAlpha="0.9"
       android:strokeLineJoin="round"
       android:strokeWidth="1.5"
