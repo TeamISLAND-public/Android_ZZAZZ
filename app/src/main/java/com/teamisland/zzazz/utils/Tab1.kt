@@ -1,13 +1,12 @@
 package com.teamisland.zzazz.utils
 
-import android.media.Image
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RelativeLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.teamisland.zzazz.R
 
@@ -21,14 +20,14 @@ class Tab1 : Fragment() {
         val view = layoutInflater.inflate(R.layout.tab1, container, false)
         val listView = view.findViewById<RecyclerView>(R.id.effect_list)
 
-        listView.layoutManager = GridLayoutManager(context, 4)
+        listView.layoutManager = GridLayoutManager(context, 1, GridLayoutManager.HORIZONTAL, false)
 
         val list = ArrayList<Int>()
         for (i in 0 until 100)
             list.add(R.drawable.check_white)
 
         val adapter = CustomAdapter(list, context!!, OnClickItem)
-        val decoration = ItemDecoration
+        val decoration = ItemDecoration()
         listView.adapter = adapter
         listView.addItemDecoration(decoration)
 

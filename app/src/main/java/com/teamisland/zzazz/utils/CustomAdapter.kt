@@ -17,7 +17,7 @@ class CustomAdapter(
     private val onClickItem: View.OnClickListener
 ) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.item_view, parent, false)
 
         return ViewHolder(view)

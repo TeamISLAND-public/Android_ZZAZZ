@@ -11,15 +11,16 @@
     <string name="go_to_the_main_page">Go to the main page.</string>
 
     <!--    string of projectactivity-->
-    <string name="project_title">Project</string>
-    <string name="export">export</string>
-    <string name="add_effect">Add Effect</string>
-    <string name="save_project">save</string>
-    <string name="head_effect">head</string>
-    <string name="left_arm_effect">left arm</string>
-    <string name="right_arm_effect">right arm</string>
-    <string name="left_leg_effect">left leg</string>
-    <string name="right_leg_effect">right leg</string>
+    <string name="project_title">PROJECT</string>
+    <string name="export">EXPORT</string>
+    <string name="add_effect">ADD EFFECT</string>
+    <string name="effect_back">Back</string>
+    <string name="effect_done">Done</string>
+    <string name="head_effect">Head</string>
+    <string name="left_arm_effect">Left arm</string>
+    <string name="right_arm_effect">Right arm</string>
+    <string name="left_leg_effect">Left leg</string>
+    <string name="right_leg_effect">Right leg</string>
 
     <!--    string of exportactivity-->
     <string name="export_title">PREVIEW</string>

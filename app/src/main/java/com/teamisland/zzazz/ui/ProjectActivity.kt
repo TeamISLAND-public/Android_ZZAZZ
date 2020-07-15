@@ -15,9 +15,6 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.BitmapVideo
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
 import kotlinx.android.synthetic.main.activity_project.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
@@ -31,10 +28,9 @@ class ProjectActivity : AppCompatActivity() {
     private lateinit var uri: Uri
     private lateinit var video: BitmapVideo
     private lateinit var bitmapList: ArrayList<Bitmap>
-    private var maxFrame by Delegates.notNull<Int>()
+    private var startFrame by Delegates.notNull<Int>()
+    private var endFrame by Delegates.notNull<Int>()
     private var fps by Delegates.notNull<Long>()
-    private lateinit var playing: Job
-    private var frame: Int = 0
 
     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     @SuppressLint("ClickableViewAccessibility")
@@ -44,7 +40,7 @@ class ProjectActivity : AppCompatActivity() {
 
         fps = intent.getIntExtra(TrimmingActivity.VIDEO_FPS, 0).toLong()
         val duration = intent.getIntExtra(TrimmingActivity.VIDEO_DUR, 0)
-        maxFrame = (duration / 1000 * fps).toInt()
+        val maxFrame = (duration / 1000 * fps).toInt()
         bitmapList = ArrayList(maxFrame + 1)
         val trimmedUri: Uri = intent.getParcelableExtra(TrimmingActivity.VIDEO_URI)
         uri = FileProvider.getUriForFile(
@@ -53,8 +49,8 @@ class ProjectActivity : AppCompatActivity() {
             File(trimmedUri.path)
         )
 
-        val startFrame = 0
-        val endFrame = maxFrame
+        startFrame = 0
+        endFrame = maxFrame
 
         val mediaMetadataRetriever = MediaMetadataRetriever()
         mediaMetadataRetriever.setDataSource(this, uri)
@@ -85,7 +81,7 @@ class ProjectActivity : AppCompatActivity() {
             true
         }
 
-        slide.anchorPoint = 0.3f
+        slide.anchorPoint = 1F
         slide.getChildAt(1).setOnClickListener(null)
         slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
 
@@ -100,20 +96,38 @@ class ProjectActivity : AppCompatActivity() {
                 MotionEvent.ACTION_UP -> {
                     add_effect_button.alpha = 1F
                     slide.panelState = SlidingUpPanelLayout.PanelState.ANCHORED
+                    project_title.text = getString(R.string.add_effect)
+                    video.pause()
                 }
             }
             true
         }
 
-        check_effect.setOnTouchListener { _, event ->
+        effect_back.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    check_effect.alpha = 0.5F
+                    effect_back.alpha = 0.5F
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    check_effect.alpha = 1F
+                    effect_back.alpha = 1F
                     slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+                    project_title.text = getString(R.string.project_title)
+                }
+            }
+            true
+        }
+
+        effect_done.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    effect_done.alpha = 0.5F
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    effect_done.alpha = 1F
+                    slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+                    project_title.text = getString(R.string.project_title)
                 }
             }
             true
@@ -135,7 +149,6 @@ class ProjectActivity : AppCompatActivity() {
 
         playBitmap()
 
-        val intent = Intent(this, ExportActivity::class.java)
         gotoExportActivity.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -144,9 +157,11 @@ class ProjectActivity : AppCompatActivity() {
 
                 MotionEvent.ACTION_UP -> {
                     gotoExportActivity.alpha = 1F
-                    playing.cancel()
-//                    intent.putExtra("Uri", exportProject())
-                    startActivity(intent)
+                    video.pause()
+                    Intent(this, ExportActivity::class.java).apply {
+//                        putExtra("URI", exportProject())
+                        startActivity(this)
+                    }
                 }
             }
             true
@@ -195,7 +210,7 @@ class ProjectActivity : AppCompatActivity() {
     // export project to export activity
     @Suppress("BlockingMethodInNonBlockingContext")
     @SuppressLint("SimpleDateFormat")
-    private fun exportProject(): String {
+    private fun exportProject(): Uri {
         val time = System.currentTimeMillis()
         val date = Date(time)
         val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
@@ -203,21 +218,21 @@ class ProjectActivity : AppCompatActivity() {
         val file = filesDir.absoluteFile.path + "/$filename.mp4"
         val output = FileOutputStream(File(file))
 
-        frame = 0
-        GlobalScope.launch {
-            while (frame <= maxFrame) {
+        var frame = 0
+        Thread {
+            while (frame <= endFrame - startFrame + 1) {
                 // convert bitmap to bytes
                 val size = bitmapList[frame].rowBytes * bitmapList[frame].height
                 val bytes = ByteBuffer.allocate(size)
-                bitmapList[frame].copyPixelsToBuffer(bytes)
+                bitmapList[frame++].copyPixelsToBuffer(bytes)
                 val byteArray = ByteArray(size)
+                // error
                 bytes.get(byteArray, 0, byteArray.size)
 
                 output.write(byteArray)
-                frame++
             }
-        }
+        }.start()
 
-        return file
+        return Uri.parse(file)
     }
 }

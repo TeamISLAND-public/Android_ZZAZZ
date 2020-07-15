@@ -2,7 +2,6 @@ package com.teamisland.zzazz.utils
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -56,7 +55,6 @@ class BitmapVideo(
                         end = true
                         changeActivated(false)
                     }
-                    Log.d("frame", "$frame")
                 }
             }
         }.start()
