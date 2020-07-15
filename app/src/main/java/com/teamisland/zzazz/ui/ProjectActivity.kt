@@ -53,14 +53,17 @@ class ProjectActivity : AppCompatActivity() {
             File(trimmedUri.path)
         )
 
+        val startFrame = 0
+        val endFrame = maxFrame
+
         val mediaMetadataRetriever = MediaMetadataRetriever()
         mediaMetadataRetriever.setDataSource(this, uri)
 
-        for (i in 1..maxFrame) {
+        for (i in startFrame..endFrame) {
             bitmapList.add(mediaMetadataRetriever.getFrameAtIndex(i))
         }
 
-        video = BitmapVideo(fps, bitmapList, video_display, project_play)
+        video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
 
         project_play.setOnTouchListener { _, event ->
             when (event.action) {
