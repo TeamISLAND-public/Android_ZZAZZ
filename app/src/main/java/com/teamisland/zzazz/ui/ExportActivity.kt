@@ -235,8 +235,6 @@ class ExportActivity : AppCompatActivity() {
 
         preview_progress.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
-            //This is for check_green user is dragging
-            var drag = false
 
             // while dragging
             override fun onProgressChanged(
@@ -244,23 +242,19 @@ class ExportActivity : AppCompatActivity() {
                 progress: Int,
                 fromUser: Boolean
             ) {
-                if (drag) {
-                    preview.seekTo(progress)
-                    preview_progress.thumb = getDrawable(R.drawable.seekbar_pressed_thumb)
-                }
+                preview.seekTo(progress)
             }
 
             // when user starts dragging
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                preview_progress.thumb = getDrawable(R.drawable.seekbar_pressed_thumb)
                 playing = preview.isPlaying
                 preview.pause()
-                drag = true
             }
 
             // when user stops touching
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 preview.seekTo(preview_progress.progress)
-                drag = false
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_normal_thumb)
                 when {
                     preview_progress.progress == duration -> {
