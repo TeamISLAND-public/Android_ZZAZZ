@@ -1,14 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item
-        android:drawable="@drawable/preview_pause_rectangle_right"
-        android:gravity="center_vertical|center_horizontal"
-        android:right="19dp" />
-
-    <item
-        android:drawable="@drawable/preview_pause_rectangle_left"
-        android:gravity="center_vertical|center_horizontal"
-        android:left="19dp" />
-
-</layer-list>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+  <path
+      android:pathData="M32,32m-32,0a32,32 0,1 1,64 0a32,32 0,1 1,-64 0"
+      android:fillColor="#070707"
+      android:fillAlpha="0.85"/>
+  <path
+      android:pathData="M26,22h3v20h-3z"
+      android:fillColor="#ffffff"/>
+  <path
+      android:pathData="M35,22h3v20h-3z"
+      android:fillColor="#ffffff"/>
+</vector>
