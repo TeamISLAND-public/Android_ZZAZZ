@@ -15,6 +15,7 @@ import com.teamisland.zzazz.R
 //import com.teamisland.zzazz.utils.VideoIntent
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
 import kotlinx.android.synthetic.main.activity_project.*
+import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -182,6 +183,8 @@ class ProjectActivity : AppCompatActivity() {
             }
             true
         }
+
+        backButton.setOnClickListener { onBackPressed() }
     }
 
     // play video
