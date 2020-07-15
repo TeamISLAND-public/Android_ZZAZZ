@@ -36,8 +36,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'it.sephiroth.android.library.rangeseekbar:rangeseekbar:1.1.0'
     implementation 'com.google.android.material:material:1.1.0'
-    implementation 'com.github.AndroidDeveloperLB:VideoTrimmer:6'
-    implementation 'com.google.android.gms:play-services-ads:19.1.0'
+    implementation 'com.google.android.gms:play-services-ads:19.2.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
+    implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
 }

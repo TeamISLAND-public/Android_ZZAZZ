@@ -40,4 +40,5 @@
     <string name="play_indicator">Play Indicator</string>
     <string name="video_saved_at">Video has been saved at %s</string>
     <string name="choose_from_gallery">Choose From Gallery</string>
+    <string name="go_to_the_main_page">메인 메뉴로 가기</string>
 </resources>

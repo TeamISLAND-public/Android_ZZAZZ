@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
+//import com.teamisland.zzazz.utils.VideoIntent
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.coroutines.GlobalScope

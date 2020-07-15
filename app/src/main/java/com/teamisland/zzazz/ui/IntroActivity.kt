@@ -2,9 +2,6 @@ package com.teamisland.zzazz.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.media.MediaExtractor
-import android.media.MediaFormat.KEY_DURATION
-import android.media.MediaFormat.KEY_FRAME_RATE
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.animation.Animation
@@ -13,6 +10,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.IntroAlertDialog
 import kotlinx.android.synthetic.main.activity_intro.*
 
@@ -83,29 +81,35 @@ class IntroActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         if (resultCode != Activity.RESULT_OK) return
+
         val videoUri = (data ?: return).data ?: return
-        val data_two = MediaExtractor()
-        data_two.setDataSource(this@IntroActivity, videoUri, null)
-        val video_info = data_two.getTrackFormat(0)
-        val video_duration = video_info.getLong(KEY_DURATION)
-        val video_fps = video_info.getInteger(KEY_FRAME_RATE)
-        if (video_duration > resources.getInteger(R.integer.length_limit) * 1000) {
-            Toast.makeText(this, getString(R.string.length_exceeded), LENGTH_LONG).show()
-            return
-        }
-        if (video_fps > resources.getInteger(R.integer.fps_limit)) {
+
+        val videoFps = GetVideoData.getFPS(this@IntroActivity, videoUri)
+        if (videoFps > resources.getInteger(R.integer.fps_limit)) {
             Toast.makeText(this, getString(R.string.fps_exceeded), LENGTH_LONG).show()
             return
         }
-        val intent = Intent(this, TrimmingActivity::class.java).also {
-            it.putExtra(getString(R.string.selected_video_uri), videoUri)
+
+        val videoDuration = GetVideoData.getDuration(this@IntroActivity, videoUri)
+        if (videoDuration > resources.getInteger(R.integer.length_limit) * 1000) {
+            Toast.makeText(this, getString(R.string.length_exceeded), LENGTH_LONG).show()
+            //return
         }
-        startActivity(intent)
-        finish()
+
+        Intent(this, TrimmingActivity::class.java).also {
+            it.putExtra(VIDEO_URI, videoUri)
+            startActivity(it)
+        }
     }
 
     companion object {
+        /**
+         * Uri of the video retrieved.
+         */
+        const val VIDEO_URI: String = "pretrim_video_uri"
+
         private const val REQUEST_VIDEO_CAPTURE = 1
         private const val REQUEST_VIDEO_SELECT = 2
     }
