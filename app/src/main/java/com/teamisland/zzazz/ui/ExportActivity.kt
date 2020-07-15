@@ -53,7 +53,6 @@ class ExportActivity : AppCompatActivity() {
      */
     override fun onRestart() {
         super.onRestart()
-        preview.seekTo(0)
         preview.start()
         preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
     }
@@ -148,7 +147,6 @@ class ExportActivity : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun videoStart() {
-        preview.seekTo(0)
         preview.start()
 
         fadeOut = AnimationUtils.loadAnimation(this@ExportActivity, R.anim.fade_out)
@@ -209,22 +207,14 @@ class ExportActivity : AppCompatActivity() {
             true
         }
 
-        //This is for check_green the state of video before user dragging
-        var playing = true
-
         //Use thread to link seekBar from video
         preview.setOnPreparedListener {
             Thread(Runnable {
                 do {
-                    if (preview.currentPosition == duration) preview.pause()
                     preview_progress.post {
                         preview_progress.progress = preview.currentPosition
                     }
-                    try {
-                        Thread.sleep(10)
-                    } catch (e: InterruptedException) {
-                        e.printStackTrace()
-                    }
+                    Thread.sleep(10)
                 } while (!done)
             }).start()
         }
@@ -236,13 +226,16 @@ class ExportActivity : AppCompatActivity() {
         preview_progress.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
 
+            var playing = true
+            var isDragging = false
+
             // while dragging
             override fun onProgressChanged(
                 seekBar: SeekBar?,
                 progress: Int,
                 fromUser: Boolean
             ) {
-                preview.seekTo(progress)
+                if (isDragging) preview.seekTo(progress)
             }
 
             // when user starts dragging
@@ -250,6 +243,7 @@ class ExportActivity : AppCompatActivity() {
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_pressed_thumb)
                 playing = preview.isPlaying
                 preview.pause()
+                isDragging = true
             }
 
             // when user stops touching
@@ -265,6 +259,7 @@ class ExportActivity : AppCompatActivity() {
                     playing -> preview.start()
                     else -> end = false
                 }
+                isDragging = false
             }
         })
 
@@ -286,7 +281,6 @@ class ExportActivity : AppCompatActivity() {
 
         // changing text of button is needed
         preview.setOnCompletionListener {
-            preview.seekTo(duration)
             preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
             end = true
         }
