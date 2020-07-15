@@ -43,7 +43,7 @@
         android:background="#00FFFFFF"
         android:text="Okay"
         android:textAlignment="center"
-        android:textColor="@color/ZZAZZGreen"
+        android:textColor="@color/White"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
