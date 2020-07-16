@@ -18,8 +18,6 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.Toast
-import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -31,8 +29,6 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.IPositionChangeListener
 import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
-import com.teamisland.zzazz.video_trimmer_library.interfaces.VideoTrimmingListener
-import com.teamisland.zzazz.video_trimmer_library.utils.TrimVideoUtils
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 import kotlinx.android.synthetic.main.activity_trimming.*
 import java.io.File
@@ -46,7 +42,7 @@ class TrimmingActivity : AppCompatActivity() {
         /**
          * Uri of the trimmed video.
          */
-        const val VIDEO_URI: String = "URI"
+        const val VIDEO_PATH: String = "PATH"
 
         /**
          * FPS of the trimmed video.
@@ -315,33 +311,9 @@ class TrimmingActivity : AppCompatActivity() {
             putExtra(VIDEO_START_FRAME, startFrame)
             putExtra(VIDEO_END_FRAME, endFrame)
 
-            putExtra(VIDEO_URI, videoUri)
+            putExtra(VIDEO_PATH, getPath(this@TrimmingActivity, videoUri))
             startActivity(this)
         }
-//        TrimVideoUtils.startTrim(
-//            this,
-//            videoUri,
-//            trimmedVideoFile,
-//            rangeSeekBarView.getStart().toLong(),
-//            rangeSeekBarView.getEnd().toLong(),
-//            GetVideoData.getDuration(this, videoUri).toLong(),
-//            object : VideoTrimmingListener {
-//                override fun onVideoPrepared() = Unit
-//
-//                override fun onTrimStarted() = Unit
-//
-//                override fun onFinishedTrimming(uri: Uri?) {
-//                }
-//
-//                override fun onErrorWhileViewingVideo(what: Int, extra: Int) {
-//                    Toast.makeText(
-//                        this@TrimmingActivity,
-//                        getString(R.string.trimming_error),
-//                        LENGTH_SHORT
-//                    ).show()
-//                }
-//            }
-//        )
     }
 
     private fun setupVideoProperties(): Boolean {
