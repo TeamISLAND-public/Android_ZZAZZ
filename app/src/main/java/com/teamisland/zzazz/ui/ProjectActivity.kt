@@ -22,6 +22,9 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
+/**
+ * Activity for make project
+ */
 class ProjectActivity : AppCompatActivity() {
 
     private lateinit var uri: Uri
@@ -31,6 +34,9 @@ class ProjectActivity : AppCompatActivity() {
     private var endFrame by Delegates.notNull<Int>()
     private var fps by Delegates.notNull<Long>()
 
+    /**
+     * [AppCompatActivity.onCreate]
+     */
     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
