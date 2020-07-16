@@ -9,16 +9,26 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import com.teamisland.zzazz.R
 
+/**
+ * Video with bitmap
+ */
 class BitmapVideo(
     context: Context,
     private val fps: Long,
-    private val video: ArrayList<Bitmap>,
+    private val video: List<Bitmap>,
     private val imageView: ImageView,
     private val playButton: ImageButton
 ) {
 
-    var isPlaying = true
-    var end = false
+    /**
+     * Is video is playing
+     */
+    var isPlaying: Boolean = true
+
+    /**
+     * Check the video end
+     */
+    private var end: Boolean = false
     private var export = false
     private var frame: Int = 0
 
@@ -60,11 +70,18 @@ class BitmapVideo(
         }.start()
     }
 
+    /**
+     * Seek to [frame]
+     * @param frame
+     */
     fun seekTo(frame: Int) {
         this.frame = frame
         imageView.setImageBitmap(video[frame])
     }
 
+    /**
+     * Start the video
+     */
     fun start() {
         if (end) {
             seekTo(0)
@@ -73,6 +90,9 @@ class BitmapVideo(
         changeActivated(true)
     }
 
+    /**
+     * Pause the video
+     */
     fun pause() {
         changeActivated(false)
     }
@@ -83,6 +103,9 @@ class BitmapVideo(
         playButton.startAnimation(fadeOut)
     }
 
+    /**
+     * Finish video playing
+     */
     fun done() {
         export = true
     }
