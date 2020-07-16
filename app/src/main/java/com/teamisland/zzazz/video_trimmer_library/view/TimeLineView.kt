@@ -32,6 +32,8 @@ import android.media.ThumbnailUtils
 import android.net.Uri
 import android.util.AttributeSet
 import android.view.View
+import com.teamisland.zzazz.ui.TrimmingActivity
+import com.teamisland.zzazz.utils.FFmpegDelegate
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
 import kotlin.math.ceil
 
@@ -82,11 +84,13 @@ open class TimeLineView @JvmOverloads constructor(
             return
         }
         bitmapList.clear()
+        val path = TrimmingActivity.getPath(context, videoUri!!)
         BackgroundExecutor.cancelAll("", true)
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
                 try {
                     val thumbnailList = ArrayList<Bitmap?>()
+
                     val mediaMetadataRetriever = MediaMetadataRetriever()
                     mediaMetadataRetriever.setDataSource(context, videoUri)
                     val videoLengthInMs =
@@ -94,14 +98,23 @@ open class TimeLineView @JvmOverloads constructor(
                             .toLong() * 1000L
                     val interval = videoLengthInMs / numThumbs
                     for (i in 0 until numThumbs) {
-                        var bitmap: Bitmap? = mediaMetadataRetriever.getScaledFrameAtTime(
-                            i * interval,
-                            MediaMetadataRetriever.OPTION_CLOSEST,
-                            viewHeight,
+//                        var bitmap: Bitmap? = mediaMetadataRetriever.getScaledFrameAtTime(
+//                            i * interval,
+//                            MediaMetadataRetriever.OPTION_CLOSEST,
+//                            viewHeight,
+//                            viewHeight
+//                        )
+
+                        var bitmap = FFmpegDelegate.getFrameAtMilliSeconds(
+                            context,
+                            path!!,
+                            (i * interval).toInt() / 1000,
                             viewHeight
                         )
+
                         if (bitmap != null)
                             bitmap = ThumbnailUtils.extractThumbnail(bitmap, viewHeight, viewHeight)
+
                         thumbnailList.add(bitmap)
                         bitmapList.add(bitmap)
                         invalidate()

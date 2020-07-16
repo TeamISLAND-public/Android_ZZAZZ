@@ -59,7 +59,7 @@ open class SelectedThumbView @JvmOverloads constructor(
             }
 
             override fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                markerPos = value * 100.0 / rangeSeekBarView.getDuration()
+                markerPos = value * 100.0 / rangeSeekBarView.videoDuration
                 xPos = getPointInViewWidth(index)
                 invalidate()
             }
