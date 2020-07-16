@@ -18,14 +18,17 @@ object FFmpegDelegate {
         val parentFolder = context.getExternalFilesDir(null) ?: return null
         parentFolder.mkdirs()
         val fileName = "trimmedVideo_${System.currentTimeMillis()}.bmp"
-        val trimmedVideoFile = File(parentFolder, fileName).absolutePath
+        val file = File(parentFolder, fileName)
+        val trimmedVideoFile = file.absolutePath
 
-        FFmpeg.execute("-ss ${milliSeconds / 1000.0} -i $path -filter:v scale=$width:-1 -vframes 1 -pix_fmt bgr8 -y $trimmedVideoFile")
+        FFmpeg.execute("-ss ${milliSeconds / 1000.0} -i $path -qscale:v 31 -filter:v scale=$width:-1 -vframes 1 -pix_fmt bgr8 -y $trimmedVideoFile")
 
         val option = BitmapFactory.Options().apply {
             outWidth = width
             inJustDecodeBounds = false
         }
-        return BitmapFactory.decodeFile(trimmedVideoFile, option)
+        val res = BitmapFactory.decodeFile(trimmedVideoFile, option)
+        file.delete()
+        return res
     }
 }

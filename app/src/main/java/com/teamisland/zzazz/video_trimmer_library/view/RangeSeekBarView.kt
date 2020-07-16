@@ -520,22 +520,22 @@ open class RangeSeekBarView @JvmOverloads constructor(
     }
 
     private fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration / videoFrameCount
+        val position = value * videoDuration * 100 / videoFrameCount
         listeners.forEach { item -> item.onCreate(rangeSeekBarView, index, position) }
     }
 
     private fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration / videoFrameCount
+        val position = value * videoDuration * 100 / videoFrameCount
         listeners.forEach { item -> item.onSeek(rangeSeekBarView, index, position) }
     }
 
     private fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration / videoFrameCount
+        val position = value * videoDuration * 100 / videoFrameCount
         listeners.forEach { item -> item.onSeekStart(rangeSeekBarView, index, position) }
     }
 
     private fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration / videoFrameCount
+        val position = value * videoDuration * 100 / videoFrameCount
         listeners.forEach { item -> item.onSeekStop(rangeSeekBarView, index, position) }
     }
 
