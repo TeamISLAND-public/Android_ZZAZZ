@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
@@ -27,7 +26,7 @@ class ProjectActivity : AppCompatActivity() {
 
     private lateinit var uri: Uri
     private lateinit var video: BitmapVideo
-    private lateinit var bitmapList: ArrayList<Bitmap>
+    private lateinit var bitmapList: List<Bitmap>
     private var startFrame by Delegates.notNull<Int>()
     private var endFrame by Delegates.notNull<Int>()
     private var fps by Delegates.notNull<Long>()
@@ -38,26 +37,22 @@ class ProjectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
 
-        fps = intent.getIntExtra(TrimmingActivity.VIDEO_FPS, 0).toLong()
-        val duration = intent.getIntExtra(TrimmingActivity.VIDEO_DUR, 0)
-        val maxFrame = (duration / 1000 * fps).toInt()
-        bitmapList = ArrayList(maxFrame + 1)
-        val trimmedUri: Uri = intent.getParcelableExtra(TrimmingActivity.VIDEO_URI)
-        uri = FileProvider.getUriForFile(
-            this,
-            "com.teamisland.zzazz.fileprovider",
-            File(trimmedUri.path)
-        )
-
-        startFrame = 0
-        endFrame = maxFrame
+        val path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
+        uri = Uri.parse(path)
+        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
+        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
+        bitmapList = ArrayList(endFrame - startFrame + 1)
 
         val mediaMetadataRetriever = MediaMetadataRetriever()
         mediaMetadataRetriever.setDataSource(this, uri)
 
-        for (i in startFrame..endFrame) {
-            bitmapList.add(mediaMetadataRetriever.getFrameAtIndex(i))
-        }
+        fps =
+            1000L * mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
+                .toLong() / mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                .toLong()
+
+        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
+        mediaMetadataRetriever.release()
 
         video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
 
