@@ -29,6 +29,7 @@ import android.graphics.Paint
 import android.graphics.Paint.Style.*
 import android.graphics.Path
 import android.util.AttributeSet
+import android.util.Range
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.MotionEvent
@@ -89,6 +90,11 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private val rightTriangle = Path()
 
     /**
+     * Video duration in ms.
+     */
+    fun getDuration(): Int = videoDuration
+
+    /**
      * Thumb width.
      */
     val thumbWidth: Int = initThumbWidth(context)
@@ -102,6 +108,11 @@ open class RangeSeekBarView @JvmOverloads constructor(
      * Get endpoint in ms.
      */
     fun getEnd(): Int = thumbs[RIGHT.index].value
+
+    /**
+     * Get range selected in ms.
+     */
+    fun getRange() = Range(thumbs[LEFT.index].value, thumbs[RIGHT.index].value)
 
     private fun float2DP(float: Float): Float {
         return TypedValue.applyDimension(COMPLEX_UNIT_DIP, float, context.resources.displayMetrics)
@@ -340,15 +351,15 @@ open class RangeSeekBarView @JvmOverloads constructor(
             strokePaint
         )
         leftTriangle.reset()
-        leftTriangle.moveTo(leftPosStart + float2DP(15f), float2DP(15f))
-        leftTriangle.lineTo(leftPosStart + float2DP(15f), float2DP(25f))
-        leftTriangle.lineTo(leftPosStart + float2DP(6f), float2DP(20f))
+        leftTriangle.moveTo(leftPosStart + float2DP(12f), float2DP(16f))
+        leftTriangle.lineTo(leftPosStart + float2DP(12f), float2DP(24f))
+        leftTriangle.lineTo(leftPosStart + float2DP(7f), float2DP(20f))
         leftTriangle.close()
 
         rightTriangle.reset()
-        rightTriangle.moveTo(rightPosStart + float2DP(5f), float2DP(15f))
-        rightTriangle.lineTo(rightPosStart + float2DP(5f), float2DP(25f))
-        rightTriangle.lineTo(rightPosStart + float2DP(14f), float2DP(20f))
+        rightTriangle.moveTo(rightPosStart + float2DP(8f), float2DP(16f))
+        rightTriangle.lineTo(rightPosStart + float2DP(8f), float2DP(24f))
+        rightTriangle.lineTo(rightPosStart + float2DP(13f), float2DP(20f))
         rightTriangle.close()
 
         canvas.drawPath(leftTriangle, trianglePaint)
@@ -368,8 +379,10 @@ open class RangeSeekBarView @JvmOverloads constructor(
                 // Remember where we started
                 currentThumb = getClosestThumb(coordinate)
                 setButtonVisibility()
-                if (currentThumb == -1)
+                if (currentThumb == -1) {
+                    onDeselect(this)
                     return false
+                }
                 mThumb = thumbs[currentThumb]
                 mThumb.lastTouchX = coordinate
                 onSeekStart(this, currentThumb, mThumb.value)
@@ -541,6 +554,10 @@ open class RangeSeekBarView @JvmOverloads constructor(
 
     private fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
         listeners.forEach { item -> item.onSeekStop(rangeSeekBarView, index, value) }
+    }
+
+    private fun onDeselect(rangeSeekBarView: RangeSeekBarView) {
+        listeners.forEach { item -> item.onDeselect(rangeSeekBarView) }
     }
 
     /**

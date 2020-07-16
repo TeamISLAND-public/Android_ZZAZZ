@@ -59,7 +59,7 @@ object TrimVideoUtils {
         callback: VideoTrimmingListener
     ) {
 //        Log.d("AppLog", "startTrim")
-        outputTrimmedVideoFile.parentFile.mkdirs()
+        outputTrimmedVideoFile.parentFile!!.mkdirs()
         outputTrimmedVideoFile.delete()
         var succeeded = false
         if (startMs <= 0L && endMs >= durationInMs) {
@@ -140,8 +140,7 @@ object TrimVideoUtils {
             var lastTime = -1.0
             var startSample1: Long = -1
             var endSample1: Long = -1
-            for (i in 0 until track.sampleDurations.size) {
-                val delta = track.sampleDurations[i]
+            for (element in track.sampleDurations) {
                 if (currentTime > lastTime && currentTime <= startTime1) {
                     // current sample is still before the new starttime
                     startSample1 = currentSample
@@ -151,12 +150,12 @@ object TrimVideoUtils {
                     endSample1 = currentSample
                 }
                 lastTime = currentTime
-                currentTime += delta.toDouble() / track.trackMetaData.timescale.toDouble()
+                currentTime += element.toDouble() / track.trackMetaData.timescale.toDouble()
                 ++currentSample
             }
             movie.addTrack(AppendTrack(CroppedTrack(track, startSample1, endSample1)))
         }
-        dst.parentFile.mkdirs()
+        dst.parentFile!!.mkdirs()
         if (!dst.exists()) {
             dst.createNewFile()
         }
