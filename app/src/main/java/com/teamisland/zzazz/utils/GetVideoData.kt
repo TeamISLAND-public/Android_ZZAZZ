@@ -30,6 +30,9 @@ object GetVideoData {
         return videoFps
     }
 
+    /**
+     * Returns target video duration in ms.
+     */
     fun getDuration(context: Context, uri: Uri): Int {
         val mediaMetadataRetriever = MediaMetadataRetriever()
         mediaMetadataRetriever.setDataSource(context, uri)

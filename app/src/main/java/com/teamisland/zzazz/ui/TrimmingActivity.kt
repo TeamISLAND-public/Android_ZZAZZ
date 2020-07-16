@@ -2,10 +2,17 @@ package com.teamisland.zzazz.ui
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.content.ContentUris
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.DocumentsContract
+import android.provider.MediaStore
+import android.util.Log
 import android.util.Range
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -16,6 +23,10 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.arthenica.mobileffmpeg.Config
+import com.arthenica.mobileffmpeg.FFmpeg
+import com.arthenica.mobileffmpeg.LogMessage
+import com.teamisland.zzazz.BuildConfig
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.IPositionChangeListener
@@ -43,9 +54,14 @@ class TrimmingActivity : AppCompatActivity() {
         const val VIDEO_FPS: String = "FPS"
 
         /**
-         * Duration of the trimmed video.
+         * Starting frame index of the trimmed video.
          */
-        const val VIDEO_DUR: String = "DUR"
+        const val VIDEO_START_FRAME: String = "START_F"
+
+        /**
+         * End frame index of the trimmed video.
+         */
+        const val VIDEO_END_FRAME: String = "END_F"
     }
 
     private lateinit var videoUri: Uri
@@ -112,7 +128,7 @@ class TrimmingActivity : AppCompatActivity() {
         playButton.startAnimation(fadeOut)
 
         rangeSeekBarView.setButtons(framePlus, frameMinus)
-        rangeSeekBarView.addOnRangeSeekBarListener(object : OnRangeSeekBarListener {
+        val addOnRangeSeekBarListener = object : OnRangeSeekBarListener {
             override fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
                 println("onCreate")
                 applyTrimRangeChanges()
@@ -135,16 +151,15 @@ class TrimmingActivity : AppCompatActivity() {
                 applyTrimRangeChanges()
             }
 
-            override fun onDeselect(rangeSeekBarView: RangeSeekBarView) {
-                //do nothing.
-            }
-        })
+            override fun onDeselect(rangeSeekBarView: RangeSeekBarView) = Unit
+        }
+        rangeSeekBarView.addOnRangeSeekBarListener(addOnRangeSeekBarListener)
         rangeSeekBarView.initMaxWidth()
         rangeSeekBarView.setDuration(videoDuration)
         rangeSeekBarView.setFPS(videoFps)
 
         currentPositionView.setDuration(videoDuration)
-        currentPositionView.setListener(object : IPositionChangeListener {
+        val currentPositionChangeListener = object : IPositionChangeListener {
             /**
              * An event when current position changed.
              */
@@ -152,7 +167,8 @@ class TrimmingActivity : AppCompatActivity() {
                 mainVideoView.seekTo((percentage * videoDuration / 100).toInt())
                 stopVideo()
             }
-        })
+        }
+        currentPositionView.setListener(currentPositionChangeListener)
         currentPositionView.setRange(rangeSeekBarView)
 
         selectedThumbView.setRange(rangeSeekBarView)
@@ -167,46 +183,165 @@ class TrimmingActivity : AppCompatActivity() {
         mainVideoView.setOnCompletionListener { playButton.isActivated = false }
         mainVideoView.setOnClickListener { playButton.startAnimation(fadeOut) }
 
-        gotoProjectActivity.setOnClickListener {
-            TrimVideoUtils.startTrim(
-                this,
-                videoUri,
-                trimmedVideoFile,
-                rangeSeekBarView.getStart().toLong(),
-                rangeSeekBarView.getEnd().toLong(),
-                GetVideoData.getDuration(this, videoUri).toLong(),
-                object : VideoTrimmingListener {
-                    override fun onVideoPrepared() {
-                    }
+        gotoProjectActivity.setOnClickListener { startTrimming() }
 
-                    override fun onTrimStarted() {
-                    }
-
-                    override fun onFinishedTrimming(uri: Uri?) {
-                        Toast.makeText(this@TrimmingActivity, "$uri", LENGTH_SHORT).show()
-                        finish()
-                        Intent(this@TrimmingActivity, ProjectActivity::class.java).apply {
-                            putExtra(VIDEO_FPS, videoFps)
-                            val duration = GetVideoData.getDuration(
-                                this@TrimmingActivity,
-                                uri ?: return onErrorWhileViewingVideo(0, 0)
-                            )
-                            putExtra(
-                                VIDEO_DUR,
-                                duration
-                            )
-                            putExtra(VIDEO_URI, uri)
-                            startActivity(this)
-                        }
-                    }
-
-                    override fun onErrorWhileViewingVideo(what: Int, extra: Int) {
-                        Toast.makeText(this@TrimmingActivity, "Error while trimming.", LENGTH_SHORT)
-                            .show()
-                    }
-                }
-            )
+        Config.enableLogCallback { message: LogMessage ->
+            if (BuildConfig.DEBUG) Log.d(Config.TAG, message.text)
         }
+        println(videoUri.path)
+        println(getPath(this, videoUri))
+
+        FFmpeg.execute("-i ${videoUri.path} -c:v mpeg4 /storage/emulated/0/file2.mp4")
+    }
+
+    /**
+     * Get a file path from a Uri. This will get the the path for Storage Access
+     * Framework Documents, as well as the _data field for the MediaStore and
+     * other file-based ContentProviders.
+     *
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @author paulburke
+     */
+    private fun getPath(context: Context, uri: Uri): String? {
+        // DocumentProvider
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+            // ExternalStorageProvider
+            if (isExternalStorageDocument(uri)) {
+                val docId = DocumentsContract.getDocumentId(uri)
+                val split = docId.split(":".toRegex()).toTypedArray()
+                val type = split[0]
+                if ("primary".equals(type, ignoreCase = true)) {
+                    return Environment.getExternalStorageDirectory().toString() + "/" + split[1]
+                }
+
+                // handle non-primary volumes
+            } else if (isDownloadsDocument(uri)) {
+                val id = DocumentsContract.getDocumentId(uri)
+                val contentUri = ContentUris.withAppendedId(
+                    Uri.parse("content://downloads/public_downloads"),
+                    java.lang.Long.valueOf(id)
+                )
+                return getDataColumn(context, contentUri, null, null)
+            } else if (isMediaDocument(uri)) {
+                val docId = DocumentsContract.getDocumentId(uri)
+                val split = docId.split(":".toRegex()).toTypedArray()
+                val type = split[0]
+                var contentUri: Uri? = null
+                when (type) {
+                    "image" -> contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                    "video" -> contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                    "audio" -> contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                }
+                val selection = "_id=?"
+                val selectionArgs = arrayOf(
+                    split[1]
+                )
+                return getDataColumn(context, contentUri ?: return null, selection, selectionArgs)
+            }
+        } else if ("content".equals(uri.scheme, ignoreCase = true)) {
+            return getDataColumn(context, uri, null, null)
+        } else if ("file".equals(uri.scheme, ignoreCase = true)) {
+            return uri.path
+        }
+        return null
+    }
+
+    /**
+     * Get the value of the data column for this Uri. This is useful for
+     * MediaStore Uris, and other file-based ContentProviders.
+     *
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @param selection (Optional) Filter used in the query.
+     * @param selectionArgs (Optional) Selection arguments used in the query.
+     * @return The value of the _data column, which is typically a file path.
+     */
+    private fun getDataColumn(
+        context: Context, uri: Uri, selection: String?,
+        selectionArgs: Array<String>?
+    ): String? {
+        var cursor: Cursor? = null
+        val column = "_data"
+        val projection = arrayOf(
+            column
+        )
+        try {
+            cursor = context.contentResolver.query(
+                uri, projection, selection, selectionArgs,
+                null
+            )
+            if (cursor != null && cursor.moveToFirst()) {
+                val columnIndex: Int = cursor.getColumnIndexOrThrow(column)
+                return cursor.getString(columnIndex)
+            }
+        } finally {
+            cursor?.close()
+        }
+        return null
+    }
+
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is ExternalStorageProvider.
+     */
+    private fun isExternalStorageDocument(uri: Uri): Boolean {
+        return "com.android.externalstorage.documents" == uri.authority
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    private fun isDownloadsDocument(uri: Uri): Boolean {
+        return "com.android.providers.downloads.documents" == uri.authority
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    private fun isMediaDocument(uri: Uri): Boolean {
+        return "com.android.providers.media.documents" == uri.authority
+    }
+
+    private fun startTrimming() {
+        Intent(this, ProjectActivity::class.java).apply {
+            putExtra(VIDEO_FPS, videoFps)
+            val startFrame = rangeSeekBarView.getStart() * videoFps / 1000
+            val endFrame = rangeSeekBarView.getEnd() * videoFps / 1000
+
+            putExtra(VIDEO_START_FRAME, startFrame)
+            putExtra(VIDEO_END_FRAME, endFrame)
+
+            putExtra(VIDEO_URI, videoUri)
+            startActivity(this)
+        }
+//        TrimVideoUtils.startTrim(
+//            this,
+//            videoUri,
+//            trimmedVideoFile,
+//            rangeSeekBarView.getStart().toLong(),
+//            rangeSeekBarView.getEnd().toLong(),
+//            GetVideoData.getDuration(this, videoUri).toLong(),
+//            object : VideoTrimmingListener {
+//                override fun onVideoPrepared() = Unit
+//
+//                override fun onTrimStarted() = Unit
+//
+//                override fun onFinishedTrimming(uri: Uri?) {
+//                }
+//
+//                override fun onErrorWhileViewingVideo(what: Int, extra: Int) {
+//                    Toast.makeText(
+//                        this@TrimmingActivity,
+//                        getString(R.string.trimming_error),
+//                        LENGTH_SHORT
+//                    ).show()
+//                }
+//            }
+//        )
     }
 
     private fun setupVideoProperties(): Boolean {

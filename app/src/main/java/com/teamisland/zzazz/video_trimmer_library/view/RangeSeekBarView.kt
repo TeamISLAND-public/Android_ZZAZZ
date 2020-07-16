@@ -351,15 +351,15 @@ open class RangeSeekBarView @JvmOverloads constructor(
             strokePaint
         )
         leftTriangle.reset()
-        leftTriangle.moveTo(leftPosStart + float2DP(15f), float2DP(15f))
-        leftTriangle.lineTo(leftPosStart + float2DP(15f), float2DP(25f))
-        leftTriangle.lineTo(leftPosStart + float2DP(6f), float2DP(20f))
+        leftTriangle.moveTo(leftPosStart + float2DP(12f), float2DP(16f))
+        leftTriangle.lineTo(leftPosStart + float2DP(12f), float2DP(24f))
+        leftTriangle.lineTo(leftPosStart + float2DP(7f), float2DP(20f))
         leftTriangle.close()
 
         rightTriangle.reset()
-        rightTriangle.moveTo(rightPosStart + float2DP(5f), float2DP(15f))
-        rightTriangle.lineTo(rightPosStart + float2DP(5f), float2DP(25f))
-        rightTriangle.lineTo(rightPosStart + float2DP(14f), float2DP(20f))
+        rightTriangle.moveTo(rightPosStart + float2DP(8f), float2DP(16f))
+        rightTriangle.lineTo(rightPosStart + float2DP(8f), float2DP(24f))
+        rightTriangle.lineTo(rightPosStart + float2DP(13f), float2DP(20f))
         rightTriangle.close()
 
         canvas.drawPath(leftTriangle, trianglePaint)
