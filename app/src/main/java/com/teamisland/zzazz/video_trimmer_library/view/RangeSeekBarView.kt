@@ -116,7 +116,10 @@ open class RangeSeekBarView @JvmOverloads constructor(
     /**
      * Get range selected in ms.
      */
-    fun getRange(): Range<Int> = Range(thumbs[LEFT.index].value, thumbs[RIGHT.index].value)
+    fun getRange(): Range<Int> = Range(
+        thumbs[LEFT.index].value * videoDuration / videoFrameCount,
+        thumbs[RIGHT.index].value * videoDuration / videoFrameCount
+    )
 
     private fun float2DP(float: Float): Float {
         return TypedValue.applyDimension(COMPLEX_UNIT_DIP, float, context.resources.displayMetrics)
@@ -520,22 +523,22 @@ open class RangeSeekBarView @JvmOverloads constructor(
     }
 
     private fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration * 100 / videoFrameCount
+        val position = value * videoDuration / videoFrameCount
         listeners.forEach { item -> item.onCreate(rangeSeekBarView, index, position) }
     }
 
     private fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration * 100 / videoFrameCount
+        val position = value * videoDuration / videoFrameCount
         listeners.forEach { item -> item.onSeek(rangeSeekBarView, index, position) }
     }
 
     private fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration * 100 / videoFrameCount
+        val position = value * videoDuration / videoFrameCount
         listeners.forEach { item -> item.onSeekStart(rangeSeekBarView, index, position) }
     }
 
     private fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration * 100 / videoFrameCount
+        val position = value * videoDuration / videoFrameCount
         listeners.forEach { item -> item.onSeekStop(rangeSeekBarView, index, position) }
     }
 

@@ -98,19 +98,21 @@ open class TimeLineView @JvmOverloads constructor(
                             .toLong() * 1000L
                     val interval = videoLengthInMs / numThumbs
                     for (i in 0 until numThumbs) {
-//                        var bitmap: Bitmap? = mediaMetadataRetriever.getScaledFrameAtTime(
-//                            i * interval,
-//                            MediaMetadataRetriever.OPTION_CLOSEST,
-//                            viewHeight,
-//                            viewHeight
-//                        )
-
-                        var bitmap = FFmpegDelegate.getFrameAtMilliSeconds(
-                            context,
-                            path!!,
-                            (i * interval).toInt() / 1000,
-                            viewHeight
-                        )
+                        var bitmap: Bitmap? = when (2) {
+                            1 -> mediaMetadataRetriever.getScaledFrameAtTime(
+                                i * interval,
+                                MediaMetadataRetriever.OPTION_CLOSEST,
+                                viewHeight,
+                                viewHeight
+                            )
+                            2 -> FFmpegDelegate.getFrameAtMilliSeconds(
+                                context,
+                                path!!,
+                                (i * interval).toInt() / 1000,
+                                viewHeight
+                            )
+                            else -> null
+                        }
 
                         if (bitmap != null)
                             bitmap = ThumbnailUtils.extractThumbnail(bitmap, viewHeight, viewHeight)
