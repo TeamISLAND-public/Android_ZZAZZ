@@ -94,15 +94,19 @@
                 android:layout_gravity="center"
                 tools:foreground="@tools:sample/backgrounds/scenic[1]" />
 
-            <ImageButton
-                android:id="@+id/playButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@null"
-                app:srcCompat="@drawable/ic_preview_button" />
-
         </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/playButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@null"
+            app:layout_constraintBottom_toBottomOf="@+id/frameLayout"
+            app:layout_constraintEnd_toEndOf="@id/frameLayout"
+            app:layout_constraintStart_toStartOf="@+id/frameLayout"
+            app:layout_constraintTop_toTopOf="@+id/frameLayout"
+            app:srcCompat="@drawable/ic_preview_button" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
