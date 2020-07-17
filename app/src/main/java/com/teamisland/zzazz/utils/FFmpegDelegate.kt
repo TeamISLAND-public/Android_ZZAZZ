@@ -20,7 +20,7 @@ object FFmpegDelegate {
         val file = File(parentFolder, fileName)
         val trimmedVideoFile = file.absolutePath
 
-        FFmpeg.execute("-ss ${milliSeconds / 1000.0} -i $path -filter:v scale=${width}:-1 -vframes 1 -y $trimmedVideoFile")
+        FFmpeg.execute("-hwaccel:v auto -ss ${milliSeconds / 1000.0} -i $path -filter:v scale=${width}:-1 -vframes 1 -y $trimmedVideoFile")
         val option = BitmapFactory.Options().apply {
             outWidth = width
             inJustDecodeBounds = false
