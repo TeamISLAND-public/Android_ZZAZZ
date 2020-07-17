@@ -39,4 +39,5 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:19.2.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
     implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
+    implementation 'com.arthenica:mobile-ffmpeg-full-gpl:4.3.2'
 }

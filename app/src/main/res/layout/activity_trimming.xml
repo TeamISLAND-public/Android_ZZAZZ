@@ -94,15 +94,19 @@
                 android:layout_gravity="center"
                 tools:foreground="@tools:sample/backgrounds/scenic[1]" />
 
-            <ImageButton
-                android:id="@+id/playButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@null"
-                app:srcCompat="@drawable/ic_preview_button" />
-
         </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/playButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@null"
+            app:layout_constraintBottom_toBottomOf="@+id/frameLayout"
+            app:layout_constraintEnd_toEndOf="@id/frameLayout"
+            app:layout_constraintStart_toStartOf="@+id/frameLayout"
+            app:layout_constraintTop_toTopOf="@+id/frameLayout"
+            app:srcCompat="@drawable/ic_preview_button" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -154,6 +158,7 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintLayout3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="19dp"
@@ -190,6 +195,16 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.teamisland.zzazz.utils.SelectedThumbView
+                android:id="@+id/selectedThumbView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="7dp"
+                app:layout_constraintBottom_toTopOf="@+id/constraintLayout3"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
