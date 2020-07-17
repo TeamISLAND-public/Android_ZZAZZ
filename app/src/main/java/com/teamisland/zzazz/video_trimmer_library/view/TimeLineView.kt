@@ -105,7 +105,13 @@ open class TimeLineView @JvmOverloads constructor(
                                 viewHeight,
                                 viewHeight
                             )
-                            2 -> FFmpegDelegate.getFrameAtMilliSeconds(
+                            2 -> mediaMetadataRetriever.getScaledFrameAtTime(
+                                i * interval,
+                                MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
+                                viewHeight,
+                                viewHeight
+                            )
+                            3 -> FFmpegDelegate.getFrameAtMilliSeconds(
                                 context,
                                 path!!,
                                 (i * interval).toInt() / 1000,
