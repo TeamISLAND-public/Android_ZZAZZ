@@ -74,7 +74,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private val strokePaint = Paint()
     private val trianglePaint = Paint()
     private val strokeBoxPaint = Paint()
-    private val thumbs = arrayOf(Thumb(LEFT.index), Thumb(RIGHT.index))
+    val thumbs = arrayOf(Thumb(LEFT.index), Thumb(RIGHT.index))
     private var firstRun: Boolean = true
     private var listeners = HashSet<OnRangeSeekBarListener>()
     private var maxWidth: Float = 0.toFloat()
@@ -94,32 +94,26 @@ open class RangeSeekBarView @JvmOverloads constructor(
     var videoDuration: Int = 0
 
     /**
-     * Video duration in ms.
-     */
-    fun getFrameCount(): Int = videoFrameCount
-
-    /**
      * Thumb width.
      */
-    private val thumbWidth: Int = initThumbWidth(context)
+    val thumbWidth: Int = initThumbWidth(context)
 
     /**
      * Get start point in ms.
      */
-    fun getStart(): Int = thumbs[LEFT.index].value
+    fun getStart(): Int =
+        (thumbs[LEFT.index].value.toDouble() / videoFrameCount * videoDuration).toInt()
 
     /**
      * Get endpoint in ms.
      */
-    fun getEnd(): Int = thumbs[RIGHT.index].value
+    fun getEnd(): Int =
+        (thumbs[RIGHT.index].value.toDouble() / videoFrameCount * videoDuration).toInt()
 
     /**
      * Get range selected in ms.
      */
-    fun getRange(): Range<Int> = Range(
-        thumbs[LEFT.index].value * videoDuration / videoFrameCount,
-        thumbs[RIGHT.index].value * videoDuration / videoFrameCount
-    )
+    fun getRange(): Range<Int> = Range(getStart(), getEnd())
 
     private fun float2DP(float: Float): Float {
         return TypedValue.applyDimension(COMPLEX_UNIT_DIP, float, context.resources.displayMetrics)
@@ -316,7 +310,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
             strokePaint
         )
 
-        if (getStart() == 0 && getEnd() == videoFrameCount - 1) {
+        if (thumbs[LEFT.index].value == 0 && thumbs[RIGHT.index].value == videoFrameCount - 1) {
             strokePaint.color = 0xff474747.toInt()
             strokeBoxPaint.color = 0xff474747.toInt()
             trianglePaint.color = 0xfffdfdfd.toInt()

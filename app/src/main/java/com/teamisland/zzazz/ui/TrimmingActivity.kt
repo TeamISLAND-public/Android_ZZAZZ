@@ -265,10 +265,16 @@ class TrimmingActivity : AppCompatActivity() {
 
             override fun onDeselect(rangeSeekBarView: RangeSeekBarView) = Unit
         }
-        rangeSeekBarView.setFrameCount(GetVideoData.getFrameCount(this, videoUri))
+        val count = GetVideoData.getFrameCount(this, videoUri)
+        rangeSeekBarView.setFrameCount(count)
         rangeSeekBarView.addOnRangeSeekBarListener(addOnRangeSeekBarListener)
         rangeSeekBarView.initMaxWidth()
         rangeSeekBarView.videoDuration = videoDuration
+        println("asdfasdf")
+        println(rangeSeekBarView.getStart())
+        println(rangeSeekBarView.getEnd())
+        println(count)
+        println(videoDuration)
 
         currentPositionView.setDuration(videoDuration)
         val currentPositionChangeListener = object : IPositionChangeListener {
