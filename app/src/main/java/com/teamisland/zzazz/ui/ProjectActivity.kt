@@ -14,7 +14,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.BitmapVideo
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
-import com.teamisland.zzazz.utils.VideoManager
 import kotlinx.android.synthetic.main.activity_project.*
 import java.io.File
 import java.io.FileOutputStream
