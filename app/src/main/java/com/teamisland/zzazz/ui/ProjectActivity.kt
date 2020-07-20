@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayout
@@ -13,6 +14,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.BitmapVideo
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
+import com.teamisland.zzazz.utils.VideoManager
 import kotlinx.android.synthetic.main.activity_project.*
 import java.io.File
 import java.io.FileOutputStream
@@ -37,7 +39,7 @@ class ProjectActivity : AppCompatActivity() {
     /**
      * [AppCompatActivity.onCreate]
      */
-    @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+    @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "ControlFlowWithEmptyBody")
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,30 +59,19 @@ class ProjectActivity : AppCompatActivity() {
                 .toLong() / mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                 .toLong()
 
-        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
-        mediaMetadataRetriever.release()
+        val videoManager = VideoManager(mediaMetadataRetriever, startFrame, endFrame)
+        videoManager.runThread(startFrame, endFrame)
 
-        video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
-
-        project_play.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    project_play.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    video.isPlaying = if (video.isPlaying) {
-                        video.pause()
-                        false
-                    } else {
-                        video.start()
-                        true
-                    }
-                    project_play.alpha = 1F
-                }
+        Thread {
+            while (!videoManager.isTerminated()) {
+                Log.d("thread", "is not terminated")
             }
-            true
-        }
+            bitmapList = videoManager.sortArrayList()
+            mediaMetadataRetriever.release()
+
+            video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
+            playBitmap()
+        }.start()
 
         slide.anchorPoint = 1F
         slide.getChildAt(1).setOnClickListener(null)
@@ -98,7 +89,7 @@ class ProjectActivity : AppCompatActivity() {
                     add_effect_button.alpha = 1F
                     slide.panelState = SlidingUpPanelLayout.PanelState.ANCHORED
                     project_title.text = getString(R.string.add_effect)
-                    video.pause()
+//                    video.pause()
                 }
             }
             true
@@ -148,8 +139,6 @@ class ProjectActivity : AppCompatActivity() {
             true
         }
 
-        playBitmap()
-
         gotoExportActivity.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -172,10 +161,31 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     // play video
+    @SuppressLint("ClickableViewAccessibility")
     private fun playBitmap() {
         video.seekTo(0)
         video.start()
         project_play.isSelected = true
+
+        project_play.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    project_play.alpha = 0.5F
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    video.isPlaying = if (video.isPlaying) {
+                        video.pause()
+                        false
+                    } else {
+                        video.start()
+                        true
+                    }
+                    project_play.alpha = 1F
+                }
+            }
+            true
+        }
     }
 
     // make effect tab
