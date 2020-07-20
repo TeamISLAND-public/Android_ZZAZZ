@@ -99,14 +99,19 @@ open class RangeSeekBarView @JvmOverloads constructor(
     val thumbWidth: Int = initThumbWidth(context)
 
     /**
-     * Get start point in frame.
+     * Get start point in ms.
      */
-    fun getStart(): Int = thumbs[LEFT.index].value
+    fun getStart(): Int =
+        (thumbs[LEFT.index].value.toDouble() / videoFrameCount * videoDuration).toInt()
 
     /**
-     * Get endpoint in frame.
+     * Get endpoint in ms.
      */
-    fun getEnd(): Int = thumbs[RIGHT.index].value
+    fun getEnd(): Int =
+        (thumbs[RIGHT.index].value.toDouble() / videoFrameCount * videoDuration).toInt()
+
+    fun getFrameStart(): Int = thumbs[LEFT.index].value
+    fun getFrameEnd(): Int = thumbs[RIGHT.index].value
 
     /**
      * Get range selected in ms.

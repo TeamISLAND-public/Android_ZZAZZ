@@ -313,8 +313,8 @@ class TrimmingActivity : AppCompatActivity() {
     private fun startTrimming() {
         Intent(this, ProjectActivity::class.java).apply {
             putExtra(VIDEO_FPS, videoFps)
-            val startFrame = rangeSeekBarView.getStart()
-            val endFrame = rangeSeekBarView.getEnd()
+            val startFrame = rangeSeekBarView.getFrameStart()
+            val endFrame = rangeSeekBarView.getFrameEnd()
 
             putExtra(VIDEO_START_FRAME, startFrame)
             putExtra(VIDEO_END_FRAME, endFrame)

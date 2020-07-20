@@ -58,23 +58,7 @@ class ProjectActivity : AppCompatActivity() {
             1000L * mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
                 .toLong() / mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                 .toLong()
-//        val videoManager = VideoManager(mediaMetadataRetriever, startFrame, endFrame)
-//        videoManager.runThread(startFrame, endFrame)
-//
-//        Thread {
-//            while (!videoManager.isTerminated()) {
-//                Log.d("thread", "is not terminated")
-//            }
-//            bitmapList = videoManager.sortArrayList()
-//            mediaMetadataRetriever.release()
-//
-//            video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
-//            playBitmap()
-//        }.start()
         Log.d("time", "start")
-        Log.d("frames",
-            mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
-        )
         bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
         Log.d("time", "end")
         mediaMetadataRetriever.release()
