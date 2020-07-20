@@ -72,6 +72,9 @@ class ProjectActivity : AppCompatActivity() {
 //            playBitmap()
 //        }.start()
         Log.d("time", "start")
+        Log.d("frames",
+            mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
+        )
         bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
         Log.d("time", "end")
         mediaMetadataRetriever.release()

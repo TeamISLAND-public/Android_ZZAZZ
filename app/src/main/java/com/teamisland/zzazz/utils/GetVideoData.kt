@@ -4,6 +4,8 @@ import android.content.Context
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
+import android.media.MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE
+import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT
 import android.net.Uri
 
 /**
@@ -28,6 +30,14 @@ object GetVideoData {
         }
         mediaExtractor.release()
         return videoFps
+    }
+
+    fun getFrameCount(context: Context, uri: Uri): Int {
+        val mediaMediaExtractor = MediaMetadataRetriever()
+        mediaMediaExtractor.setDataSource(context, uri)
+        val res = mediaMediaExtractor.extractMetadata(METADATA_KEY_VIDEO_FRAME_COUNT).toInt()
+        mediaMediaExtractor.release()
+        return res
     }
 
     /**
