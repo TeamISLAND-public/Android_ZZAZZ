@@ -56,15 +56,17 @@ class VideoManager(
             )
             threadPoolExecutor.queue.put(videoToBitmap)
         }
+        Log.d("time", "thread starts")
+//        Log.d("thread", "queue: ${threadPoolExecutor.queue.size}")
 
         while (!threadPoolExecutor.queue.isEmpty()) {
             if (threadPoolExecutor.activeCount < numCore) {
                 threadPoolExecutor.submit(threadPoolExecutor.queue.take())
                 Log.d("thread", "${threadPoolExecutor.queue.size}")
-                Log.d("thread", "pool-" + threadPoolExecutor.poolSize)
+//                Log.d("thread", "pool-" + threadPoolExecutor.poolSize)
             }
         }
-        Log.d("thread", "thread is terminated")
+        Log.d("time", "thread is terminated")
     }
 
     /**
@@ -81,7 +83,6 @@ class VideoManager(
                     bitmapArrayList.add(j.second)
 
         return bitmapArrayList
-
     }
 
     /**
