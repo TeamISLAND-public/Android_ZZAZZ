@@ -110,7 +110,14 @@ open class RangeSeekBarView @JvmOverloads constructor(
     fun getEnd(): Int =
         (thumbs[RIGHT.index].value.toDouble() / videoFrameCount * videoDuration).toInt()
 
+    /**
+     * Get start frame.
+     */
     fun getFrameStart(): Int = thumbs[LEFT.index].value
+
+    /**
+     * Get end frames.
+     */
     fun getFrameEnd(): Int = thumbs[RIGHT.index].value
 
     /**
