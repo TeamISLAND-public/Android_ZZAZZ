@@ -166,7 +166,6 @@ class ProjectActivity : AppCompatActivity() {
         video.seekTo(0)
         video.start()
         project_play.isSelected = true
-
         project_play.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
