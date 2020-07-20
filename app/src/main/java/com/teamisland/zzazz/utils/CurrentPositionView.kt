@@ -1,26 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2016 Knowledge, education for life.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package com.teamisland.zzazz.utils
 
 import android.content.Context
@@ -35,6 +12,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
+import kotlin.math.abs
 
 
 /**
@@ -98,6 +76,7 @@ open class CurrentPositionView @JvmOverloads constructor(
         markerPaint.color = 0xffffffff.toInt()
         markerPaint.style = STROKE
         markerPaint.strokeWidth = float2DP(5f)
+        markerPaint.strokeCap = Paint.Cap.ROUND
 
         textView.fontFeatureSettings = "@font/archivo"
         textView.textSize = 10F
@@ -126,9 +105,9 @@ open class CurrentPositionView @JvmOverloads constructor(
 
         canvas.drawLine(
             getPointInViewWidth(),
-            height - float2DP(50f),
+            height - float2DP(47.5f),
             getPointInViewWidth(),
-            height.toFloat(),
+            height.toFloat() - float2DP(2.5f),
             markerPaint
         )
 
@@ -141,7 +120,7 @@ open class CurrentPositionView @JvmOverloads constructor(
     }
 
     private fun isClicked(pos: Float): Boolean {
-        return kotlin.math.abs(getPointInViewWidth() - pos) < float2DP(5f)
+        return abs(getPointInViewWidth() - pos) < float2DP(5f)
     }
 
     /**
@@ -161,16 +140,17 @@ open class CurrentPositionView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP -> {
                 textView.visibility = GONE
-                return false
+                invalidate()
+                return true
             }
             MotionEvent.ACTION_MOVE -> {
                 // Calculate the distance moved
                 val dx = coordinate - lastX
                 markerPos = lastPos + dx.toDouble() * 100 / (width - 2 * float2DP(20f))
-                if (markerPos < range.getStart() * 100.0 / videoDuration) markerPos =
-                    range.getStart() * 100.0 / videoDuration
-                if (markerPos > range.getEnd() * 100.0 / videoDuration) markerPos =
-                    range.getEnd() * 100.0 / videoDuration
+                if (markerPos < range.getStart() * 100.0 / videoDuration)
+                    markerPos = range.getStart() * 100.0 / videoDuration
+                if (markerPos > range.getEnd() * 100.0 / videoDuration)
+                    markerPos = range.getEnd() * 100.0 / videoDuration
                 if (markerPos < 0.0) markerPos = 0.0
                 if (markerPos > 100.0) markerPos = 100.0
                 listener.onChange(markerPos)
