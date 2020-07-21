@@ -30,12 +30,11 @@ import android.graphics.Paint.Style.*
 import android.graphics.Path
 import android.util.AttributeSet
 import android.util.Range
-import android.util.TypedValue
-import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import androidx.annotation.ColorInt
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView.ThumbType.LEFT
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView.ThumbType.RIGHT
@@ -115,10 +114,6 @@ open class RangeSeekBarView @JvmOverloads constructor(
      */
     fun getRange(): Range<Int> = Range(getStart(), getEnd())
 
-    private fun float2DP(float: Float): Float {
-        return TypedValue.applyDimension(COMPLEX_UNIT_DIP, float, context.resources.displayMetrics)
-    }
-
     /**
      * Sets the duration of the video.
      */
@@ -131,7 +126,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private fun setStrokePaint() {
         strokePaint.isAntiAlias = true
         strokePaint.style = FILL
-        strokePaint.strokeWidth = float2DP(3f)
+        strokePaint.strokeWidth = float2DP(3f, resources)
         strokePaint.color = 0xffe6e6e6.toInt()
     }
 
@@ -143,14 +138,14 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private fun setStrokeBoxPaint() {
         strokeBoxPaint.isAntiAlias = true
         strokeBoxPaint.style = STROKE
-        strokeBoxPaint.strokeWidth = float2DP(4f)
+        strokeBoxPaint.strokeWidth = float2DP(4f, resources)
         strokeBoxPaint.color = 0xffe6e6e6.toInt()
     }
 
     private fun setEdgePaint() {
         edgePaint.isAntiAlias = true
         edgePaint.color = 0xffffffff.toInt()
-        edgePaint.strokeWidth = float2DP(2f)
+        edgePaint.strokeWidth = float2DP(2f, resources)
     }
 
     private fun setTrianglePaint() {
@@ -215,7 +210,8 @@ open class RangeSeekBarView @JvmOverloads constructor(
     /**
      * Thumb width.
      */
-    open fun initThumbWidth(context: Context): Int = float2DP(20f).toInt().coerceAtLeast(1)
+    open fun initThumbWidth(context: Context): Int =
+        float2DP(20f, resources).toInt().coerceAtLeast(1)
 
     /**
      * Initialize maxWidth.
@@ -345,15 +341,15 @@ open class RangeSeekBarView @JvmOverloads constructor(
             strokePaint
         )
         leftTriangle.reset()
-        leftTriangle.moveTo(leftPosStart + float2DP(12f), float2DP(16f))
-        leftTriangle.lineTo(leftPosStart + float2DP(12f), float2DP(24f))
-        leftTriangle.lineTo(leftPosStart + float2DP(7f), float2DP(20f))
+        leftTriangle.moveTo(leftPosStart + float2DP(12f, resources), float2DP(16f, resources))
+        leftTriangle.lineTo(leftPosStart + float2DP(12f, resources), float2DP(24f, resources))
+        leftTriangle.lineTo(leftPosStart + float2DP(7f, resources), float2DP(20f, resources))
         leftTriangle.close()
 
         rightTriangle.reset()
-        rightTriangle.moveTo(rightPosStart + float2DP(8f), float2DP(16f))
-        rightTriangle.lineTo(rightPosStart + float2DP(8f), float2DP(24f))
-        rightTriangle.lineTo(rightPosStart + float2DP(13f), float2DP(20f))
+        rightTriangle.moveTo(rightPosStart + float2DP(8f, resources), float2DP(16f, resources))
+        rightTriangle.lineTo(rightPosStart + float2DP(8f, resources), float2DP(24f, resources))
+        rightTriangle.lineTo(rightPosStart + float2DP(13f, resources), float2DP(20f, resources))
         rightTriangle.close()
 
         canvas.drawPath(leftTriangle, trianglePaint)

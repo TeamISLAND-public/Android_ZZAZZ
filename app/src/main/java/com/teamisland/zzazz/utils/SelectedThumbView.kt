@@ -28,9 +28,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Paint.Style.FILL
 import android.util.AttributeSet
-import android.util.TypedValue.COMPLEX_UNIT_DIP
-import android.util.TypedValue.applyDimension
 import android.view.View
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 
@@ -89,13 +88,6 @@ open class SelectedThumbView @JvmOverloads constructor(
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val applyDimension =
-            applyDimension(COMPLEX_UNIT_DIP, 3f, context.resources.displayMetrics)
-        canvas.drawCircle(
-            xPos,
-            applyDimension,
-            applyDimension,
-            markerPaint
-        )
+        canvas.drawCircle(xPos, float2DP(3f, resources), float2DP(3f, resources), markerPaint)
     }
 }
