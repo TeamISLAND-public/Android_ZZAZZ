@@ -237,7 +237,7 @@ class ProjectActivity : AppCompatActivity() {
         val pagerAdapter =
             FragmentPagerAdapter(
                 supportFragmentManager,
-                3
+                5
             )
         effect_view_pager.adapter = pagerAdapter
         val tabView = effect_tab.getTabAt(0)
