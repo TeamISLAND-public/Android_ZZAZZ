@@ -166,10 +166,7 @@
             app:tabGravity="fill"
             app:tabIndicatorColor="@color/White"
             app:tabIndicatorFullWidth="false"
-            app:tabMode="scrollable"
-            app:tabSelectedTextColor="@color/White"
-            app:tabTextAppearance="@style/SmallText"
-            app:tabTextColor="@color/ContentsText80" />
+            app:tabMode="scrollable" />
 
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/effect_view_pager"
