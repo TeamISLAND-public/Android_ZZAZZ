@@ -28,9 +28,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Paint.Style.FILL
 import android.util.AttributeSet
-import android.util.TypedValue
-import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.View
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 
@@ -79,16 +78,12 @@ open class SelectedThumbView @JvmOverloads constructor(
         })
     }
 
-    private fun float2DP(float: Float): Float {
-        return TypedValue.applyDimension(COMPLEX_UNIT_DIP, float, context.resources.displayMetrics)
-    }
-
     internal fun getPointInViewWidth(index: Int): Float {
-        var start = float2DP(20f) / 2
-        var end = width - float2DP(20f) * 3 / 2
+        var start = float2DP(20f, resources) / 2
+        var end = width - float2DP(20f, resources) * 3 / 2
         if (index == 1) {
-            start += float2DP(20f)
-            end += float2DP(20f)
+            start += float2DP(20f, resources)
+            end += float2DP(20f, resources)
         }
         return (((100.0 - markerPos) * start + markerPos * end) / 100.0).toFloat()
     }
@@ -105,6 +100,6 @@ open class SelectedThumbView @JvmOverloads constructor(
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawCircle(xPos, float2DP(3f), float2DP(3f), markerPaint)
+        canvas.drawCircle(xPos, float2DP(3f, resources), float2DP(3f, resources), markerPaint)
     }
 }
