@@ -8,6 +8,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
+import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
@@ -29,11 +32,11 @@ import kotlin.properties.Delegates
 class ProjectActivity : AppCompatActivity() {
 
     private lateinit var uri: Uri
-    private lateinit var video: BitmapVideo
-    private lateinit var bitmapList: List<Bitmap>
-    private var startFrame by Delegates.notNull<Int>()
-    private var endFrame by Delegates.notNull<Int>()
-    private var fps by Delegates.notNull<Long>()
+//    private lateinit var video: BitmapVideo
+//    private lateinit var bitmapList: List<Bitmap>
+//    private var startFrame by Delegates.notNull<Int>()
+//    private var endFrame by Delegates.notNull<Int>()
+//    private var fps by Delegates.notNull<Long>()
 
     /**
      * [AppCompatActivity.onCreate]
@@ -46,22 +49,22 @@ class ProjectActivity : AppCompatActivity() {
 
         val path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
         uri = Uri.parse(path)
-        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
-        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
-        bitmapList = ArrayList(endFrame - startFrame + 1)
-
-        val mediaMetadataRetriever = MediaMetadataRetriever()
-        mediaMetadataRetriever.setDataSource(this, uri)
-
-        fps =
-            1000L * mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
-                .toLong() / mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                .toLong()
-        Log.d("time", "start")
-        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
-        Log.d("time", "end")
-        mediaMetadataRetriever.release()
-        video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
+//        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
+//        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
+//        bitmapList = ArrayList(endFrame - startFrame + 1)
+//
+//        val mediaMetadataRetriever = MediaMetadataRetriever()
+//        mediaMetadataRetriever.setDataSource(this, uri)
+//
+//        fps =
+//            1000L * mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
+//                .toLong() / mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+//                .toLong()
+//        Log.d("time", "start")
+//        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
+//        Log.d("time", "end")
+//        mediaMetadataRetriever.release()
+//        video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
         playBitmap()
 
         slide.anchorPoint = 1F
@@ -138,9 +141,11 @@ class ProjectActivity : AppCompatActivity() {
 
                 MotionEvent.ACTION_UP -> {
                     gotoExportActivity.alpha = 1F
-                    video.pause()
+//                    video.pause()
+                    video_display.pause()
                     Intent(this, ExportActivity::class.java).apply {
 //                        putExtra("URI", exportProject())
+                        putExtra("URI", uri)
                         startActivity(this)
                     }
                 }
@@ -154,9 +159,44 @@ class ProjectActivity : AppCompatActivity() {
     // play video
     @SuppressLint("ClickableViewAccessibility")
     private fun playBitmap() {
-        video.seekTo(0)
-        video.start()
+        video_display.setMediaController(null)
+        video_display.setVideoURI(uri)
+        video_display.requestFocus()
+        video_display.start()
+        project_play.isActivated = true
+//        video.seekTo(0)
+//        video.start()
+        val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
+        fadeOut.startOffset = 1000
+        fadeOut.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(animation: Animation?) {
+                project_play.visibility = View.VISIBLE
+            }
+
+            // button needs to be vanished
+            override fun onAnimationEnd(animation: Animation?) {
+                project_play.visibility = View.GONE
+            }
+
+            override fun onAnimationStart(animation: Animation?) {
+                project_play.visibility = View.VISIBLE
+            }
+        })
+        fadeOut.duration = 500
+
+        var end = false
+        project_play.startAnimation(fadeOut)
+
+        video_display.setOnClickListener {
+            project_play.startAnimation(fadeOut)
+        }
+        video_display.setOnCompletionListener {
+            project_play.isActivated = false
+            end = true
+        }
+
         project_play.isSelected = true
+
         project_play.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -164,14 +204,26 @@ class ProjectActivity : AppCompatActivity() {
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    video.isPlaying = if (video.isPlaying) {
-                        video.pause()
-                        false
+//                    video.isPlaying = if (video.isPlaying) {
+//                        video.pause()
+//                        false
+//                    } else {
+//                        video.start()
+//                        true
+//                    }
+                    if (video_display.isPlaying) {
+                        video_display.pause()
+                        project_play.isActivated = false
                     } else {
-                        video.start()
-                        true
+                        if (end){
+                            video_display.seekTo(0)
+                            end = false
+                        }
+                        video_display.start()
+                        project_play.isActivated = true
                     }
                     project_play.alpha = 1F
+                    project_play.startAnimation(fadeOut)
                 }
             }
             true
@@ -209,31 +261,31 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     // export project to export activity
-    @Suppress("BlockingMethodInNonBlockingContext")
-    @SuppressLint("SimpleDateFormat")
-    private fun exportProject(): Uri {
-        val time = System.currentTimeMillis()
-        val date = Date(time)
-        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
-        val filename = nameFormat.format(date)
-        val file = filesDir.absoluteFile.path + "/$filename.mp4"
-        val output = FileOutputStream(File(file))
-
-        var frame = 0
-        Thread {
-            while (frame <= endFrame - startFrame + 1) {
-                // convert bitmap to bytes
-                val size = bitmapList[frame].rowBytes * bitmapList[frame].height
-                val bytes = ByteBuffer.allocate(size)
-                bitmapList[frame++].copyPixelsToBuffer(bytes)
-                val byteArray = ByteArray(size)
-                // error
-                bytes.get(byteArray, 0, byteArray.size)
-
-                output.write(byteArray)
-            }
-        }.start()
-
-        return Uri.parse(file)
-    }
+//    @Suppress("BlockingMethodInNonBlockingContext")
+//    @SuppressLint("SimpleDateFormat")
+//    private fun exportProject(): Uri {
+//        val time = System.currentTimeMillis()
+//        val date = Date(time)
+//        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
+//        val filename = nameFormat.format(date)
+//        val file = filesDir.absoluteFile.path + "/$filename.mp4"
+//        val output = FileOutputStream(File(file))
+//
+//        var frame = 0
+//        Thread {
+//            while (frame <= endFrame - startFrame + 1) {
+//                 convert bitmap to bytes
+//                val size = bitmapList[frame].rowBytes * bitmapList[frame].height
+//                val bytes = ByteBuffer.allocate(size)
+//                bitmapList[frame++].copyPixelsToBuffer(bytes)
+//                val byteArray = ByteArray(size)
+//                 error
+//                bytes.get(byteArray, 0, byteArray.size)
+//
+//                output.write(byteArray)
+//            }
+//        }.start()
+//
+//        return Uri.parse(file)
+//    }
 }
