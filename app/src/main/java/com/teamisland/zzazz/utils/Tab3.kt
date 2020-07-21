@@ -14,6 +14,6 @@ class Tab3 : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.tab2, container, false)
+        return inflater.inflate(R.layout.tab3, container, false)
     }
 }
