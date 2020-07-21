@@ -230,6 +230,9 @@ class ProjectActivity : AppCompatActivity() {
     private fun tabInit() {
         effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect))))
         effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
+        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
+        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
+        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
 
         val pagerAdapter =
             FragmentPagerAdapter(
