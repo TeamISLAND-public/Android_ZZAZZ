@@ -41,7 +41,7 @@ class TrimmingActivity : AppCompatActivity() {
         /**
          * Uri of the trimmed video.
          */
-        const val VIDEO_URI: String = "URI"
+        const val VIDEO_PATH: String = "PATH"
 
         /**
          * FPS of the trimmed video.
@@ -313,13 +313,13 @@ class TrimmingActivity : AppCompatActivity() {
     private fun startTrimming() {
         Intent(this, ProjectActivity::class.java).apply {
             putExtra(VIDEO_FPS, videoFps)
-            val startFrame = rangeSeekBarView.getStart()
-            val endFrame = rangeSeekBarView.getEnd()
+            val startFrame = rangeSeekBarView.getFrameStart()
+            val endFrame = rangeSeekBarView.getFrameEnd()
 
             putExtra(VIDEO_START_FRAME, startFrame)
             putExtra(VIDEO_END_FRAME, endFrame)
 
-            putExtra(VIDEO_URI, videoUri)
+            putExtra(VIDEO_PATH, getPath(this@TrimmingActivity, videoUri))
             startActivity(this)
         }
 //        TrimVideoUtils.startTrim(

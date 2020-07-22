@@ -15,8 +15,16 @@
     <string name="trimming_error">Error while trimming.</string>
 
     <!--    string of projectactivity-->
-    <string name="tab1_name">One</string>
-    <string name="tab2_name">Two</string>
+    <string name="project_title">PROJECT</string>
+    <string name="export">EXPORT</string>
+    <string name="add_effect">ADD EFFECT</string>
+    <string name="effect_back">Back</string>
+    <string name="effect_done">Done</string>
+    <string name="head_effect">Head</string>
+    <string name="left_arm_effect">Left arm</string>
+    <string name="right_arm_effect">Right arm</string>
+    <string name="left_leg_effect">Left leg</string>
+    <string name="right_leg_effect">Right leg</string>
 
     <!--    string of exportactivity-->
     <string name="export_title">PREVIEW</string>

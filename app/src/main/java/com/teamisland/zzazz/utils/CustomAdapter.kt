@@ -1,35 +1,51 @@
 package com.teamisland.zzazz.utils
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.TextView
+import android.widget.ImageView
+import androidx.recyclerview.widget.RecyclerView
 import com.teamisland.zzazz.R
 
-// List Adapter for effect tab
+/**
+ * Override [RecyclerView.Adapter] for effect tab
+ */
 class CustomAdapter(
-    private val list: ArrayList<String>,
-    private val layoutInflater: LayoutInflater
-) : BaseAdapter() {
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view = layoutInflater.inflate(R.layout.item_view, null, true)
-        val item = view.findViewById<TextView>(R.id.item)
+    private val list: ArrayList<Int>,
+    private val context: Context,
+    private val onClickItem: View.OnClickListener
+) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
-        item.text = list[position]
+    /**
+     * [RecyclerView.Adapter.onCreateViewHolder]
+     */
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(context).inflate(R.layout.item_view, parent, false)
 
-        return view
+        return ViewHolder(view)
     }
 
-    override fun getItem(position: Int): Any {
-        return list[position]
+    /**
+     * [RecyclerView.Adapter.getItemCount]
+     */
+    override fun getItemCount(): Int = list.size
+
+    /**
+     * [RecyclerView.Adapter.onBindViewHolder]
+     */
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.imageView.setImageResource(list[position])
+        holder.imageView.setOnClickListener(onClickItem)
     }
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    override fun getCount(): Int {
-        return list.size
+    /**
+     * Class for each effects
+     */
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        /**
+         * Effect Image View
+         */
+        val imageView = itemView.findViewById<ImageView>(R.id.item)!!
     }
 }

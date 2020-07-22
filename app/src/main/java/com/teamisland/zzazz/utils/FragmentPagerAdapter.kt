@@ -4,10 +4,17 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 
+/**
+ * Override [FragmentStatePagerAdapter] to connect tab and fragment.
+ */
 class FragmentPagerAdapter(
     fragmentManager: FragmentManager,
-    val tabCount: Int
+    private val tabCount: Int
 ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+
+    /**
+     * [FragmentStatePagerAdapter.getItem]
+     */
     override fun getItem(position: Int): Fragment {
         return when (position) {
             0 -> {
@@ -20,7 +27,8 @@ class FragmentPagerAdapter(
         }
     }
 
-    override fun getCount(): Int {
-        return tabCount
-    }
+    /**
+     * [FragmentStatePagerAdapter.getCount]
+     */
+    override fun getCount(): Int = tabCount
 }
