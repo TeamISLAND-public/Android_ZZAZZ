@@ -5,6 +5,7 @@ import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -43,6 +44,11 @@ class ProjectActivity : AppCompatActivity() {
          * List of effect
          */
         var effectList: MutableList<Effect> = mutableListOf()
+
+        /**
+         * Temporary list of effect
+         */
+        var tempList: MutableList<Effect> = mutableListOf()
     }
 
     /**
@@ -120,6 +126,8 @@ class ProjectActivity : AppCompatActivity() {
                     effect_back.alpha = 1F
                     slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
                     project_title.text = getString(R.string.project_title)
+                    tempList.clear()
+                    Log.d("add", "${effectList.size}")
                 }
             }
             true
@@ -135,6 +143,10 @@ class ProjectActivity : AppCompatActivity() {
                     effect_done.alpha = 1F
                     slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
                     project_title.text = getString(R.string.project_title)
+                    effectList.addAll(tempList)
+                    sortEffect()
+                    tempList.clear()
+                    Log.d("add", "${effectList.size}")
                 }
             }
             true
@@ -327,32 +339,41 @@ class ProjectActivity : AppCompatActivity() {
 
     }
 
-    private fun sortEffect(start: Int, end: Int) {
-        val effect = effectList[start]
-        var left = start + 1
-        var right = end
-
-        while (left <= right) {
-            while (effectList[left].getStartFrame() < effect.getStartFrame() || (effectList[left].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() < effect.getEndFrame())) {
-                left++
+    private fun sortEffect() {
+//        val effect = effectList[start]
+//        var left = start + 1
+//        var right = end
+//
+//        while (left <= right) {
+//            while (effectList[left].getStartFrame() < effect.getStartFrame() || (effectList[left].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() < effect.getEndFrame())) {
+//                left++
+//            }
+//            while (effectList[right].getStartFrame() > effect.getStartFrame() || (effectList[right].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() > effect.getEndFrame())) {
+//                right--
+//            }
+//            if (left <= right) {
+//                val temp = effectList[left]
+//                effectList[left] = effectList[right]
+//                effectList[right] = temp
+//            }
+//        }
+//
+//        if(start < end) {
+//            val temp = effectList[start]
+//            effectList[start] = effectList[right]
+//            effectList[right] = temp
+//
+//            sortEffect(start, right - 1)
+//            sortEffect(right + 1, end)
+//        }
+        for (i in 0 until effectList.size) {
+            for (j in i until effectList.size) {
+                if ((effectList[j].getStartFrame() < effectList[i].getStartFrame() || (effectList[j].getStartFrame() == effectList[i].getStartFrame()) and (effectList[j].getEndFrame() < effectList[i].getEndFrame()))){
+                    val effect = effectList[i]
+                    effectList[i] = effectList[j]
+                    effectList[j] = effect
+                }
             }
-            while (effectList[right].getStartFrame() > effect.getStartFrame() || (effectList[right].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() > effect.getEndFrame())) {
-                right--
-            }
-            if (left <= right) {
-                val temp = effectList[left]
-                effectList[left] = effectList[right]
-                effectList[right] = temp
-            }
-        }
-
-        if(start < end) {
-            val temp = effectList[start]
-            effectList[start] = effectList[right]
-            effectList[right] = temp
-
-            sortEffect(start, right - 1)
-            sortEffect(right + 1, end)
         }
     }
 

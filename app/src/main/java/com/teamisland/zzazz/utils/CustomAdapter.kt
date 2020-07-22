@@ -55,7 +55,7 @@ class CustomAdapter(
                 widthArrayList.add(30)
                 heightArrayList.add(30)
             }
-            ProjectActivity.effectList.add(
+            ProjectActivity.tempList.add(
                 Effect(
                     frame,
                     frame + 29,
@@ -67,7 +67,7 @@ class CustomAdapter(
                     heightArrayList
                 )
             )
-            Log.d("add", "${ProjectActivity.effectList.size}")
+            Log.d("temporary add", "${ProjectActivity.tempList.size}")
         }
     }
 
