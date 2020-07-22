@@ -243,11 +243,13 @@ class TrimmingActivity : AppCompatActivity() {
         val addOnRangeSeekBarListener = object : OnRangeSeekBarListener {
             override fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
                 println("onCreate")
+                trimText.visibility = GONE
                 applyTrimRangeChanges()
             }
 
             override fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
                 println("onSeek")
+                trimText.visibility = VISIBLE
                 applyTrimRangeChanges()
                 testVideoRange()
                 stopVideo()
@@ -255,11 +257,13 @@ class TrimmingActivity : AppCompatActivity() {
 
             override fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
                 println("onSeekStart")
+                trimText.visibility = VISIBLE
                 applyTrimRangeChanges()
             }
 
             override fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
                 println("onSeekStop")
+                trimText.visibility = GONE
                 applyTrimRangeChanges()
             }
 
