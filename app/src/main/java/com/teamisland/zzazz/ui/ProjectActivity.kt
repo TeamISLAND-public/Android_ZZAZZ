@@ -31,7 +31,8 @@ class ProjectActivity : AppCompatActivity() {
     private lateinit var uri: Uri
     private var frame = 0
     private lateinit var fadeOut: Animation
-//    private lateinit var video: BitmapVideo
+
+    //    private lateinit var video: BitmapVideo
 //    private lateinit var bitmapList: List<Bitmap>
 //    private var startFrame by Delegates.notNull<Int>()
 //    private var endFrame by Delegates.notNull<Int>()
@@ -324,6 +325,35 @@ class ProjectActivity : AppCompatActivity() {
 
     private fun saveProject() {
 
+    }
+
+    private fun sortEffect(start: Int, end: Int) {
+        val effect = effectList[start]
+        var left = start + 1
+        var right = end
+
+        while (left <= right) {
+            while (effectList[left].getStartFrame() < effect.getStartFrame() || (effectList[left].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() < effect.getEndFrame())) {
+                left++
+            }
+            while (effectList[right].getStartFrame() > effect.getStartFrame() || (effectList[right].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() > effect.getEndFrame())) {
+                right--
+            }
+            if (left <= right) {
+                val temp = effectList[left]
+                effectList[left] = effectList[right]
+                effectList[right] = temp
+            }
+        }
+
+        if(start < end) {
+            val temp = effectList[start]
+            effectList[start] = effectList[right]
+            effectList[right] = temp
+
+            sortEffect(start, right - 1)
+            sortEffect(right + 1, end)
+        }
     }
 
     // export project to export activity

@@ -34,6 +34,16 @@ class Effect(
     }
 
     /**
+     * @return [startFrame]
+     */
+    fun getStartFrame() = startFrame
+
+    /**
+     * @return [endFrame]
+     */
+    fun getEndFrame() = endFrame
+
+    /**
      * @param color to set color
      */
     fun setColor(color: Int) {
