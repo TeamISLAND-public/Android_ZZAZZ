@@ -47,19 +47,17 @@ open class SelectedThumbView @JvmOverloads constructor(
 
     private val markerPaint = Paint()
 
-    internal var markerPos: Double = 0.0
     private lateinit var range: RangeSeekBarView
     internal var xPos = 0f
 
     fun setRange(rangeSeekBarView: RangeSeekBarView) {
         this.range = rangeSeekBarView
         range.addOnRangeSeekBarListener(object : OnRangeSeekBarListener {
-            override fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-            }
+            override fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) = Unit
 
             override fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                markerPos = value * 100.0 / rangeSeekBarView.getDuration()
-                xPos = getPointInViewWidth(index)
+                xPos =
+                    rangeSeekBarView.thumbs[index].pos + rangeSeekBarView.thumbWidth * (index + 1f / 2)
                 invalidate()
             }
 
@@ -78,28 +76,25 @@ open class SelectedThumbView @JvmOverloads constructor(
         })
     }
 
-    internal fun getPointInViewWidth(index: Int): Float {
-        var start = float2DP(20f, resources) / 2
-        var end = width - float2DP(20f, resources) * 3 / 2
-        if (index == 1) {
-            start += float2DP(20f, resources)
-            end += float2DP(20f, resources)
-        }
-        return (((100.0 - markerPos) * start + markerPos * end) / 100.0).toFloat()
-    }
-
     init {
         visibility = GONE
         markerPaint.color = 0xffffffff.toInt()
         markerPaint.style = FILL
         isClickable = false
-    }
+    }      
+    
+    private val circleRadius = float2DP(3f, resources)
 
     /**
      * Draws the view.
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawCircle(xPos, float2DP(3f, resources), float2DP(3f, resources), markerPaint)
+        canvas.drawCircle(
+            xPos,
+            circleRadius,
+            circleRadius,
+            markerPaint
+        )
     }
 }

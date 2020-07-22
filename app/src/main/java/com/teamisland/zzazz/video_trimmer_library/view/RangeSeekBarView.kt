@@ -73,7 +73,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private val strokePaint = Paint()
     private val trianglePaint = Paint()
     private val strokeBoxPaint = Paint()
-    private val thumbs = arrayOf(Thumb(LEFT.index), Thumb(RIGHT.index))
+    val thumbs = arrayOf(Thumb(LEFT.index), Thumb(RIGHT.index))
     private var firstRun: Boolean = true
     private var listeners = HashSet<OnRangeSeekBarListener>()
     private var maxWidth: Float = 0.toFloat()
@@ -83,15 +83,14 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private lateinit var frameAdvance: Button
     private lateinit var frameRetreat: Button
     private var currentThumb: Int = -1
-    private var videoDuration: Int = 0
-    private var videoFpsMillisecond: Int = 0
+    private var videoFrameCount: Int = 0
     private val leftTriangle = Path()
     private val rightTriangle = Path()
 
     /**
-     * Video duration in ms.
+     * Duration of target video.
      */
-    fun getDuration(): Int = videoDuration
+    var videoDuration: Int = 0
 
     /**
      * Thumb width.
@@ -101,32 +100,37 @@ open class RangeSeekBarView @JvmOverloads constructor(
     /**
      * Get start point in ms.
      */
-    fun getStart(): Int = thumbs[LEFT.index].value
+    fun getStart(): Int =
+        (thumbs[LEFT.index].value.toDouble() / videoFrameCount * videoDuration).toInt()
 
     /**
      * Get endpoint in ms.
      */
-    fun getEnd(): Int = thumbs[RIGHT.index].value
+    fun getEnd(): Int =
+        (thumbs[RIGHT.index].value.toDouble() / videoFrameCount * videoDuration).toInt()
+
+    /**
+     * Get start frame.
+     */
+    fun getFrameStart(): Int = thumbs[LEFT.index].value
+
+    /**
+     * Get end frames.
+     */
+    fun getFrameEnd(): Int = thumbs[RIGHT.index].value
 
     /**
      * Get range selected in ms.
      */
-    fun getRange() = Range(thumbs[LEFT.index].value, thumbs[RIGHT.index].value)
+    fun getRange(): Range<Int> = Range(getStart(), getEnd())
 
     /**
      * Sets the duration of the video.
      */
-    fun setDuration(duration: Int) {
-        videoDuration = duration
+    fun setFrameCount(count: Int) {
+        videoFrameCount = count
         thumbs[LEFT.index].value = 0
-        thumbs[RIGHT.index].value = duration
-    }
-
-    /**
-     * Sets the fps of the video.
-     */
-    fun setFPS(fps: Int) {
-        videoFpsMillisecond = 1000 / fps
+        thumbs[RIGHT.index].value = count - 1
     }
 
     private fun setStrokePaint() {
@@ -179,10 +183,10 @@ open class RangeSeekBarView @JvmOverloads constructor(
         frameRetreat = retreat
         setButtonVisibility()
         advance.setOnClickListener {
-            incrementThumbPos(currentThumb, videoFpsMillisecond)
+            incrementThumbPos(currentThumb, 1)
         }
         retreat.setOnClickListener {
-            incrementThumbPos(currentThumb, -videoFpsMillisecond)
+            incrementThumbPos(currentThumb, -1)
         }
     }
 
@@ -194,15 +198,15 @@ open class RangeSeekBarView @JvmOverloads constructor(
             }
             LEFT.index -> {
                 frameAdvance.visibility =
-                    if (thumbs[LEFT.index].value + videoFpsMillisecond < thumbs[RIGHT.index].value) VISIBLE else INVISIBLE
+                    if (thumbs[LEFT.index].value + 1 < thumbs[RIGHT.index].value) VISIBLE else INVISIBLE
                 frameRetreat.visibility =
-                    if (thumbs[LEFT.index].value - videoFpsMillisecond >= 0) VISIBLE else INVISIBLE
+                    if (thumbs[LEFT.index].value > 0) VISIBLE else INVISIBLE
             }
             RIGHT.index -> {
                 frameAdvance.visibility =
-                    if (thumbs[RIGHT.index].value + videoFpsMillisecond <= videoDuration) VISIBLE else INVISIBLE
+                    if (thumbs[RIGHT.index].value < videoFrameCount - 1) VISIBLE else INVISIBLE
                 frameRetreat.visibility =
-                    if (thumbs[LEFT.index].value < thumbs[RIGHT.index].value - videoFpsMillisecond) VISIBLE else INVISIBLE
+                    if (thumbs[LEFT.index].value < thumbs[RIGHT.index].value - 1) VISIBLE else INVISIBLE
             }
         }
     }
@@ -312,7 +316,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
             strokePaint
         )
 
-        if (getStart() == 0 && getEnd() == videoDuration) {
+        if (thumbs[LEFT.index].value == 0 && thumbs[RIGHT.index].value == videoFrameCount - 1) {
             strokePaint.color = 0xff474747.toInt()
             strokeBoxPaint.color = 0xff474747.toInt()
             trianglePaint.color = 0xfffdfdfd.toInt()
@@ -432,31 +436,13 @@ open class RangeSeekBarView @JvmOverloads constructor(
         return false
     }
 
-//    private fun checkPositionThumb(
-//        thumbLeft: Thumb,
-//        thumbRight: Thumb,
-//        dx: Float,
-//        isLeftMove: Boolean
-//    ) {
-//        if (isLeftMove && dx < 0) {
-//            if (thumbRight.pos - (thumbLeft.pos + dx) > maxWidth) {
-//                thumbRight.pos = thumbLeft.pos + dx + maxWidth
-//                setThumbPos(RIGHT.index, thumbRight.pos)
-//            }
-//        } else if (!isLeftMove && dx > 0) {
-//            if (thumbRight.pos + dx - thumbLeft.pos > maxWidth) {
-//                thumbLeft.pos = thumbRight.pos + dx - maxWidth
-//                setThumbPos(LEFT.index, thumbLeft.pos)
-//            }
-//        }
-//    }
-
     private fun pixelToScale(pixelValue: Float): Int {
-        return (pixelValue * videoDuration / pixelRangeMax).toInt()
+        return (pixelValue * videoFrameCount / pixelRangeMax).toInt()
+            .coerceIn(0, videoFrameCount - 1)
     }
 
     private fun scaleToPixel(scaleValue: Int): Float {
-        return scaleValue * pixelRangeMax / videoDuration
+        return scaleValue * pixelRangeMax / videoFrameCount
     }
 
     private fun calculateThumbValue(index: Int) {
@@ -537,19 +523,23 @@ open class RangeSeekBarView @JvmOverloads constructor(
     }
 
     private fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        listeners.forEach { item -> item.onCreate(rangeSeekBarView, index, value) }
+        val position = value * videoDuration / videoFrameCount
+        listeners.forEach { item -> item.onCreate(rangeSeekBarView, index, position) }
     }
 
     private fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        listeners.forEach { item -> item.onSeek(rangeSeekBarView, index, value) }
+        val position = value * videoDuration / videoFrameCount
+        listeners.forEach { item -> item.onSeek(rangeSeekBarView, index, position) }
     }
 
     private fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        listeners.forEach { item -> item.onSeekStart(rangeSeekBarView, index, value) }
+        val position = value * videoDuration / videoFrameCount
+        listeners.forEach { item -> item.onSeekStart(rangeSeekBarView, index, position) }
     }
 
     private fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        listeners.forEach { item -> item.onSeekStop(rangeSeekBarView, index, value) }
+        val position = value * videoDuration / videoFrameCount
+        listeners.forEach { item -> item.onSeekStop(rangeSeekBarView, index, position) }
     }
 
     private fun onDeselect(rangeSeekBarView: RangeSeekBarView) {
