@@ -46,13 +46,27 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/title" />
 
-    <VideoView
-        android:id="@+id/preview"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/video_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="48dp"
-        app:layout_constraintDimensionRatio="1.125:1"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginBottom="200dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <VideoView
+            android:id="@+id/preview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageButton
         android:id="@+id/preview_play"
@@ -60,10 +74,10 @@
         android:layout_height="64dp"
         android:background="#00FFFFFF"
         android:scaleType="centerInside"
-        app:layout_constraintBottom_toBottomOf="@id/preview"
+        app:layout_constraintBottom_toBottomOf="@id/video_frame"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/preview" />
+        app:layout_constraintTop_toTopOf="@id/video_frame" />
 
     <SeekBar
         android:id="@+id/preview_progress"
@@ -80,7 +94,7 @@
         android:thumbOffset="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/preview" />
+        app:layout_constraintTop_toBottomOf="@id/video_frame" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -92,7 +106,7 @@
         android:textColor="#B2FFFFFF"
         android:textSize="9sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/preview"
+        app:layout_constraintTop_toBottomOf="@id/video_frame"
         tools:ignore="SmallSp" />
 
     <TextView
@@ -105,7 +119,7 @@
         android:textColor="#B2FFFFFF"
         android:textSize="9sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/preview"
+        app:layout_constraintTop_toBottomOf="@id/video_frame"
         tools:ignore="SmallSp" />
 
     <TextView
@@ -123,7 +137,7 @@
         app:layout_constraintEnd_toEndOf="@+id/divider"
         app:layout_constraintHorizontal_bias="0.552"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/preview"
+        app:layout_constraintTop_toBottomOf="@id/video_frame"
         tools:ignore="SmallSp" />
 
     <Button
@@ -144,7 +158,7 @@
         android:background="#50FFFFFF"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/preview" />
+        app:layout_constraintTop_toBottomOf="@id/video_frame" />
 
     <TextView
         android:id="@+id/share_text"
@@ -160,7 +174,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.448"
         app:layout_constraintStart_toStartOf="@id/divider"
-        app:layout_constraintTop_toBottomOf="@id/preview"
+        app:layout_constraintTop_toBottomOf="@id/video_frame"
         tools:ignore="SmallSp" />
 
     <Button

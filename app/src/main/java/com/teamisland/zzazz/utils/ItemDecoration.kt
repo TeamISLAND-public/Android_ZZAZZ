@@ -5,7 +5,14 @@ import android.util.TypedValue
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * Design of each effect items
+ */
 class ItemDecoration : RecyclerView.ItemDecoration() {
+
+    /**
+     * [RecyclerView.ItemDecoration.getItemOffsets]
+     */
     override fun getItemOffsets(
         outRect: Rect,
         view: View,
