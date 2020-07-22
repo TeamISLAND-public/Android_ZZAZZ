@@ -44,14 +44,15 @@ class CustomAdapter(
             val bitmapArrayList: ArrayList<Bitmap> = ArrayList(30)
             val point = Effect.Point(30, 30)
             val pointArrayList: ArrayList<Effect.Point> = ArrayList(30)
-            val widthArrayList: ArrayList<Float> = ArrayList(30)
-            val heightArrayList: ArrayList<Float> = ArrayList(30)
+            val widthArrayList: ArrayList<Int> = ArrayList(30)
+            val heightArrayList: ArrayList<Int> = ArrayList(30)
 
             // for test
             for (i in 0 until 30) {
+                bitmapArrayList[i] = bitmap
                 pointArrayList[i] = point
-                widthArrayList[i] = 30F
-                heightArrayList[i] = 30F
+                widthArrayList[i] = 30
+                heightArrayList[i] = 30
             }
             ProjectActivity.effectList.add(
                 Effect(

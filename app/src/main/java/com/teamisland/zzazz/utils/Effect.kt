@@ -14,8 +14,8 @@ class Effect(
     private var color: Int,
     bitmapArrayList: ArrayList<Bitmap>,
     pointArrayList: ArrayList<Point>,
-    widthArrayList: ArrayList<Float>,
-    heightArrayList: ArrayList<Float>
+    widthArrayList: ArrayList<Int>,
+    heightArrayList: ArrayList<Int>
 ) {
     private var dataArrayList: MutableList<Data> = mutableListOf()
 
@@ -77,14 +77,14 @@ class Effect(
     /**
      * Change width of effect at frame.
      */
-    fun changeWidth(frame: Int, dw: Float) {
+    fun changeWidth(frame: Int, dw: Int) {
         dataArrayList[frame - startFrame].changeWidth(dw)
     }
 
     /**
      * Change height of effect at frame.
      */
-    fun changeHeight(frame: Int, dh: Float) {
+    fun changeHeight(frame: Int, dh: Int) {
         dataArrayList[frame - startFrame].changeHeight(dh)
     }
 
@@ -101,8 +101,8 @@ class Effect(
     private class Data(
         private var bitmap: Bitmap,
         private var point: Point,
-        private var width: Float,
-        private var height: Float
+        private var width: Int,
+        private var height: Int
     ) {
 
         private var degree: Float = 0F
@@ -132,15 +132,21 @@ class Effect(
         /**
          * Change width of effect.
          */
-        fun changeWidth(dw: Float) {
+        fun changeWidth(dw: Int) {
             width += dw
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height)
         }
 
         /**
          * Change height of effect.
          */
-        fun changeHeight(dh: Float) {
+        fun changeHeight(dh: Int) {
             height += dh
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height)
+        }
+
+        fun draw(canvas: Canvas) {
+            TODO("have to implement")
         }
     }
 
