@@ -18,6 +18,7 @@ class Effect(
     heightArrayList: ArrayList<Int>
 ) {
     private var dataArrayList: MutableList<Data> = mutableListOf()
+    private var visible = true
 
     init {
         for (frame in 0 until endFrame) {
@@ -92,7 +93,16 @@ class Effect(
      * Draw effect with canvas.
      */
     fun draw(frame: Int, canvas: Canvas) {
-        TODO("have to implement")
+        if (visible) {
+            TODO("have to implement")
+        }
+    }
+
+    /**
+     * Change visibility
+     */
+    fun changeVisible() {
+        visible = !visible
     }
 
     /**
