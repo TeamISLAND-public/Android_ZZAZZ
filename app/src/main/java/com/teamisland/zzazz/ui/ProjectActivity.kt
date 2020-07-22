@@ -66,6 +66,7 @@ class ProjectActivity : AppCompatActivity() {
         slide.anchorPoint = 1F
         slide.getChildAt(1).setOnClickListener(null)
         slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+        slide.isTouchEnabled = false
 
         tabInit()
 
