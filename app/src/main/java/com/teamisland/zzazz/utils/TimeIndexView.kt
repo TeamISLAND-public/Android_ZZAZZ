@@ -4,8 +4,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.view.MotionEvent
-import android.view.MotionEvent.*
 import android.view.View
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.UnitConverter.float2SP
@@ -25,6 +23,8 @@ class TimeIndexView @JvmOverloads constructor(
     private val paint = Paint()
     private val textSize = float2SP(9f, resources)
     private var timeInterval = 0
+    private val max = float2SP(120f, resources)
+    private val downPower = 2f
 
     init {
         paint.typeface = resources.getFont(R.font.archivo_regular)
@@ -36,17 +36,16 @@ class TimeIndexView @JvmOverloads constructor(
      * Duration of the video in ms.
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    var videoLength: Int = 1786578
+    var videoLength: Int = 17860
 
     /**
      * Current time in ms. Note that current time will be located at the horizontal center of the view.
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    var currentTime: Int = 63
+    var currentTime: Int = 3770
         set(value) {
-            if (value !in 0..videoLength) {
+            if (value !in 0..videoLength)
                 throw IllegalArgumentException("Current time should be between 0 and the duration of the video, inclusive.")
-            }
             field = value
             invalidate()
         }
@@ -73,22 +72,20 @@ class TimeIndexView @JvmOverloads constructor(
         }
 
     private fun updateTimeInterval() {
-        val pixelInterval2 = if (pixelInterval != 0f) pixelInterval else float2SP(1500f, resources)
-        val max = float2SP(120f, resources)
+        if (pixelInterval == 0f) pixelInterval = float2SP(1500f, resources)
+        pxPerMs = pixelInterval / videoLength
 
-        pxPerMs = pixelInterval2 / videoLength
-        val downPower = 2f
         timeInterval = downPower.pow(floor(log(max, downPower) - log(pxPerMs, downPower))).toInt()
             .coerceAtLeast(1)
     }
 
-    private fun obtainTimeText(ms: Int, doPrintDecimals: Boolean = false): String {
+    private fun getTimeText(ms: Int, printDecimals: Boolean): String {
         val totalSec = ms / 1000
-        val millisec = ms % 1000
+        val millisecond = ms % 1000
         val sec = totalSec % 60
         val min = totalSec / 60 % 60
-        return if (doPrintDecimals)
-            Formatter().format("%02d:%02d.%03d", min, sec, millisec).toString()
+        return if (printDecimals)
+            Formatter().format("%02d:%02d.%03d", min, sec, millisecond).toString()
         else {
             Formatter().format("%02d:%02d", min, sec).toString()
         }
@@ -110,11 +107,16 @@ class TimeIndexView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         updateTimeInterval()
         val originAt = -currentTime * pxPerMs + width / 2
-        val startTime = max(0, currentTime - 2 * timeInterval)
-        val endTime = min(videoLength, currentTime + 2 * timeInterval)
         val decimal = timeInterval < 1000
-        for (i in startTime..endTime step timeInterval) {
-            canvas.drawText(obtainTimeText(i, decimal), i * pxPerMs + originAt, textSize, paint)
+        for (i in (currentTime - timeInterval) downTo 0 step timeInterval) {
+            val fl = i * pxPerMs + originAt
+            canvas.drawText(getTimeText(i, decimal), fl, textSize, paint)
+            if (fl < -max) break
+        }
+        for (i in currentTime..videoLength step timeInterval) {
+            val fl = i * pxPerMs + originAt
+            canvas.drawText(getTimeText(i, decimal), fl, textSize, paint)
+            if (fl > width + max) break
         }
     }
 }
