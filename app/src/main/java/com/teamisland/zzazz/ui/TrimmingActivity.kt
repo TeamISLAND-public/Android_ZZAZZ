@@ -23,6 +23,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.LogMessage
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
 import com.teamisland.zzazz.BuildConfig
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
@@ -176,6 +184,7 @@ class TrimmingActivity : AppCompatActivity() {
         }
     }
 
+    internal lateinit var player: SimpleExoPlayer
     private lateinit var videoUri: Uri
     private lateinit var trimmedVideoFile: File
     internal var videoDuration: Int = 0
@@ -183,11 +192,11 @@ class TrimmingActivity : AppCompatActivity() {
 
     internal fun stopVideo() {
         playButton.isActivated = false
-        mainVideoView.pause()
+        player.playWhenReady = false
     }
 
     private fun testVideoPositionInRange(): Boolean {
-        val now = mainVideoView.currentPosition
+        val now = player.currentPosition.toInt()
         with(rangeSeekBarView) {
             return Range(getStart(), getEnd()).contains(now)
         }
@@ -195,10 +204,10 @@ class TrimmingActivity : AppCompatActivity() {
 
     internal fun testVideoRange() {
         val range = rangeSeekBarView.getRange()
-        if (mainVideoView.currentPosition !in range) {
-            val desiredPos = range.clamp(mainVideoView.currentPosition)
+        if (player.currentPosition.toInt() !in range) {
+            val desiredPos = range.clamp(player.currentPosition.toInt())
             currentPositionView.setMarkerPos(desiredPos * 100.0 / videoDuration)
-            mainVideoView.seekTo(desiredPos)
+            player.seekTo(desiredPos.toLong())
         }
     }
 
@@ -235,6 +244,11 @@ class TrimmingActivity : AppCompatActivity() {
                 playButton.visibility = VISIBLE
             }
         })
+
+        player = SimpleExoPlayer.Builder(this).build().also {
+            it.repeatMode = SimpleExoPlayer.REPEAT_MODE_OFF
+            mainVideoView.player = it
+        }
 
         playButton.setOnClickListener { playButtonClickHandler(fadeOut) }
         playButton.startAnimation(fadeOut)
@@ -286,7 +300,7 @@ class TrimmingActivity : AppCompatActivity() {
              * An event when current position changed.
              */
             override fun onChange(percentage: Double) {
-                mainVideoView.seekTo((percentage * videoDuration / 100).toInt())
+                player.seekTo((percentage * videoDuration / 100).toLong())
                 stopVideo()
             }
         }
@@ -297,13 +311,27 @@ class TrimmingActivity : AppCompatActivity() {
 
         timeLineView.setVideo(videoUri)
 
-        mainVideoView.setVideoURI(videoUri)
-        mainVideoView.setOnPreparedListener {
-            mainVideoView.start()
-            mainVideoView.postDelayed({ mainVideoView.pause() }, 100)
-        }
-        mainVideoView.setOnCompletionListener { playButton.isActivated = false }
-        mainVideoView.setOnClickListener { playButton.startAnimation(fadeOut) }
+        val dataSourceFactory: DataSource.Factory =
+            DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
+        val mediaSource: MediaSource =
+            ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(videoUri)
+
+        player.prepare(mediaSource)
+        player.seekTo(100L)
+        player.addListener(object : Player.EventListener {
+            /**
+             * Called when the value returned from either [.getPlayWhenReady] or [ ][.getPlaybackState] changes.
+             *
+             * @param playWhenReady Whether playback will proceed when ready.
+             * @param playbackState The new [playback state].
+             */
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                if (playbackState == ExoPlayer.STATE_ENDED) {
+                    playButton.isActivated = false
+                }
+            }
+        })
+        frameLayout.setOnClickListener { playButton.startAnimation(fadeOut) }
 
         gotoProjectActivity.setOnClickListener { startTrimming() }
 
@@ -363,26 +391,33 @@ class TrimmingActivity : AppCompatActivity() {
         playButton.startAnimation(fadeOut)
         if (playButton.isActivated) {
             playButton.isActivated = false
-            mainVideoView.pause()
+            player.playWhenReady = false
         } else {
+            if (!testVideoPositionInRange()) {
+                val start = rangeSeekBarView.getStart()
+                player.seekTo(start.toLong())
+                currentPositionView.setMarkerPos(start * 100.0 / videoDuration)
+                mainVideoView.postDelayed({
+                    playButtonClickHandler(fadeOut)
+                }, 100)
+                return
+            }
+            player.playWhenReady = true
             playButton.isActivated = true
-            if (!testVideoPositionInRange())
-                mainVideoView.seekTo(rangeSeekBarView.getStart())
-            mainVideoView.start()
             Thread(Runnable {
                 do {
-                    val now = rangeSeekBarView.getRange().clamp(mainVideoView.currentPosition)
+                    val now = rangeSeekBarView.getRange().clamp(player.currentPosition.toInt())
                     with(currentPositionView) {
                         setMarkerPos(now * 100.0 / videoDuration)
                     }
-                    if (rangeSeekBarView.getEnd() < mainVideoView.currentPosition)
+                    if (rangeSeekBarView.getEnd() < player.currentPosition)
                         stopVideo()
                     try {
                         Thread.sleep(10)
                     } catch (e: InterruptedException) {
                         e.printStackTrace()
                     }
-                } while (mainVideoView.isPlaying)
+                } while (player.isPlaying)
             }).start()
         }
     }

@@ -22,7 +22,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -41,4 +44,5 @@ dependencies {
     implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
     implementation 'com.arthenica:mobile-ffmpeg-full:4.3.2'
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.7'
 }
