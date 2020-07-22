@@ -17,15 +17,17 @@ class Effect(
     widthArrayList: ArrayList<Float>,
     heightArrayList: ArrayList<Float>
 ) {
-    private var dataArrayList: ArrayList<Data> = ArrayList(endFrame - startFrame + 1)
+    private var dataArrayList: MutableList<Data> = mutableListOf()
 
     init {
         for (frame in 0 until endFrame) {
-            dataArrayList[frame] = Data(
-                bitmapArrayList[frame],
-                pointArrayList[frame],
-                widthArrayList[frame],
-                heightArrayList[frame]
+            dataArrayList.add(
+                Data(
+                    bitmapArrayList[frame],
+                    pointArrayList[frame],
+                    widthArrayList[frame],
+                    heightArrayList[frame]
+                )
             )
         }
     }

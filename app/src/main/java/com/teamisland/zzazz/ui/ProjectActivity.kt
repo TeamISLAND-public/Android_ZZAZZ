@@ -2,13 +2,12 @@ package com.teamisland.zzazz.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Typeface
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.TextView
@@ -18,9 +17,11 @@ import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.Effect
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
+import kotlin.properties.Delegates
 
 /**
  * Activity for make project
@@ -28,11 +29,19 @@ import kotlinx.android.synthetic.main.custom_tab.view.*
 class ProjectActivity : AppCompatActivity() {
 
     private lateinit var uri: Uri
+    private var frame = 0
 //    private lateinit var video: BitmapVideo
 //    private lateinit var bitmapList: List<Bitmap>
 //    private var startFrame by Delegates.notNull<Int>()
 //    private var endFrame by Delegates.notNull<Int>()
-//    private var fps by Delegates.notNull<Long>()
+    private var fps by Delegates.notNull<Long>()
+
+    companion object {
+        /**
+         * List of effect
+         */
+        var effectList: MutableList<Effect> = mutableListOf()
+    }
 
     /**
      * [AppCompatActivity.onCreate]
@@ -49,13 +58,13 @@ class ProjectActivity : AppCompatActivity() {
 //        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
 //        bitmapList = ArrayList(endFrame - startFrame + 1)
 //
-//        val mediaMetadataRetriever = MediaMetadataRetriever()
-//        mediaMetadataRetriever.setDataSource(this, uri)
-//
-//        fps =
-//            1000L * mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
-//                .toLong() / mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-//                .toLong()
+        val mediaMetadataRetriever = MediaMetadataRetriever()
+        mediaMetadataRetriever.setDataSource(this, uri)
+
+        fps =
+            1000L * mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
+                .toLong() / mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                .toLong()
 //        Log.d("time", "start")
 //        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
 //        Log.d("time", "end")
@@ -80,6 +89,7 @@ class ProjectActivity : AppCompatActivity() {
                     add_effect_button.alpha = 1F
                     slide.panelState = SlidingUpPanelLayout.PanelState.ANCHORED
                     project_title.text = getString(R.string.add_effect)
+                    frame = (video_display.currentPosition * fps).toInt()
 //                    video.pause()
                 }
             }
@@ -229,31 +239,60 @@ class ProjectActivity : AppCompatActivity() {
 
     // make effect tab
     private fun tabInit() {
-        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect))))
-        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
-        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
-        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
-        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
+        effect_tab.addTab(
+            effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect)))
+        )
+        effect_tab.addTab(
+            effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect)))
+        )
+        effect_tab.addTab(
+            effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect)))
+        )
+        effect_tab.addTab(
+            effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_leg_effect)))
+        )
+        effect_tab.addTab(
+            effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_leg_effect)))
+        )
 
         val pagerAdapter =
             FragmentPagerAdapter(
                 supportFragmentManager,
-                5
+                5,
+                frame
             )
         effect_view_pager.adapter = pagerAdapter
         val tabView = effect_tab.getTabAt(0)
-        tabView!!.view.tab_text.typeface = ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
-        tabView.view.tab_text.setTextColor(ContextCompat.getColor(applicationContext, R.color.White))
+        tabView!!.view.tab_text.typeface =
+            ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+        tabView.view.tab_text.setTextColor(
+            ContextCompat.getColor(
+                applicationContext,
+                R.color.White
+            )
+        )
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 effect_view_pager.currentItem = tab!!.position
-                tab.view.tab_text.typeface = ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
-                tab.view.tab_text.setTextColor(ContextCompat.getColor(applicationContext, R.color.White))
+                tab.view.tab_text.typeface =
+                    ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+                tab.view.tab_text.setTextColor(
+                    ContextCompat.getColor(
+                        applicationContext,
+                        R.color.White
+                    )
+                )
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
-                tab!!.view.tab_text.typeface = ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
-                tab.view.tab_text.setTextColor(ContextCompat.getColor(applicationContext, R.color.ContentsText80))
+                tab!!.view.tab_text.typeface =
+                    ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
+                tab.view.tab_text.setTextColor(
+                    ContextCompat.getColor(
+                        applicationContext,
+                        R.color.ContentsText80
+                    )
+                )
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
