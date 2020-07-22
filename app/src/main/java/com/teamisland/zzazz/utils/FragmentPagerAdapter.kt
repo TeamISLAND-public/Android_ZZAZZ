@@ -11,12 +11,11 @@ class FragmentPagerAdapter(
 ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     override fun getItem(position: Int): Fragment {
         return when (position) {
-            0 -> {
-                Tab1()
-            }
-            1 -> {
-                Tab2()
-            }
+            0 -> Tab1()
+            1 -> Tab2()
+            2 -> Tab3()
+            3 -> Tab4()
+            4 -> Tab5()
             else -> Tab1()
         }
     }
