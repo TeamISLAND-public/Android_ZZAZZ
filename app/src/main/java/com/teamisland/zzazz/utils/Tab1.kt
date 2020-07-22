@@ -10,7 +10,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.teamisland.zzazz.R
 
 class Tab1(private val frame: Int) : Fragment() {
+/**
+ * Override [Fragment] for each tab
+ */
 
+    /**
+     * [Fragment.onCreateView]
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

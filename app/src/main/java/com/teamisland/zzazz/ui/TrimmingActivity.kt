@@ -22,7 +22,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.arthenica.mobileffmpeg.Config
-import com.arthenica.mobileffmpeg.FFmpeg
 import com.arthenica.mobileffmpeg.LogMessage
 import com.teamisland.zzazz.BuildConfig
 import com.teamisland.zzazz.R
@@ -58,12 +57,129 @@ class TrimmingActivity : AppCompatActivity() {
          * End frame index of the trimmed video.
          */
         const val VIDEO_END_FRAME: String = "END_F"
+
+        /**
+         * Get a file path from a Uri. This will get the the path for Storage Access
+         * Framework Documents, as well as the _data field for the MediaStore and
+         * other file-based ContentProviders.
+         *
+         * @param context The context.
+         * @param uri The Uri to query.
+         * @author paulburke
+         */
+        internal fun getPath(context: Context, uri: Uri): String? {
+            // DocumentProvider
+            if (DocumentsContract.isDocumentUri(context, uri)) {
+                // ExternalStorageProvider
+                if (isExternalStorageDocument(uri)) {
+                    val docId = DocumentsContract.getDocumentId(uri)
+                    val split = docId.split(":".toRegex()).toTypedArray()
+                    val type = split[0]
+                    if ("primary".equals(type, ignoreCase = true)) {
+                        return Environment.getExternalStorageDirectory().toString() + "/" + split[1]
+                    }
+
+                    // handle non-primary volumes
+                } else if (isDownloadsDocument(uri)) {
+                    val id = DocumentsContract.getDocumentId(uri)
+                    val contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"),
+                        java.lang.Long.valueOf(id)
+                    )
+                    return getDataColumn(context, contentUri, null, null)
+                } else if (isMediaDocument(uri)) {
+                    val docId = DocumentsContract.getDocumentId(uri)
+                    val split = docId.split(":".toRegex()).toTypedArray()
+                    val type = split[0]
+                    var contentUri: Uri? = null
+                    when (type) {
+                        "image" -> contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                        "video" -> contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                        "audio" -> contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                    }
+                    val selection = "_id=?"
+                    val selectionArgs = arrayOf(
+                        split[1]
+                    )
+                    return getDataColumn(
+                        context,
+                        contentUri ?: return null,
+                        selection,
+                        selectionArgs
+                    )
+                }
+            } else if ("content".equals(uri.scheme, ignoreCase = true)) {
+                return getDataColumn(context, uri, null, null)
+            } else if ("file".equals(uri.scheme, ignoreCase = true)) {
+                return uri.path
+            }
+            return null
+        }
+
+        /**
+         * Get the value of the data column for this Uri. This is useful for
+         * MediaStore Uris, and other file-based ContentProviders.
+         *
+         * @param context The context.
+         * @param uri The Uri to query.
+         * @param selection (Optional) Filter used in the query.
+         * @param selectionArgs (Optional) Selection arguments used in the query.
+         * @return The value of the _data column, which is typically a file path.
+         */
+        private fun getDataColumn(
+            context: Context, uri: Uri, selection: String?,
+            selectionArgs: Array<String>?
+        ): String? {
+            var cursor: Cursor? = null
+            val column = "_data"
+            val projection = arrayOf(
+                column
+            )
+            try {
+                cursor = context.contentResolver.query(
+                    uri, projection, selection, selectionArgs,
+                    null
+                )
+                if (cursor != null && cursor.moveToFirst()) {
+                    val columnIndex: Int = cursor.getColumnIndexOrThrow(column)
+                    return cursor.getString(columnIndex)
+                }
+            } finally {
+                cursor?.close()
+            }
+            return null
+        }
+
+
+        /**
+         * @param uri The Uri to check.
+         * @return Whether the Uri authority is ExternalStorageProvider.
+         */
+        private fun isExternalStorageDocument(uri: Uri): Boolean {
+            return "com.android.externalstorage.documents" == uri.authority
+        }
+
+        /**
+         * @param uri The Uri to check.
+         * @return Whether the Uri authority is DownloadsProvider.
+         */
+        private fun isDownloadsDocument(uri: Uri): Boolean {
+            return "com.android.providers.downloads.documents" == uri.authority
+        }
+
+        /**
+         * @param uri The Uri to check.
+         * @return Whether the Uri authority is MediaProvider.
+         */
+        private fun isMediaDocument(uri: Uri): Boolean {
+            return "com.android.providers.media.documents" == uri.authority
+        }
     }
 
     private lateinit var videoUri: Uri
     private lateinit var trimmedVideoFile: File
     internal var videoDuration: Int = 0
-    internal var videoFps: Int = 0
+    private var videoFps: Int = 0
 
     internal fun stopVideo() {
         playButton.isActivated = false
@@ -149,10 +265,16 @@ class TrimmingActivity : AppCompatActivity() {
 
             override fun onDeselect(rangeSeekBarView: RangeSeekBarView) = Unit
         }
+        val count = GetVideoData.getFrameCount(this, videoUri)
+        rangeSeekBarView.setFrameCount(count)
         rangeSeekBarView.addOnRangeSeekBarListener(addOnRangeSeekBarListener)
         rangeSeekBarView.initMaxWidth()
-        rangeSeekBarView.setDuration(videoDuration)
-        rangeSeekBarView.setFPS(videoFps)
+        rangeSeekBarView.videoDuration = videoDuration
+        println("asdfasdf")
+        println(rangeSeekBarView.getStart())
+        println(rangeSeekBarView.getEnd())
+        println(count)
+        println(videoDuration)
 
         currentPositionView.setDuration(videoDuration)
         val currentPositionChangeListener = object : IPositionChangeListener {
@@ -186,127 +308,13 @@ class TrimmingActivity : AppCompatActivity() {
         }
         println(videoUri.path)
         println(getPath(this, videoUri))
-
-        FFmpeg.execute("-i ${videoUri.path} -c:v mpeg4 /storage/emulated/0/file2.mp4")
-    }
-
-    /**
-     * Get a file path from a Uri. This will get the the path for Storage Access
-     * Framework Documents, as well as the _data field for the MediaStore and
-     * other file-based ContentProviders.
-     *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @author paulburke
-     */
-    private fun getPath(context: Context, uri: Uri): String? {
-        // DocumentProvider
-        if (DocumentsContract.isDocumentUri(context, uri)) {
-            // ExternalStorageProvider
-            if (isExternalStorageDocument(uri)) {
-                val docId = DocumentsContract.getDocumentId(uri)
-                val split = docId.split(":".toRegex()).toTypedArray()
-                val type = split[0]
-                if ("primary".equals(type, ignoreCase = true)) {
-                    return Environment.getExternalStorageDirectory().toString() + "/" + split[1]
-                }
-
-                // handle non-primary volumes
-            } else if (isDownloadsDocument(uri)) {
-                val id = DocumentsContract.getDocumentId(uri)
-                val contentUri = ContentUris.withAppendedId(
-                    Uri.parse("content://downloads/public_downloads"),
-                    java.lang.Long.valueOf(id)
-                )
-                return getDataColumn(context, contentUri, null, null)
-            } else if (isMediaDocument(uri)) {
-                val docId = DocumentsContract.getDocumentId(uri)
-                val split = docId.split(":".toRegex()).toTypedArray()
-                val type = split[0]
-                var contentUri: Uri? = null
-                when (type) {
-                    "image" -> contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                    "video" -> contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                    "audio" -> contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                }
-                val selection = "_id=?"
-                val selectionArgs = arrayOf(
-                    split[1]
-                )
-                return getDataColumn(context, contentUri ?: return null, selection, selectionArgs)
-            }
-        } else if ("content".equals(uri.scheme, ignoreCase = true)) {
-            return getDataColumn(context, uri, null, null)
-        } else if ("file".equals(uri.scheme, ignoreCase = true)) {
-            return uri.path
-        }
-        return null
-    }
-
-    /**
-     * Get the value of the data column for this Uri. This is useful for
-     * MediaStore Uris, and other file-based ContentProviders.
-     *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
-     * @param selectionArgs (Optional) Selection arguments used in the query.
-     * @return The value of the _data column, which is typically a file path.
-     */
-    private fun getDataColumn(
-        context: Context, uri: Uri, selection: String?,
-        selectionArgs: Array<String>?
-    ): String? {
-        var cursor: Cursor? = null
-        val column = "_data"
-        val projection = arrayOf(
-            column
-        )
-        try {
-            cursor = context.contentResolver.query(
-                uri, projection, selection, selectionArgs,
-                null
-            )
-            if (cursor != null && cursor.moveToFirst()) {
-                val columnIndex: Int = cursor.getColumnIndexOrThrow(column)
-                return cursor.getString(columnIndex)
-            }
-        } finally {
-            cursor?.close()
-        }
-        return null
-    }
-
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is ExternalStorageProvider.
-     */
-    private fun isExternalStorageDocument(uri: Uri): Boolean {
-        return "com.android.externalstorage.documents" == uri.authority
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is DownloadsProvider.
-     */
-    private fun isDownloadsDocument(uri: Uri): Boolean {
-        return "com.android.providers.downloads.documents" == uri.authority
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is MediaProvider.
-     */
-    private fun isMediaDocument(uri: Uri): Boolean {
-        return "com.android.providers.media.documents" == uri.authority
     }
 
     private fun startTrimming() {
         Intent(this, ProjectActivity::class.java).apply {
             putExtra(VIDEO_FPS, videoFps)
-            val startFrame = rangeSeekBarView.getStart() * videoFps / 1000
-            val endFrame = rangeSeekBarView.getEnd() * videoFps / 1000
+            val startFrame = rangeSeekBarView.getFrameStart()
+            val endFrame = rangeSeekBarView.getFrameEnd()
 
             putExtra(VIDEO_START_FRAME, startFrame)
             putExtra(VIDEO_END_FRAME, endFrame)
@@ -314,6 +322,30 @@ class TrimmingActivity : AppCompatActivity() {
             putExtra(VIDEO_PATH, getPath(this@TrimmingActivity, videoUri))
             startActivity(this)
         }
+//        TrimVideoUtils.startTrim(
+//            this,
+//            videoUri,
+//            trimmedVideoFile,
+//            rangeSeekBarView.getStart().toLong(),
+//            rangeSeekBarView.getEnd().toLong(),
+//            GetVideoData.getDuration(this, videoUri).toLong(),
+//            object : VideoTrimmingListener {
+//                override fun onVideoPrepared() = Unit
+//
+//                override fun onTrimStarted() = Unit
+//
+//                override fun onFinishedTrimming(uri: Uri?) {
+//                }
+//
+//                override fun onErrorWhileViewingVideo(what: Int, extra: Int) {
+//                    Toast.makeText(
+//                        this@TrimmingActivity,
+//                        getString(R.string.trimming_error),
+//                        LENGTH_SHORT
+//                    ).show()
+//                }
+//            }
+//        )
     }
 
     private fun setupVideoProperties(): Boolean {

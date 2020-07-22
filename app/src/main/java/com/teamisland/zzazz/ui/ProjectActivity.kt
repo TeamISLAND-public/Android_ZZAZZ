@@ -30,6 +30,7 @@ class ProjectActivity : AppCompatActivity() {
 
     private lateinit var uri: Uri
     private var frame = 0
+    private lateinit var fadeOut: Animation
 //    private lateinit var video: BitmapVideo
 //    private lateinit var bitmapList: List<Bitmap>
 //    private var startFrame by Delegates.notNull<Int>()
@@ -44,6 +45,17 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     /**
+     * [AppCompatActivity.onRestart]
+     */
+    override fun onRestart() {
+        super.onRestart()
+        video_display.seekTo(0)
+        video_display.start()
+        project_play.isActivated = true
+        project_play.startAnimation(fadeOut)
+    }
+
+    /**
      * [AppCompatActivity.onCreate]
      */
     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "ControlFlowWithEmptyBody")
@@ -54,6 +66,7 @@ class ProjectActivity : AppCompatActivity() {
 
         val path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
         uri = Uri.parse(path)
+        fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
 //        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
 //        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
 //        bitmapList = ArrayList(endFrame - startFrame + 1)
@@ -150,6 +163,7 @@ class ProjectActivity : AppCompatActivity() {
                     gotoExportActivity.alpha = 1F
 //                    video.pause()
                     video_display.pause()
+                    project_play.isActivated = false
                     Intent(this, ExportActivity::class.java).apply {
 //                        putExtra("URI", exportProject())
                         putExtra("URI", uri)
@@ -173,7 +187,6 @@ class ProjectActivity : AppCompatActivity() {
         project_play.isActivated = true
 //        video.seekTo(0)
 //        video.start()
-        val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
         fadeOut.startOffset = 1000
         fadeOut.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationRepeat(animation: Animation?) {
