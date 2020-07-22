@@ -12,10 +12,10 @@ class Effect(
     private var endFrame: Int,
     private val type: Int,
     private var color: Int,
-    bitmapArrayList: ArrayList<Bitmap>,
-    pointArrayList: ArrayList<Point>,
-    widthArrayList: ArrayList<Int>,
-    heightArrayList: ArrayList<Int>
+    bitmapArrayList: MutableList<Bitmap>,
+    pointArrayList: MutableList<Point>,
+    widthArrayList: MutableList<Int>,
+    heightArrayList: MutableList<Int>
 ) {
     private var dataArrayList: MutableList<Data> = mutableListOf()
     private var visible = true

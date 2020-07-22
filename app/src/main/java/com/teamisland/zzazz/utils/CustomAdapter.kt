@@ -3,6 +3,7 @@ package com.teamisland.zzazz.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,19 +41,19 @@ class CustomAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.imageView.setImageResource(list[position])
         holder.imageView.setOnClickListener {
-            val bitmap = (context.resources.getDrawable(R.drawable.check) as BitmapDrawable).bitmap
-            val bitmapArrayList: ArrayList<Bitmap> = ArrayList(30)
+            val bitmap = (context.resources.getDrawable(R.drawable.load) as BitmapDrawable).bitmap
+            val bitmapArrayList: MutableList<Bitmap> = mutableListOf()
             val point = Effect.Point(30, 30)
-            val pointArrayList: ArrayList<Effect.Point> = ArrayList(30)
-            val widthArrayList: ArrayList<Int> = ArrayList(30)
-            val heightArrayList: ArrayList<Int> = ArrayList(30)
+            val pointArrayList: MutableList<Effect.Point> = mutableListOf()
+            val widthArrayList: MutableList<Int> = mutableListOf()
+            val heightArrayList: MutableList<Int> = mutableListOf()
 
             // for test
             for (i in 0 until 30) {
-                bitmapArrayList[i] = bitmap
-                pointArrayList[i] = point
-                widthArrayList[i] = 30
-                heightArrayList[i] = 30
+                bitmapArrayList.add(bitmap)
+                pointArrayList.add(point)
+                widthArrayList.add(30)
+                heightArrayList.add(30)
             }
             ProjectActivity.effectList.add(
                 Effect(
@@ -66,6 +67,7 @@ class CustomAdapter(
                     heightArrayList
                 )
             )
+            Log.d("add", "${ProjectActivity.effectList.size}")
         }
     }
 
