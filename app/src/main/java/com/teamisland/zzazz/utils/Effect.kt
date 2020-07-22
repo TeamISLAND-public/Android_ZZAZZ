@@ -2,7 +2,10 @@ package com.teamisland.zzazz.utils
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
+import android.os.Build
 import androidx.annotation.FloatRange
+import androidx.annotation.RequiresApi
 
 /**
  * Class for each effects
@@ -46,8 +49,18 @@ class Effect(
     /**
      * @param color to set color
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     fun setColor(color: Int) {
         this.color = color
+        for (frame in 0 until dataArrayList.size) {
+            val data = dataArrayList[frame]
+            for (y in 0 until data.getHeight()) {
+                for (x in 0 until data.getWidth()) {
+                    if (data.getBitmap().getColor(x, y) != Color.valueOf(0xFFFFFF))
+                        data.getBitmap().setPixel(x, y, color)
+                }
+            }
+        }
     }
 
     /**
@@ -126,6 +139,12 @@ class Effect(
     ) {
 
         private var degree: Float = 0F
+
+        fun getBitmap() = bitmap
+
+        fun getHeight() = height
+
+        fun getWidth() = width
 
         /**
          * Move x coordinate.
