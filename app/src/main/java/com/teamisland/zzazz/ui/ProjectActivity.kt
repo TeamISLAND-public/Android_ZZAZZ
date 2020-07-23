@@ -20,6 +20,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.Effect
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
+import com.teamisland.zzazz.utils.ProjectAlertDialog
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlin.properties.Delegates
@@ -85,6 +86,7 @@ class ProjectActivity : AppCompatActivity() {
             1000L * mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
                 .toLong() / mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                 .toLong()
+
 //        Log.d("time", "start")
 //        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
 //        Log.d("time", "end")
@@ -188,6 +190,12 @@ class ProjectActivity : AppCompatActivity() {
         }
 
         back.setOnClickListener { onBackPressed() }
+    }
+
+    override fun onBackPressed() {
+        val builder = ProjectAlertDialog(this) { super.onBackPressed() }
+        builder.create()
+        builder.show()
     }
 
     // play video

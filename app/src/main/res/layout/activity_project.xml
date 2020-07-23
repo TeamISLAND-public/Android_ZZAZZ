@@ -52,7 +52,7 @@
                 android:gravity="center"
                 android:text="@string/project_title"
                 android:textAllCaps="true"
-                android:textColor="@color/ZZAZZWhite"
+                android:textColor="@color/ActivityTitle"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="parent"
@@ -100,7 +100,6 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
 
         <ImageButton
             android:id="@+id/project_play"
@@ -164,9 +163,12 @@
             android:layout_height="40dp"
             app:layout_constraintTop_toTopOf="parent"
             app:tabGravity="fill"
-            app:tabIndicatorColor="@color/White"
+            app:tabIndicatorColor="@color/ActivityTitle"
             app:tabIndicatorFullWidth="false"
-            app:tabMode="scrollable" />
+            app:tabMode="scrollable"
+            app:tabSelectedTextColor="@color/White"
+            app:tabTextAppearance="@style/SmallText"
+            app:tabTextColor="@color/ContentsText80" />
 
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/effect_view_pager"
@@ -213,7 +215,7 @@
                 android:text="@string/effect_done"
                 android:textAlignment="center"
                 android:textAllCaps="false"
-                android:textColor="@color/ZZAZZWhite"
+                android:textColor="@color/White"
                 android:textSize="14sp" />
 
         </LinearLayout>

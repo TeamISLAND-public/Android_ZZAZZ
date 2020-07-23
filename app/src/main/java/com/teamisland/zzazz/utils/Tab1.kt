@@ -38,4 +38,12 @@ class Tab1(private val frame: Int) : Fragment() {
 
         return view
     }
+
+    private abstract class OnClickItem {
+
+        companion object ClickItem : View.OnClickListener {
+            override fun onClick(v: View?) {
+            }
+        }
+    }
 }

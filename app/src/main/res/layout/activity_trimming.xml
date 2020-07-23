@@ -44,7 +44,7 @@
             android:gravity="center"
             android:text="@string/trim_title"
             android:textAllCaps="true"
-            android:textColor="#ccffffff"
+            android:textColor="@color/ActivityTitle"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -89,11 +89,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <VideoView
+            <com.google.android.exoplayer2.ui.PlayerView
                 android:id="@+id/mainVideoView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
+                app:use_controller="false"
                 tools:foreground="@tools:sample/backgrounds/scenic[1]" />
 
         </FrameLayout>
@@ -220,7 +221,7 @@
             android:fontFamily="@font/archivo_bold"
             android:gravity="center_vertical|end"
             android:text="TEST"
-            android:textColor="#e6ffffff"
+            android:textColor="#E5ffffff"
             android:textSize="13sp"
             app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
             app:layout_constraintEnd_toEndOf="parent" />
