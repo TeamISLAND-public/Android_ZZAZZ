@@ -1,30 +1,29 @@
 package com.teamisland.zzazz.ui
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.media.MediaMetadataRetriever
+import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.BitmapVideo
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
+import com.teamisland.zzazz.utils.ProjectAlertDialog
 import kotlinx.android.synthetic.main.activity_project.*
-import java.io.File
-import java.io.FileOutputStream
-import java.nio.ByteBuffer
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.properties.Delegates
 
 /**
  * Activity for make project
@@ -156,6 +155,12 @@ class ProjectActivity : AppCompatActivity() {
         back.setOnClickListener { onBackPressed() }
     }
 
+    override fun onBackPressed() {
+        val builder = ProjectAlertDialog(this) { super.onBackPressed() }
+        builder.create()
+        builder.show()
+    }
+
     // play video
     @SuppressLint("ClickableViewAccessibility")
     private fun playBitmap() {
@@ -215,7 +220,7 @@ class ProjectActivity : AppCompatActivity() {
                         video_display.pause()
                         project_play.isActivated = false
                     } else {
-                        if (end){
+                        if (end) {
                             video_display.seekTo(0)
                             end = false
                         }

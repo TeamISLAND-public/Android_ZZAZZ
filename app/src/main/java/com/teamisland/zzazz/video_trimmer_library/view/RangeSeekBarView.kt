@@ -198,8 +198,8 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private fun setButtonVisibility() {
         when (currentThumb) {
             -1 -> {
-                frameAdvance.visibility = GONE
-                frameRetreat.visibility = GONE
+                frameAdvance.visibility = INVISIBLE
+                frameRetreat.visibility = INVISIBLE
             }
             LEFT.index -> {
                 frameAdvance.visibility =
