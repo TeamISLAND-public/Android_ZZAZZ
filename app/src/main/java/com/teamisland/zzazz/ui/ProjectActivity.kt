@@ -125,11 +125,7 @@ class ProjectActivity : AppCompatActivity() {
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    effect_back.alpha = 1F
-                    slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
-                    project_title.text = getString(R.string.project_title)
-                    tempList.clear()
-                    Log.d("add", "${effectList.size}")
+                    onBackPressed()
                 }
             }
             true
@@ -192,10 +188,21 @@ class ProjectActivity : AppCompatActivity() {
         back.setOnClickListener { onBackPressed() }
     }
 
+    /**
+     * [AppCompatActivity.onBackPressed]
+     */
     override fun onBackPressed() {
-        val builder = ProjectAlertDialog(this) { super.onBackPressed() }
-        builder.create()
-        builder.show()
+        if(slide.panelState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+            effect_back.alpha = 1F
+            slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
+            project_title.text = getString(R.string.project_title)
+            tempList.clear()
+            Log.d("add", "${effectList.size}")
+        } else {
+            val builder = ProjectAlertDialog(this) { super.onBackPressed() }
+            builder.create()
+            builder.show()
+        }
     }
 
     // play video
