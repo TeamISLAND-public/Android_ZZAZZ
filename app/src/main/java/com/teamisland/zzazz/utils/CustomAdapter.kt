@@ -42,18 +42,12 @@ class CustomAdapter(
         holder.imageView.setImageResource(list[position])
         holder.imageView.setOnClickListener {
             val bitmap = (context.resources.getDrawable(R.drawable.load) as BitmapDrawable).bitmap
-            val bitmapArrayList: MutableList<Bitmap> = mutableListOf()
             val point = Effect.Point(30, 30)
-            val pointArrayList: MutableList<Effect.Point> = mutableListOf()
-            val widthArrayList: MutableList<Int> = mutableListOf()
-            val heightArrayList: MutableList<Int> = mutableListOf()
+            val dataArrayList: MutableList<Effect.Data> = mutableListOf()
 
             // for test
             for (i in 0 until 30) {
-                bitmapArrayList.add(bitmap)
-                pointArrayList.add(point)
-                widthArrayList.add(30)
-                heightArrayList.add(30)
+                dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
             }
             ProjectActivity.tempList.add(
                 Effect(
@@ -61,10 +55,7 @@ class CustomAdapter(
                     frame + 29,
                     0,
                     0xFFFFFF,
-                    bitmapArrayList,
-                    pointArrayList,
-                    widthArrayList,
-                    heightArrayList
+                    dataArrayList
                 )
             )
             Log.d("temporary add", "${ProjectActivity.tempList.size}")

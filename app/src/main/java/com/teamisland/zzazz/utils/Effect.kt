@@ -15,26 +15,9 @@ class Effect(
     private var endFrame: Int,
     private val type: Int,
     private var color: Int,
-    bitmapArrayList: MutableList<Bitmap>,
-    pointArrayList: MutableList<Point>,
-    widthArrayList: MutableList<Int>,
-    heightArrayList: MutableList<Int>
+    private var dataArrayList: MutableList<Data>
 ) {
-    private var dataArrayList: MutableList<Data> = mutableListOf()
     private var visible = true
-
-    init {
-        for (frame in 0..(endFrame - startFrame)) {
-            dataArrayList.add(
-                Data(
-                    bitmapArrayList[frame],
-                    pointArrayList[frame],
-                    widthArrayList[frame],
-                    heightArrayList[frame]
-                )
-            )
-        }
-    }
 
     /**
      * @return [startFrame]
@@ -131,7 +114,7 @@ class Effect(
     /**
      * Data of effect on each frames.
      */
-    private class Data(
+    class Data(
         private var bitmap: Bitmap,
         private var point: Point,
         private var width: Int,
@@ -140,10 +123,19 @@ class Effect(
 
         private var degree: Float = 0F
 
+        /**
+         * @return [bitmap]
+         */
         fun getBitmap() = bitmap
 
+        /**
+         * @return [height]
+         */
         fun getHeight() = height
 
+        /**
+         * @return [width]
+         */
         fun getWidth() = width
 
         /**
@@ -184,6 +176,9 @@ class Effect(
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height)
         }
 
+        /**
+         * Draw effect on video view
+         */
         fun draw(canvas: Canvas) {
             TODO("have to implement")
         }
