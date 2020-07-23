@@ -22,6 +22,7 @@ import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
+import com.teamisland.zzazz.utils.ProjectAlertDialog
 import kotlinx.android.synthetic.main.activity_project.*
 
 /**
@@ -152,38 +153,6 @@ class ProjectActivity : AppCompatActivity() {
         }
 
         back.setOnClickListener { onBackPressed() }
-    }
-
-    class ProjectAlertDialog(context: Context?, val run_function: () -> Unit) :
-        AlertDialog(context) {
-
-        private lateinit var textView: TextView
-        private lateinit var checkBox: CheckBox
-        private lateinit var button: Button
-
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            setContentView(R.layout.activity_intro_alertdialog)
-
-            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            window?.setGravity(Gravity.CENTER)
-
-            window?.setLayout(
-                (264 * Resources.getSystem().displayMetrics.density).toInt(),
-                (165 * Resources.getSystem().displayMetrics.density).toInt()
-            )
-
-            textView = findViewById(R.id.intro_alert_text)
-            checkBox = findViewById(R.id.checkBox)
-            button = findViewById(R.id.intro_alert_button)
-
-            textView.text = "Are you sure to go back?"
-            checkBox.text = "Don't show again"
-            button.setOnClickListener {
-                dismiss()
-                run_function()
-            }
-        }
     }
 
     override fun onBackPressed() {

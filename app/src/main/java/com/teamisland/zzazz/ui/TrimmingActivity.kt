@@ -184,11 +184,20 @@ class TrimmingActivity : AppCompatActivity() {
         }
     }
 
-    internal lateinit var player: SimpleExoPlayer
     private lateinit var videoUri: Uri
     private lateinit var trimmedVideoFile: File
     internal var videoDuration: Int = 0
     private var videoFps: Int = 0
+    private val dataSourceFactory: DataSource.Factory by lazy {
+        DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
+    }
+    internal val player: SimpleExoPlayer by lazy {
+        SimpleExoPlayer.Builder(this).build().also {
+            it.repeatMode = SimpleExoPlayer.REPEAT_MODE_OFF
+            mainVideoView.player = it
+        }
+    }
+
 
     internal fun stopVideo() {
         playButton.isActivated = false
@@ -244,12 +253,6 @@ class TrimmingActivity : AppCompatActivity() {
                 playButton.visibility = VISIBLE
             }
         })
-
-        player = SimpleExoPlayer.Builder(this).build().also {
-            it.repeatMode = SimpleExoPlayer.REPEAT_MODE_OFF
-            mainVideoView.player = it
-        }
-
         playButton.setOnClickListener { playButtonClickHandler(fadeOut) }
         playButton.startAnimation(fadeOut)
 
@@ -311,20 +314,11 @@ class TrimmingActivity : AppCompatActivity() {
 
         timeLineView.setVideo(videoUri)
 
-        val dataSourceFactory: DataSource.Factory =
-            DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
         val mediaSource: MediaSource =
             ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(videoUri)
 
         player.prepare(mediaSource)
-        player.seekTo(100L)
         player.addListener(object : Player.EventListener {
-            /**
-             * Called when the value returned from either [.getPlayWhenReady] or [ ][.getPlaybackState] changes.
-             *
-             * @param playWhenReady Whether playback will proceed when ready.
-             * @param playbackState The new [playback state].
-             */
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 if (playbackState == ExoPlayer.STATE_ENDED) {
                     playButton.isActivated = false
@@ -387,39 +381,48 @@ class TrimmingActivity : AppCompatActivity() {
         return false
     }
 
+    private val playButtonClickListenerObject = object : Player.EventListener {
+        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+            if (playbackState == ExoPlayer.STATE_READY)
+                mainVideoView.postDelayed({ startVideo() }, 100)
+        }
+    }
+
     private fun playButtonClickHandler(fadeOut: Animation) {
         playButton.startAnimation(fadeOut)
         if (playButton.isActivated) {
-            playButton.isActivated = false
-            player.playWhenReady = false
+            stopVideo()
         } else {
             if (!testVideoPositionInRange()) {
                 val start = rangeSeekBarView.getStart()
                 player.seekTo(start.toLong())
                 currentPositionView.setMarkerPos(start * 100.0 / videoDuration)
-                mainVideoView.postDelayed({
-                    playButtonClickHandler(fadeOut)
-                }, 100)
+                player.addListener(playButtonClickListenerObject)
                 return
             }
-            player.playWhenReady = true
-            playButton.isActivated = true
-            Thread(Runnable {
-                do {
-                    val now = rangeSeekBarView.getRange().clamp(player.currentPosition.toInt())
-                    with(currentPositionView) {
-                        setMarkerPos(now * 100.0 / videoDuration)
-                    }
-                    if (rangeSeekBarView.getEnd() < player.currentPosition)
-                        stopVideo()
-                    try {
-                        Thread.sleep(10)
-                    } catch (e: InterruptedException) {
-                        e.printStackTrace()
-                    }
-                } while (player.isPlaying)
-            }).start()
+            player.removeListener(playButtonClickListenerObject)
+            startVideo()
         }
+    }
+
+    internal fun startVideo() {
+        player.playWhenReady = true
+        playButton.isActivated = true
+        Thread(Runnable {
+            do {
+                val now = rangeSeekBarView.getRange().clamp(player.currentPosition.toInt())
+                with(currentPositionView) {
+                    setMarkerPos(now * 100.0 / videoDuration)
+                }
+                if (rangeSeekBarView.getEnd() < player.currentPosition)
+                    stopVideo()
+                try {
+                    Thread.sleep(10)
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
+                }
+            } while (player.isPlaying)
+        }).start()
     }
 
     internal fun applyTrimRangeChanges() {
