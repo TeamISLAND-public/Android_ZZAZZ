@@ -24,7 +24,7 @@ class Effect(
     private var visible = true
 
     init {
-        for (frame in 0 until endFrame) {
+        for (frame in 0..(endFrame - startFrame)) {
             dataArrayList.add(
                 Data(
                     bitmapArrayList[frame],
