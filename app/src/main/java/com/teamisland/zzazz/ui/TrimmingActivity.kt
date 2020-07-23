@@ -375,7 +375,7 @@ class TrimmingActivity : AppCompatActivity() {
     }
 
     private fun setupVideoProperties(): Boolean {
-        videoUri = intent.getParcelableExtra(IntroActivity.VIDEO_URI) ?: return true
+        videoUri = intent.getParcelableExtra(IntroLoadActivity.VIDEO_URI) ?: return true
         videoDuration = GetVideoData.getDuration(this, videoUri)
         videoFps = GetVideoData.getFPS(this, videoUri)
         return false

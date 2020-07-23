@@ -54,7 +54,7 @@ class ExportActivity : AppCompatActivity() {
     override fun onRestart() {
         super.onRestart()
         preview.start()
-        preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
+        preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
     }
 
     /**
@@ -137,7 +137,7 @@ class ExportActivity : AppCompatActivity() {
             video_length.text = String.format("%02d:%02d", minute, second)
         }
         preview_progress.max = duration
-        preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
+        preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
         preview.setOnPreparedListener {
             preview_progress.progress = 0
         }
@@ -254,7 +254,7 @@ class ExportActivity : AppCompatActivity() {
                     preview_progress.progress == duration -> {
                         end = true
                         playing = false
-                        preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+                        preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
                     }
                     playing -> preview.start()
                     else -> end = false
@@ -266,14 +266,14 @@ class ExportActivity : AppCompatActivity() {
         preview_play.setOnClickListener {
             if (preview.isPlaying) {
                 preview.pause()
-                preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+                preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
             } else {
                 if (end) {
                     preview.seekTo(0)
                     end = false
                 }
                 preview.start()
-                preview_play.setImageDrawable(getDrawable(R.drawable.preview_pause))
+                preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
             }
 
             preview_play.startAnimation(fadeOut)
@@ -281,7 +281,7 @@ class ExportActivity : AppCompatActivity() {
 
         // changing text of button is needed
         preview.setOnCompletionListener {
-            preview_play.setImageDrawable(getDrawable(R.drawable.preview_play))
+            preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
             end = true
         }
     }
