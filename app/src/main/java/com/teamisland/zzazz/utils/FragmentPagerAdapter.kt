@@ -9,7 +9,8 @@ import androidx.fragment.app.FragmentStatePagerAdapter
  */
 class FragmentPagerAdapter(
     fragmentManager: FragmentManager,
-    private val tabCount: Int
+    private val tabCount: Int,
+    private val frame: Int
 ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     /**
@@ -17,12 +18,12 @@ class FragmentPagerAdapter(
      */
     override fun getItem(position: Int): Fragment {
         return when (position) {
-            0 -> Tab1()
+            0 -> Tab1(frame)
             1 -> Tab2()
             2 -> Tab3()
             3 -> Tab4()
             4 -> Tab5()
-            else -> Tab1()
+            else -> Tab1(frame)
         }
     }
 

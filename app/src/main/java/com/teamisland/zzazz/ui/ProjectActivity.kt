@@ -2,13 +2,13 @@ package com.teamisland.zzazz.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Typeface
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.TextView
@@ -18,9 +18,11 @@ import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.Effect
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
+import kotlin.properties.Delegates
 
 /**
  * Activity for make project
@@ -28,12 +30,26 @@ import kotlinx.android.synthetic.main.custom_tab.view.*
 class ProjectActivity : AppCompatActivity() {
 
     private lateinit var uri: Uri
+    private var frame = 0
     private lateinit var fadeOut: Animation
-//    private lateinit var video: BitmapVideo
+
+    //    private lateinit var video: BitmapVideo
 //    private lateinit var bitmapList: List<Bitmap>
 //    private var startFrame by Delegates.notNull<Int>()
 //    private var endFrame by Delegates.notNull<Int>()
-//    private var fps by Delegates.notNull<Long>()
+    private var fps by Delegates.notNull<Long>()
+
+    companion object {
+        /**
+         * List of effect
+         */
+        var effectList: MutableList<Effect> = mutableListOf()
+
+        /**
+         * Temporary list of effect
+         */
+        var tempList: MutableList<Effect> = mutableListOf()
+    }
 
     /**
      * [AppCompatActivity.onRestart]
@@ -62,13 +78,13 @@ class ProjectActivity : AppCompatActivity() {
 //        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
 //        bitmapList = ArrayList(endFrame - startFrame + 1)
 //
-//        val mediaMetadataRetriever = MediaMetadataRetriever()
-//        mediaMetadataRetriever.setDataSource(this, uri)
-//
-//        fps =
-//            1000L * mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
-//                .toLong() / mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-//                .toLong()
+        val mediaMetadataRetriever = MediaMetadataRetriever()
+        mediaMetadataRetriever.setDataSource(this, uri)
+
+        fps =
+            1000L * mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
+                .toLong() / mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                .toLong()
 //        Log.d("time", "start")
 //        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
 //        Log.d("time", "end")
@@ -93,6 +109,7 @@ class ProjectActivity : AppCompatActivity() {
                     add_effect_button.alpha = 1F
                     slide.panelState = SlidingUpPanelLayout.PanelState.ANCHORED
                     project_title.text = getString(R.string.add_effect)
+                    frame = (video_display.currentPosition * fps).toInt()
 //                    video.pause()
                 }
             }
@@ -109,6 +126,8 @@ class ProjectActivity : AppCompatActivity() {
                     effect_back.alpha = 1F
                     slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
                     project_title.text = getString(R.string.project_title)
+                    tempList.clear()
+                    Log.d("add", "${effectList.size}")
                 }
             }
             true
@@ -124,6 +143,10 @@ class ProjectActivity : AppCompatActivity() {
                     effect_done.alpha = 1F
                     slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
                     project_title.text = getString(R.string.project_title)
+                    effectList.addAll(tempList)
+                    sortEffect()
+                    tempList.clear()
+                    Log.d("add", "${effectList.size}")
                 }
             }
             true
@@ -242,31 +265,60 @@ class ProjectActivity : AppCompatActivity() {
 
     // make effect tab
     private fun tabInit() {
-        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect))))
-        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
-        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
-        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
-        effect_tab.addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
+        effect_tab.addTab(
+            effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect)))
+        )
+        effect_tab.addTab(
+            effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect)))
+        )
+        effect_tab.addTab(
+            effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect)))
+        )
+        effect_tab.addTab(
+            effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_leg_effect)))
+        )
+        effect_tab.addTab(
+            effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_leg_effect)))
+        )
 
         val pagerAdapter =
             FragmentPagerAdapter(
                 supportFragmentManager,
-                5
+                5,
+                frame
             )
         effect_view_pager.adapter = pagerAdapter
         val tabView = effect_tab.getTabAt(0)
-        tabView!!.view.tab_text.typeface = ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
-        tabView.view.tab_text.setTextColor(ContextCompat.getColor(applicationContext, R.color.White))
+        tabView!!.view.tab_text.typeface =
+            ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+        tabView.view.tab_text.setTextColor(
+            ContextCompat.getColor(
+                applicationContext,
+                R.color.White
+            )
+        )
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 effect_view_pager.currentItem = tab!!.position
-                tab.view.tab_text.typeface = ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
-                tab.view.tab_text.setTextColor(ContextCompat.getColor(applicationContext, R.color.White))
+                tab.view.tab_text.typeface =
+                    ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+                tab.view.tab_text.setTextColor(
+                    ContextCompat.getColor(
+                        applicationContext,
+                        R.color.White
+                    )
+                )
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
-                tab!!.view.tab_text.typeface = ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
-                tab.view.tab_text.setTextColor(ContextCompat.getColor(applicationContext, R.color.ContentsText80))
+                tab!!.view.tab_text.typeface =
+                    ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
+                tab.view.tab_text.setTextColor(
+                    ContextCompat.getColor(
+                        applicationContext,
+                        R.color.ContentsText80
+                    )
+                )
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
@@ -285,6 +337,44 @@ class ProjectActivity : AppCompatActivity() {
 
     private fun saveProject() {
 
+    }
+
+    private fun sortEffect() {
+//        val effect = effectList[start]
+//        var left = start + 1
+//        var right = end
+//
+//        while (left <= right) {
+//            while (effectList[left].getStartFrame() < effect.getStartFrame() || (effectList[left].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() < effect.getEndFrame())) {
+//                left++
+//            }
+//            while (effectList[right].getStartFrame() > effect.getStartFrame() || (effectList[right].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() > effect.getEndFrame())) {
+//                right--
+//            }
+//            if (left <= right) {
+//                val temp = effectList[left]
+//                effectList[left] = effectList[right]
+//                effectList[right] = temp
+//            }
+//        }
+//
+//        if(start < end) {
+//            val temp = effectList[start]
+//            effectList[start] = effectList[right]
+//            effectList[right] = temp
+//
+//            sortEffect(start, right - 1)
+//            sortEffect(right + 1, end)
+//        }
+        for (i in 0 until effectList.size) {
+            for (j in i until effectList.size) {
+                if ((effectList[j].getStartFrame() < effectList[i].getStartFrame() || (effectList[j].getStartFrame() == effectList[i].getStartFrame()) and (effectList[j].getEndFrame() < effectList[i].getEndFrame()))){
+                    val effect = effectList[i]
+                    effectList[i] = effectList[j]
+                    effectList[j] = effect
+                }
+            }
+        }
     }
 
     // export project to export activity

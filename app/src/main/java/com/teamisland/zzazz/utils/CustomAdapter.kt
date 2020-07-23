@@ -1,12 +1,16 @@
 package com.teamisland.zzazz.utils
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.ui.ProjectActivity
 
 /**
  * Override [RecyclerView.Adapter] for effect tab
@@ -14,7 +18,7 @@ import com.teamisland.zzazz.R
 class CustomAdapter(
     private val list: ArrayList<Int>,
     private val context: Context,
-    private val onClickItem: View.OnClickListener
+    private val frame: Int
 ) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
     /**
@@ -36,7 +40,26 @@ class CustomAdapter(
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.imageView.setImageResource(list[position])
-        holder.imageView.setOnClickListener(onClickItem)
+        holder.imageView.setOnClickListener {
+            val bitmap = (context.resources.getDrawable(R.drawable.load) as BitmapDrawable).bitmap
+            val point = Effect.Point(30, 30)
+            val dataArrayList: MutableList<Effect.Data> = mutableListOf()
+
+            // for test
+            for (i in 0 until 30) {
+                dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
+            }
+            ProjectActivity.tempList.add(
+                Effect(
+                    frame,
+                    frame + 29,
+                    0,
+                    0xFFFFFF,
+                    dataArrayList
+                )
+            )
+            Log.d("temporary add", "${ProjectActivity.tempList.size}")
+        }
     }
 
     /**
