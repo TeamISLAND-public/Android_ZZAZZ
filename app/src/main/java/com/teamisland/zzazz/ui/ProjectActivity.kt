@@ -1,6 +1,7 @@
 package com.teamisland.zzazz.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.net.Uri
@@ -21,6 +22,7 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.Effect
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
 import com.teamisland.zzazz.utils.ProjectAlertDialog
+import com.teamisland.zzazz.utils.SaveProjectActivity
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlin.properties.Delegates
@@ -50,6 +52,11 @@ class ProjectActivity : AppCompatActivity() {
          * Temporary list of effect
          */
         var tempList: MutableList<Effect> = mutableListOf()
+
+        /**
+         * Check the project is saved
+         */
+        const val IS_SAVED = 1
     }
 
     /**
@@ -161,7 +168,11 @@ class ProjectActivity : AppCompatActivity() {
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    saveProject()
+                    video_display.pause()
+                    project_play.isActivated = false
+                    Intent(this, SaveProjectActivity::class.java).apply {
+                        startActivityForResult(this, IS_SAVED)
+                    }
                     save_project.alpha = 1F
                 }
             }
@@ -347,6 +358,20 @@ class ProjectActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * [AppCompatActivity.onActivityResult]
+     */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == IS_SAVED) {
+            if (resultCode == Activity.RESULT_OK) {
+                val filename = data?.getStringExtra(SaveProjectActivity.PROJECT_NAME)
+                Log.d("filename", filename!!)
+                saveProject()
+            }
+        }
+    }
+
     private fun sortEffect() {
 //        val effect = effectList[start]
 //        var left = start + 1
@@ -376,7 +401,7 @@ class ProjectActivity : AppCompatActivity() {
 //        }
         for (i in 0 until effectList.size) {
             for (j in i until effectList.size) {
-                if ((effectList[j].getStartFrame() < effectList[i].getStartFrame() || (effectList[j].getStartFrame() == effectList[i].getStartFrame()) and (effectList[j].getEndFrame() < effectList[i].getEndFrame()))){
+                if ((effectList[j].getStartFrame() < effectList[i].getStartFrame() || (effectList[j].getStartFrame() == effectList[i].getStartFrame()) and (effectList[j].getEndFrame() < effectList[i].getEndFrame()))) {
                     val effect = effectList[i]
                     effectList[i] = effectList[j]
                     effectList[j] = effect

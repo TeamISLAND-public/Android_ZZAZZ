@@ -25,6 +25,8 @@
     <string name="right_arm_effect">Right arm</string>
     <string name="left_leg_effect">Left leg</string>
     <string name="right_leg_effect">Right leg</string>
+    <string name="save_project">Project Name</string>
+    <string name="default_name">Project</string>
 
     <!--    string of exportactivity-->
     <string name="export_title">PREVIEW</string>
