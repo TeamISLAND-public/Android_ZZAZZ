@@ -134,9 +134,19 @@
                     android:id="@+id/timeIndexView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <com.teamisland.zzazz.utils.ProjectTimeLineView
+                    android:id="@+id/projectTimeLineView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="2dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/timeIndexView" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

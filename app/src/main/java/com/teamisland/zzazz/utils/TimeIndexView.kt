@@ -35,13 +35,11 @@ class TimeIndexView @JvmOverloads constructor(
     /**
      * Duration of the video in ms.
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     var videoLength: Int = 17860
 
     /**
      * Current time in ms. Note that current time will be located at the horizontal center of the view.
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     var currentTime: Int = 3770
         set(value) {
             if (value !in 0..videoLength)
@@ -53,7 +51,6 @@ class TimeIndexView @JvmOverloads constructor(
     /**
      * Distance between start to end time marker in px.
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     var pixelInterval: Float = 0f
         set(value) {
             field = value
@@ -63,7 +60,6 @@ class TimeIndexView @JvmOverloads constructor(
     /**
      * Pixel per millisecond.
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     var pxPerMs: Float = 0f
         set(value) {
             field = value
@@ -108,12 +104,13 @@ class TimeIndexView @JvmOverloads constructor(
         updateTimeInterval()
         val originAt = -currentTime * pxPerMs + width / 2
         val decimal = timeInterval < 1000
-        for (i in (currentTime - timeInterval) downTo 0 step timeInterval) {
+        val currentTimeStep = currentTime / timeInterval * timeInterval
+        for (i in (currentTimeStep - timeInterval) downTo 0 step timeInterval) {
             val fl = i * pxPerMs + originAt
             canvas.drawText(getTimeText(i, decimal), fl, textSize, paint)
             if (fl < -max) break
         }
-        for (i in currentTime..videoLength step timeInterval) {
+        for (i in currentTimeStep..videoLength step timeInterval) {
             val fl = i * pxPerMs + originAt
             canvas.drawText(getTimeText(i, decimal), fl, textSize, paint)
             if (fl > width + max) break

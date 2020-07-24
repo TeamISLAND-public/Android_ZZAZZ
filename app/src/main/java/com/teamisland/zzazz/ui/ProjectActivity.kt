@@ -21,10 +21,13 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.Effect
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
+import com.teamisland.zzazz.utils.GetVideoData.getDuration
 import com.teamisland.zzazz.utils.ProjectAlertDialog
 import com.teamisland.zzazz.utils.SaveProjectActivity
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
+import kotlin.math.abs
 import kotlin.properties.Delegates
 
 /**
@@ -41,6 +44,8 @@ class ProjectActivity : AppCompatActivity() {
 //    private var startFrame by Delegates.notNull<Int>()
 //    private var endFrame by Delegates.notNull<Int>()
     private var fps by Delegates.notNull<Long>()
+
+    private var videoDuration = 0
 
     companion object {
         /**
@@ -88,6 +93,20 @@ class ProjectActivity : AppCompatActivity() {
 //
         val mediaMetadataRetriever = MediaMetadataRetriever()
         mediaMetadataRetriever.setDataSource(this, uri)
+
+        videoDuration = getDuration(this, uri)
+
+        zoomLevelMax = videoDuration * float2DP(10f, resources) / 16
+        zoomLevelMin = videoDuration * float2DP(10f, resources) / 1000
+
+        zoomLevel = (zoomLevelMin + zoomLevelMax) / 2
+
+        timeIndexView.videoLength = videoDuration
+        projectTimeLineView.videoLength = videoDuration
+        projectTimeLineView.videoUri = uri
+
+        setZoomLevel()
+        setCurrentTime(0)
 
         fps =
             1000L * mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
@@ -197,6 +216,13 @@ class ProjectActivity : AppCompatActivity() {
         }
 
         back.setOnClickListener { onBackPressed() }
+
+        sliding_view.setOnTouchListener { _, event -> tabLayoutOnTouchEvent(event) }
+    }
+
+    private fun setZoomLevel() {
+        projectTimeLineView.pixelInterval = zoomLevel
+        timeIndexView.pixelInterval = zoomLevel
     }
 
     /**
@@ -223,6 +249,7 @@ class ProjectActivity : AppCompatActivity() {
         video_display.setVideoURI(uri)
         video_display.requestFocus()
         video_display.start()
+        video_display.postDelayed({ videoBinder() }, 500)
         project_play.isActivated = true
 //        video.seekTo(0)
 //        video.start()
@@ -280,6 +307,7 @@ class ProjectActivity : AppCompatActivity() {
                         }
                         video_display.start()
                         project_play.isActivated = true
+                        videoBinder()
                     }
                     project_play.alpha = 1F
                     project_play.startAnimation(fadeOut)
@@ -288,6 +316,17 @@ class ProjectActivity : AppCompatActivity() {
             true
         }
     }
+
+    private fun videoBinder() = Thread(Runnable {
+        do {
+            try {
+                setCurrentTime(video_display.currentPosition.coerceIn(0, videoDuration))
+                Thread.sleep(10)
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+            }
+        } while (video_display.isPlaying)
+    }).start()
 
     // make effect tab
     private fun tabInit() {
@@ -347,8 +386,7 @@ class ProjectActivity : AppCompatActivity() {
                 )
             }
 
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-            }
+            override fun onTabReselected(tab: TabLayout.Tab?) = Unit
         })
         effect_view_pager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(effect_tab))
     }
@@ -446,4 +484,59 @@ class ProjectActivity : AppCompatActivity() {
 //
 //        return Uri.parse(file)
 //    }
+
+    private fun setCurrentTime(i: Int) {
+        projectTimeLineView.currentTime = i
+        timeIndexView.currentTime = i
+        println(i)
+    }
+
+    private var posX1 = 0f
+    private var posX2 = 0f
+    private var mode = 0
+    private var newDist = 0f
+    private var oldDist = 0f
+    private var zoomLevel = 0f
+    private var zoomLevelMax = 0f
+    private var zoomLevelMin = 0f
+
+    fun tabLayoutOnTouchEvent(event: MotionEvent?): Boolean {
+        when (event?.action?.and(MotionEvent.ACTION_MASK)) {
+            MotionEvent.ACTION_DOWN -> {
+                posX1 = event.x
+                mode = 1
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
+                if (mode == 2)
+                    projectTimeLineView.refreshSize()
+                mode = 0
+            }
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                mode = 2
+                newDist = distance(event)
+                oldDist = distance(event)
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (mode == 1) {
+                    posX2 = event.x
+                    val delta = (posX2 - posX1) * videoDuration / zoomLevel
+                    val time = (video_display.currentPosition - delta).toInt()
+                        .coerceIn(0, videoDuration)
+                    video_display.seekTo(time)
+                    setCurrentTime(time)
+                    posX1 = posX2
+                } else if (mode == 2) {
+                    newDist = distance(event)
+                    zoomLevel = (zoomLevel * newDist / oldDist).coerceIn(zoomLevelMin, zoomLevelMax)
+                    setZoomLevel()
+                    oldDist = newDist
+                }
+            }
+        }
+        return true
+    }
+
+    private fun distance(event: MotionEvent): Float {
+        return abs(event.getX(0) - event.getX(1))
+    }
 }
