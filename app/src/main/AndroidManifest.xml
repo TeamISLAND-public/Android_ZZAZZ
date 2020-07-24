@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.teamisland.zzazz">
+    package="com.teamisland.zzazz" >
 
     <uses-feature
         android:name="android.hardware.camera2"
@@ -20,21 +20,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
-        tools:targetApi="q">
+        tools:targetApi="q" >
 
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.teamisland.zzazz.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true"
-            tools:replace="android:authorities">
+            tools:replace="android:authorities" >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"
                 tools:replace="android:resource" />
-        </provider>
-
-        <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
+        </provider> <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />
@@ -42,21 +40,21 @@
         <activity
             android:name=".ui.SplashActivity"
             android:noHistory="true"
-            android:screenOrientation="fullSensor">
+            android:screenOrientation="fullSensor" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.IntroActivity"
             android:launchMode="singleTop"
             android:theme="@style/NoAnimation" />
-
-        <activity android:name=".ui.ExportActivity" />
         <activity android:name=".ui.TrimmingActivity" />
-        <activity android:name=".ui.ProjectActivity" /> <!-- <activity -->
+        <activity android:name=".ui.ProjectActivity" />
+        <activity android:name=".utils.SaveProjectActivity" />
+        <activity android:name=".ui.ExportActivity" />
     </application>
 
 </manifest>
