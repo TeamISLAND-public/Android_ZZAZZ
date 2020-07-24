@@ -365,8 +365,9 @@ class ProjectActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == IS_SAVED) {
             if (resultCode == Activity.RESULT_OK) {
-                val filename = data?.getStringExtra(SaveProjectActivity.PROJECT_NAME)
-                Log.d("filename", filename!!)
+                val projectName = data?.getStringExtra(SaveProjectActivity.PROJECT_NAME)
+                project_title.text = projectName
+                Log.d("filename", projectName!!)
                 saveProject()
             }
         }
