@@ -118,7 +118,7 @@ class ProjectActivity : AppCompatActivity() {
 //        Log.d("time", "end")
 //        mediaMetadataRetriever.release()
 //        video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
-        playBitmap()
+        playVideo()
 
         slide.anchorPoint = 1F
         slide.getChildAt(1).setOnClickListener(null)
@@ -229,7 +229,7 @@ class ProjectActivity : AppCompatActivity() {
      * [AppCompatActivity.onBackPressed]
      */
     override fun onBackPressed() {
-        if(slide.panelState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+        if (slide.panelState == SlidingUpPanelLayout.PanelState.EXPANDED) {
             effect_back.alpha = 1F
             slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
             project_title.text = getString(R.string.project_title)
@@ -244,7 +244,7 @@ class ProjectActivity : AppCompatActivity() {
 
     // play video
     @SuppressLint("ClickableViewAccessibility")
-    private fun playBitmap() {
+    private fun playVideo() {
         video_display.setMediaController(null)
         video_display.setVideoURI(uri)
         video_display.requestFocus()
@@ -330,31 +330,18 @@ class ProjectActivity : AppCompatActivity() {
 
     // make effect tab
     private fun tabInit() {
-        effect_tab.addTab(
-            effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect)))
-        )
-        effect_tab.addTab(
-            effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect)))
-        )
-        effect_tab.addTab(
-            effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect)))
-        )
-        effect_tab.addTab(
-            effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_leg_effect)))
-        )
-        effect_tab.addTab(
-            effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_leg_effect)))
-        )
+        with(effect_tab) {
+            addTab(newTab().setCustomView(createTabView(getString(R.string.head_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
+        }
 
-        val pagerAdapter =
-            FragmentPagerAdapter(
-                supportFragmentManager,
-                5,
-                frame
-            )
+        val pagerAdapter = FragmentPagerAdapter(supportFragmentManager, 5, frame)
         effect_view_pager.adapter = pagerAdapter
-        val tabView = effect_tab.getTabAt(0)
-        tabView!!.view.tab_text.typeface =
+        val tabView = effect_tab.getTabAt(0) ?: throw NoSuchElementException("No tab at index 0.")
+        tabView.view.tab_text.typeface =
             ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
         tabView.view.tab_text.setTextColor(
             ContextCompat.getColor(
@@ -364,7 +351,7 @@ class ProjectActivity : AppCompatActivity() {
         )
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                effect_view_pager.currentItem = tab!!.position
+                effect_view_pager.currentItem = (tab ?: return).position
                 tab.view.tab_text.typeface =
                     ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
                 tab.view.tab_text.setTextColor(
@@ -376,7 +363,7 @@ class ProjectActivity : AppCompatActivity() {
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
-                tab!!.view.tab_text.typeface =
+                (tab ?: return).view.tab_text.typeface =
                     ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
                 tab.view.tab_text.setTextColor(
                     ContextCompat.getColor(
@@ -391,7 +378,6 @@ class ProjectActivity : AppCompatActivity() {
         effect_view_pager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(effect_tab))
     }
 
-    @SuppressLint("InflateParams")
     private fun createTabView(tabName: String): View? {
         val tabView = LayoutInflater.from(applicationContext).inflate(R.layout.custom_tab, null)
         val textView = tabView.findViewById<TextView>(R.id.tab_text)
@@ -488,7 +474,6 @@ class ProjectActivity : AppCompatActivity() {
     private fun setCurrentTime(i: Int) {
         projectTimeLineView.currentTime = i
         timeIndexView.currentTime = i
-        println(i)
     }
 
     private var posX1 = 0f
@@ -500,7 +485,7 @@ class ProjectActivity : AppCompatActivity() {
     private var zoomLevelMax = 0f
     private var zoomLevelMin = 0f
 
-    fun tabLayoutOnTouchEvent(event: MotionEvent?): Boolean {
+    private fun tabLayoutOnTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action?.and(MotionEvent.ACTION_MASK)) {
             MotionEvent.ACTION_DOWN -> {
                 posX1 = event.x

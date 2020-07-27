@@ -90,8 +90,6 @@ class IntroActivity : AppCompatActivity() {
             Toast.makeText(this, getString(R.string.length_exceeded), LENGTH_LONG).show()
             //return
         }
-        println(videoUri)
-
         Intent(this, TrimmingActivity::class.java).also {
             it.putExtra(VIDEO_URI, videoUri)
             startActivity(it)

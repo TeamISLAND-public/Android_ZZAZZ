@@ -120,7 +120,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     internal val bitmapList = ArrayList<Bitmap?>()
 
     private fun getBitmap(viewHeight: Int) {
-        if (videoUri == null) return println("Error: videoUri is null")
+        if (videoUri == null) return
 
         val numThumbs = ceil(pixelInterval / viewHeight).toInt()
         bitmapList.clear()
@@ -164,7 +164,6 @@ open class ProjectTimeLineView @JvmOverloads constructor(
      * [View.onDraw]
      */
     override fun onDraw(canvas: Canvas) {
-        println(canvas)
         updateTimeInterval()
         var x = 0
         val originLocation = -currentTime * pxPerMs + width / 2

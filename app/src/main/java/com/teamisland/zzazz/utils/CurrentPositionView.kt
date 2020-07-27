@@ -96,8 +96,6 @@ open class CurrentPositionView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        println(getPointInViewWidth())
-
         canvas.drawLine(
             getPointInViewWidth(),
             height - float2DP(47.5f, resources),
