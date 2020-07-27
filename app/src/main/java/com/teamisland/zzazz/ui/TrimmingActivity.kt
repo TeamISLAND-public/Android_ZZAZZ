@@ -38,6 +38,10 @@ import com.teamisland.zzazz.utils.IPositionChangeListener
 import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 import kotlinx.android.synthetic.main.activity_trimming.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 
 /**
@@ -259,13 +263,11 @@ class TrimmingActivity : AppCompatActivity() {
         rangeSeekBarView.setButtons(framePlus, frameMinus)
         val addOnRangeSeekBarListener = object : OnRangeSeekBarListener {
             override fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                println("onCreate")
                 trimText.visibility = GONE
                 applyTrimRangeChanges()
             }
 
             override fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                println("onSeek")
                 trimText.visibility = VISIBLE
                 applyTrimRangeChanges()
                 testVideoRange()
@@ -273,13 +275,11 @@ class TrimmingActivity : AppCompatActivity() {
             }
 
             override fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                println("onSeekStart")
                 trimText.visibility = VISIBLE
                 applyTrimRangeChanges()
             }
 
             override fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                println("onSeekStop")
                 trimText.visibility = GONE
                 applyTrimRangeChanges()
             }
@@ -291,11 +291,6 @@ class TrimmingActivity : AppCompatActivity() {
         rangeSeekBarView.addOnRangeSeekBarListener(addOnRangeSeekBarListener)
         rangeSeekBarView.initMaxWidth()
         rangeSeekBarView.videoDuration = videoDuration
-        println("asdfasdf")
-        println(rangeSeekBarView.getStart())
-        println(rangeSeekBarView.getEnd())
-        println(count)
-        println(videoDuration)
 
         currentPositionView.setDuration(videoDuration)
         val currentPositionChangeListener = object : IPositionChangeListener {
@@ -328,12 +323,6 @@ class TrimmingActivity : AppCompatActivity() {
         frameLayout.setOnClickListener { playButton.startAnimation(fadeOut) }
 
         gotoProjectActivity.setOnClickListener { startTrimming() }
-
-        Config.enableLogCallback { message: LogMessage ->
-            if (BuildConfig.DEBUG) Log.d(Config.TAG, message.text)
-        }
-        println(videoUri.path)
-        println(getPath(this, videoUri))
     }
 
     private fun startTrimming() {
@@ -408,21 +397,22 @@ class TrimmingActivity : AppCompatActivity() {
     internal fun startVideo() {
         player.playWhenReady = true
         playButton.isActivated = true
-        Thread(Runnable {
+        GlobalScope.launch(Dispatchers.Main) {
             do {
-                val now = rangeSeekBarView.getRange().clamp(player.currentPosition.toInt())
+                val currentPosition = player.currentPosition
+                val now = rangeSeekBarView.getRange().clamp(currentPosition.toInt())
                 with(currentPositionView) {
                     setMarkerPos(now * 100.0 / videoDuration)
                 }
-                if (rangeSeekBarView.getEnd() < player.currentPosition)
+                if (rangeSeekBarView.getEnd() < currentPosition)
                     stopVideo()
                 try {
-                    Thread.sleep(10)
+                    delay(10)
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
             } while (player.isPlaying)
-        }).start()
+        }
     }
 
     internal fun applyTrimRangeChanges() {
