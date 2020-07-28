@@ -16,33 +16,64 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.Effect
 import com.teamisland.zzazz.utils.FragmentPagerAdapter
 import com.teamisland.zzazz.utils.GetVideoData.getDuration
+import com.teamisland.zzazz.utils.GetVideoData.getFrameCount
 import com.teamisland.zzazz.utils.ProjectAlertDialog
 import com.teamisland.zzazz.utils.SaveProjectActivity
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
 import kotlin.properties.Delegates
 
 /**
  * Activity for make project
  */
-class ProjectActivity : AppCompatActivity() {
+class ProjectActivity : AppCompatActivity(), CoroutineScope {
+
+    private lateinit var job: Job
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+    }
+
+    /**
+     * The context of this scope.
+     * Context is encapsulated by the scope and used for implementation of coroutine builders that are extensions on the scope.
+     * Accessing this property in general code is not recommended for any purposes except accessing the [Job] instance for advanced usages.
+     *
+     * By convention, should contain an instance of a [job][Job] to enforce structured concurrency.
+     */
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     private lateinit var uri: Uri
     private var frame = 0
     private lateinit var fadeOut: Animation
-
-    //    private lateinit var video: BitmapVideo
-//    private lateinit var bitmapList: List<Bitmap>
-//    private var startFrame by Delegates.notNull<Int>()
-//    private var endFrame by Delegates.notNull<Int>()
+    private val dataSourceFactory: DataSource.Factory by lazy {
+        DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
+    }
+    internal val player: SimpleExoPlayer by lazy {
+        SimpleExoPlayer.Builder(this).build().also {
+            it.repeatMode = SimpleExoPlayer.REPEAT_MODE_OFF
+            video_display.player = it
+        }
+    }
     private var fps by Delegates.notNull<Long>()
 
     private var videoDuration = 0
@@ -61,7 +92,7 @@ class ProjectActivity : AppCompatActivity() {
         /**
          * Check the project is saved
          */
-        const val IS_SAVED = 1
+        const val IS_SAVED: Int = 1
     }
 
     /**
@@ -69,9 +100,8 @@ class ProjectActivity : AppCompatActivity() {
      */
     override fun onRestart() {
         super.onRestart()
-        video_display.seekTo(0)
-        video_display.start()
-        project_play.isActivated = true
+        player.seekTo(0)
+        startVideo()
         project_play.startAnimation(fadeOut)
     }
 
@@ -84,13 +114,11 @@ class ProjectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
 
-        val path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
-        uri = Uri.parse(path)
+        job = Job()
+
+        uri = intent.getParcelableExtra(TrimmingActivity.VIDEO_URI)
+
         fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
-//        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
-//        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
-//        bitmapList = ArrayList(endFrame - startFrame + 1)
-//
         val mediaMetadataRetriever = MediaMetadataRetriever()
         mediaMetadataRetriever.setDataSource(this, uri)
 
@@ -108,16 +136,8 @@ class ProjectActivity : AppCompatActivity() {
         setZoomLevel()
         setCurrentTime(0)
 
-        fps =
-            1000L * mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)
-                .toLong() / mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                .toLong()
+        fps = (getFrameCount(this, uri) / videoDuration).toLong()
 
-//        Log.d("time", "start")
-//        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
-//        Log.d("time", "end")
-//        mediaMetadataRetriever.release()
-//        video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
         playVideo()
 
         slide.anchorPoint = 1F
@@ -137,7 +157,7 @@ class ProjectActivity : AppCompatActivity() {
                     add_effect_button.alpha = 1F
                     slide.panelState = SlidingUpPanelLayout.PanelState.ANCHORED
                     project_title.text = getString(R.string.add_effect)
-                    frame = (video_display.currentPosition * fps).toInt()
+                    frame = (player.currentPosition * fps).toInt()
 //                    video.pause()
                 }
             }
@@ -183,8 +203,7 @@ class ProjectActivity : AppCompatActivity() {
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    video_display.pause()
-                    project_play.isActivated = false
+                    stopVideo()
                     Intent(this, SaveProjectActivity::class.java).apply {
                         startActivityForResult(this, IS_SAVED)
                     }
@@ -202,11 +221,8 @@ class ProjectActivity : AppCompatActivity() {
 
                 MotionEvent.ACTION_UP -> {
                     gotoExportActivity.alpha = 1F
-//                    video.pause()
-                    video_display.pause()
-                    project_play.isActivated = false
+                    stopVideo()
                     Intent(this, ExportActivity::class.java).apply {
-//                        putExtra("URI", exportProject())
                         putExtra("URI", uri)
                         startActivity(this)
                     }
@@ -218,6 +234,7 @@ class ProjectActivity : AppCompatActivity() {
         back.setOnClickListener { onBackPressed() }
 
         sliding_view.setOnTouchListener { _, event -> tabLayoutOnTouchEvent(event) }
+        player.prepare(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri))
     }
 
     private fun setZoomLevel() {
@@ -245,15 +262,10 @@ class ProjectActivity : AppCompatActivity() {
     // play video
     @SuppressLint("ClickableViewAccessibility")
     private fun playVideo() {
-        video_display.setMediaController(null)
-        video_display.setVideoURI(uri)
         video_display.requestFocus()
-        video_display.start()
-        video_display.postDelayed({ videoBinder() }, 500)
-        project_play.isActivated = true
-//        video.seekTo(0)
-//        video.start()
+        startVideo()
         fadeOut.startOffset = 1000
+        fadeOut.duration = 500
         fadeOut.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationRepeat(animation: Animation?) {
                 project_play.visibility = View.VISIBLE
@@ -268,18 +280,27 @@ class ProjectActivity : AppCompatActivity() {
                 project_play.visibility = View.VISIBLE
             }
         })
-        fadeOut.duration = 500
 
         var end = false
         project_play.startAnimation(fadeOut)
 
-        video_display.setOnClickListener {
+        video_frame.setOnClickListener {
             project_play.startAnimation(fadeOut)
         }
-        video_display.setOnCompletionListener {
-            project_play.isActivated = false
-            end = true
-        }
+        player.addListener(object : Player.EventListener {
+            /**
+             * Called when the value returned from either [.getPlayWhenReady] or [ ][.getPlaybackState] changes.
+             *
+             * @param playWhenReady Whether playback will proceed when ready.
+             * @param playbackState The new [playback state][Player.State].
+             */
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                if (playbackState == Player.STATE_ENDED) {
+                    project_play.isActivated = false
+                    end = true
+                }
+            }
+        })
 
         project_play.isSelected = true
 
@@ -290,24 +311,16 @@ class ProjectActivity : AppCompatActivity() {
                 }
 
                 MotionEvent.ACTION_UP -> {
-//                    video.isPlaying = if (video.isPlaying) {
-//                        video.pause()
-//                        false
-//                    } else {
-//                        video.start()
-//                        true
-//                    }
-                    if (video_display.isPlaying) {
-                        video_display.pause()
-                        project_play.isActivated = false
+                    if (player.isPlaying) {
+                        stopVideo()
                     } else {
                         if (end) {
-                            video_display.seekTo(0)
+                            player.seekTo(0)
                             end = false
+                            player.addListener(playButtonClickListenerObject)
+                            return@setOnTouchListener true
                         }
-                        video_display.start()
-                        project_play.isActivated = true
-                        videoBinder()
+                        startVideo()
                     }
                     project_play.alpha = 1F
                     project_play.startAnimation(fadeOut)
@@ -317,16 +330,37 @@ class ProjectActivity : AppCompatActivity() {
         }
     }
 
-    private fun videoBinder() = Thread(Runnable {
+    private val playButtonClickListenerObject = object : Player.EventListener {
+        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+            if (playbackState == ExoPlayer.STATE_READY) {
+                video_display.postDelayed({ startVideo() }, 100)
+                project_play.alpha = 1F
+                player.removeListener(this)
+            }
+        }
+    }
+
+    internal fun startVideo() {
+        player.playWhenReady = true
+        project_play.isActivated = true
+        videoBinder()
+    }
+
+    private fun stopVideo() {
+        player.playWhenReady = false
+        project_play.isActivated = false
+    }
+
+    private fun videoBinder() = launch {
         do {
             try {
-                setCurrentTime(video_display.currentPosition.coerceIn(0, videoDuration))
-                Thread.sleep(10)
+                setCurrentTime(player.currentPosition.toInt().coerceIn(0, videoDuration))
+                delay(10)
             } catch (e: InterruptedException) {
                 e.printStackTrace()
             }
-        } while (video_display.isPlaying)
-    }).start()
+        } while (true)//player.isPlaying)
+    }
 
     // make effect tab
     private fun tabInit() {
@@ -394,46 +428,21 @@ class ProjectActivity : AppCompatActivity() {
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == IS_SAVED) {
-            if (resultCode == Activity.RESULT_OK) {
-                val projectName = data?.getStringExtra(SaveProjectActivity.PROJECT_NAME)
-                project_title.text = projectName
-                Log.d("filename", projectName!!)
-                saveProject()
-            }
+        if (requestCode == IS_SAVED && resultCode == Activity.RESULT_OK) {
+            val projectName = data?.getStringExtra(SaveProjectActivity.PROJECT_NAME)
+            project_title.text = projectName
+            Log.d("filename", projectName.toString())
+            saveProject()
         }
     }
 
     private fun sortEffect() {
-//        val effect = effectList[start]
-//        var left = start + 1
-//        var right = end
-//
-//        while (left <= right) {
-//            while (effectList[left].getStartFrame() < effect.getStartFrame() || (effectList[left].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() < effect.getEndFrame())) {
-//                left++
-//            }
-//            while (effectList[right].getStartFrame() > effect.getStartFrame() || (effectList[right].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() > effect.getEndFrame())) {
-//                right--
-//            }
-//            if (left <= right) {
-//                val temp = effectList[left]
-//                effectList[left] = effectList[right]
-//                effectList[right] = temp
-//            }
-//        }
-//
-//        if(start < end) {
-//            val temp = effectList[start]
-//            effectList[start] = effectList[right]
-//            effectList[right] = temp
-//
-//            sortEffect(start, right - 1)
-//            sortEffect(right + 1, end)
-//        }
         for (i in 0 until effectList.size) {
             for (j in i until effectList.size) {
-                if ((effectList[j].getStartFrame() < effectList[i].getStartFrame() || (effectList[j].getStartFrame() == effectList[i].getStartFrame()) and (effectList[j].getEndFrame() < effectList[i].getEndFrame()))) {
+                if (effectList[j].getStartFrame() < effectList[i].getStartFrame() ||
+                    (effectList[j].getStartFrame() == effectList[i].getStartFrame()) &&
+                    (effectList[j].getEndFrame() < effectList[i].getEndFrame())
+                ) {
                     val effect = effectList[i]
                     effectList[i] = effectList[j]
                     effectList[j] = effect
@@ -441,35 +450,6 @@ class ProjectActivity : AppCompatActivity() {
             }
         }
     }
-
-    // export project to export activity
-//    @Suppress("BlockingMethodInNonBlockingContext")
-//    @SuppressLint("SimpleDateFormat")
-//    private fun exportProject(): Uri {
-//        val time = System.currentTimeMillis()
-//        val date = Date(time)
-//        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
-//        val filename = nameFormat.format(date)
-//        val file = filesDir.absoluteFile.path + "/$filename.mp4"
-//        val output = FileOutputStream(File(file))
-//
-//        var frame = 0
-//        Thread {
-//            while (frame <= endFrame - startFrame + 1) {
-//                 convert bitmap to bytes
-//                val size = bitmapList[frame].rowBytes * bitmapList[frame].height
-//                val bytes = ByteBuffer.allocate(size)
-//                bitmapList[frame++].copyPixelsToBuffer(bytes)
-//                val byteArray = ByteArray(size)
-//                 error
-//                bytes.get(byteArray, 0, byteArray.size)
-//
-//                output.write(byteArray)
-//            }
-//        }.start()
-//
-//        return Uri.parse(file)
-//    }
 
     private fun setCurrentTime(i: Int) {
         projectTimeLineView.currentTime = i
@@ -505,9 +485,9 @@ class ProjectActivity : AppCompatActivity() {
                 if (mode == 1) {
                     posX2 = event.x
                     val delta = (posX2 - posX1) * videoDuration / zoomLevel
-                    val time = (video_display.currentPosition - delta).toInt()
+                    val time = (player.currentPosition - delta).toInt()
                         .coerceIn(0, videoDuration)
-                    video_display.seekTo(time)
+                    player.seekTo(time.toLong())
                     setCurrentTime(time)
                     posX1 = posX2
                 } else if (mode == 2) {
