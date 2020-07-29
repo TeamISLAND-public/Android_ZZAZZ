@@ -6,9 +6,12 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.UnitConverter.float2SP
 import java.util.*
-import kotlin.math.*
+import kotlin.math.floor
+import kotlin.math.log
+import kotlin.math.pow
 
 /**
  * Time index view.
@@ -55,6 +58,15 @@ class TimeIndexView @JvmOverloads constructor(
         set(value) {
             field = value
             invalidate()
+        }
+
+    /**
+     * DP per millisecond.
+     */
+    var dpPerMs: Float = 0f
+        set(value) {
+            field = value
+            pxPerMs = float2DP(value, resources)
         }
 
     /**

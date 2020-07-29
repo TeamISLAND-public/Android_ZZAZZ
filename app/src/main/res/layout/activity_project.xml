@@ -150,6 +150,25 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/timeIndexView" />
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/projectTimeLineView" />
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="1dp"
+                    android:layout_height="0dp"
+                    android:background="@color/ActivityTitle"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/projectTimeLineView" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>

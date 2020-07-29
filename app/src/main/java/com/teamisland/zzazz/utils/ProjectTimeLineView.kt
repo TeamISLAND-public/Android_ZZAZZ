@@ -32,11 +32,11 @@ import android.media.ThumbnailUtils
 import android.net.Uri
 import android.util.AttributeSet
 import android.view.View
+import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.UnitConverter.float2SP
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
-import kotlinx.coroutines.internal.SynchronizedObject
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.ceil
 
 /**
@@ -53,7 +53,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     private val black = Paint()
 
     init {
-        black.color = 0xff000000.toInt()
+        black.color = resources.getColor(R.color.Background, null)
     }
 
     /**
@@ -90,6 +90,15 @@ open class ProjectTimeLineView @JvmOverloads constructor(
         getBitmap(height)
         invalidate()
     }
+
+    /**
+     * DP per millisecond.
+     */
+    var dpPerMs: Float = 0f
+        set(value) {
+            field = value
+            pxPerMs = float2DP(value, resources)
+        }
 
     /**
      * Pixel per millisecond.
@@ -133,6 +142,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
         object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
                 try {
+                    if (numThumbs == 0) return
                     val mediaMetadataRetriever = MediaMetadataRetriever()
                     mediaMetadataRetriever.setDataSource(context, videoUri)
                     val videoLengthInUs = videoLength * 1000L

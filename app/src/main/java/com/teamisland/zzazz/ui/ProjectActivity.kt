@@ -3,10 +3,10 @@ package com.teamisland.zzazz.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.util.Range
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -16,6 +16,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -26,19 +27,15 @@ import com.google.android.exoplayer2.util.Util
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.Effect
-import com.teamisland.zzazz.utils.FragmentPagerAdapter
+import com.teamisland.zzazz.utils.*
 import com.teamisland.zzazz.utils.GetVideoData.getDuration
 import com.teamisland.zzazz.utils.GetVideoData.getFrameCount
-import com.teamisland.zzazz.utils.ProjectAlertDialog
-import com.teamisland.zzazz.utils.SaveProjectActivity
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
-import kotlin.properties.Delegates
 
 /**
  * Activity for make project
@@ -74,7 +71,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
             video_display.player = it
         }
     }
-    private var fps by Delegates.notNull<Long>()
+    private var fps: Float = 0f
 
     private var videoDuration = 0
 
@@ -117,17 +114,14 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         job = Job()
 
         uri = intent.getParcelableExtra(TrimmingActivity.VIDEO_URI)
+        videoDuration = getDuration(this, uri)
+        fps = getFrameCount(this, uri) / videoDuration.toFloat()
 
         fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
-        val mediaMetadataRetriever = MediaMetadataRetriever()
-        mediaMetadataRetriever.setDataSource(this, uri)
 
-        videoDuration = getDuration(this, uri)
-
-        zoomLevelMax = videoDuration * float2DP(10f, resources) / 16
-        zoomLevelMin = videoDuration * float2DP(10f, resources) / 1000
-
-        zoomLevel = (zoomLevelMin + zoomLevelMax) / 2
+        zoomLevel = float2DP(0.06f, resources)
+        val upperLimit = if (fps <= 4) zoomLevel else 0.015f * fps
+        zoomRange = Range(0.004f, upperLimit)
 
         timeIndexView.videoLength = videoDuration
         projectTimeLineView.videoLength = videoDuration
@@ -135,8 +129,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
         setZoomLevel()
         setCurrentTime(0)
-
-        fps = (getFrameCount(this, uri) / videoDuration).toLong()
 
         playVideo()
 
@@ -204,8 +196,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
                 MotionEvent.ACTION_UP -> {
                     stopVideo()
-                    Intent(this, SaveProjectActivity::class.java).apply {
-                        startActivityForResult(this, IS_SAVED)
+                    Intent(this, SaveProjectActivity::class.java).also {
+                        startActivityForResult(it, IS_SAVED)
                     }
                     save_project.alpha = 1F
                 }
@@ -224,7 +216,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
                     stopVideo()
                     Intent(this, ExportActivity::class.java).apply {
                         putExtra("URI", uri)
-                        startActivity(this)
+                    }.also {
+                        startActivity(it)
                     }
                 }
             }
@@ -235,11 +228,15 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
         sliding_view.setOnTouchListener { _, event -> tabLayoutOnTouchEvent(event) }
         player.prepare(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri))
+        val effectAdapter = EffectAdapter()
+        recyclerView.adapter = effectAdapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        effectAdapter.notifyDataSetChanged()
     }
 
     private fun setZoomLevel() {
-        projectTimeLineView.pixelInterval = zoomLevel
-        timeIndexView.pixelInterval = zoomLevel
+        projectTimeLineView.dpPerMs = zoomLevel
+        timeIndexView.dpPerMs = zoomLevel
     }
 
     /**
@@ -297,6 +294,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 if (playbackState == Player.STATE_ENDED) {
                     project_play.isActivated = false
+                    player.playWhenReady = false
                     end = true
                 }
             }
@@ -462,8 +460,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
     private var newDist = 0f
     private var oldDist = 0f
     private var zoomLevel = 0f
-    private var zoomLevelMax = 0f
-    private var zoomLevelMin = 0f
+    private lateinit var zoomRange: Range<Float>
 
     private fun tabLayoutOnTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action?.and(MotionEvent.ACTION_MASK)) {
@@ -484,7 +481,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
             MotionEvent.ACTION_MOVE -> {
                 if (mode == 1) {
                     posX2 = event.x
-                    val delta = (posX2 - posX1) * videoDuration / zoomLevel
+                    val delta =
+                        (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
                     val time = (player.currentPosition - delta).toInt()
                         .coerceIn(0, videoDuration)
                     player.seekTo(time.toLong())
@@ -492,7 +490,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
                     posX1 = posX2
                 } else if (mode == 2) {
                     newDist = distance(event)
-                    zoomLevel = (zoomLevel * newDist / oldDist).coerceIn(zoomLevelMin, zoomLevelMax)
+                    zoomLevel = zoomRange.clamp(zoomLevel * newDist / oldDist)
                     setZoomLevel()
                     oldDist = newDist
                 }
