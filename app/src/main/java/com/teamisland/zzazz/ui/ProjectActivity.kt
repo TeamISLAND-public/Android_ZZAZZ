@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.util.Range
-import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
@@ -16,7 +15,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -27,15 +25,19 @@ import com.google.android.exoplayer2.util.Util
 import com.google.android.material.tabs.TabLayout
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.*
+import com.teamisland.zzazz.utils.Effect
+import com.teamisland.zzazz.utils.FragmentPagerAdapter
 import com.teamisland.zzazz.utils.GetVideoData.getDuration
 import com.teamisland.zzazz.utils.GetVideoData.getFrameCount
+import com.teamisland.zzazz.utils.ProjectAlertDialog
+import com.teamisland.zzazz.utils.SaveProjectActivity
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
+import kotlin.math.max
 
 /**
  * Activity for make project
@@ -44,6 +46,9 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
     private lateinit var job: Job
 
+    /**
+     * Destroys the activity and finishes ongoing coroutines.
+     */
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()
@@ -115,12 +120,12 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
         uri = intent.getParcelableExtra(TrimmingActivity.VIDEO_URI)
         videoDuration = getDuration(this, uri)
-        fps = getFrameCount(this, uri) / videoDuration.toFloat()
+        fps = getFrameCount(this, uri) / (videoDuration / 1000f)
 
         fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
 
         zoomLevel = float2DP(0.06f, resources)
-        val upperLimit = if (fps <= 4) zoomLevel else 0.015f * fps
+        val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
 
         timeIndexView.videoLength = videoDuration
@@ -228,10 +233,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
         sliding_view.setOnTouchListener { _, event -> tabLayoutOnTouchEvent(event) }
         player.prepare(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri))
-        val effectAdapter = EffectAdapter()
-        recyclerView.adapter = effectAdapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        effectAdapter.notifyDataSetChanged()
     }
 
     private fun setZoomLevel() {
@@ -411,7 +412,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun createTabView(tabName: String): View? {
-        val tabView = LayoutInflater.from(applicationContext).inflate(R.layout.custom_tab, null)
+        val tabView = View.inflate(applicationContext, R.layout.custom_tab, null)
         val textView = tabView.findViewById<TextView>(R.id.tab_text)
         textView.text = tabName
         return tabView
@@ -468,11 +469,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
                 posX1 = event.x
                 mode = 1
             }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                if (mode == 2)
-                    projectTimeLineView.refreshSize()
-                mode = 0
-            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> mode = 0
             MotionEvent.ACTION_POINTER_DOWN -> {
                 mode = 2
                 newDist = distance(event)
@@ -499,7 +496,5 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         return true
     }
 
-    private fun distance(event: MotionEvent): Float {
-        return abs(event.getX(0) - event.getX(1))
-    }
+    private fun distance(event: MotionEvent): Float = abs(event.getX(0) - event.getX(1))
 }
