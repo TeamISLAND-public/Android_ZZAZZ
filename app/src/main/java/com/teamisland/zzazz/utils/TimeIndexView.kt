@@ -4,9 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.view.View
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.UnitConverter.float2SP
 import java.util.*
 import kotlin.math.floor
@@ -20,12 +18,10 @@ class TimeIndexView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet?,
     defStyleAttr: Int = 0
-) :
-    View(context, attrs, defStyleAttr) {
+) : ZoomableView(context, attrs, defStyleAttr) {
 
     private val paint = Paint()
     private val textSize = float2SP(9f, resources)
-    private var timeInterval = 0
     private val max = float2SP(120f, resources)
     private val downPower = 2f
 
@@ -35,54 +31,7 @@ class TimeIndexView @JvmOverloads constructor(
         paint.color = 0x66ffffff
     }
 
-    /**
-     * Duration of the video in ms.
-     */
-    var videoLength: Int = 17860
-
-    /**
-     * Current time in ms. Note that current time will be located at the horizontal center of the view.
-     */
-    var currentTime: Int = 3770
-        set(value) {
-            if (value !in 0..videoLength)
-                throw IllegalArgumentException("Current time should be between 0 and the duration of the video, inclusive.")
-            field = value
-            invalidate()
-        }
-
-    /**
-     * Distance between start to end time marker in px.
-     */
-    var pixelInterval: Float = 0f
-        set(value) {
-            field = value
-            invalidate()
-        }
-
-    /**
-     * DP per millisecond.
-     */
-    var dpPerMs: Float = 0f
-        set(value) {
-            field = value
-            pxPerMs = float2DP(value, resources)
-        }
-
-    /**
-     * Pixel per millisecond.
-     */
-    var pxPerMs: Float = 0f
-        set(value) {
-            field = value
-            pixelInterval = pxPerMs * videoLength
-            invalidate()
-        }
-
-    private fun updateTimeInterval() {
-        if (pixelInterval == 0f) pixelInterval = float2SP(1500f, resources)
-        pxPerMs = pixelInterval / videoLength
-
+    override fun updateTimeInterval() {
         timeInterval = downPower.pow(floor(log(max, downPower) - log(pxPerMs, downPower))).toInt()
             .coerceAtLeast(1)
     }
@@ -105,7 +54,7 @@ class TimeIndexView @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         setMeasuredDimension(
             getDefaultSize(suggestedMinimumWidth, widthMeasureSpec),
-            float2SP(11f, resources).toInt()
+            float2SP(11f, resources).toInt() + paddingTop + paddingBottom
         )
     }
 
@@ -119,12 +68,12 @@ class TimeIndexView @JvmOverloads constructor(
         val currentTimeStep = currentTime / timeInterval * timeInterval
         for (i in (currentTimeStep - timeInterval) downTo 0 step timeInterval) {
             val fl = i * pxPerMs + originAt
-            canvas.drawText(getTimeText(i, decimal), fl, textSize, paint)
+            canvas.drawText(getTimeText(i, decimal), fl, textSize + paddingTop, paint)
             if (fl < -max) break
         }
         for (i in currentTimeStep..videoLength step timeInterval) {
             val fl = i * pxPerMs + originAt
-            canvas.drawText(getTimeText(i, decimal), fl, textSize, paint)
+            canvas.drawText(getTimeText(i, decimal), fl, textSize + paddingTop, paint)
             if (fl > width + max) break
         }
     }

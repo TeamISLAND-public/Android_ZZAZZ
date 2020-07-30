@@ -28,16 +28,13 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.media.MediaMetadataRetriever
-import android.media.ThumbnailUtils
+import android.media.ThumbnailUtils.extractThumbnail
 import android.net.Uri
 import android.util.AttributeSet
 import android.view.View
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
-import com.teamisland.zzazz.utils.UnitConverter.float2SP
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
-import java.util.*
-import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 /**
  * View for showing thumbnails of video by time.
@@ -46,11 +43,10 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet?,
     defStyleAttr: Int = 0
-) :
-    View(context, attrs, defStyleAttr) {
+) : ZoomableView(context, attrs, defStyleAttr) {
 
-    private var timeInterval = 0
     private val black = Paint()
+    internal var sampleMsQuantum = 50
 
     init {
         black.color = resources.getColor(R.color.Background, null)
@@ -62,55 +58,6 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     var videoUri: Uri? = null
 
     /**
-     * Duration of the video in ms.
-     */
-    var videoLength: Int = 17860
-
-    /**
-     * Current time in ms. Note that current time will be located at the horizontal center of the view.
-     */
-    var currentTime: Int = 3770
-        set(value) {
-            if (value !in 0..videoLength)
-                throw IllegalArgumentException("Current time should be between 0 and the duration of the video, inclusive.")
-            field = value
-            invalidate()
-        }
-
-    /**
-     * Distance between start to end time marker in px.
-     */
-    var pixelInterval: Float = 0f
-        set(value) {
-            field = value
-            invalidate()
-        }
-
-    fun refreshSize() {
-        getBitmap(height)
-        invalidate()
-    }
-
-    /**
-     * DP per millisecond.
-     */
-    var dpPerMs: Float = 0f
-        set(value) {
-            field = value
-            pxPerMs = float2DP(value, resources)
-        }
-
-    /**
-     * Pixel per millisecond.
-     */
-    var pxPerMs: Float = 0f
-        set(value) {
-            field = value
-            pixelInterval = videoLength * pxPerMs
-            invalidate()
-        }
-
-    /**
      * [View.onSizeChanged]
      */
     override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
@@ -119,10 +66,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
             getBitmap(h)
     }
 
-    private fun updateTimeInterval() {
-        if (pixelInterval == 0f) pixelInterval = float2SP(1500f, resources)
-        pxPerMs = pixelInterval / videoLength
-
+    override fun updateTimeInterval() {
         timeInterval = (videoLength * currentTime / pixelInterval).toInt()
     }
 
@@ -130,34 +74,28 @@ open class ProjectTimeLineView @JvmOverloads constructor(
 
     private fun getBitmap(viewHeight: Int) {
         if (videoUri == null) return
-
-        val numThumbs = ceil(pixelInterval / viewHeight).toInt()
         bitmapList.clear()
-        BackgroundExecutor.cancelAll("", true)
-        val task = backgroundTaskObject(numThumbs, viewHeight)
-        BackgroundExecutor.execute(task)
-    }
 
-    private fun backgroundTaskObject(numThumbs: Int, viewHeight: Int): BackgroundExecutor.Task =
-        object : BackgroundExecutor.Task("", 0L, "") {
+        sampleMsQuantum = videoLength / (GetVideoData.getFrameCount(context, videoUri!!) / 90)
+
+        val numThumbs = videoLength / sampleMsQuantum
+        BackgroundExecutor.cancelAll("", true)
+        BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
                 try {
-                    if (numThumbs == 0) return
                     val mediaMetadataRetriever = MediaMetadataRetriever()
                     mediaMetadataRetriever.setDataSource(context, videoUri)
-                    val videoLengthInUs = videoLength * 1000L
-                    val interval = videoLengthInUs / numThumbs
+                    val intervalUs = sampleMsQuantum * 1000L
                     for (i in 0 until numThumbs) {
                         var bitmap: Bitmap? =
                             mediaMetadataRetriever.getScaledFrameAtTime(
-                                i * interval,
+                                i * intervalUs,
                                 MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
                                 viewHeight,
                                 viewHeight
                             )
-
                         if (bitmap != null)
-                            bitmap = ThumbnailUtils.extractThumbnail(bitmap, viewHeight, viewHeight)
+                            bitmap = extractThumbnail(bitmap, viewHeight, viewHeight)
                         bitmapList.add(bitmap)
                         invalidate()
                     }
@@ -166,27 +104,31 @@ open class ProjectTimeLineView @JvmOverloads constructor(
                     Thread.getDefaultUncaughtExceptionHandler()
                         ?.uncaughtException(Thread.currentThread(), e)
                 }
-
             }
-        }
+        })
+    }
 
     /**
      * [View.onDraw]
      */
     override fun onDraw(canvas: Canvas) {
+        if (bitmapList.size == 0) return
         updateTimeInterval()
-        var x = 0
         val originLocation = -currentTime * pxPerMs + width / 2
-        val thumbSize = height
-        val iterator = bitmapList.iterator()
+
+        val fl = sampleMsQuantum * pxPerMs
+
+        var x =
+            if (originLocation > 0) originLocation else originLocation % height
+
         val endPoint = pixelInterval + originLocation
-        while (iterator.hasNext()) {
-            val next = iterator.next()
-            val xLocation = (x + originLocation)
-            if (next != null && -thumbSize < xLocation && xLocation < endPoint)
-                canvas.drawBitmap(next, xLocation, 0f, null)
-            x += thumbSize
+
+        while (x < width && x < endPoint) {
+            val temp = ((x - originLocation) / fl).roundToInt().coerceIn(0, bitmapList.size - 1)
+            bitmapList[temp]?.let { canvas.drawBitmap(it, x, 0f, null) }
+            x += height
         }
+
         canvas.drawRect(
             endPoint,
             0f,

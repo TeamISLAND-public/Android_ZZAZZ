@@ -1,7 +1,6 @@
 package com.teamisland.zzazz.utils
 
 import android.content.res.Resources
-import android.util.TypedValue
 import android.util.TypedValue.*
 
 object UnitConverter {
@@ -38,5 +37,13 @@ object UnitConverter {
             float,
             resources.displayMetrics
         )
+    }
+
+    /**
+     * Converts given DIP to px.
+     * ex) input is 9dp-equivalent pixel => 9f output.
+     */
+    fun px2dp(float: Float, resources: Resources): Float {
+        return float / resources.displayMetrics.density
     }
 }
