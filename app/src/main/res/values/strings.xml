@@ -27,6 +27,10 @@
     <string name="right_leg_effect">Right leg</string>
     <string name="save_project">Project Name</string>
     <string name="default_name">Project</string>
+    <string name="go_back">Go back</string>
+    <string name="save_the_project">Save the project</string>
+    <string name="current_position_marker">Current position marker</string>
+    <string name="play_pause_button">Play pause button</string>
 
     <!--    string of exportactivity-->
     <string name="export_title">PREVIEW</string>

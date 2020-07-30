@@ -19,29 +19,33 @@
             android:id="@+id/constraintLayout4"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <Button
+            <ImageButton
                 android:id="@+id/back"
-                android:layout_width="15dp"
-                android:layout_height="10dp"
-                android:layout_marginStart="16dp"
-                android:background="@drawable/back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@null"
+                android:contentDescription="@string/go_back"
+                android:padding="8dp"
+                android:src="@drawable/back"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/save_project"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginStart="28dp"
-                android:background="@drawable/ic_save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:background="@null"
+                android:contentDescription="@string/save_the_project"
                 android:gravity="center"
+                android:padding="8dp"
+                android:src="@drawable/ic_save"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/back"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -52,6 +56,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/archivo_medium"
                 android:gravity="center"
+                android:paddingVertical="16dp"
                 android:text="@string/project_title"
                 android:textAllCaps="true"
                 android:textColor="@color/ActivityTitle"
@@ -59,19 +64,19 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="parent"
                 app:layout_constraintStart_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <Button
                 android:id="@+id/gotoExportActivity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="14dp"
                 android:background="@null"
                 android:fontFamily="@font/archivo_bold"
                 android:gravity="center_vertical|end"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
+                android:padding="2dp"
                 android:text="@string/export"
                 android:textAllCaps="true"
                 android:textColor="@color/White"
@@ -111,9 +116,9 @@
                     android:id="@+id/project_play"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:background="@drawable/ic_preview_button"
-                    android:elevation="2dp"
-                    android:scaleType="centerInside"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/play_pause_button"
+                    android:src="@drawable/ic_preview_button"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -126,7 +131,7 @@
                 android:id="@+id/sliding_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1.5"
+                android:layout_weight="2"
                 android:background="@color/Background"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -139,7 +144,8 @@
                     android:paddingBottom="2dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_height="wrap_content" />
 
                 <com.teamisland.zzazz.utils.ProjectTimeLineView
                     android:id="@+id/projectTimeLineView"
@@ -154,6 +160,7 @@
                     android:layout_width="1dp"
                     android:layout_height="0dp"
                     android:background="@color/ActivityTitle"
+                    android:contentDescription="@string/current_position_marker"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -217,6 +224,7 @@
 
         <LinearLayout
             android:id="@+id/button_layout"
+            style="@android:style/ButtonBar"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:orientation="horizontal"
@@ -224,6 +232,7 @@
 
             <Button
                 android:id="@+id/effect_back"
+                style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -237,6 +246,7 @@
 
             <Button
                 android:id="@+id/effect_done"
+                style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
