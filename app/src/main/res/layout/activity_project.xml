@@ -110,19 +110,9 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:use_controller="false"
-                    tools:foreground="@tools:sample/backgrounds/scenic[1]" />
+                    tools:foreground="@tools:sample/backgrounds/scenic[1]" >
 
-                <ImageButton
-                    android:id="@+id/project_play"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="@string/play_pause_button"
-                    android:src="@drawable/ic_preview_button"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                </com.google.android.exoplayer2.ui.PlayerView>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -154,6 +144,16 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/timeIndexView" />
+
+                <ImageButton
+                    android:id="@+id/project_play"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/black"
+                    android:contentDescription="@string/play_pause_button"
+                    android:src="@drawable/ic_preview_button"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
                     android:id="@+id/imageView"
@@ -224,7 +224,6 @@
 
         <LinearLayout
             android:id="@+id/button_layout"
-            style="@android:style/ButtonBar"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:orientation="horizontal"
@@ -232,11 +231,11 @@
 
             <Button
                 android:id="@+id/effect_back"
-                style="@style/Widget.AppCompat.Button.Borderless"
+                style="?android:attr/borderlessButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@color/Background"
+                android:background="@android:color/transparent"
                 android:fontFamily="@font/archivo_regular"
                 android:text="@string/effect_back"
                 android:textAlignment="center"
@@ -246,11 +245,11 @@
 
             <Button
                 android:id="@+id/effect_done"
-                style="@style/Widget.AppCompat.Button.Borderless"
+                style="?android:attr/borderlessButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@color/Background"
+                android:background="@android:color/transparent"
                 android:fontFamily="@font/archivo_semibold"
                 android:text="@string/effect_done"
                 android:textAlignment="center"

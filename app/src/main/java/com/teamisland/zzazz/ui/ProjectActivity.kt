@@ -9,8 +9,6 @@ import android.util.Log
 import android.util.Range
 import android.view.MotionEvent
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -66,7 +64,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
     private lateinit var uri: Uri
     private var frame = 0
-    private lateinit var fadeOut: Animation
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
     }
@@ -104,7 +101,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         super.onRestart()
         player.seekTo(0)
         startVideo()
-        project_play.startAnimation(fadeOut)
     }
 
     /**
@@ -121,8 +117,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         uri = intent.getParcelableExtra(TrimmingActivity.VIDEO_URI)
         videoDuration = getDuration(this, uri)
         fps = getFrameCount(this, uri) / (videoDuration / 1000f)
-
-        fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
 
         zoomLevel = float2DP(0.06f, resources)
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
@@ -262,29 +256,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
     private fun playVideo() {
         video_display.requestFocus()
         startVideo()
-        fadeOut.startOffset = 1000
-        fadeOut.duration = 500
-        fadeOut.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationRepeat(animation: Animation?) {
-                project_play.visibility = View.VISIBLE
-            }
-
-            // button needs to be vanished
-            override fun onAnimationEnd(animation: Animation?) {
-                project_play.visibility = View.GONE
-            }
-
-            override fun onAnimationStart(animation: Animation?) {
-                project_play.visibility = View.VISIBLE
-            }
-        })
 
         var end = false
-        project_play.startAnimation(fadeOut)
-
-        video_frame.setOnClickListener {
-            project_play.startAnimation(fadeOut)
-        }
         player.addListener(object : Player.EventListener {
             /**
              * Called when the value returned from either [.getPlayWhenReady] or [ ][.getPlaybackState] changes.
@@ -303,29 +276,17 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
         project_play.isSelected = true
 
-        project_play.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    project_play.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    if (player.isPlaying) {
-                        stopVideo()
-                    } else {
-                        if (end) {
-                            player.seekTo(0)
-                            end = false
-                            player.addListener(playButtonClickListenerObject)
-                            return@setOnTouchListener true
-                        }
-                        startVideo()
-                    }
-                    project_play.alpha = 1F
-                    project_play.startAnimation(fadeOut)
-                }
+        project_play.setOnClickListener {
+            if (player.isPlaying) {
+                stopVideo()
+            } else {
+                if (end) {
+                    player.seekTo(0)
+                    end = false
+                    player.addListener(playButtonClickListenerObject)
+                } else
+                    startVideo()
             }
-            true
         }
     }
 
