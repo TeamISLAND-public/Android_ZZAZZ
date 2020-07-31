@@ -1,9 +1,10 @@
 package com.teamisland.zzazz.utils
 
 import android.annotation.SuppressLint
-import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.MotionEvent
+import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
 import kotlinx.android.synthetic.main.save_project.*
@@ -30,8 +31,16 @@ class SaveProjectActivity : AppCompatActivity() {
 
         project_name.requestFocus()
 
-        val customKeyboard = CustomKeyboard(this, R.id.keyboard, R.xml.keyboard)
-        customKeyboard.registerEditText(R.id.project_name)
+        project_name.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE && v.length() != 0) {
+                Intent().apply {
+                    putExtra(PROJECT_NAME, v.text.toString())
+                    setResult(RESULT_OK, this)
+                    finish()
+                }
+            }
+            false
+        }
 
         stop_save.setOnTouchListener { _, event ->
             when (event.action) {
@@ -41,7 +50,7 @@ class SaveProjectActivity : AppCompatActivity() {
 
                 MotionEvent.ACTION_UP -> {
                     stop_save.alpha = 1F
-                    setResult(Activity.RESULT_CANCELED)
+                    setResult(RESULT_CANCELED)
                     finish()
                 }
             }

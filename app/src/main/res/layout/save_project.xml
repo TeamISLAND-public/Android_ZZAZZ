@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/DialogBackground">
+    android:background="@android:color/transparent">
 
     <Button
         android:id="@+id/stop_save"
@@ -19,7 +19,7 @@
         android:id="@+id/input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/keyboard"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -47,7 +47,10 @@
             android:backgroundTint="@color/ZZAZZWhite"
             android:fontFamily="@font/archivo_bold"
             android:hint="@string/default_name"
-            android:imeOptions="actionNext"
+            android:imeOptions="actionDone"
+            android:inputType="text|textNoSuggestions"
+            android:maxLength="30"
+            android:maxLines="1"
             android:textColor="@color/ZZAZZWhite"
             android:textColorHint="#66FFFFFF"
             android:textCursorDrawable="@drawable/edittext_cursor"
@@ -58,17 +61,5 @@
             app:layout_constraintTop_toBottomOf="@id/save_title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <android.inputmethodservice.KeyboardView
-        android:id="@+id/keyboard"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="H, 352:216"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

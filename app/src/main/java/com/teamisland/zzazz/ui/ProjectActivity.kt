@@ -374,7 +374,6 @@ class ProjectActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 val projectName = data?.getStringExtra(SaveProjectActivity.PROJECT_NAME)
                 project_title.text = projectName
-                Log.d("filename", projectName!!)
                 saveProject()
             }
         }
