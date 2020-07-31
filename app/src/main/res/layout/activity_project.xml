@@ -130,12 +130,11 @@
                 <com.teamisland.zzazz.utils.TimeIndexView
                     android:id="@+id/timeIndexView"
                     android:layout_width="wrap_content"
-                    android:paddingTop="2dp"
-                    android:paddingBottom="2dp"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="2dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:layout_height="wrap_content" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <com.teamisland.zzazz.utils.ProjectTimeLineView
                     android:id="@+id/projectTimeLineView"
