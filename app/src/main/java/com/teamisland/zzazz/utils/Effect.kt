@@ -22,12 +22,12 @@ class Effect(
     /**
      * @return [startFrame]
      */
-    fun getStartFrame() = startFrame
+    fun getStartFrame(): Int = startFrame
 
     /**
      * @return [endFrame]
      */
-    fun getEndFrame() = endFrame
+    fun getEndFrame(): Int = endFrame
 
     /**
      * @param color to set color
@@ -126,17 +126,17 @@ class Effect(
         /**
          * @return [bitmap]
          */
-        fun getBitmap() = bitmap
+        fun getBitmap(): Bitmap = bitmap
 
         /**
          * @return [height]
          */
-        fun getHeight() = height
+        fun getHeight(): Int = height
 
         /**
          * @return [width]
          */
-        fun getWidth() = width
+        fun getWidth(): Int = width
 
         /**
          * Move x coordinate.

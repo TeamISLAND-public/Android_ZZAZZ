@@ -8,7 +8,6 @@
 
     <!--    string of trimmingactivity-->
     <string name="trim_title">Trim</string>
-    <string name="go_to_project_activity" translatable="false">done</string>
     <string name="go_to_the_main_page">Go to the main page.</string>
 
     <!--    string of projectactivity-->

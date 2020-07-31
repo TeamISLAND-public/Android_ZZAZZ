@@ -9,11 +9,11 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ProjectActivity
-import kotlinx.android.synthetic.main.activity_project.*
 
 /**
  * Override [RecyclerView.Adapter] for effect tab
  */
+@Suppress("StaticFieldLeak")
 class CustomAdapter(
     private val list: ArrayList<Int>,
     private val context: Context,

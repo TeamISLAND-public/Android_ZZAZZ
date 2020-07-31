@@ -73,7 +73,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private val strokePaint = Paint()
     private val trianglePaint = Paint()
     private val strokeBoxPaint = Paint()
-    val thumbs = arrayOf(Thumb(LEFT.index), Thumb(RIGHT.index))
+    val thumbs: Array<Thumb> = arrayOf(Thumb(LEFT.index), Thumb(RIGHT.index))
     private var firstRun: Boolean = true
     private var listeners = HashSet<OnRangeSeekBarListener>()
     private var maxWidth: Float = 0.toFloat()

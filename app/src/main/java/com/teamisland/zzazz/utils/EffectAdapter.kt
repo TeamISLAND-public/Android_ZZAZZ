@@ -14,8 +14,7 @@ class EffectAdapter : RecyclerView.Adapter<EffectAdapter.ViewHolder>() {
         LayoutInflater.from(view.context).inflate(
             R.layout.test, view, false
         )
-    ) {
-    }
+    )
 
     /**
      * Called when RecyclerView needs a new [ViewHolder] of the given type to represent
