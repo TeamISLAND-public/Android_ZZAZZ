@@ -152,34 +152,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/modify_effect"
-        android:layout_width="match_parent"
-        android:layout_height="125dp"
-        android:background="@color/Background"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/modify_tab"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:tabGravity="fill"
-            app:tabIndicatorColor="@null"
-            app:tabMode="scrollable"
-            app:tabSelectedTextColor="@color/White"
-            app:tabTextAppearance="@style/SmallText"
-            app:tabTextColor="@color/ContentsText80" />
-
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/modify_view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toTopOf="@id/modify_tab"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
