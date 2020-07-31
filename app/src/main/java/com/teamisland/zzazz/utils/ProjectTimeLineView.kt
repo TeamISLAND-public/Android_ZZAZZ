@@ -40,9 +40,7 @@ import kotlin.math.roundToInt
  * View for showing thumbnails of video by time.
  */
 open class ProjectTimeLineView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet?,
-    defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
     private val backgroundPaint = Paint()

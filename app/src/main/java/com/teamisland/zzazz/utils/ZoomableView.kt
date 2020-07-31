@@ -11,9 +11,7 @@ import kotlin.math.roundToInt
  * Zoomable view abstraction.
  */
 abstract class ZoomableView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet?,
-    defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     /**

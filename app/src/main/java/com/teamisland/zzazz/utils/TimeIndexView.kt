@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.view.View.getDefaultSize
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.UnitConverter.float2SP
 import java.util.*
@@ -15,9 +16,7 @@ import kotlin.math.pow
  * Time index view.
  */
 class TimeIndexView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet?,
-    defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
     private val paint = Paint()
