@@ -31,6 +31,7 @@ import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils.extractThumbnail
 import android.net.Uri
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
@@ -74,8 +75,13 @@ open class ProjectTimeLineView @JvmOverloads constructor(
 
     private fun getBitmap(viewHeight: Int) {
         bitmapList.clear()
-
-        val frameCount = GetVideoData.getFrameCount(context, videoUri).coerceAtLeast(1)
+        val frameCount: Int
+        try {
+            frameCount = GetVideoData.getFrameCount(context, videoUri).coerceAtLeast(1)
+        } catch (a: UninitializedPropertyAccessException) {
+            Log.w("ProjectTimeLineView", a.message ?: "")
+            return
+        }
         sampleMsQuantum =
             (videoLength * 90f / frameCount).roundToInt()
                 .coerceAtLeast(1)

@@ -61,8 +61,15 @@ class TimeIndexView @JvmOverloads constructor(
      * Draws the view.
      */
     override fun onDraw(canvas: Canvas) {
+        if (timeInterval <= 0) {
+            val temp = paint.color
+            paint.color = 0xffffc200.toInt()
+            canvas.drawText("timeInterval: $timeInterval", width / 2f, textSize + paddingTop, paint)
+            paint.color = temp
+            return
+        }
         val decimal = timeInterval < 1000
-        val currentTimeStep = currentTime / timeInterval * timeInterval
+        val currentTimeStep = currentTime - (currentTime % timeInterval)
 
         for (i in (currentTimeStep - timeInterval) downTo 0 step timeInterval) {
             val desiredXPos = getPositionOfTime(i)

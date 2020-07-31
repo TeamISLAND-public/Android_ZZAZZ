@@ -244,13 +244,14 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
+    internal var end = false
+
     // play video
     @SuppressLint("ClickableViewAccessibility")
     private fun playVideo() {
         video_display.requestFocus()
         startVideo()
 
-        var end = false
         player.addListener(object : Player.EventListener {
             /**
              * Called when the value returned from either [.getPlayWhenReady] or [ ][.getPlaybackState] changes.
@@ -441,6 +442,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
             }
             MotionEvent.ACTION_MOVE -> {
                 if (mode == 1) {
+                    if (end) end = false
                     posX2 = event.x
                     val delta =
                         (posX2 - posX1) / resources.displayMetrics.density / zoomLevel

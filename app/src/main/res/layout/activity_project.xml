@@ -99,6 +99,7 @@
                 android:id="@+id/video_frame"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal|top"
                 android:layout_weight="1">
 
                 <com.google.android.exoplayer2.ui.PlayerView
@@ -110,7 +111,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:use_controller="false"
-                    tools:foreground="@tools:sample/backgrounds/scenic[1]" >
+                    tools:foreground="@tools:sample/backgrounds/scenic[1]">
 
                 </com.google.android.exoplayer2.ui.PlayerView>
 
@@ -121,6 +122,7 @@
                 android:id="@+id/sliding_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_gravity="bottom|center_horizontal"
                 android:layout_weight="2"
                 android:background="@color/Background"
                 app:layout_constraintBottom_toBottomOf="parent"
