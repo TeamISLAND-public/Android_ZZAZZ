@@ -123,7 +123,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         zoomRange = Range(0.004f, upperLimit)
 
         projectTimeLineView.videoUri = uri
-
         setLength()
         setZoomLevel()
         setCurrentTime(0)

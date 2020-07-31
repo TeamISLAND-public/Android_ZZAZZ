@@ -14,7 +14,10 @@ class EffectRangeView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
-    private val effectRange: Array<Range<Int>> = arrayOf()
+    /**
+     * Array of ranges to be shown.
+     */
+    val effectRange: Array<Range<Int>> = arrayOf()
     private val paint = Paint()
 
     init {

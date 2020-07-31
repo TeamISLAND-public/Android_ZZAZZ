@@ -75,9 +75,12 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     private fun getBitmap(viewHeight: Int) {
         bitmapList.clear()
 
-        sampleMsQuantum = videoLength / (GetVideoData.getFrameCount(context, videoUri) / 90)
+        val frameCount = GetVideoData.getFrameCount(context, videoUri).coerceAtLeast(1)
+        sampleMsQuantum =
+            (videoLength * 90f / frameCount).roundToInt()
+                .coerceAtLeast(1)
 
-        val numThumbs = videoLength / sampleMsQuantum
+        val numThumbs = (frameCount / 90f).roundToInt().coerceAtLeast(1)
         BackgroundExecutor.cancelAll("", true)
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
