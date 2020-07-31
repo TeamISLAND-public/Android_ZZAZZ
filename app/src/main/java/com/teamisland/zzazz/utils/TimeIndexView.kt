@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.view.View.getDefaultSize
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.UnitConverter.float2SP
 import java.util.*

@@ -122,10 +122,9 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
 
-        timeIndexView.videoLength = videoDuration
-        projectTimeLineView.videoLength = videoDuration
         projectTimeLineView.videoUri = uri
 
+        setLength()
         setZoomLevel()
         setCurrentTime(0)
 
@@ -227,11 +226,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
         sliding_view.setOnTouchListener { _, event -> tabLayoutOnTouchEvent(event) }
         player.prepare(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri))
-    }
-
-    private fun setZoomLevel() {
-        projectTimeLineView.dpPerMs = zoomLevel
-        timeIndexView.dpPerMs = zoomLevel
     }
 
     /**
@@ -414,6 +408,16 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
     private fun setCurrentTime(i: Int) {
         projectTimeLineView.currentTime = i
         timeIndexView.currentTime = i
+    }
+
+    private fun setZoomLevel() {
+        projectTimeLineView.dpPerMs = zoomLevel
+        timeIndexView.dpPerMs = zoomLevel
+    }
+
+    private fun setLength() {
+        projectTimeLineView.videoLength = videoDuration
+        timeIndexView.videoLength = videoDuration
     }
 
     private var posX1 = 0f

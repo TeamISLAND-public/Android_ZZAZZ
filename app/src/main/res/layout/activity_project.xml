@@ -136,13 +136,21 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <com.teamisland.zzazz.ui.project.EffectRangeView
+                    android:id="@+id/effectRangeView"
+                    android:layout_width="0dp"
+                    android:layout_height="4dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/timeIndexView" />
+
                 <com.teamisland.zzazz.utils.ProjectTimeLineView
                     android:id="@+id/projectTimeLineView"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/timeIndexView" />
+                    app:layout_constraintTop_toBottomOf="@+id/effectRangeView" />
 
                 <ImageButton
                     android:id="@+id/project_play"
@@ -163,7 +171,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/projectTimeLineView" />
+                    app:layout_constraintTop_toBottomOf="@id/timeIndexView" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
