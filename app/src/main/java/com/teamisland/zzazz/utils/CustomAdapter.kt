@@ -58,8 +58,7 @@ class CustomAdapter(
                     it.isActivated = false
                     it.setBackgroundColor(Color.TRANSPARENT)
                 } else {
-                    activity.video_display.pause()
-                    activity.project_play.isActivated = false
+                    activity.stopVideo()
 
                     selectedEffect = it as ImageView
                     it.isActivated = true

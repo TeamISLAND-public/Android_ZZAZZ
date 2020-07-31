@@ -3,6 +3,8 @@ package com.teamisland.zzazz.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -22,12 +24,9 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.AddFragmentPagerAdapter
-import com.teamisland.zzazz.utils.Effect
+import com.teamisland.zzazz.utils.*
 import com.teamisland.zzazz.utils.GetVideoData.getDuration
 import com.teamisland.zzazz.utils.GetVideoData.getFrameCount
-import com.teamisland.zzazz.utils.ProjectAlertDialog
-import com.teamisland.zzazz.utils.SaveProjectActivity
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
@@ -140,6 +139,37 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
         tabInit()
 
+        (video_display.videoSurfaceView ?: return).setOnClickListener {
+            if (CustomAdapter.selectedEffect != null) {
+                stopVideo()
+                frame = (projectTimeLineView.currentTime * fps / 1000).toInt()
+
+                (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
+                (CustomAdapter.selectedEffect
+                    ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                CustomAdapter.selectedEffect = null
+
+                val bitmap = (getDrawable(R.drawable.load) as BitmapDrawable).bitmap
+                val point = Effect.Point(30, 30)
+                val dataArrayList: MutableList<Effect.Data> = mutableListOf()
+
+                // for test
+                for (i in 0 until 30) {
+                    dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
+                }
+                effectList.add(
+                    Effect(
+                        frame,
+                        frame + 29,
+                        0,
+                        0xFFFFFF,
+                        dataArrayList
+                    )
+                )
+                Log.d("effect add", "${effectList.size}")
+            }
+        }
+
         save_project.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -248,7 +278,10 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         videoBinder()
     }
 
-    private fun stopVideo() {
+    /**
+     * Stop video.
+     */
+    fun stopVideo() {
         player.playWhenReady = false
         project_play.isActivated = false
     }
