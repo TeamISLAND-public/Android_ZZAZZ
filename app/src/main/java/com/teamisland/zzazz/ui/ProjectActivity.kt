@@ -255,29 +255,21 @@ class ProjectActivity : AppCompatActivity() {
 
     // make effect tab
     private fun tabInit() {
-        effect_tab.addTab(
-            effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect)))
-        )
-        effect_tab.addTab(
-            effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect)))
-        )
-        effect_tab.addTab(
-            effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect)))
-        )
-        effect_tab.addTab(
-            effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_leg_effect)))
-        )
-        effect_tab.addTab(
-            effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_leg_effect)))
-        )
+        with (effect_tab){
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
+        }
 
-        val pagerAdapter =
-            FragmentPagerAdapter(
+        val addPagerAdapter =
+            AddFragmentPagerAdapter(
                 supportFragmentManager,
                 5,
                 this
             )
-        effect_view_pager.adapter = pagerAdapter
+        effect_view_pager.adapter = addPagerAdapter
         val tabView = effect_tab.getTabAt(0)
         (tabView ?: return).view.tab_text.typeface =
             ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)

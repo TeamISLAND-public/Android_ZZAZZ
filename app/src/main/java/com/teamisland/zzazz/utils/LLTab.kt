@@ -7,13 +7,19 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.teamisland.zzazz.R
 
-class Tab4 : Fragment() {
+/**
+ * Left Leg Tab
+ */
+class LLTab : Fragment() {
 
+    /**
+     * [Fragment.onCreateView]
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.tab4, container, false)
+        return inflater.inflate(R.layout.add_tab, container, false)
     }
 }

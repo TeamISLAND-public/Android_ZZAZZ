@@ -13,7 +13,7 @@ import com.teamisland.zzazz.ui.ProjectActivity
 /**
  * Override [Fragment] for each tab
  */
-class Tab1(private val activity: ProjectActivity) : Fragment() {
+class HeadEffect(private val activity: ProjectActivity) : Fragment() {
 
     /**
      * [Fragment.onCreateView]
@@ -23,7 +23,7 @@ class Tab1(private val activity: ProjectActivity) : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = layoutInflater.inflate(R.layout.tab1, container, false)
+        val view = layoutInflater.inflate(R.layout.add_tab, container, false)
         val listView = view.findViewById<RecyclerView>(R.id.effect_list)
 
         listView.layoutManager = GridLayoutManager(context, 1, GridLayoutManager.HORIZONTAL, false)

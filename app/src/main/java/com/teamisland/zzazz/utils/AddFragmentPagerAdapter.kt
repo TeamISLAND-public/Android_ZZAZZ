@@ -8,7 +8,7 @@ import com.teamisland.zzazz.ui.ProjectActivity
 /**
  * Override [FragmentStatePagerAdapter] to connect tab and fragment.
  */
-class FragmentPagerAdapter(
+class AddFragmentPagerAdapter(
     fragmentManager: FragmentManager,
     private val tabCount: Int,
     private val activity: ProjectActivity
@@ -19,12 +19,12 @@ class FragmentPagerAdapter(
      */
     override fun getItem(position: Int): Fragment {
         return when (position) {
-            0 -> Tab1(activity)
-            1 -> Tab2()
-            2 -> Tab3()
-            3 -> Tab4()
-            4 -> Tab5()
-            else -> Tab1(activity)
+            0 -> HeadEffect(activity)
+            1 -> LATab()
+            2 -> RATab()
+            3 -> LLTab()
+            4 -> RLTab()
+            else -> HeadEffect(activity)
         }
     }
 
