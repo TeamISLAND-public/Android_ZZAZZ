@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.View
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.UnitConverter.px2dp
+import kotlin.math.roundToInt
 
 /**
  * Zoomable view abstraction.
@@ -16,17 +17,13 @@ abstract class ZoomableView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     /**
-     * Reserved for child use.
-     */
-    protected var timeInterval: Int = 0
-
-    /**
      * Duration of the video in ms.
      */
     var videoLength: Int = 17860
 
     /**
      * Current time in ms. Note that current time will be located at the horizontal center of the view.
+     * @exception IllegalArgumentException When the input is out of range : [0, [videoLength]]
      */
     var currentTime: Int = 3770
         set(value) {
@@ -64,12 +61,54 @@ abstract class ZoomableView @JvmOverloads constructor(
         }
 
     private fun sync() {
-        updateTimeInterval()
+        updateOnSync()
         invalidate()
     }
 
     /**
-     * Updates [timeInterval].
+     * Range of pixels where this view can be drawn.
      */
-    protected abstract fun updateTimeInterval()
+    val pixelRange: ClosedFloatingPointRange<Float>
+        get() {
+            val start = width / 2 - currentTime * pxPerMs
+            val end = start + pixelInterval
+            return start..end
+        }
+
+    /**
+     * Range of valid time.
+     */
+    val timeRange: IntRange
+        get() {
+            return 0..videoLength
+        }
+
+    /**
+     * Returns desired position of the input time.
+     * @param ms Time to be converted.
+     * @return Float value of pixel.
+     * @exception IllegalArgumentException When the input is out of range.
+     */
+    fun getPositionOfTime(ms: Int): Float {
+        if (ms !in timeRange) throw IllegalArgumentException("Invalid time: out of range.")
+        return (width / 2f + (ms - currentTime) * pxPerMs).coerceIn(pixelRange)
+    }
+
+    /**
+     * Returns time equivalent to the input position.
+     * @param px Pixel to be converted.
+     * @return Int value of corresponding millisecond.
+     * @exception IllegalArgumentException When the input is out of range.
+     */
+    fun getTimeOfPosition(px: Float): Int {
+        if (px !in pixelRange) throw IllegalArgumentException("Invalid position: out of range.")
+        return (currentTime + (px - width / 2f) / pxPerMs).roundToInt().coerceIn(timeRange)
+    }
+
+    /**
+     * When timestamp and/or zooming level change, this view syncs its graphic with them.
+     * And before redrawing, this function will be executed.
+     * This function is called right before [invalidate].
+     */
+    protected open fun updateOnSync(): Unit = Unit
 }

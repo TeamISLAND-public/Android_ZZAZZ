@@ -24,6 +24,7 @@ class TimeIndexView @JvmOverloads constructor(
     private val textSize = float2SP(9f, resources)
     private val max = float2SP(120f, resources)
     private val downPower = 2f
+    private var timeInterval: Int = 0
 
     init {
         paint.typeface = resources.getFont(R.font.archivo_regular)
@@ -31,7 +32,7 @@ class TimeIndexView @JvmOverloads constructor(
         paint.color = 0x66ffffff
     }
 
-    override fun updateTimeInterval() {
+    override fun updateOnSync() {
         timeInterval = downPower.pow(floor(log(max, downPower) - log(pxPerMs, downPower))).toInt()
             .coerceAtLeast(1)
     }
@@ -62,19 +63,18 @@ class TimeIndexView @JvmOverloads constructor(
      * Draws the view.
      */
     override fun onDraw(canvas: Canvas) {
-        updateTimeInterval()
-        val originAt = -currentTime * pxPerMs + width / 2
         val decimal = timeInterval < 1000
         val currentTimeStep = currentTime / timeInterval * timeInterval
+
         for (i in (currentTimeStep - timeInterval) downTo 0 step timeInterval) {
-            val fl = i * pxPerMs + originAt
-            canvas.drawText(getTimeText(i, decimal), fl, textSize + paddingTop, paint)
-            if (fl < -max) break
+            val desiredXPos = getPositionOfTime(i)
+            canvas.drawText(getTimeText(i, decimal), desiredXPos, textSize + paddingTop, paint)
+            if (desiredXPos < -max) break
         }
         for (i in currentTimeStep..videoLength step timeInterval) {
-            val fl = i * pxPerMs + originAt
-            canvas.drawText(getTimeText(i, decimal), fl, textSize + paddingTop, paint)
-            if (fl > width + max) break
+            val desiredXPos = getPositionOfTime(i)
+            canvas.drawText(getTimeText(i, decimal), desiredXPos, textSize + paddingTop, paint)
+            if (desiredXPos > width + max) break
         }
     }
 }

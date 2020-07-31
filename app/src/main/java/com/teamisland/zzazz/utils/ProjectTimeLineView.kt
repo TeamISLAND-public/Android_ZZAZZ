@@ -45,17 +45,17 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
-    private val black = Paint()
+    private val backgroundPaint = Paint()
     internal var sampleMsQuantum = 50
 
     init {
-        black.color = resources.getColor(R.color.Background, null)
+        backgroundPaint.color = resources.getColor(R.color.Background, null)
     }
 
     /**
      * Uri of target video.
      */
-    var videoUri: Uri? = null
+    lateinit var videoUri: Uri
 
     /**
      * [View.onSizeChanged]
@@ -66,17 +66,18 @@ open class ProjectTimeLineView @JvmOverloads constructor(
             getBitmap(h)
     }
 
-    override fun updateTimeInterval() {
+    override fun updateOnSync() {
         timeInterval = (videoLength * currentTime / pixelInterval).toInt()
     }
 
     internal val bitmapList = ArrayList<Bitmap?>()
 
+    private var timeInterval: Int = 0
+
     private fun getBitmap(viewHeight: Int) {
-        if (videoUri == null) return
         bitmapList.clear()
 
-        sampleMsQuantum = videoLength / (GetVideoData.getFrameCount(context, videoUri!!) / 90)
+        sampleMsQuantum = videoLength / (GetVideoData.getFrameCount(context, videoUri) / 90)
 
         val numThumbs = videoLength / sampleMsQuantum
         BackgroundExecutor.cancelAll("", true)
@@ -113,8 +114,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
      */
     override fun onDraw(canvas: Canvas) {
         if (bitmapList.size == 0) return
-        updateTimeInterval()
-        val originLocation = -currentTime * pxPerMs + width / 2
+        val originLocation = getPositionOfTime(0)
 
         val fl = sampleMsQuantum * pxPerMs
 
@@ -134,7 +134,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
             0f,
             endPoint + height,
             height.toFloat(),
-            black
+            backgroundPaint
         )
     }
 }
