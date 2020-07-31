@@ -47,17 +47,24 @@ class CustomAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.imageView.setImageResource(list[position])
         holder.imageView.setOnClickListener {
-            if (it.isActivated) {
-                selectedEffect = null
-                it.isActivated = false
-                it.setBackgroundColor(Color.TRANSPARENT)
-            } else {
-                activity.video_display.pause()
-                activity.project_play.isActivated = false
-
+            if (selectedEffect != null && selectedEffect != it) {
+                (selectedEffect ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
                 selectedEffect = it as ImageView
                 it.isActivated = true
                 it.setBackgroundColor(Color.parseColor("#8E359C"))
+            } else {
+                if (it.isActivated) {
+                    selectedEffect = null
+                    it.isActivated = false
+                    it.setBackgroundColor(Color.TRANSPARENT)
+                } else {
+                    activity.video_display.pause()
+                    activity.project_play.isActivated = false
+
+                    selectedEffect = it as ImageView
+                    it.isActivated = true
+                    it.setBackgroundColor(Color.parseColor("#8E359C"))
+                }
             }
         }
     }
