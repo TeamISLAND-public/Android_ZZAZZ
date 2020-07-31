@@ -1,16 +1,11 @@
 package com.teamisland.zzazz.ui
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import android.provider.MediaStore
-import android.view.animation.AnimationUtils
-import android.widget.Toast
-import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.GetVideoData
-import com.teamisland.zzazz.utils.IntroAlertDialog
 import kotlinx.android.synthetic.main.activity_intro.*
 
 /**
@@ -20,38 +15,11 @@ import kotlinx.android.synthetic.main.activity_intro.*
  */
 class IntroActivity : AppCompatActivity() {
 
-    private fun dispatchTakeVideoIntent() {
-        Intent(MediaStore.ACTION_VIDEO_CAPTURE).also { takeVideoIntent ->
-            takeVideoIntent.resolveActivity(
-                packageManager
-            )?.also {
-                startActivityForResult(
-                    takeVideoIntent,
-                    REQUEST_VIDEO_CAPTURE
-                )
-            }
-        }
-    }
-
-    private fun dispatchGetVideoIntent() {
-        Intent(
-            Intent.ACTION_OPEN_DOCUMENT,
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        ).also { getVideoIntent ->
-            getVideoIntent.type = "video/*"
-            getVideoIntent.resolveActivity(packageManager)?.also {
-                startActivityForResult(
-                    Intent.createChooser(getVideoIntent, "Select Video"),
-                    REQUEST_VIDEO_SELECT
-                )
-            }
-        }
-    }
-
-    private fun warnAndRun(run_function: () -> (Unit)) {
-        val builder = IntroAlertDialog(this@IntroActivity, run_function)
-        builder.create()
-        builder.show()
+    companion object {
+        /**
+         * The number of pages in Intro Activity
+         */
+        const val NUM_PAGES: Int = 2
     }
 
     /**
@@ -61,48 +29,33 @@ class IntroActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intro)
 
-        val fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
-        take_video_button.startAnimation(fadeIn)
-        take_video_from_gallery_button.startAnimation(fadeIn)
 
-        take_video_button.setOnClickListener { warnAndRun { dispatchTakeVideoIntent() } }
-        take_video_from_gallery_button.setOnClickListener { warnAndRun { dispatchGetVideoIntent() } }
+        val pagerAdapter = IntroFragmentPagerAdapter(this)
+        intro_view_pager.adapter = pagerAdapter
     }
 
     /**
-     * Retrieve uri from request. Checks whether the uri is valid under the restrictions.
+     * Override [AppCompatActivity.onBackPressed]
      */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode != Activity.RESULT_OK) return
-
-        val videoUri = (data ?: return).data ?: return
-
-        val videoFps = GetVideoData.getFPS(this@IntroActivity, videoUri)
-        if (videoFps > resources.getInteger(R.integer.fps_limit)) {
-            Toast.makeText(this, getString(R.string.fps_exceeded), LENGTH_LONG).show()
-            return
-        }
-
-        val videoDuration = GetVideoData.getDuration(this@IntroActivity, videoUri)
-        if (videoDuration > resources.getInteger(R.integer.length_limit) * 1000) {
-            Toast.makeText(this, getString(R.string.length_exceeded), LENGTH_LONG).show()
-            //return
-        }
-        Intent(this, TrimmingActivity::class.java).also {
-            it.putExtra(VIDEO_URI, videoUri)
-            startActivity(it)
+    override fun onBackPressed() {
+        if (intro_view_pager.currentItem == 0) {
+            super.onBackPressed()
+        } else {
+            intro_view_pager.currentItem--
         }
     }
 
-    companion object {
-        /**
-         * Uri of the video retrieved.
-         */
-        const val VIDEO_URI: String = "pre_trim_video_uri"
+    private inner class IntroFragmentPagerAdapter(fragmentActivity: FragmentActivity) :
+        FragmentStateAdapter(fragmentActivity) {
+        override fun getItemCount(): Int = NUM_PAGES
 
-        private const val REQUEST_VIDEO_CAPTURE = 1
-        private const val REQUEST_VIDEO_SELECT = 2
+        override fun createFragment(position: Int): Fragment {
+            return when (position) {
+                0 -> IntroLoadActivity(packageManager)
+                1 -> IntroProjectActivity()
+                else -> IntroLoadActivity(packageManager)
+            }
+        }
+
     }
 }
