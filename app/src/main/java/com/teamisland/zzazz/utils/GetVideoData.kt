@@ -32,6 +32,9 @@ object GetVideoData {
         return videoFps
     }
 
+    /**
+     * Returns the number of frames in target video.
+     */
     fun getFrameCount(context: Context, uri: Uri): Int {
         val mediaMediaExtractor = MediaMetadataRetriever()
         mediaMediaExtractor.setDataSource(context, uri)

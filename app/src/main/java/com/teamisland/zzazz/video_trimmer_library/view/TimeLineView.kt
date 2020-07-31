@@ -66,10 +66,7 @@ open class TimeLineView @JvmOverloads constructor(
 
     private fun getBitmap(viewWidth: Int, viewHeight: Int) {
         // Set thumbnail properties (Thumbs are squares)
-        if (videoUri == null) {
-            println("Error: videoUri is null")
-            return
-        }
+        if (videoUri == null) return
         val numThumbs = ceil(viewWidth.toDouble() / viewHeight).toInt()
         bitmapList.clear()
         if (isInEditMode) {
