@@ -19,7 +19,7 @@ class IntroActivity : AppCompatActivity() {
         /**
          * The number of pages in Intro Activity
          */
-        const val NUM_PAGES = 2
+        const val NUM_PAGES: Int = 2
     }
 
     /**

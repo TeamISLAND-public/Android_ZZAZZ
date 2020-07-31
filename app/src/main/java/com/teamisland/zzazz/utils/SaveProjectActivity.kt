@@ -18,7 +18,7 @@ class SaveProjectActivity : AppCompatActivity() {
         /**
          * Name of project
          */
-        const val PROJECT_NAME = "NAME"
+        const val PROJECT_NAME: String = "NAME"
     }
 
     /**

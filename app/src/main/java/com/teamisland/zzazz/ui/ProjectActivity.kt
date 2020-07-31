@@ -49,7 +49,7 @@ class ProjectActivity : AppCompatActivity() {
         /**
          * Check the project is saved
          */
-        const val IS_SAVED = 1
+        const val IS_SAVED: Int = 1
     }
 
     /**
