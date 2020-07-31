@@ -2,7 +2,6 @@
 <resources>
 <!--    TODO translating in to korean-->
     <!--    string of introactivity-->
-    <string name="take_video">CAMERA</string>
     <string name="select_video">LOAD</string>
     <string name="video_restrictions">video length should not over = %d ,length = %d.</string>
     <string name="alert_2">see this message no more</string>
@@ -15,9 +14,6 @@
     <!--    string of projectactivity-->
     <string name="project_title">PROJECT</string>
     <string name="export">EXPORT</string>
-    <string name="add_effect">ADD EFFECT</string>
-    <string name="effect_back">Back</string>
-    <string name="effect_done">Done</string>
     <string name="head_effect">Head</string>
     <string name="left_arm_effect">Left arm</string>
     <string name="right_arm_effect">Right arm</string>
@@ -34,18 +30,12 @@
     <string name="share_text">Share</string>
     <string name="loading">Loading</string>
     <string name="loading_text">Saving video in user\'s device</string>
-    <string name="file_name">ZZAZZ</string>
     <string name="default_name">Project</string>
 
     <!--    string of alert-->
-    <string name="video_select">Video Selection…</string>
     <string name="fps_exceeded">fps exceeded</string>
     <string name="length_exceeded">length exceeded</string>
-    <string name="short_seconds">s</string>
-    <string name="play_indicator">Play Indicator</string>
-    <string name="video_saved_at">Video has been saved at %s</string>
     <string name="choose_from_gallery">Choose From Gallery</string>
     <string name="one_frame_advance">+1 프레임</string>
     <string name="one_frame_retreat">-1 프레임</string>
-    <string name="trimming_error">오류.</string>
 </resources>

@@ -76,6 +76,6 @@ class CustomAdapter(
         /**
          * Effect Image View
          */
-        val imageView: ImageView = itemView.findViewById<ImageView>(R.id.item)!!
+        val imageView: ImageView = itemView.findViewById(R.id.item)!!
     }
 }
