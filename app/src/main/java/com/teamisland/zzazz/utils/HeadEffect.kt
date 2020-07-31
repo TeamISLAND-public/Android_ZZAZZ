@@ -28,7 +28,7 @@ class HeadEffect(private val activity: ProjectActivity) : Fragment() {
         val listView = view.findViewById<RecyclerView>(R.id.effect_list)
 
         val list = ArrayList<Int>()
-        for (i in 0 until 100)
+        for (i in 0 until 10)
             list.add(R.drawable.check_white)
 
         val adapter = CustomAdapter(list, context ?: return null, activity)
