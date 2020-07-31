@@ -8,11 +8,12 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.ui.ProjectActivity
 
 /**
  * Override [Fragment] for each tab
  */
-class Tab1(private val frame: Int) : Fragment() {
+class Tab1(private val activity: ProjectActivity) : Fragment() {
 
     /**
      * [Fragment.onCreateView]
@@ -31,19 +32,11 @@ class Tab1(private val frame: Int) : Fragment() {
         for (i in 0 until 100)
             list.add(R.drawable.check_white)
 
-        val adapter = CustomAdapter(list, context!!, frame)
+        val adapter = CustomAdapter(list, context ?: return null, activity)
         val decoration = ItemDecoration()
         listView.adapter = adapter
         listView.addItemDecoration(decoration)
 
         return view
-    }
-
-    private abstract class OnClickItem {
-
-        companion object ClickItem : View.OnClickListener {
-            override fun onClick(v: View?) {
-            }
-        }
     }
 }

@@ -1,8 +1,7 @@
 package com.teamisland.zzazz.utils
 
 import android.content.Context
-import android.graphics.drawable.BitmapDrawable
-import android.util.Log
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +9,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ProjectActivity
+import kotlinx.android.synthetic.main.activity_project.*
 
 /**
  * Override [RecyclerView.Adapter] for effect tab
@@ -17,8 +17,15 @@ import com.teamisland.zzazz.ui.ProjectActivity
 class CustomAdapter(
     private val list: ArrayList<Int>,
     private val context: Context,
-    private val frame: Int
+    private val activity: ProjectActivity
 ) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
+
+    companion object {
+        /**
+         * Selected effect
+         */
+        var selectedEffect: ImageView? = null
+    }
 
     /**
      * [RecyclerView.Adapter.onCreateViewHolder]
@@ -40,24 +47,18 @@ class CustomAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.imageView.setImageResource(list[position])
         holder.imageView.setOnClickListener {
-            val bitmap = (context.resources.getDrawable(R.drawable.load) as BitmapDrawable).bitmap
-            val point = Effect.Point(30, 30)
-            val dataArrayList: MutableList<Effect.Data> = mutableListOf()
+            if (it.isActivated) {
+                selectedEffect = null
+                it.isActivated = false
+                it.setBackgroundColor(Color.TRANSPARENT)
+            } else {
+                activity.video_display.pause()
+                activity.project_play.isActivated = false
 
-            // for test
-            for (i in 0 until 30) {
-                dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
+                selectedEffect = it as ImageView
+                it.isActivated = true
+                it.setBackgroundColor(Color.parseColor("#8E359C"))
             }
-            ProjectActivity.tempList.add(
-                Effect(
-                    frame,
-                    frame + 29,
-                    0,
-                    0xFFFFFF,
-                    dataArrayList
-                )
-            )
-            Log.d("temporary add", "${ProjectActivity.tempList.size}")
         }
     }
 

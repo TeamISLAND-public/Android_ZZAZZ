@@ -3,6 +3,8 @@ package com.teamisland.zzazz.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
@@ -17,12 +19,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.tabs.TabLayout
-import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.Effect
-import com.teamisland.zzazz.utils.FragmentPagerAdapter
-import com.teamisland.zzazz.utils.ProjectAlertDialog
-import com.teamisland.zzazz.utils.SaveProjectActivity
+import com.teamisland.zzazz.utils.*
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlin.properties.Delegates
@@ -47,11 +45,6 @@ class ProjectActivity : AppCompatActivity() {
          * List of effect
          */
         var effectList: MutableList<Effect> = mutableListOf()
-
-        /**
-         * Temporary list of effect
-         */
-        var tempList: MutableList<Effect> = mutableListOf()
 
         /**
          * Check the project is saved
@@ -99,63 +92,61 @@ class ProjectActivity : AppCompatActivity() {
 //        Log.d("time", "end")
 //        mediaMetadataRetriever.release()
 //        video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
+
+        fadeOut.startOffset = 1000
+        fadeOut.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(animation: Animation?) {
+                project_play.visibility = View.VISIBLE
+            }
+
+            // button needs to be vanished
+            override fun onAnimationEnd(animation: Animation?) {
+                project_play.visibility = View.GONE
+            }
+
+            override fun onAnimationStart(animation: Animation?) {
+                project_play.visibility = View.VISIBLE
+            }
+        })
+        fadeOut.duration = 500
+
+        video_display.setOnClickListener {
+            if (CustomAdapter.selectedEffect != null) {
+                video_display.pause()
+                project_play.isActivated = false
+                frame = (video_display.currentPosition * fps / 1000).toInt()
+
+                (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
+                (CustomAdapter.selectedEffect
+                    ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                CustomAdapter.selectedEffect = null
+
+                val bitmap = (getDrawable(R.drawable.load) as BitmapDrawable).bitmap
+                val point = Effect.Point(30, 30)
+                val dataArrayList: MutableList<Effect.Data> = mutableListOf()
+
+                // for test
+                for (i in 0 until 30) {
+                    dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
+                }
+                effectList.add(
+                    Effect(
+                        frame,
+                        frame + 29,
+                        0,
+                        0xFFFFFF,
+                        dataArrayList
+                    )
+                )
+                Log.d("effect add", "${effectList.size}")
+            } else {
+                project_play.startAnimation(fadeOut)
+            }
+        }
+
         playBitmap()
 
-        slide.anchorPoint = 1F
-        slide.getChildAt(1).setOnClickListener(null)
-        slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
-        slide.isTouchEnabled = false
-
         tabInit()
-
-        add_effect_button.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    add_effect_button.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    add_effect_button.alpha = 1F
-                    slide.panelState = SlidingUpPanelLayout.PanelState.ANCHORED
-                    project_title.text = getString(R.string.add_effect)
-                    frame = (video_display.currentPosition * fps).toInt()
-//                    video.pause()
-                }
-            }
-            true
-        }
-
-        effect_back.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    effect_back.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    onBackPressed()
-                }
-            }
-            true
-        }
-
-        effect_done.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    effect_done.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    effect_done.alpha = 1F
-                    slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
-                    project_title.text = getString(R.string.project_title)
-                    effectList.addAll(tempList)
-                    sortEffect()
-                    tempList.clear()
-                    Log.d("add", "${effectList.size}")
-                }
-            }
-            true
-        }
 
         save_project.setOnTouchListener { _, event ->
             when (event.action) {
@@ -203,17 +194,9 @@ class ProjectActivity : AppCompatActivity() {
      * [AppCompatActivity.onBackPressed]
      */
     override fun onBackPressed() {
-        if(slide.panelState == SlidingUpPanelLayout.PanelState.EXPANDED) {
-            effect_back.alpha = 1F
-            slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
-            project_title.text = getString(R.string.project_title)
-            tempList.clear()
-            Log.d("add", "${effectList.size}")
-        } else {
-            val builder = ProjectAlertDialog(this) { super.onBackPressed() }
-            builder.create()
-            builder.show()
-        }
+        val builder = ProjectAlertDialog(this) { super.onBackPressed() }
+        builder.create()
+        builder.show()
     }
 
     // play video
@@ -226,29 +209,10 @@ class ProjectActivity : AppCompatActivity() {
         project_play.isActivated = true
 //        video.seekTo(0)
 //        video.start()
-        fadeOut.startOffset = 1000
-        fadeOut.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationRepeat(animation: Animation?) {
-                project_play.visibility = View.VISIBLE
-            }
-
-            // button needs to be vanished
-            override fun onAnimationEnd(animation: Animation?) {
-                project_play.visibility = View.GONE
-            }
-
-            override fun onAnimationStart(animation: Animation?) {
-                project_play.visibility = View.VISIBLE
-            }
-        })
-        fadeOut.duration = 500
 
         var end = false
         project_play.startAnimation(fadeOut)
 
-        video_display.setOnClickListener {
-            project_play.startAnimation(fadeOut)
-        }
         video_display.setOnCompletionListener {
             project_play.isActivated = false
             end = true
@@ -311,11 +275,11 @@ class ProjectActivity : AppCompatActivity() {
             FragmentPagerAdapter(
                 supportFragmentManager,
                 5,
-                frame
+                this
             )
         effect_view_pager.adapter = pagerAdapter
         val tabView = effect_tab.getTabAt(0)
-        tabView!!.view.tab_text.typeface =
+        (tabView ?: return).view.tab_text.typeface =
             ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
         tabView.view.tab_text.setTextColor(
             ContextCompat.getColor(
@@ -325,7 +289,7 @@ class ProjectActivity : AppCompatActivity() {
         )
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                effect_view_pager.currentItem = tab!!.position
+                effect_view_pager.currentItem = (tab ?: return).position
                 tab.view.tab_text.typeface =
                     ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
                 tab.view.tab_text.setTextColor(
@@ -337,7 +301,7 @@ class ProjectActivity : AppCompatActivity() {
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
-                tab!!.view.tab_text.typeface =
+                (tab ?: return).view.tab_text.typeface =
                     ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
                 tab.view.tab_text.setTextColor(
                     ContextCompat.getColor(
@@ -375,44 +339,6 @@ class ProjectActivity : AppCompatActivity() {
                 val projectName = data?.getStringExtra(SaveProjectActivity.PROJECT_NAME)
                 project_title.text = projectName
                 saveProject()
-            }
-        }
-    }
-
-    private fun sortEffect() {
-//        val effect = effectList[start]
-//        var left = start + 1
-//        var right = end
-//
-//        while (left <= right) {
-//            while (effectList[left].getStartFrame() < effect.getStartFrame() || (effectList[left].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() < effect.getEndFrame())) {
-//                left++
-//            }
-//            while (effectList[right].getStartFrame() > effect.getStartFrame() || (effectList[right].getStartFrame() == effect.getStartFrame()) and (effectList[left].getEndFrame() > effect.getEndFrame())) {
-//                right--
-//            }
-//            if (left <= right) {
-//                val temp = effectList[left]
-//                effectList[left] = effectList[right]
-//                effectList[right] = temp
-//            }
-//        }
-//
-//        if(start < end) {
-//            val temp = effectList[start]
-//            effectList[start] = effectList[right]
-//            effectList[right] = temp
-//
-//            sortEffect(start, right - 1)
-//            sortEffect(right + 1, end)
-//        }
-        for (i in 0 until effectList.size) {
-            for (j in i until effectList.size) {
-                if ((effectList[j].getStartFrame() < effectList[i].getStartFrame() || (effectList[j].getStartFrame() == effectList[i].getStartFrame()) and (effectList[j].getEndFrame() < effectList[i].getEndFrame()))) {
-                    val effect = effectList[i]
-                    effectList[i] = effectList[j]
-                    effectList[j] = effect
-                }
             }
         }
     }
