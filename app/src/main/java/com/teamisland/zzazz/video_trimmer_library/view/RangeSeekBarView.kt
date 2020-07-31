@@ -288,8 +288,10 @@ open class RangeSeekBarView @JvmOverloads constructor(
         val rightPosStart = thumbs[RIGHT.index].pos + thumbWidth
         val rightPosEnd = thumbs[RIGHT.index].pos + thumbWidth * 2
 
-        strokePaint.color = 0xff474747.toInt()
-        strokeBoxPaint.color = 0xff474747.toInt()
+        val gray = 0xff474747.toInt()
+        val white = 0xffe6e6e6.toInt()
+        strokePaint.color = gray
+        strokeBoxPaint.color = gray
 
         //shadowed selector
         canvas.drawRect(
@@ -317,13 +319,13 @@ open class RangeSeekBarView @JvmOverloads constructor(
         )
 
         if (thumbs[LEFT.index].value == 0 && thumbs[RIGHT.index].value == videoFrameCount - 1) {
-            strokePaint.color = 0xff474747.toInt()
-            strokeBoxPaint.color = 0xff474747.toInt()
-            trianglePaint.color = 0xfffdfdfd.toInt()
+            strokePaint.color = gray
+            strokeBoxPaint.color = gray
+            trianglePaint.color = white
         } else {
-            strokePaint.color = 0xffe6e6e6.toInt()
-            strokeBoxPaint.color = 0xffe6e6e6.toInt()
-            trianglePaint.color = 0xff070707.toInt()
+            strokePaint.color = white
+            strokeBoxPaint.color = white
+            trianglePaint.color = gray
         }
 
         //selector
