@@ -19,6 +19,7 @@ class ItemDecoration : RecyclerView.ItemDecoration() {
         state: RecyclerView.State
     ) {
         outRect.left = UnitConverter.float2DP(16F, view.resources).toInt()
+        outRect.top = UnitConverter.float2DP(10F, view.resources).toInt()
         view.layoutParams.width = UnitConverter.float2DP(64F, view.resources).toInt()
         view.layoutParams.height = UnitConverter.float2DP(64F, view.resources).toInt()
     }
