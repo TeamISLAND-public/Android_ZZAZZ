@@ -21,6 +21,7 @@ package com.teamisland.zzazz.video_trimmer_library.utils
 import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.max
 
 internal object BackgroundExecutor {
     private val DEFAULT_EXECUTOR: Executor = Executors.newScheduledThreadPool(2 * Runtime.getRuntime().availableProcessors())
@@ -135,7 +136,7 @@ internal object BackgroundExecutor {
             val task = TASKS[i]
             if (id == task.id) {
                 if (task.future != null) {
-                    task.future!!.cancel(mayInterruptIfRunning)
+                    (task.future ?: return).cancel(mayInterruptIfRunning)
                     if (!task.managed.getAndSet(true)) {
                         /*
                          * the task has been submitted to the executor, but its
@@ -220,7 +221,7 @@ internal object BackgroundExecutor {
                     if (next != null) {
                         if (next.remainingDelay != 0L) {
                             /* the delay may not have elapsed yet */
-                            next.remainingDelay = Math.max(0L, targetTimeMillis - System.currentTimeMillis())
+                            next.remainingDelay = max(0L, targetTimeMillis - System.currentTimeMillis())
                         }
                         /* a task having the same serial was queued, execute it */
                         execute(next)

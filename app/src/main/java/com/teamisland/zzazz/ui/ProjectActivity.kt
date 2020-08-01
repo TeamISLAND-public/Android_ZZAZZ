@@ -3,6 +3,8 @@ package com.teamisland.zzazz.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -21,14 +23,10 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.google.android.material.tabs.TabLayout
-import com.sothree.slidinguppanel.SlidingUpPanelLayout
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.Effect
-import com.teamisland.zzazz.utils.FragmentPagerAdapter
+import com.teamisland.zzazz.utils.*
 import com.teamisland.zzazz.utils.GetVideoData.getDuration
 import com.teamisland.zzazz.utils.GetVideoData.getFrameCount
-import com.teamisland.zzazz.utils.ProjectAlertDialog
-import com.teamisland.zzazz.utils.SaveProjectActivity
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
@@ -76,17 +74,16 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
     private var fps: Float = 0f
 
     private var videoDuration = 0
+    //    private lateinit var video: BitmapVideo
+//    private lateinit var bitmapList: List<Bitmap>
+//    private var startFrame by Delegates.notNull<Int>()
+//    private var endFrame by Delegates.notNull<Int>()
 
     companion object {
         /**
          * List of effect
          */
         var effectList: MutableList<Effect> = mutableListOf()
-
-        /**
-         * Temporary list of effect
-         */
-        var tempList: MutableList<Effect> = mutableListOf()
 
         /**
          * Check the project is saved
@@ -114,6 +111,10 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
         job = Job()
 
+        //        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
+//        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
+//        bitmapList = ArrayList(endFrame - startFrame + 1)
+
         uri = intent.getParcelableExtra(TrimmingActivity.VIDEO_URI)
         videoDuration = getDuration(this, uri)
         fps = getFrameCount(this, uri) / (videoDuration / 1000f)
@@ -122,6 +123,13 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
 
+        //        Log.d("time", "start")
+//        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
+//        Log.d("time", "end")
+//        mediaMetadataRetriever.release()
+//        video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
+        playVideo()
+
         projectTimeLineView.videoUri = uri
         setLength()
         setZoomLevel()
@@ -129,60 +137,37 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
         playVideo()
 
-        slide.anchorPoint = 1F
-        slide.getChildAt(1).setOnClickListener(null)
-        slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
-        slide.isTouchEnabled = false
-
         tabInit()
 
-        add_effect_button.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    add_effect_button.alpha = 0.5F
-                }
+        (video_display.videoSurfaceView ?: return).setOnClickListener {
+            if (CustomAdapter.selectedEffect != null) {
+                stopVideo()
+                frame = (projectTimeLineView.currentTime * fps / 1000).toInt()
 
-                MotionEvent.ACTION_UP -> {
-                    add_effect_button.alpha = 1F
-                    slide.panelState = SlidingUpPanelLayout.PanelState.ANCHORED
-                    project_title.text = getString(R.string.add_effect)
-                    frame = (player.currentPosition * fps).toInt()
-//                    video.pause()
+                (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
+                (CustomAdapter.selectedEffect
+                    ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                CustomAdapter.selectedEffect = null
+
+                val bitmap = (getDrawable(R.drawable.load) as BitmapDrawable).bitmap
+                val point = Effect.Point(30, 30)
+                val dataArrayList: MutableList<Effect.Data> = mutableListOf()
+
+                // for test
+                for (i in 0 until 30) {
+                    dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
                 }
+                effectList.add(
+                    Effect(
+                        frame,
+                        frame + 29,
+                        0,
+                        0xFFFFFF,
+                        dataArrayList
+                    )
+                )
+                Log.d("effect add", "${effectList.size}")
             }
-            true
-        }
-
-        effect_back.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    effect_back.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    onBackPressed()
-                }
-            }
-            true
-        }
-
-        effect_done.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    effect_done.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    effect_done.alpha = 1F
-                    slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
-                    project_title.text = getString(R.string.project_title)
-                    effectList.addAll(tempList)
-                    sortEffect()
-                    tempList.clear()
-                    Log.d("add", "${effectList.size}")
-                }
-            }
-            true
         }
 
         save_project.setOnTouchListener { _, event ->
@@ -212,6 +197,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
                     gotoExportActivity.alpha = 1F
                     stopVideo()
                     Intent(this, ExportActivity::class.java).apply {
+//                        putExtra("URI", exportProject())
                         putExtra("URI", uri)
                     }.also {
                         startActivity(it)
@@ -231,17 +217,9 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
      * [AppCompatActivity.onBackPressed]
      */
     override fun onBackPressed() {
-        if (slide.panelState == SlidingUpPanelLayout.PanelState.EXPANDED) {
-            effect_back.alpha = 1F
-            slide.panelState = SlidingUpPanelLayout.PanelState.HIDDEN
-            project_title.text = getString(R.string.project_title)
-            tempList.clear()
-            Log.d("add", "${effectList.size}")
-        } else {
-            val builder = ProjectAlertDialog(this) { super.onBackPressed() }
-            builder.create()
-            builder.show()
-        }
+        val builder = ProjectAlertDialog(this) { super.onBackPressed() }
+        builder.create()
+        builder.show()
     }
 
     internal var end = false
@@ -300,7 +278,10 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         videoBinder()
     }
 
-    private fun stopVideo() {
+    /**
+     * Stop video.
+     */
+    fun stopVideo() {
         player.playWhenReady = false
         project_play.isActivated = false
     }
@@ -318,18 +299,23 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
     // make effect tab
     private fun tabInit() {
-        with(effect_tab) {
-            addTab(newTab().setCustomView(createTabView(getString(R.string.head_effect))))
-            addTab(newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
-            addTab(newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
-            addTab(newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
-            addTab(newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
+        with (effect_tab){
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
         }
 
-        val pagerAdapter = FragmentPagerAdapter(supportFragmentManager, 5, frame)
-        effect_view_pager.adapter = pagerAdapter
-        val tabView = effect_tab.getTabAt(0) ?: throw NoSuchElementException("No tab at index 0.")
-        tabView.view.tab_text.typeface =
+        val addPagerAdapter =
+            AddFragmentPagerAdapter(
+                supportFragmentManager,
+                5,
+                this
+            )
+        effect_view_pager.adapter = addPagerAdapter
+        val tabView = effect_tab.getTabAt(0)
+        (tabView ?: return).view.tab_text.typeface =
             ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
         tabView.view.tab_text.setTextColor(
             ContextCompat.getColor(
@@ -463,4 +449,33 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun distance(event: MotionEvent): Float = abs(event.getX(0) - event.getX(1))
+
+    // export project to export activity
+//    @Suppress("BlockingMethodInNonBlockingContext")
+//    @SuppressLint("SimpleDateFormat")
+//    private fun exportProject(): Uri {
+//        val time = System.currentTimeMillis()
+//        val date = Date(time)
+//        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
+//        val filename = nameFormat.format(date)
+//        val file = filesDir.absoluteFile.path + "/$filename.mp4"
+//        val output = FileOutputStream(File(file))
+//
+//        var frame = 0
+//        Thread {
+//            while (frame <= endFrame - startFrame + 1) {
+//                 convert bitmap to bytes
+//                val size = bitmapList[frame].rowBytes * bitmapList[frame].height
+//                val bytes = ByteBuffer.allocate(size)
+//                bitmapList[frame++].copyPixelsToBuffer(bytes)
+//                val byteArray = ByteArray(size)
+//                 error
+//                bytes.get(byteArray, 0, byteArray.size)
+//
+//                output.write(byteArray)
+//            }
+//        }.start()
+//
+//        return Uri.parse(file)
+//    }
 }

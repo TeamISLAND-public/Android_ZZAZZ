@@ -331,9 +331,9 @@ class ExportActivity : AppCompatActivity() {
         val outputUri =
             contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
 
-        val parcelFileDescriptor = contentResolver.openFileDescriptor(outputUri!!, "w", null)
+        val parcelFileDescriptor = contentResolver.openFileDescriptor(outputUri ?: return, "w", null)
 
-        val output = FileOutputStream(parcelFileDescriptor!!.fileDescriptor)
+        val output = FileOutputStream((parcelFileDescriptor ?: return).fileDescriptor)
 
         val data = ByteArray(1024)
         var total = 0

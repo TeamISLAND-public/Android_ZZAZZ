@@ -81,7 +81,7 @@ open class TimeLineView @JvmOverloads constructor(
             return
         }
         bitmapList.clear()
-        val path = TrimmingActivity.getPath(context, videoUri!!)
+        val path = TrimmingActivity.getPath(context, videoUri ?: return)
         BackgroundExecutor.cancelAll("", true)
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
@@ -110,7 +110,7 @@ open class TimeLineView @JvmOverloads constructor(
                             )
                             3 -> FFmpegDelegate.getFrameAtMilliSeconds(
                                 context,
-                                path!!,
+                                path ?: return,
                                 (i * interval).toInt() / 1000,
                                 viewHeight
                             )

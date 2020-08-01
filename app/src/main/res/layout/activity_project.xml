@@ -1,207 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/slide"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="bottom"
-    app:umanoDragView="@id/effect_tab"
-    app:umanoOverlay="false"
+    android:layout_height="match_parent"
+    android:background="@color/Background"
     tools:context=".ui.ProjectActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/Background">
+        android:id="@+id/constraintLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@null"
+            android:contentDescription="@string/go_back"
+            android:padding="8dp"
+            android:src="@drawable/back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/save_project"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:background="@null"
+            android:contentDescription="@string/save_the_project"
+            android:gravity="center"
+            android:padding="8dp"
+            android:src="@drawable/ic_save"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/back"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/project_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/archivo_medium"
+            android:gravity="center"
+            android:paddingVertical="16dp"
+            android:text="@string/project_title"
+            android:textAllCaps="true"
+            android:textColor="@color/ActivityTitle"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/gotoExportActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="14dp"
+            android:background="@null"
+            android:fontFamily="@font/archivo_bold"
+            android:gravity="center_vertical|end"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="2dp"
+            android:text="@string/export"
+            android:textAllCaps="true"
+            android:textColor="@color/White"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/add_effect"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/constraintLayout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout4"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:id="@+id/video_frame"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_weight="1">
 
-            <ImageButton
-                android:id="@+id/back"
+            <com.google.android.exoplayer2.ui.PlayerView
+                android:id="@+id/video_display"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:use_controller="false"
+                tools:foreground="@tools:sample/backgrounds/scenic[1]">
+
+            </com.google.android.exoplayer2.ui.PlayerView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/sliding_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:background="@color/Background"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.teamisland.zzazz.utils.TimeIndexView
+                android:id="@+id/timeIndexView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@null"
-                android:contentDescription="@string/go_back"
-                android:padding="8dp"
-                android:src="@drawable/back"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:paddingVertical="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageButton
-                android:id="@+id/save_project"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:background="@null"
-                android:contentDescription="@string/save_the_project"
-                android:gravity="center"
-                android:padding="8dp"
-                android:src="@drawable/ic_save"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/back"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/project_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/archivo_medium"
-                android:gravity="center"
-                android:paddingVertical="16dp"
-                android:text="@string/project_title"
-                android:textAllCaps="true"
-                android:textColor="@color/ActivityTitle"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="parent"
-                app:layout_constraintStart_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/gotoExportActivity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="14dp"
-                android:background="@null"
-                android:fontFamily="@font/archivo_bold"
-                android:gravity="center_vertical|end"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:padding="2dp"
-                android:text="@string/export"
-                android:textAllCaps="true"
-                android:textColor="@color/White"
-                android:textSize="13sp"
-                app:layout_constraintBottom_toBottomOf="parent"
+            <com.teamisland.zzazz.ui.project.EffectRangeView
+                android:id="@+id/effectRangeView"
+                android:layout_width="0dp"
+                android:layout_height="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/timeIndexView" />
+
+            <com.teamisland.zzazz.utils.ProjectTimeLineView
+                android:id="@+id/projectTimeLineView"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/effectRangeView" />
+
+            <ImageButton
+                android:id="@+id/project_play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Background"
+                android:contentDescription="@string/play_pause_button"
+                android:src="@drawable/ic_preview_button"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout4">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/video_frame"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal|top"
-                android:layout_weight="1">
-
-                <com.google.android.exoplayer2.ui.PlayerView
-                    android:id="@+id/video_display"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:use_controller="false"
-                    tools:foreground="@tools:sample/backgrounds/scenic[1]">
-
-                </com.google.android.exoplayer2.ui.PlayerView>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/sliding_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="bottom|center_horizontal"
-                android:layout_weight="2"
-                android:background="@color/Background"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
-
-                <com.teamisland.zzazz.utils.TimeIndexView
-                    android:id="@+id/timeIndexView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingVertical="2dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <com.teamisland.zzazz.ui.project.EffectRangeView
-                    android:id="@+id/effectRangeView"
-                    android:layout_width="0dp"
-                    android:layout_height="4dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/timeIndexView" />
-
-                <com.teamisland.zzazz.utils.ProjectTimeLineView
-                    android:id="@+id/projectTimeLineView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/effectRangeView" />
-
-                <ImageButton
-                    android:id="@+id/project_play"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/Background"
-                    android:contentDescription="@string/play_pause_button"
-                    android:src="@drawable/ic_preview_button"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="1dp"
-                    android:layout_height="0dp"
-                    android:background="@color/ActivityTitle"
-                    android:contentDescription="@string/current_position_marker"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/timeIndexView" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/add_effect_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/add_effect_button"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/add_effect"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="352dp"
-        android:background="@color/Background">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.25dp"
-            android:background="#80FFFFFF"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="125dp"
+        android:background="@color/Background"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/effect_tab"
@@ -209,7 +171,8 @@
             android:layout_height="40dp"
             app:layout_constraintTop_toTopOf="parent"
             app:tabGravity="fill"
-            app:tabIndicatorColor="@color/ActivityTitle"
+            app:tabIndicator="@drawable/tab_indicator"
+            app:tabIndicatorColor="#FF33A8"
             app:tabIndicatorFullWidth="false"
             app:tabMode="scrollable"
             app:tabSelectedTextColor="@color/White"
@@ -221,53 +184,11 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="horizontal"
-            app:layout_constraintBottom_toTopOf="@id/button_layout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/effect_tab" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.25dp"
-            android:layout_marginTop="168dp"
-            android:background="#80FFFFFF"
-            app:layout_constraintBottom_toTopOf="@id/button_layout" />
-
-        <LinearLayout
-            android:id="@+id/button_layout"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent">
-
-            <Button
-                android:id="@+id/effect_back"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/archivo_regular"
-                android:text="@string/effect_back"
-                android:textAlignment="center"
-                android:textAllCaps="false"
-                android:textColor="@color/ContentsText80"
-                android:textSize="14sp" />
-
-            <Button
-                android:id="@+id/effect_done"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:fontFamily="@font/archivo_semibold"
-                android:text="@string/effect_done"
-                android:textAlignment="center"
-                android:textAllCaps="false"
-                android:textColor="@color/White"
-                android:textSize="14sp" />
-
-        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</com.sothree.slidinguppanel.SlidingUpPanelLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

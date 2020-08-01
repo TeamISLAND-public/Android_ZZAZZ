@@ -4,7 +4,6 @@ import android.content.Context
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
-import android.media.MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE
 import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT
 import android.net.Uri
 
