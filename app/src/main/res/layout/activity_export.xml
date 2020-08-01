@@ -46,13 +46,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/title" />
 
-    <VideoView
+    <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/preview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="48dp"
         app:layout_constraintDimensionRatio="1.125:1"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:foreground="@tools:sample/backgrounds/scenic[1]" />
 
     <ImageButton
         android:id="@+id/preview_play"
