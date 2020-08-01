@@ -22,30 +22,46 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
 import kotlinx.android.synthetic.main.activity_export.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.hypot
 
 /**
  * Activity for export project.
  */
-class ExportActivity : AppCompatActivity() {
+class ExportActivity : AppCompatActivity(), CoroutineScope {
 
     private lateinit var uri: Uri
-    private var duration: Int = 0
+    internal var duration: Int = 0
     private lateinit var fadeOut: Animation
 
+    private val dataSourceFactory: DataSource.Factory by lazy {
+        DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
+    }
+    internal val player: SimpleExoPlayer by lazy {
+        SimpleExoPlayer.Builder(this).build().also {
+            it.repeatMode = SimpleExoPlayer.REPEAT_MODE_OFF
+            preview.player = it
+        }
+    }
+
     //This is for done button
-    private var done = false
+    internal var done = false
 
     /**
      * When restart the activity start preview like onCreate.
@@ -53,7 +69,7 @@ class ExportActivity : AppCompatActivity() {
      */
     override fun onRestart() {
         super.onRestart()
-        preview.start()
+        player.playWhenReady = true
         preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
     }
 
@@ -123,8 +139,9 @@ class ExportActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun videoInit() {
-        preview.setMediaController(null)
-        preview.setVideoURI(uri)
+        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
+        player.prepare(mediaSource)
+        preview.useController = false
         preview.requestFocus()
 
         //Get duration from uri & set duration
@@ -137,17 +154,15 @@ class ExportActivity : AppCompatActivity() {
             video_length.text = String.format("%02d:%02d", minute, second)
         }
         preview_progress.max = duration
+        preview_progress.progress = 0
         preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
-        preview.setOnPreparedListener {
-            preview_progress.progress = 0
-        }
 
         videoStart()
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun videoStart() {
-        preview.start()
+        player.playWhenReady = true
 
         fadeOut = AnimationUtils.loadAnimation(this@ExportActivity, R.anim.fade_out)
         fadeOut.startOffset = 1000
@@ -208,18 +223,28 @@ class ExportActivity : AppCompatActivity() {
         }
 
         //Use thread to link seekBar from video
-        preview.setOnPreparedListener {
-            Thread(Runnable {
-                do {
-                    preview_progress.post {
-                        preview_progress.progress = preview.currentPosition
+        player.addListener(object : Player.EventListener {
+            /**
+             * Called when the value returned from either [.getPlayWhenReady] or [ ][.getPlaybackState] changes.
+             *
+             * @param playWhenReady Whether playback will proceed when ready.
+             * @param playbackState The new [playback state][Player.State].
+             */
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                if (playbackState == Player.STATE_READY) {
+                    launch {
+                        do {
+                            preview_progress.post {
+                                preview_progress.progress = player.currentPosition.toInt()
+                            }
+                            delay(10)
+                        } while (!done)
                     }
-                    Thread.sleep(10)
-                } while (!done)
-            }).start()
-        }
+                }
+            }
+        })
 
-        preview.setOnClickListener {
+        clickListener.setOnClickListener {
             preview_play.startAnimation(fadeOut)
         }
 
@@ -235,20 +260,20 @@ class ExportActivity : AppCompatActivity() {
                 progress: Int,
                 fromUser: Boolean
             ) {
-                if (isDragging) preview.seekTo(progress)
+                if (isDragging) player.seekTo(progress.toLong())
             }
 
             // when user starts dragging
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_pressed_thumb)
-                playing = preview.isPlaying
-                preview.pause()
+                playing = player.isPlaying
+                player.playWhenReady = false
                 isDragging = true
             }
 
             // when user stops touching
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                preview.seekTo(preview_progress.progress)
+                player.seekTo(preview_progress.progress.toLong())
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_normal_thumb)
                 when {
                     preview_progress.progress == duration -> {
@@ -256,7 +281,7 @@ class ExportActivity : AppCompatActivity() {
                         playing = false
                         preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
                     }
-                    playing -> preview.start()
+                    playing -> player.playWhenReady = true
                     else -> end = false
                 }
                 isDragging = false
@@ -264,15 +289,15 @@ class ExportActivity : AppCompatActivity() {
         })
 
         preview_play.setOnClickListener {
-            if (preview.isPlaying) {
-                preview.pause()
+            if (player.isPlaying) {
+                player.playWhenReady = false
                 preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
             } else {
                 if (end) {
-                    preview.seekTo(0)
+                    player.seekTo(0)
                     end = false
                 }
-                preview.start()
+                player.playWhenReady = true
                 preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
             }
 
@@ -280,10 +305,20 @@ class ExportActivity : AppCompatActivity() {
         }
 
         // changing text of button is needed
-        preview.setOnCompletionListener {
-            preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
-            end = true
-        }
+        player.addListener(object : Player.EventListener {
+            /**
+             * Called when the value returned from either [.getPlayWhenReady] or [ ][.getPlaybackState] changes.
+             *
+             * @param playWhenReady Whether playback will proceed when ready.
+             * @param playbackState The new [playback state][Player.State].
+             */
+            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+                if (playbackState == Player.STATE_ENDED) {
+                    preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
+                    end = true
+                }
+            }
+        })
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -331,9 +366,10 @@ class ExportActivity : AppCompatActivity() {
         val outputUri =
             contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
 
-        val parcelFileDescriptor = contentResolver.openFileDescriptor(outputUri!!, "w", null)
+        val parcelFileDescriptor =
+            contentResolver.openFileDescriptor(outputUri ?: return, "w", null)
 
-        val output = FileOutputStream(parcelFileDescriptor!!.fileDescriptor)
+        val output = FileOutputStream((parcelFileDescriptor ?: return).fileDescriptor)
 
         val data = ByteArray(1024)
         var total = 0
@@ -426,4 +462,25 @@ class ExportActivity : AppCompatActivity() {
         if (requestCode == 1)
             return
     }
+
+    /**
+     * Stops all ongoing coroutines.
+     * [AppCompatActivity.onDestroy]
+     */
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+    }
+
+    private val job = Job()
+
+    /**
+     * The context of this scope.
+     * Context is encapsulated by the scope and used for implementation of coroutine builders that are extensions on the scope.
+     * Accessing this property in general code is not recommended for any purposes except accessing the [Job] instance for advanced usages.
+     *
+     * By convention, should contain an instance of a [job][Job] to enforce structured concurrency.
+     */
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 }
