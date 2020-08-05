@@ -2,6 +2,7 @@ package com.teamisland.zzazz.ui
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
@@ -28,6 +29,8 @@ import com.teamisland.zzazz.utils.*
 import com.teamisland.zzazz.utils.GetVideoData.getDuration
 import com.teamisland.zzazz.utils.GetVideoData.getFrameCount
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
+import com.unity3d.player.IUnityPlayerLifecycleEvents
+import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.*
@@ -38,9 +41,10 @@ import kotlin.math.max
 /**
  * Activity for make project
  */
-class ProjectActivity : AppCompatActivity(), CoroutineScope {
+class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecycleEvents {
 
     private lateinit var job: Job
+    private lateinit var mUnityPlayer: UnityPlayer
 
     /**
      * Destroys the activity and finishes ongoing coroutines.
@@ -48,6 +52,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()
+        mUnityPlayer.destroy()
     }
 
     /**
@@ -101,6 +106,51 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
     }
 
     /**
+     * Pause Unity.
+     *
+     * [AppCompatActivity.onPause]
+     */
+    override fun onPause() {
+        super.onPause()
+        mUnityPlayer.pause()
+    }
+
+    /**
+     * Resume Unity
+     *
+     * [AppCompatActivity.onResume]
+     */
+    override fun onResume() {
+        super.onResume()
+        mUnityPlayer.resume()
+    }
+
+    /**
+     * [AppCompatActivity.onLowMemory]
+     */
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mUnityPlayer.lowMemory()
+    }
+
+    /**
+     * [AppCompatActivity.onTrimMemory]
+     */
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level == ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL)
+            mUnityPlayer.lowMemory()
+    }
+
+    /**
+     * [AppCompatActivity.onWindowFocusChanged]
+     */
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        mUnityPlayer.windowFocusChanged(hasFocus)
+    }
+
+    /**
      * [AppCompatActivity.onCreate]
      */
     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "ControlFlowWithEmptyBody")
@@ -110,6 +160,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         setContentView(R.layout.activity_project)
 
         job = Job()
+        mUnityPlayer = UnityPlayer(this)
 
         //        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
 //        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
@@ -146,7 +197,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
                 (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
                 (CustomAdapter.selectedEffect
-                    ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                        ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
 
                 val bitmap = (getDrawable(R.drawable.load) as BitmapDrawable).bitmap
@@ -158,13 +209,13 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
                     dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
                 }
                 effectList.add(
-                    Effect(
-                        frame,
-                        frame + 29,
-                        0,
-                        0xFFFFFF,
-                        dataArrayList
-                    )
+                        Effect(
+                                frame,
+                                frame + 29,
+                                0,
+                                0xFFFFFF,
+                                dataArrayList
+                        )
                 )
                 Log.d("effect add", "${effectList.size}")
             }
@@ -211,6 +262,10 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
         sliding_view.setOnTouchListener { _, event -> tabLayoutOnTouchEvent(event) }
         player.prepare(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri))
+
+        unity_display.addView(mUnityPlayer)
+        unity_display.layoutParams.height = video_display.layoutParams.height
+        unity_display.layoutParams.width = video_display.layoutParams.width
     }
 
     /**
@@ -224,7 +279,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
     internal var end = false
 
-    // play video
     @SuppressLint("ClickableViewAccessibility")
     private fun playVideo() {
         video_display.requestFocus()
@@ -297,9 +351,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         } while (true)//player.isPlaying)
     }
 
-    // make effect tab
     private fun tabInit() {
-        with (effect_tab){
+        with(effect_tab) {
             addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect))))
             addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
             addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
@@ -308,42 +361,42 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         }
 
         val addPagerAdapter =
-            AddFragmentPagerAdapter(
-                supportFragmentManager,
-                5,
-                this
-            )
+                AddFragmentPagerAdapter(
+                        supportFragmentManager,
+                        5,
+                        this
+                )
         effect_view_pager.adapter = addPagerAdapter
         val tabView = effect_tab.getTabAt(0)
         (tabView ?: return).view.tab_text.typeface =
-            ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+                ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
         tabView.view.tab_text.setTextColor(
-            ContextCompat.getColor(
-                applicationContext,
-                R.color.White
-            )
+                ContextCompat.getColor(
+                        applicationContext,
+                        R.color.White
+                )
         )
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 effect_view_pager.currentItem = (tab ?: return).position
                 tab.view.tab_text.typeface =
-                    ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+                        ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
                 tab.view.tab_text.setTextColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.White
-                    )
+                        ContextCompat.getColor(
+                                applicationContext,
+                                R.color.White
+                        )
                 )
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
                 (tab ?: return).view.tab_text.typeface =
-                    ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
+                        ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
                 tab.view.tab_text.setTextColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.ContentsText80
-                    )
+                        ContextCompat.getColor(
+                                applicationContext,
+                                R.color.ContentsText80
+                        )
                 )
             }
 
@@ -380,8 +433,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         for (i in 0 until effectList.size) {
             for (j in i until effectList.size) {
                 if (effectList[j].getStartFrame() < effectList[i].getStartFrame() ||
-                    (effectList[j].getStartFrame() == effectList[i].getStartFrame()) &&
-                    (effectList[j].getEndFrame() < effectList[i].getEndFrame())
+                        (effectList[j].getStartFrame() == effectList[i].getStartFrame()) &&
+                        (effectList[j].getEndFrame() < effectList[i].getEndFrame())
                 ) {
                     val effect = effectList[i]
                     effectList[i] = effectList[j]
@@ -431,9 +484,9 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
                     if (end) end = false
                     posX2 = event.x
                     val delta =
-                        (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
+                            (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
                     val time = (player.currentPosition - delta).toInt()
-                        .coerceIn(0, videoDuration)
+                            .coerceIn(0, videoDuration)
                     player.seekTo(time.toLong())
                     setCurrentTime(time)
                     posX1 = posX2
@@ -449,6 +502,20 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun distance(event: MotionEvent): Float = abs(event.getX(0) - event.getX(1))
+
+    /**
+     * [IUnityPlayerLifecycleEvents.onUnityPlayerQuitted]
+     */
+    override fun onUnityPlayerQuitted() {
+        mUnityPlayer.quit()
+    }
+
+    /**
+     * [IUnityPlayerLifecycleEvents.onUnityPlayerUnloaded]
+     */
+    override fun onUnityPlayerUnloaded() {
+        mUnityPlayer.unload()
+    }
 
     // export project to export activity
 //    @Suppress("BlockingMethodInNonBlockingContext")

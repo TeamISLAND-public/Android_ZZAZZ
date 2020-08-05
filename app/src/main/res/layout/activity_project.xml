@@ -88,7 +88,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/constraintLayout">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <RelativeLayout
             android:id="@+id/video_frame"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -97,18 +97,24 @@
 
             <com.google.android.exoplayer2.ui.PlayerView
                 android:id="@+id/video_display"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
                 app:use_controller="false"
                 tools:foreground="@tools:sample/backgrounds/scenic[1]">
 
             </com.google.android.exoplayer2.ui.PlayerView>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <FrameLayout
+                android:id="@+id/unity_display"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/video_display"
+                android:layout_alignTop="@id/video_display"
+                android:layout_alignEnd="@id/video_display"
+                android:layout_alignBottom="@id/video_display" />
+
+        </RelativeLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/sliding_view"

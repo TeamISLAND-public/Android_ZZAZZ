@@ -39,4 +39,6 @@
     <!--    string of alert-->
     <string name="fps_exceeded">fps exceeded</string>
     <string name="choose_from_gallery">Choose From Gallery</string>
+
+    <string name="game_view_content_description" translatable="false">Game view</string>
 </resources>
