@@ -329,6 +329,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
     internal fun startVideo() {
         player.playWhenReady = true
         project_play.isActivated = true
+        mUnityPlayer.resume()
         videoBinder()
     }
 
@@ -338,6 +339,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
     fun stopVideo() {
         player.playWhenReady = false
         project_play.isActivated = false
+        mUnityPlayer.pause()
     }
 
     private fun videoBinder() = launch {
