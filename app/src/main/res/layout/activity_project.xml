@@ -101,18 +101,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 app:use_controller="false"
-                tools:foreground="@tools:sample/backgrounds/scenic[1]">
-
-            </com.google.android.exoplayer2.ui.PlayerView>
-
-            <FrameLayout
-                android:id="@+id/unity_display"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignStart="@id/video_display"
-                android:layout_alignTop="@id/video_display"
-                android:layout_alignEnd="@id/video_display"
-                android:layout_alignBottom="@id/video_display" />
+                tools:foreground="@tools:sample/backgrounds/scenic[1]" />
 
         </RelativeLayout>
 
