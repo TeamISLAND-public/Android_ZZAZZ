@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
@@ -32,6 +31,7 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
 import kotlinx.android.synthetic.main.activity_export.*
+import kotlinx.android.synthetic.main.export_dialog.*
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
@@ -238,7 +238,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             // when user starts dragging
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_pressed_thumb)
-                preview_progress.progressTintList = ColorStateList.valueOf(getColor(R.color.Selected))
+                preview_progress.progressTintList =
+                    ColorStateList.valueOf(getColor(R.color.Selected))
                 playing = player.isPlaying
                 player.playWhenReady = false
                 isDragging = true
@@ -325,11 +326,12 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         val output = FileOutputStream((parcelFileDescriptor ?: return).fileDescriptor)
 
         val data = ByteArray(1024)
-        var total = 0
+        var total = 0F
         var count: Int
+        val len: Float = (input ?: return).available().toFloat()
         val handler = Handler()
 
-        val dialog = Dialog(this@ExportActivity)
+        val dialog = Dialog(this@ExportActivity, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
 
         var isExport = false
         var isFinished = false
@@ -343,21 +345,26 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                 dialog.setContentView(R.layout.export_dialog)
                 dialog.create()
                 dialog.show()
+                dialog.loading.text = getString(R.string.loading) + "(00%)"
                 val window = dialog.window
-                window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                window?.setBackgroundDrawable(ColorDrawable(getColor(R.color.DialogBackground)))
                 window?.setGravity(Gravity.CENTER)
             }
             count = try {
-                input?.read(data) ?: return@launch
+                input.read(data)
             } catch (e: Exception) {
                 -1
             }
             while (count != -1) {
                 total += count
+                handler.post {
+                    dialog.loading.text =
+                        getString(R.string.loading) + "(${(total / len * 100).toInt()}%)"
+                }
 
                 try {
                     output.write(data, 0, count)
-                    if (input != null) count = input.read(data)
+                    count = input.read(data)
                 } catch (e: Exception) {
                     checkStop = true
                     break
@@ -365,7 +372,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             }
 
             if (!checkStop) {
-                input?.close()
+                input.close()
                 output.flush()
                 output.close()
                 contentValues.clear()
