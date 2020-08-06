@@ -6,4 +6,5 @@
     <color name="ContentsText80">#CCFFFFFF</color>
     <color name="White">#FFF</color>
     <color name="Black">#000</color>
+    <color name="Selected">#FF3898</color>
 </resources>

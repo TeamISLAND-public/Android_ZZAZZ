@@ -7,6 +7,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
@@ -14,8 +15,6 @@ import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
 import android.view.*
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -48,7 +47,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
     private lateinit var uri: Uri
     internal var duration: Int = 0
-    private lateinit var fadeOut: Animation
 
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
@@ -70,7 +68,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
     override fun onRestart() {
         super.onRestart()
         player.playWhenReady = true
-        preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
     }
 
     /**
@@ -155,7 +152,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         }
         preview_progress.max = duration
         preview_progress.progress = 0
-        preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
 
         videoStart()
     }
@@ -163,26 +159,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
     @SuppressLint("ClickableViewAccessibility")
     private fun videoStart() {
         player.playWhenReady = true
-
-        fadeOut = AnimationUtils.loadAnimation(this@ExportActivity, R.anim.fade_out)
-        fadeOut.startOffset = 1000
-        fadeOut.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationRepeat(animation: Animation?) {
-                preview_play.visibility = View.VISIBLE
-            }
-
-            // button needs to be vanished
-            override fun onAnimationEnd(animation: Animation?) {
-                preview_play.visibility = View.GONE
-            }
-
-            override fun onAnimationStart(animation: Animation?) {
-                preview_play.visibility = View.VISIBLE
-            }
-        })
-        fadeOut.duration = 500
-
-        preview_play.startAnimation(fadeOut)
 
         //This is for video is end
         //When video is end, preview will start from first
@@ -244,10 +220,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             }
         })
 
-        clickListener.setOnClickListener {
-            preview_play.startAnimation(fadeOut)
-        }
-
         preview_progress.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
 
@@ -266,6 +238,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             // when user starts dragging
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_pressed_thumb)
+                preview_progress.progressTintList = ColorStateList.valueOf(getColor(R.color.Selected))
                 playing = player.isPlaying
                 player.playWhenReady = false
                 isDragging = true
@@ -275,11 +248,11 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 player.seekTo(preview_progress.progress.toLong())
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_normal_thumb)
+                preview_progress.progressTintList = ColorStateList.valueOf(getColor(R.color.White))
                 when {
                     preview_progress.progress == duration -> {
                         end = true
                         playing = false
-                        preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
                     }
                     playing -> player.playWhenReady = true
                     else -> end = false
@@ -287,22 +260,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                 isDragging = false
             }
         })
-
-        preview_play.setOnClickListener {
-            if (player.isPlaying) {
-                player.playWhenReady = false
-                preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
-            } else {
-                if (end) {
-                    player.seekTo(0)
-                    end = false
-                }
-                player.playWhenReady = true
-                preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
-            }
-
-            preview_play.startAnimation(fadeOut)
-        }
 
         // changing text of button is needed
         player.addListener(object : Player.EventListener {
@@ -313,10 +270,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
              * @param playbackState The new [playback state][Player.State].
              */
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                if (playbackState == Player.STATE_ENDED) {
-                    preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
+                if (playbackState == Player.STATE_ENDED)
                     end = true
-                }
             }
         })
     }
@@ -328,8 +283,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
     )
     @SuppressLint("SimpleDateFormat", "SetTextI18n", "InflateParams")
     private fun videoSave() {
-        fadeOut.start()
-
         var checkStop = false
 
         //Check permission
