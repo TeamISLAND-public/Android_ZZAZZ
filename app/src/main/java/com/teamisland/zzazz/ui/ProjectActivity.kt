@@ -112,11 +112,12 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
      */
     override fun onPause() {
         super.onPause()
+        stopVideo()
         mUnityPlayer.pause()
     }
 
     /**
-     * Resume Unity
+     * Resume Unity.
      *
      * [AppCompatActivity.onResume]
      */
