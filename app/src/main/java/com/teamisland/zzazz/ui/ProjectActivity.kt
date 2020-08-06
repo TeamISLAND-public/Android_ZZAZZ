@@ -342,7 +342,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
                 tab.view.tab_text.setTextColor(
                     ContextCompat.getColor(
                         applicationContext,
-                        R.color.ContentsText80
+                        R.color.ContentsText40
                     )
                 )
             }
