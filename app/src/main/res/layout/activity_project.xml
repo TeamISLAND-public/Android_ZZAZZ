@@ -176,7 +176,7 @@
             app:tabIndicatorFullWidth="false"
             app:tabMode="scrollable"
             app:tabSelectedTextColor="@color/White"
-            app:tabTextAppearance="@style/SmallText"
+            app:tabTextAppearance="@style/TabText"
             app:tabTextColor="@color/ContentsText80" />
 
         <androidx.viewpager.widget.ViewPager
