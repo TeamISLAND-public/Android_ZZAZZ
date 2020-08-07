@@ -258,7 +258,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_pressed_thumb)
                 preview_progress.progressTintList =
-                        ColorStateList.valueOf(getColor(R.color.Selected))
+                        ColorStateList.valueOf(getColor(R.color.PointColor))
                 playing = player.isPlaying
                 player.playWhenReady = false
                 isDragging = true
