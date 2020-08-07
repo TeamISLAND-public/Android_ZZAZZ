@@ -14,12 +14,15 @@ import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -61,6 +64,10 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
     //This is for done button
     internal var done = false
 
+    //This is for video is end
+    //When video is end, preview will start from first
+    private var end = false
+
     /**
      * When restart the activity start preview like onCreate.
      * This function is called when cancel the sharing function.
@@ -84,6 +91,61 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         uri = intent.getParcelableExtra("URI")
 
         videoInit()
+
+        val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
+        fadeOut.startOffset = 1000
+        fadeOut.duration = 500
+        fadeOut.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(animation: Animation?) {
+                playButton.visibility = View.VISIBLE
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+                playButton.visibility = View.GONE
+            }
+
+            override fun onAnimationStart(animation: Animation?) {
+                playButton.visibility = View.VISIBLE
+            }
+        })
+        playButton.setOnClickListener { playButtonClickHandler(fadeOut) }
+        playButton.startAnimation(fadeOut)
+
+        video.setOnClickListener { playButton.startAnimation(fadeOut) }
+
+        done_export.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    done_export.alpha = 0.4F
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    done_export.alpha = 1F
+                    done = true
+                    Intent(this, IntroActivity::class.java).apply {
+                        flags =
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        startActivity(this)
+                    }
+                }
+            }
+            true
+        }
+
+        back.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    back.alpha = 0.4F
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    back.alpha = 1F
+                    done = true
+                    finish()
+                }
+            }
+            true
+        }
 
         save.setOnTouchListener { _, event ->
             when (event.action) {
@@ -110,12 +172,12 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                     Intent().apply {
                         action = Intent.ACTION_SEND
                         putExtra(
-                            Intent.EXTRA_STREAM,
-                            FileProvider.getUriForFile(
-                                this@ExportActivity,
-                                "com.teamisland.zzazz.fileprovider",
-                                File(uri.path)
-                            )
+                                Intent.EXTRA_STREAM,
+                                FileProvider.getUriForFile(
+                                        this@ExportActivity,
+                                        "com.teamisland.zzazz.fileprovider",
+                                        File(uri.path)
+                                )
                         )
                         type = "video/*"
                         startActivity(Intent.createChooser(this, "Share"))
@@ -153,50 +215,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         preview_progress.max = duration
         preview_progress.progress = 0
 
-        videoStart()
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun videoStart() {
         player.playWhenReady = true
-
-        //This is for video is end
-        //When video is end, preview will start from first
-        var end = false
-
-        done_export.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    done_export.alpha = 0.4F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    done_export.alpha = 1F
-                    done = true
-                    Intent(this, IntroActivity::class.java).apply {
-                        flags =
-                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                        startActivity(this)
-                    }
-                }
-            }
-            true
-        }
-
-        back.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    back.alpha = 0.4F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    back.alpha = 1F
-                    done = true
-                    finish()
-                }
-            }
-            true
-        }
 
         //Use thread to link seekBar from video
         player.addListener(object : Player.EventListener {
@@ -221,16 +240,16 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         })
 
         preview_progress.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
+                SeekBar.OnSeekBarChangeListener {
 
             var playing = true
             var isDragging = false
 
             // while dragging
             override fun onProgressChanged(
-                seekBar: SeekBar?,
-                progress: Int,
-                fromUser: Boolean
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
             ) {
                 if (isDragging) player.seekTo(progress.toLong())
             }
@@ -239,7 +258,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_pressed_thumb)
                 preview_progress.progressTintList =
-                    ColorStateList.valueOf(getColor(R.color.Selected))
+                        ColorStateList.valueOf(getColor(R.color.Selected))
                 playing = player.isPlaying
                 player.playWhenReady = false
                 isDragging = true
@@ -271,16 +290,46 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
              * @param playbackState The new [playback state][Player.State].
              */
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                if (playbackState == Player.STATE_ENDED)
+                if (playbackState == Player.STATE_ENDED) {
                     end = true
+                    playButton.isActivated = false
+                }
             }
         })
+
+        stopVideo()
+    }
+
+    private fun stopVideo() {
+        playButton.isActivated = false
+        player.playWhenReady = false
+    }
+
+    internal fun startVideo() {
+        player.playWhenReady = true
+        playButton.isActivated = true
+        Thread(Runnable {
+            do {
+                preview_progress.apply {
+                    this.progress = player.currentPosition.toInt()
+                    if (end) {
+                        end = false
+                        stopVideo()
+                    }
+                }
+                try {
+                    Thread.sleep(10)
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
+                }
+            } while (player.isPlaying)
+        }).start()
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @Suppress(
-        "BlockingMethodInNonBlockingContext",
-        "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
+            "BlockingMethodInNonBlockingContext",
+            "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
     )
     @SuppressLint("SimpleDateFormat", "SetTextI18n", "InflateParams")
     private fun videoSave() {
@@ -288,15 +337,15 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
         //Check permission
         if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
+                        this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                1
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    1
             )
         }
 
@@ -310,18 +359,18 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
         val contentValues = ContentValues()
         contentValues.put(
-            MediaStore.Files.FileColumns.RELATIVE_PATH,
-            Environment.DIRECTORY_MOVIES + "/ZZAZZ"
+                MediaStore.Files.FileColumns.RELATIVE_PATH,
+                Environment.DIRECTORY_MOVIES + "/ZZAZZ"
         )
         contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename)
         contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "video/*")
         contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 1)
 
         val outputUri =
-            contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
+                contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
 
         val parcelFileDescriptor =
-            contentResolver.openFileDescriptor(outputUri ?: return, "w", null)
+                contentResolver.openFileDescriptor(outputUri ?: return, "w", null)
 
         val output = FileOutputStream((parcelFileDescriptor ?: return).fileDescriptor)
 
@@ -359,7 +408,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                 total += count
                 handler.post {
                     dialog.loading.text =
-                        getString(R.string.loading) + "(${(total / len * 100).toInt()}%)"
+                            getString(R.string.loading) + "(${(total / len * 100).toInt()}%)"
                 }
 
                 try {
@@ -392,8 +441,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                         save.background = getDrawable(R.drawable.check)
                         val finRadius = hypot((save.width * 2).toDouble(), save.height.toDouble())
                         val animation = ViewAnimationUtils.createCircularReveal(
-                            save, 0, save.height / 2, 0F,
-                            finRadius.toFloat()
+                                save, 0, save.height / 2, 0F,
+                                finRadius.toFloat()
                         )
                         animation.duration = 1000
                         save.visibility = View.VISIBLE
@@ -415,9 +464,9 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
      * Request permission to save video.
      */
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
     ) {
         if (requestCode == 1)
             return
@@ -443,4 +492,30 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
      */
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
+
+    private val playButtonClickListenerObject = object : Player.EventListener {
+        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+            if (playbackState == ExoPlayer.STATE_READY)
+                preview.postDelayed({ startVideo() }, 100)
+        }
+    }
+
+    private fun playButtonClickHandler(fadeOut: Animation) {
+        playButton.startAnimation(fadeOut)
+        when {
+            end -> {
+                end = false
+                player.seekTo(0)
+                player.removeListener(playButtonClickListenerObject)
+                startVideo()
+            }
+            playButton.isActivated -> {
+                stopVideo()
+            }
+            else -> {
+                player.removeListener(playButtonClickListenerObject)
+                startVideo()
+            }
+        }
+    }
 }
