@@ -198,7 +198,6 @@ class TrimmingActivity : AppCompatActivity() {
         }
     }
 
-
     internal fun stopVideo() {
         playButton.isActivated = false
         player.playWhenReady = false

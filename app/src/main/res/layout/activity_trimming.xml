@@ -79,7 +79,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
 
-        <FrameLayout
+        <RelativeLayout
             android:id="@+id/frameLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -91,25 +91,25 @@
 
             <com.google.android.exoplayer2.ui.PlayerView
                 android:id="@+id/mainVideoView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
                 app:use_controller="false"
                 tools:foreground="@tools:sample/backgrounds/scenic[1]" />
 
-        </FrameLayout>
+            <ImageButton
+                android:id="@+id/playButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/mainVideoView"
+                android:layout_alignTop="@id/mainVideoView"
+                android:layout_alignEnd="@id/mainVideoView"
+                android:layout_alignBottom="@id/mainVideoView"
+                android:layout_gravity="center"
+                android:background="@null"
+                app:srcCompat="@drawable/ic_preview_button" />
 
-        <ImageButton
-            android:id="@+id/playButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@null"
-            app:layout_constraintBottom_toBottomOf="@+id/frameLayout"
-            app:layout_constraintEnd_toEndOf="@id/frameLayout"
-            app:layout_constraintStart_toStartOf="@+id/frameLayout"
-            app:layout_constraintTop_toTopOf="@+id/frameLayout"
-            app:srcCompat="@drawable/ic_preview_button" />
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/linearLayout"
