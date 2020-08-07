@@ -5,6 +5,8 @@
     <color name="ZZAZZWhite">#E5FFFFFF</color>
     <color name="ActivityTitle">#E6FFFFFF</color>
     <color name="ContentsText80">#CCFFFFFF</color>
+    <color name="ContentsText40">#66FFFFFF</color>
     <color name="White">#FFF</color>
     <color name="Black">#000</color>
+    <color name="PointColor">#FF3898</color>
 </resources>
