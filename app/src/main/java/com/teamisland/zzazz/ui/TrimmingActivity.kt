@@ -381,11 +381,10 @@ class TrimmingActivity : AppCompatActivity() {
                                 pos = ((mThumb.pos - rangeSeekBarView.float2DP(12f)) / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.float2DP(12f))).toDouble()
                             }
                         }
+                        Log.d("current", "pos: $pos, thumb1: ${mThumb.pos}, thumb2: ${mThumb2.pos}, current: ${currentPositionView.markerPos}")
+                        rangeSeekBarView.setThumbPos(rangeSeekBarView.currentThumb, mThumb.pos)
                         player.seekTo((pos * videoDuration / 100).toLong())
                         currentPositionView.setMarkerPos(pos * 100)
-                        Log.d("current", "pos: $pos, thumb1: ${mThumb.pos}, thumb2: ${mThumb2.pos}, current: ${currentPositionView.markerPos}")
-                        currentPositionView.invalidate()
-                        rangeSeekBarView.setThumbPos(rangeSeekBarView.currentThumb, mThumb.pos)
                     }
                     else -> {
                         currentPositionView.visibleMarkerCurrent()
@@ -421,15 +420,19 @@ class TrimmingActivity : AppCompatActivity() {
         timeLineView.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    if (event.x < rangeSeekBarView.thumbs[0].pos || event.x > rangeSeekBarView.thumbs[1].pos + rangeSeekBarView.thumbWidth)
+                        return@setOnTouchListener false
                     currentPositionView.markerPos = (event.x * 100 / (currentPositionView.width - 2 * currentPositionView.float2DP(12f))).toDouble()
                     currentPositionView.markerPaint.color = 0xffff3898.toInt()
-                    currentPositionView.textView.visibility = VISIBLE
+                    currentPositionView.visibleTrimCurrent()
                     currentPositionView.invalidate()
+                    true
                 }
                 MotionEvent.ACTION_UP -> {
                     currentPositionView.markerPaint.color = 0xccffffff.toInt()
-                    currentPositionView.textView.visibility = GONE
+                    currentPositionView.visibleMarkerCurrent()
                     currentPositionView.invalidate()
+                    true
                 }
                 MotionEvent.ACTION_MOVE -> {
                     currentPositionView.markerPos = (event.x * 100 / (currentPositionView.width - 2 * currentPositionView.float2DP(12f))).toDouble()
@@ -442,9 +445,10 @@ class TrimmingActivity : AppCompatActivity() {
                     currentPositionView.listener.onChange(currentPositionView.markerPos)
                     player.seekTo((videoDuration * currentPositionView.markerPos / 100).toLong())
                     currentPositionView.invalidate()
+                    true
                 }
+                else -> false
             }
-            true
         }
 
         val mediaSource: MediaSource =
