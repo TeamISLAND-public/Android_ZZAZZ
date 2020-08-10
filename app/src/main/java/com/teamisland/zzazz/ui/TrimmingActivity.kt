@@ -280,14 +280,20 @@ class TrimmingActivity : AppCompatActivity() {
         framePlus.setOnClickListener {
             rangeSeekBarView.incrementThumbPos(rangeSeekBarView.currentThumb, 1)
             player.seekTo(player.currentPosition + 1)
-            val pos = ((rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb].pos - rangeSeekBarView.float2DP(12f)) / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.float2DP(12f))).toDouble()
+            val pos =
+                    ((rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb].pos - (rangeSeekBarView.currentThumb - 1)
+                            * rangeSeekBarView.thumbWidth - rangeSeekBarView.float2DP(12f)) / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.float2DP(12f)))
+                            .toDouble()
             currentPositionView.setMarkerPos(pos * 100)
         }
 
         frameMinus.setOnClickListener {
             rangeSeekBarView.incrementThumbPos(rangeSeekBarView.currentThumb, -1)
             player.seekTo(player.currentPosition - 1)
-            val pos = ((rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb].pos - rangeSeekBarView.float2DP(12f)) / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.float2DP(12f))).toDouble()
+            val pos =
+                    ((rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb].pos - (rangeSeekBarView.currentThumb - 1)
+                            * rangeSeekBarView.thumbWidth - rangeSeekBarView.float2DP(12f)) / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.float2DP(12f)))
+                            .toDouble()
             currentPositionView.setMarkerPos(pos * 100)
         }
 
