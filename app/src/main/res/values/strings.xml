@@ -9,10 +9,11 @@
     <string name="trim_title">Trim</string>
     <string name="go_to_project_activity">done</string>
     <string name="go_to_the_main_page">Go to the main page.</string>
-    <string name="video_too_long">Video size is too big</string>
-    <string name="one_frame_advance">+1 Frame</string>
-    <string name="one_frame_retreat">-1 Frame</string>
+    <string name="video_too_long">Size is too big.</string>
+    <string name="one_frame_advance">+1Frame</string>
+    <string name="one_frame_retreat">-1Frame</string>
     <string name="trimming_error">Error while trimming.</string>
+    <string name="start_trim">Drag to select a range.</string>
 
     <!--    string of projectactivity-->
     <string name="project_title">PROJECT</string>

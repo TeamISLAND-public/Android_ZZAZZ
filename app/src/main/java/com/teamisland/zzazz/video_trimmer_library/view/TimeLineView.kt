@@ -41,11 +41,10 @@ import kotlin.math.ceil
  * View for showing thumbnails of video by time.
  */
 open class TimeLineView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet?,
-    defStyleAttr: Int = 0
-) :
-    View(context, attrs, defStyleAttr) {
+        context: Context,
+        attrs: AttributeSet?,
+        defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
     /**
      * Uri of the video attached.
      */
@@ -74,17 +73,17 @@ open class TimeLineView @JvmOverloads constructor(
         bitmapList.clear()
         if (isInEditMode) {
             val bitmap = ThumbnailUtils.extractThumbnail(
-                BitmapFactory.decodeResource(resources, android.R.drawable.sym_def_app_icon)
-                    ?: return,
-                viewHeight,
-                viewHeight
+                    BitmapFactory.decodeResource(resources, android.R.drawable.sym_def_app_icon)
+                            ?: return,
+                    viewHeight,
+                    viewHeight
             )
             for (i in 0 until numThumbs)
                 bitmapList.add(bitmap)
             return
         }
         bitmapList.clear()
-        val path = TrimmingActivity.getPath(context, videoUri!!)
+        val path = TrimmingActivity.getPath(context, videoUri ?: return)
         BackgroundExecutor.cancelAll("", true)
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
@@ -94,28 +93,28 @@ open class TimeLineView @JvmOverloads constructor(
                     val mediaMetadataRetriever = MediaMetadataRetriever()
                     mediaMetadataRetriever.setDataSource(context, videoUri)
                     val videoLengthInMs =
-                        mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                            .toLong() * 1000L
+                            mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                                    .toLong() * 1000L
                     val interval = videoLengthInMs / numThumbs
                     for (i in 0 until numThumbs) {
                         var bitmap: Bitmap? = when (2) {
                             1 -> mediaMetadataRetriever.getScaledFrameAtTime(
-                                i * interval,
-                                MediaMetadataRetriever.OPTION_CLOSEST,
-                                viewHeight,
-                                viewHeight
+                                    i * interval,
+                                    MediaMetadataRetriever.OPTION_CLOSEST,
+                                    viewHeight,
+                                    viewHeight
                             )
                             2 -> mediaMetadataRetriever.getScaledFrameAtTime(
-                                i * interval,
-                                MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
-                                viewHeight,
-                                viewHeight
+                                    i * interval,
+                                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
+                                    viewHeight,
+                                    viewHeight
                             )
                             3 -> FFmpegDelegate.getFrameAtMilliSeconds(
-                                context,
-                                path!!,
-                                (i * interval).toInt() / 1000,
-                                viewHeight
+                                    context,
+                                    path ?: return,
+                                    (i * interval).toInt() / 1000,
+                                    viewHeight
                             )
                             else -> null
                         }
@@ -130,7 +129,7 @@ open class TimeLineView @JvmOverloads constructor(
                     mediaMetadataRetriever.release()
                 } catch (e: Throwable) {
                     Thread.getDefaultUncaughtExceptionHandler()
-                        ?.uncaughtException(Thread.currentThread(), e)
+                            ?.uncaughtException(Thread.currentThread(), e)
                 }
 
             }
