@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="256dp"
     android:layout_height="160dp"
     android:background="@drawable/project_alert_dialog_box"
@@ -12,8 +13,9 @@
         android:layout_height="0dp"
         android:fontFamily="@font/archivo_regular"
         android:gravity="center"
-        android:text="@android:string/cancel"
+        android:text="Cancel"
         android:textColor="@color/White"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +42,8 @@
         android:fontFamily="@font/archivo_bold"
         android:gravity="center"
         android:text="Go back to trim"
-        android:textColor="@color/White"
+        android:textColor="@color/PointColor"
+        android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,6 +57,7 @@
         android:fontFamily="@font/archivo_semibold"
         android:text="Go back to trim?"
         android:textColor="@color/White"
+        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -65,9 +69,10 @@
         android:fontFamily="@font/archivo_regular"
         android:text="The ongoing history will disappear."
         android:textColor="#9fff"
-        android:textSize="10sp"
+        android:textSize="11sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+        app:layout_constraintTop_toBottomOf="@+id/textView6"
+        tools:ignore="SmallSp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

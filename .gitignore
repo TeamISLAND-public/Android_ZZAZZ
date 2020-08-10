@@ -1,12 +1,8 @@
-# Created by https://www.gitignore.io/api/androidstudio
-# Edit at https://www.gitignore.io/?templates=androidstudio
-
-### AndroidStudio ###
-# Covers files to be ignored for android development using Android Studio.
-
 # Built application files
 *.apk
+*.aar
 *.ap_
+*.aab
 
 # Files for the ART/Dalvik VM
 *.dex
@@ -18,14 +14,12 @@
 bin/
 gen/
 out/
+#  Uncomment the following line in case you need and you don't have the release build type files in your app
+# release/
 
 # Gradle files
-.gradle
 .gradle/
 build/
-
-# Signing files
-.signing/
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -35,6 +29,66 @@ proguard/
 
 # Log Files
 *.log
+
+# Android Studio Navigation editor temp files
+.navigation/
+
+# Android Studio captures folder
+captures/
+
+
+# IntelliJ IDEA
+*.iws
+/out/
+# IntelliJ
+*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+# Android Studio 3 in .gitignore file.
+.idea/caches
+.idea/modules.xml
+# Comment next line if keeping position of elements in Navigation Editor is relevant for you
+.idea/navEditor.xml
+# Mongo Explorer plugin
+.idea/mongoSettings.xml
+
+# Keystore files
+# Uncomment the following lines if you do not want to check your keystore files in.
+#*.jks
+#*.keystore
+
+# External native build folder generated in Android Studio 2.2 and later
+.externalNativeBuild
+.cxx/
+
+# Google Services (e.g. APIs or Firebase)
+# google-services.json
+
+# Freeline
+freeline.py
+freeline/
+freeline_project_description.json
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/readme.md
+
+# Version control
+vcs.xml
+
+# lint
+lint/intermediates/
+lint/generated/
+lint/outputs/
+lint/tmp/
+# lint/reports/
 
 # Android Studio
 /*/build/
@@ -52,16 +106,8 @@ unityLibrary/
 # Android Patch
 gen-external-apklibs
 
-# External native build folder generated in Android Studio 2.2 and later
-.externalNativeBuild
-
 # NDK
 obj/
-
-# IntelliJ IDEA
-*.iml
-*.iws
-/out/
 
 # OS-specific files
 .DS_Store
@@ -96,9 +142,6 @@ hs_err_pid*
 # JIRA plugin
 atlassian-ide-plugin.xml
 
-# Mongo Explorer plugin
-.idea/mongoSettings.xml
-
 # Crashlytics plugin (for Android Studio and IntelliJ)
 com_crashlytics_export_strings.xml
 crashlytics.properties
@@ -106,7 +149,6 @@ crashlytics-build.properties
 fabric.properties
 
 ### AndroidStudio Patch ###
-
 !/gradle/wrapper/gradle-wrapper.jar
 
 # End of https://www.gitignore.io/api/androidstudio

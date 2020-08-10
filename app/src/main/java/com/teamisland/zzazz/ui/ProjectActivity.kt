@@ -224,22 +224,22 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
             }
         }
 
-        save_project.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    save_project.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    stopVideo()
-                    Intent(this, SaveProjectActivity::class.java).also {
-                        startActivityForResult(it, IS_SAVED)
-                    }
-                    save_project.alpha = 1F
-                }
-            }
-            true
-        }
+//        save_project.setOnTouchListener { _, event ->
+//            when (event.action) {
+//                MotionEvent.ACTION_DOWN -> {
+//                    save_project.alpha = 0.5F
+//                }
+//
+//                MotionEvent.ACTION_UP -> {
+//                    stopVideo()
+//                    Intent(this, SaveProjectActivity::class.java).also {
+//                        startActivityForResult(it, IS_SAVED)
+//                    }
+//                    save_project.alpha = 1F
+//                }
+//            }
+//            true
+//        }
 
         gotoExportActivity.setOnTouchListener { _, event ->
             when (event.action) {
@@ -422,7 +422,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
                 tab.view.tab_text.setTextColor(
                     ContextCompat.getColor(
                         applicationContext,
-                        R.color.ContentsText80
+                        R.color.ContentsText40
                     )
                 )
             }

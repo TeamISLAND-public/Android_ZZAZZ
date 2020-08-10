@@ -29,19 +29,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
-            android:id="@+id/save_project"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:background="@null"
-            android:contentDescription="@string/save_the_project"
-            android:gravity="center"
-            android:padding="8dp"
-            android:src="@drawable/ic_save"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/back"
-            app:layout_constraintTop_toTopOf="parent" />
+<!--        <ImageButton-->
+<!--            android:id="@+id/save_project"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginStart="20dp"-->
+<!--            android:background="@null"-->
+<!--            android:contentDescription="@string/save_the_project"-->
+<!--            android:gravity="center"-->
+<!--            android:padding="8dp"-->
+<!--            android:src="@drawable/ic_save"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintStart_toEndOf="@+id/back"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
 
         <TextView
             android:id="@+id/project_title"
@@ -153,6 +153,12 @@
 
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.25dp"
+        android:background="@color/ContentsText40"
+        app:layout_constraintBottom_toTopOf="@id/add_effect" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/add_effect"
         android:layout_width="match_parent"
@@ -171,8 +177,8 @@
             app:tabIndicatorFullWidth="false"
             app:tabMode="scrollable"
             app:tabSelectedTextColor="@color/White"
-            app:tabTextAppearance="@style/SmallText"
-            app:tabTextColor="@color/ContentsText80" />
+            app:tabTextAppearance="@style/TabText"
+            app:tabTextColor="@color/ContentsText40" />
 
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/effect_view_pager"

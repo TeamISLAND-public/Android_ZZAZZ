@@ -23,9 +23,11 @@
  */
 package com.teamisland.zzazz.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils.extractThumbnail
@@ -119,6 +121,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     /**
      * [View.onDraw]
      */
+    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         if (bitmapList.size == 0) return
         val originLocation = getPositionOfTime(0)
@@ -142,6 +145,17 @@ open class ProjectTimeLineView @JvmOverloads constructor(
             endPoint + height,
             height.toFloat(),
             backgroundPaint
+        )
+
+        val linePaint = Paint()
+        linePaint.color = Color.WHITE
+        linePaint.strokeWidth = UnitConverter.float2DP(1f, resources)
+        canvas.drawLine(
+            (this.width / 2).toFloat(),
+            0f,
+            (this.width / 2).toFloat(),
+            this.height.toFloat(),
+            linePaint
         )
     }
 }
