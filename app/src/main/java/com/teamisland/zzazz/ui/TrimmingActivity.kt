@@ -334,15 +334,6 @@ class TrimmingActivity : AppCompatActivity() {
                         mThumb.lastTouchX = event.x
                         rangeSeekBarView.onSeekStart(rangeSeekBarView, rangeSeekBarView.currentThumb, mThumb.value)
                         currentPositionView.visibleTrimCurrent()
-                        return true
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        currentPositionView.visibleMarkerCurrent()
-                        if (rangeSeekBarView.currentThumb == -1)
-                            return false
-                        mThumb = rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb]
-                        rangeSeekBarView.onSeekStop(rangeSeekBarView, rangeSeekBarView.currentThumb, mThumb.value)
-                        return true
                     }
                     MotionEvent.ACTION_MOVE -> {
                         mThumb = rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb]
@@ -387,13 +378,19 @@ class TrimmingActivity : AppCompatActivity() {
                         player.seekTo((pos * videoDuration / 100).toLong())
                         currentPositionView.setMarkerPos(pos * 100)
                         Log.d("current", "pos: $pos, thumb1: ${mThumb.pos}, thumb2: ${mThumb2.pos}, current: ${currentPositionView.markerPos}")
+                        currentPositionView.invalidate()
                         rangeSeekBarView.setThumbPos(rangeSeekBarView.currentThumb, mThumb.pos)
-                        return true
                     }
-                    else -> return false
+                    else -> {
+                        currentPositionView.visibleMarkerCurrent()
+                        if (rangeSeekBarView.currentThumb == -1)
+                            return false
+                        mThumb = rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb]
+                        rangeSeekBarView.onSeekStop(rangeSeekBarView, rangeSeekBarView.currentThumb, mThumb.value)
+                    }
                 }
+                return true
             }
-
         })
         rangeSeekBarView.initMaxWidth()
         rangeSeekBarView.videoDuration = this.videoDuration
