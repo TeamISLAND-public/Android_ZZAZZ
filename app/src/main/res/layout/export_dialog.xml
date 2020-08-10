@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/DialogBackground">
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/saving"
@@ -19,14 +18,14 @@
 
     <TextView
         android:id="@+id/loading"
-        android:layout_width="104dp"
-        android:layout_height="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:fontFamily="@font/archivo_semibold"
+        android:fontFamily="@font/archivo_bold"
         android:text="@string/loading"
         android:textAlignment="center"
         android:textAllCaps="false"
-        android:textColor="#E5FFFFFF"
+        android:textColor="@color/ActivityTitle"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +39,7 @@
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textColor="#99FFFFFF"
-        android:textSize="11sp"
+        android:textSize="10sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/loading"

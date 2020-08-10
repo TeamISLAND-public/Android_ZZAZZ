@@ -7,7 +7,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
+import android.content.res.ColorStateList
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -33,6 +34,7 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
 import kotlinx.android.synthetic.main.activity_export.*
+import kotlinx.android.synthetic.main.export_dialog.*
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
@@ -48,7 +50,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
     private lateinit var uri: Uri
     internal var duration: Int = 0
-    private lateinit var fadeOut: Animation
 
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
@@ -63,6 +64,10 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
     //This is for done button
     internal var done = false
 
+    //This is for video is end
+    //When video is end, preview will start from first
+    private var end = false
+
     /**
      * When restart the activity start preview like onCreate.
      * This function is called when cancel the sharing function.
@@ -70,7 +75,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
     override fun onRestart() {
         super.onRestart()
         player.playWhenReady = true
-        preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
     }
 
     /**
@@ -87,6 +91,61 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         uri = intent.getParcelableExtra("URI")
 
         videoInit()
+
+        val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
+        fadeOut.startOffset = 1000
+        fadeOut.duration = 500
+        fadeOut.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(animation: Animation?) {
+                playButton.visibility = View.VISIBLE
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+                playButton.visibility = View.GONE
+            }
+
+            override fun onAnimationStart(animation: Animation?) {
+                playButton.visibility = View.VISIBLE
+            }
+        })
+        playButton.setOnClickListener { playButtonClickHandler(fadeOut) }
+        playButton.startAnimation(fadeOut)
+
+        video.setOnClickListener { playButton.startAnimation(fadeOut) }
+
+        done_export.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    done_export.alpha = 0.4F
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    done_export.alpha = 1F
+                    done = true
+                    Intent(this, IntroActivity::class.java).apply {
+                        flags =
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                        startActivity(this)
+                    }
+                }
+            }
+            true
+        }
+
+        back.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    back.alpha = 0.4F
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    back.alpha = 1F
+                    done = true
+                    finish()
+                }
+            }
+            true
+        }
 
         save.setOnTouchListener { _, event ->
             when (event.action) {
@@ -113,12 +172,12 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                     Intent().apply {
                         action = Intent.ACTION_SEND
                         putExtra(
-                            Intent.EXTRA_STREAM,
-                            FileProvider.getUriForFile(
-                                this@ExportActivity,
-                                "com.teamisland.zzazz.fileprovider",
-                                File(uri.path)
-                            )
+                                Intent.EXTRA_STREAM,
+                                FileProvider.getUriForFile(
+                                        this@ExportActivity,
+                                        "com.teamisland.zzazz.fileprovider",
+                                        File(uri.path)
+                                )
                         )
                         type = "video/*"
                         startActivity(Intent.createChooser(this, "Share"))
@@ -155,72 +214,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         }
         preview_progress.max = duration
         preview_progress.progress = 0
-        preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
 
-        videoStart()
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun videoStart() {
         player.playWhenReady = true
-
-        fadeOut = AnimationUtils.loadAnimation(this@ExportActivity, R.anim.fade_out)
-        fadeOut.startOffset = 1000
-        fadeOut.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationRepeat(animation: Animation?) {
-                preview_play.visibility = View.VISIBLE
-            }
-
-            // button needs to be vanished
-            override fun onAnimationEnd(animation: Animation?) {
-                preview_play.visibility = View.GONE
-            }
-
-            override fun onAnimationStart(animation: Animation?) {
-                preview_play.visibility = View.VISIBLE
-            }
-        })
-        fadeOut.duration = 500
-
-        preview_play.startAnimation(fadeOut)
-
-        //This is for video is end
-        //When video is end, preview will start from first
-        var end = false
-
-        done_export.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    done_export.alpha = 0.4F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    done_export.alpha = 1F
-                    done = true
-                    Intent(this, IntroActivity::class.java).apply {
-                        flags =
-                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                        startActivity(this)
-                    }
-                }
-            }
-            true
-        }
-
-        back.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    back.alpha = 0.4F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    back.alpha = 1F
-                    done = true
-                    finish()
-                }
-            }
-            true
-        }
 
         //Use thread to link seekBar from video
         player.addListener(object : Player.EventListener {
@@ -244,21 +239,17 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             }
         })
 
-        clickListener.setOnClickListener {
-            preview_play.startAnimation(fadeOut)
-        }
-
         preview_progress.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
+                SeekBar.OnSeekBarChangeListener {
 
             var playing = true
             var isDragging = false
 
             // while dragging
             override fun onProgressChanged(
-                seekBar: SeekBar?,
-                progress: Int,
-                fromUser: Boolean
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
             ) {
                 if (isDragging) player.seekTo(progress.toLong())
             }
@@ -266,6 +257,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             // when user starts dragging
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_pressed_thumb)
+                preview_progress.progressTintList =
+                        ColorStateList.valueOf(getColor(R.color.PointColor))
                 playing = player.isPlaying
                 player.playWhenReady = false
                 isDragging = true
@@ -275,11 +268,11 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 player.seekTo(preview_progress.progress.toLong())
                 preview_progress.thumb = getDrawable(R.drawable.seekbar_normal_thumb)
+                preview_progress.progressTintList = ColorStateList.valueOf(getColor(R.color.White))
                 when {
                     preview_progress.progress == duration -> {
                         end = true
                         playing = false
-                        preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
                     }
                     playing -> player.playWhenReady = true
                     else -> end = false
@@ -287,22 +280,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                 isDragging = false
             }
         })
-
-        preview_play.setOnClickListener {
-            if (player.isPlaying) {
-                player.playWhenReady = false
-                preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
-            } else {
-                if (end) {
-                    player.seekTo(0)
-                    end = false
-                }
-                player.playWhenReady = true
-                preview_play.setImageDrawable(getDrawable(R.drawable.video_pause))
-            }
-
-            preview_play.startAnimation(fadeOut)
-        }
 
         // changing text of button is needed
         player.addListener(object : Player.EventListener {
@@ -314,35 +291,61 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
              */
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 if (playbackState == Player.STATE_ENDED) {
-                    preview_play.setImageDrawable(getDrawable(R.drawable.video_play))
                     end = true
+                    playButton.isActivated = false
                 }
             }
         })
+
+        stopVideo()
+    }
+
+    private fun stopVideo() {
+        playButton.isActivated = false
+        player.playWhenReady = false
+    }
+
+    internal fun startVideo() {
+        player.playWhenReady = true
+        playButton.isActivated = true
+        Thread(Runnable {
+            do {
+                preview_progress.apply {
+                    this.progress = player.currentPosition.toInt()
+                    if (end) {
+                        end = false
+                        stopVideo()
+                    }
+                }
+                try {
+                    Thread.sleep(10)
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
+                }
+            } while (player.isPlaying)
+        }).start()
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @Suppress(
-        "BlockingMethodInNonBlockingContext",
-        "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
+            "BlockingMethodInNonBlockingContext",
+            "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
     )
     @SuppressLint("SimpleDateFormat", "SetTextI18n", "InflateParams")
     private fun videoSave() {
-        fadeOut.start()
-
         var checkStop = false
 
         //Check permission
         if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
+                        this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                1
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    1
             )
         }
 
@@ -356,27 +359,28 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
         val contentValues = ContentValues()
         contentValues.put(
-            MediaStore.Files.FileColumns.RELATIVE_PATH,
-            Environment.DIRECTORY_MOVIES + "/ZZAZZ"
+                MediaStore.Files.FileColumns.RELATIVE_PATH,
+                Environment.DIRECTORY_MOVIES + "/ZZAZZ"
         )
         contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename)
         contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "video/*")
         contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 1)
 
         val outputUri =
-            contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
+                contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
 
         val parcelFileDescriptor =
-            contentResolver.openFileDescriptor(outputUri ?: return, "w", null)
+                contentResolver.openFileDescriptor(outputUri ?: return, "w", null)
 
         val output = FileOutputStream((parcelFileDescriptor ?: return).fileDescriptor)
 
         val data = ByteArray(1024)
-        var total = 0
+        var total = 0F
         var count: Int
+        val len: Float = (input ?: return).available().toFloat()
         val handler = Handler()
 
-        val dialog = Dialog(this@ExportActivity)
+        val dialog = Dialog(this@ExportActivity, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
 
         var isExport = false
         var isFinished = false
@@ -390,21 +394,26 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                 dialog.setContentView(R.layout.export_dialog)
                 dialog.create()
                 dialog.show()
+                dialog.loading.text = getString(R.string.loading) + "(00%)"
                 val window = dialog.window
-                window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                window?.setBackgroundDrawable(ColorDrawable(getColor(R.color.DialogBackground)))
                 window?.setGravity(Gravity.CENTER)
             }
             count = try {
-                input?.read(data) ?: return@launch
+                input.read(data)
             } catch (e: Exception) {
                 -1
             }
             while (count != -1) {
                 total += count
+                handler.post {
+                    dialog.loading.text =
+                            getString(R.string.loading) + "(${(total / len * 100).toInt()}%)"
+                }
 
                 try {
                     output.write(data, 0, count)
-                    if (input != null) count = input.read(data)
+                    count = input.read(data)
                 } catch (e: Exception) {
                     checkStop = true
                     break
@@ -412,7 +421,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             }
 
             if (!checkStop) {
-                input?.close()
+                input.close()
                 output.flush()
                 output.close()
                 contentValues.clear()
@@ -432,8 +441,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                         save.background = getDrawable(R.drawable.check)
                         val finRadius = hypot((save.width * 2).toDouble(), save.height.toDouble())
                         val animation = ViewAnimationUtils.createCircularReveal(
-                            save, 0, save.height / 2, 0F,
-                            finRadius.toFloat()
+                                save, 0, save.height / 2, 0F,
+                                finRadius.toFloat()
                         )
                         animation.duration = 1000
                         save.visibility = View.VISIBLE
@@ -455,9 +464,9 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
      * Request permission to save video.
      */
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
     ) {
         if (requestCode == 1)
             return
@@ -483,4 +492,30 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
      */
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
+
+    private val playButtonClickListenerObject = object : Player.EventListener {
+        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+            if (playbackState == ExoPlayer.STATE_READY)
+                preview.postDelayed({ startVideo() }, 100)
+        }
+    }
+
+    private fun playButtonClickHandler(fadeOut: Animation) {
+        playButton.startAnimation(fadeOut)
+        when {
+            end -> {
+                end = false
+                player.seekTo(0)
+                player.removeListener(playButtonClickListenerObject)
+                startVideo()
+            }
+            playButton.isActivated -> {
+                stopVideo()
+            }
+            else -> {
+                player.removeListener(playButtonClickListenerObject)
+                startVideo()
+            }
+        }
+    }
 }
