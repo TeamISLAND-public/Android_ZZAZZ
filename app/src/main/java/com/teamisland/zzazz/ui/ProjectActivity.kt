@@ -114,7 +114,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
      */
     override fun onPause() {
         super.onPause()
-        stopVideo()
+//        stopVideo()
         mUnityPlayer.pause()
     }
 
@@ -165,7 +165,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         job = Job()
         mUnityPlayer = UnityPlayer(this)
 
-        //        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
+//        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
 //        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
 //        bitmapList = ArrayList(endFrame - startFrame + 1)
 
@@ -177,7 +177,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
 
-        //        Log.d("time", "start")
+//        Log.d("time", "start")
 //        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
 //        Log.d("time", "end")
 //        mediaMetadataRetriever.release()
@@ -315,6 +315,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         project_play.setOnClickListener {
             if (player.isPlaying) {
                 stopVideo()
+                UnityPlayer.UnitySendMessage("FrameTransitionManager", "MoveToFrame", "10")
             } else {
                 if (end) {
                     player.seekTo(0)
@@ -349,7 +350,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
     fun stopVideo() {
         player.playWhenReady = false
         project_play.isActivated = false
-        mUnityPlayer.pause()
+//        mUnityPlayer.pause()
     }
 
     private fun videoBinder() = launch {

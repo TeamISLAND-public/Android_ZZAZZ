@@ -43,6 +43,7 @@ proguard/
 /*/*/build
 /*/*/production
 captures/
+unityLibrary/
 .navigation/
 *.ipr
 *~
