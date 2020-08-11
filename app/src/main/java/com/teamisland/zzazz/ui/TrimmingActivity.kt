@@ -12,7 +12,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.util.Log
 import android.util.Range
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -21,8 +20,6 @@ import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.arthenica.mobileffmpeg.Config
-import com.arthenica.mobileffmpeg.LogMessage
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -31,25 +28,26 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import com.teamisland.zzazz.BuildConfig
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.IPositionChangeListener
 import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 import kotlinx.android.synthetic.main.activity_trimming.*
+import kotlinx.coroutines.*
 import java.io.File
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Activity for video trimming.
  */
-class TrimmingActivity : AppCompatActivity() {
+class TrimmingActivity : AppCompatActivity(), CoroutineScope {
 
     companion object {
         /**
          * Uri of the trimmed video.
          */
-        const val VIDEO_PATH: String = "PATH"
+        const val VIDEO_URI: String = "URI"
 
         /**
          * FPS of the trimmed video.
@@ -227,6 +225,8 @@ class TrimmingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_trimming)
         takePermission(arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE))
 
+        job = Job()
+
         if (setupVideoProperties()) return
 
         val parentFolder = getExternalFilesDir(null) ?: return
@@ -258,13 +258,15 @@ class TrimmingActivity : AppCompatActivity() {
         rangeSeekBarView.setButtons(framePlus, frameMinus)
         val addOnRangeSeekBarListener = object : OnRangeSeekBarListener {
             override fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                println("onCreate")
-                trimText.visibility = GONE
+                val seekDur = rangeSeekBarView.getEnd() - rangeSeekBarView.getStart()
+                if (seekDur <= resources.getInteger(R.integer.length_limit))
+                    trimText.visibility = GONE
+                else
+                    trimText.visibility = VISIBLE
                 applyTrimRangeChanges()
             }
 
             override fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                println("onSeek")
                 trimText.visibility = VISIBLE
                 applyTrimRangeChanges()
                 testVideoRange()
@@ -272,14 +274,16 @@ class TrimmingActivity : AppCompatActivity() {
             }
 
             override fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                println("onSeekStart")
                 trimText.visibility = VISIBLE
                 applyTrimRangeChanges()
             }
 
             override fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                println("onSeekStop")
-                trimText.visibility = GONE
+                val seekDur = rangeSeekBarView.getEnd() - rangeSeekBarView.getStart()
+                if (seekDur <= resources.getInteger(R.integer.length_limit))
+                    trimText.visibility = GONE
+                else
+                    trimText.visibility = VISIBLE
                 applyTrimRangeChanges()
             }
 
@@ -290,11 +294,6 @@ class TrimmingActivity : AppCompatActivity() {
         rangeSeekBarView.addOnRangeSeekBarListener(addOnRangeSeekBarListener)
         rangeSeekBarView.initMaxWidth()
         rangeSeekBarView.videoDuration = videoDuration
-        println("asdfasdf")
-        println(rangeSeekBarView.getStart())
-        println(rangeSeekBarView.getEnd())
-        println(count)
-        println(videoDuration)
 
         currentPositionView.setDuration(videoDuration)
         val currentPositionChangeListener = object : IPositionChangeListener {
@@ -327,12 +326,6 @@ class TrimmingActivity : AppCompatActivity() {
         frameLayout.setOnClickListener { playButton.startAnimation(fadeOut) }
 
         gotoProjectActivity.setOnClickListener { startTrimming() }
-
-        Config.enableLogCallback { message: LogMessage ->
-            if (BuildConfig.DEBUG) Log.d(Config.TAG, message.text)
-        }
-        println(videoUri.path)
-        println(getPath(this, videoUri))
     }
 
     private fun startTrimming() {
@@ -344,33 +337,9 @@ class TrimmingActivity : AppCompatActivity() {
             putExtra(VIDEO_START_FRAME, startFrame)
             putExtra(VIDEO_END_FRAME, endFrame)
 
-            putExtra(VIDEO_PATH, getPath(this@TrimmingActivity, videoUri))
+            putExtra(VIDEO_URI, videoUri)
             startActivity(this)
         }
-//        TrimVideoUtils.startTrim(
-//            this,
-//            videoUri,
-//            trimmedVideoFile,
-//            rangeSeekBarView.getStart().toLong(),
-//            rangeSeekBarView.getEnd().toLong(),
-//            GetVideoData.getDuration(this, videoUri).toLong(),
-//            object : VideoTrimmingListener {
-//                override fun onVideoPrepared() = Unit
-//
-//                override fun onTrimStarted() = Unit
-//
-//                override fun onFinishedTrimming(uri: Uri?) {
-//                }
-//
-//                override fun onErrorWhileViewingVideo(what: Int, extra: Int) {
-//                    Toast.makeText(
-//                        this@TrimmingActivity,
-//                        getString(R.string.trimming_error),
-//                        LENGTH_SHORT
-//                    ).show()
-//                }
-//            }
-//        )
     }
 
     private fun setupVideoProperties(): Boolean {
@@ -382,8 +351,10 @@ class TrimmingActivity : AppCompatActivity() {
 
     private val playButtonClickListenerObject = object : Player.EventListener {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-            if (playbackState == ExoPlayer.STATE_READY)
+            if (playbackState == ExoPlayer.STATE_READY) {
                 mainVideoView.postDelayed({ startVideo() }, 100)
+                player.removeListener(this)
+            }
         }
     }
 
@@ -399,7 +370,6 @@ class TrimmingActivity : AppCompatActivity() {
                 player.addListener(playButtonClickListenerObject)
                 return
             }
-            player.removeListener(playButtonClickListenerObject)
             startVideo()
         }
     }
@@ -407,21 +377,22 @@ class TrimmingActivity : AppCompatActivity() {
     internal fun startVideo() {
         player.playWhenReady = true
         playButton.isActivated = true
-        Thread(Runnable {
+        launch {
             do {
-                val now = rangeSeekBarView.getRange().clamp(player.currentPosition.toInt())
+                val currentPosition = player.currentPosition
+                val now = rangeSeekBarView.getRange().clamp(currentPosition.toInt())
                 with(currentPositionView) {
                     setMarkerPos(now * 100.0 / videoDuration)
                 }
-                if (rangeSeekBarView.getEnd() < player.currentPosition)
+                if (rangeSeekBarView.getEnd() < currentPosition)
                     stopVideo()
                 try {
-                    Thread.sleep(10)
+                    delay(10)
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
             } while (player.isPlaying)
-        }).start()
+        }
     }
 
     internal fun applyTrimRangeChanges() {
@@ -462,4 +433,21 @@ class TrimmingActivity : AppCompatActivity() {
             requestPermission(permission)
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+    }
+
+    private lateinit var job: Job
+
+    /**
+     * The context of this scope.
+     * Context is encapsulated by the scope and used for implementation of coroutine builders that are extensions on the scope.
+     * Accessing this property in general code is not recommended for any purposes except accessing the [Job] instance for advanced usages.
+     *
+     * By convention, should contain an instance of a [job][Job] to enforce structured concurrency.
+     */
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 }

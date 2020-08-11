@@ -59,7 +59,7 @@ object TrimVideoUtils {
         callback: VideoTrimmingListener
     ) {
 //        Log.d("AppLog", "startTrim")
-        outputTrimmedVideoFile.parentFile!!.mkdirs()
+        (outputTrimmedVideoFile.parentFile ?: return).mkdirs()
         outputTrimmedVideoFile.delete()
         var succeeded = false
         if (startMs <= 0L && endMs >= durationInMs) {

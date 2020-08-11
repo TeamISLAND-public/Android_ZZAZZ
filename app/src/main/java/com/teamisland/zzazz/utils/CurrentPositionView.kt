@@ -5,12 +5,11 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Paint.Style.STROKE
 import android.util.AttributeSet
-import android.util.TypedValue
-import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 import kotlin.math.abs
 
@@ -62,20 +61,16 @@ open class CurrentPositionView @JvmOverloads constructor(
         videoDuration = duration
     }
 
-    private fun float2DP(float: Float): Float {
-        return TypedValue.applyDimension(COMPLEX_UNIT_DIP, float, context.resources.displayMetrics)
-    }
-
     private fun getPointInViewWidth(): Float {
-        val start = float2DP(20f)
-        val end = width - float2DP(20f)
+        val start = float2DP(20f, resources)
+        val end = width - float2DP(20f, resources)
         return (((100.0 - markerPos) * start + markerPos * end) / 100.0).toFloat()
     }
 
     init {
         markerPaint.color = 0xffffffff.toInt()
         markerPaint.style = STROKE
-        markerPaint.strokeWidth = float2DP(5f)
+        markerPaint.strokeWidth = float2DP(5f, resources)
         markerPaint.strokeCap = Paint.Cap.ROUND
 
         textView.fontFeatureSettings = "@font/archivo"
@@ -101,13 +96,11 @@ open class CurrentPositionView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        println(getPointInViewWidth())
-
         canvas.drawLine(
             getPointInViewWidth(),
-            height - float2DP(47.5f),
+            height - float2DP(47.5f, resources),
             getPointInViewWidth(),
-            height.toFloat() - float2DP(2.5f),
+            height.toFloat() - float2DP(2.5f, resources),
             markerPaint
         )
 
@@ -120,7 +113,7 @@ open class CurrentPositionView @JvmOverloads constructor(
     }
 
     private fun isClicked(pos: Float): Boolean {
-        return abs(getPointInViewWidth() - pos) < float2DP(5f)
+        return abs(getPointInViewWidth() - pos) < float2DP(5f, resources)
     }
 
     /**
@@ -146,7 +139,7 @@ open class CurrentPositionView @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 // Calculate the distance moved
                 val dx = coordinate - lastX
-                markerPos = lastPos + dx.toDouble() * 100 / (width - 2 * float2DP(20f))
+                markerPos = lastPos + dx.toDouble() * 100 / (width - 2 * float2DP(20f, resources))
                 if (markerPos < range.getStart() * 100.0 / videoDuration)
                     markerPos = range.getStart() * 100.0 / videoDuration
                 if (markerPos > range.getEnd() * 100.0 / videoDuration)
