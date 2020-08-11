@@ -40,5 +40,4 @@
     <string name="fps_exceeded">fps exceeded</string>
     <string name="length_exceeded">length exceeded</string>
     <string name="choose_from_gallery">Choose From Gallery</string>
-    <string name="trimming_error">오류.</string>
 </resources>

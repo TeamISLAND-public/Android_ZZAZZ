@@ -38,6 +38,7 @@ import com.teamisland.zzazz.BuildConfig
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.IPositionChangeListener
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
 import com.teamisland.zzazz.video_trimmer_library.interfaces.VideoTrimmingListener
 import com.teamisland.zzazz.video_trimmer_library.utils.TrimVideoUtils
@@ -267,7 +268,7 @@ class TrimmingActivity : AppCompatActivity() {
             player.seekTo(player.currentPosition + 1)
             val pos =
                     ((rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb].pos - (rangeSeekBarView.currentThumb - 1)
-                            * rangeSeekBarView.thumbWidth - rangeSeekBarView.float2DP(12f)) / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.float2DP(12f)))
+                            * rangeSeekBarView.thumbWidth - float2DP(12f, resources)) / (rangeSeekBarView.viewWidth - 2 * float2DP(12f, resources)))
                             .toDouble()
             currentPositionView.setMarkerPos(pos * 100)
         }
@@ -277,7 +278,7 @@ class TrimmingActivity : AppCompatActivity() {
             player.seekTo(player.currentPosition - 1)
             val pos =
                     ((rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb].pos - (rangeSeekBarView.currentThumb - 1)
-                            * rangeSeekBarView.thumbWidth - rangeSeekBarView.float2DP(12f)) / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.float2DP(12f)))
+                            * rangeSeekBarView.thumbWidth - float2DP(12f, resources)) / (rangeSeekBarView.viewWidth - 2 * float2DP(12f, resources)))
                             .toDouble()
             currentPositionView.setMarkerPos(pos * 100)
         }
@@ -348,7 +349,7 @@ class TrimmingActivity : AppCompatActivity() {
                                         mThumb.lastTouchX = event.x
                                     }
                                 }
-                                pos = (mThumb.pos / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.float2DP(12f))).toDouble()
+                                pos = (mThumb.pos / (rangeSeekBarView.viewWidth - 2 * float2DP(12f, resources))).toDouble()
                             }
                             else -> {
                                 when {
@@ -363,7 +364,7 @@ class TrimmingActivity : AppCompatActivity() {
                                         mThumb.lastTouchX = event.x
                                     }
                                 }
-                                pos = ((mThumb.pos - rangeSeekBarView.float2DP(12f)) / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.float2DP(12f))).toDouble()
+                                pos = ((mThumb.pos - float2DP(12f, resources)) / (rangeSeekBarView.viewWidth - 2 * float2DP(12f, resources))).toDouble()
                             }
                         }
                         Log.d("current", "pos: $pos, thumb1: ${mThumb.pos}, thumb2: ${mThumb2.pos}, current: ${currentPositionView.markerPos}")
@@ -407,7 +408,7 @@ class TrimmingActivity : AppCompatActivity() {
                 MotionEvent.ACTION_DOWN -> {
                     if (event.x < rangeSeekBarView.thumbs[0].pos || event.x > rangeSeekBarView.thumbs[1].pos + rangeSeekBarView.thumbWidth)
                         return@setOnTouchListener false
-                    currentPositionView.markerPos = (event.x * 100 / (currentPositionView.width - 2 * currentPositionView.float2DP(12f))).toDouble()
+                    currentPositionView.markerPos = (event.x * 100 / (currentPositionView.width - 2 * float2DP(12f, resources))).toDouble()
                     currentPositionView.markerPaint.color = 0xffff3898.toInt()
                     currentPositionView.visibleTrimCurrent()
                     currentPositionView.invalidate()
@@ -420,7 +421,7 @@ class TrimmingActivity : AppCompatActivity() {
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    currentPositionView.markerPos = (event.x * 100 / (currentPositionView.width - 2 * currentPositionView.float2DP(12f))).toDouble()
+                    currentPositionView.markerPos = (event.x * 100 / (currentPositionView.width - 2 * float2DP(12f, resources))).toDouble()
                     if (currentPositionView.markerPos < rangeSeekBarView.getStart() * 100.0 / videoDuration)
                         currentPositionView.markerPos = rangeSeekBarView.getStart() * 100.0 / videoDuration
                     if (currentPositionView.markerPos > rangeSeekBarView.getEnd() * 100.0 / videoDuration)

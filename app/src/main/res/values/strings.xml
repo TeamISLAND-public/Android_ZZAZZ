@@ -11,7 +11,6 @@
     <string name="video_too_long">Size is too big.</string>
     <string name="one_frame_advance">+1Frame</string>
     <string name="one_frame_retreat">-1Frame</string>
-    <string name="trimming_error">Error while trimming.</string>
     <string name="start_trim">Drag to select a range.</string>
 
     <!--    string of projectactivity-->
@@ -26,7 +25,6 @@
     <string name="default_name">Project</string>
     <string name="go_back" translatable="false">Go back</string>
     <string name="save_the_project" translatable="false">Save the project</string>
-    <string name="play_pause_button" translatable="false">Play pause button</string>
 
     <!--    string of exportactivity-->
     <string name="export_title">PREVIEW</string>
@@ -39,7 +37,6 @@
     <string name="loading_text">Saving video</string>
     <string name="file_name">ZZAZZ</string>
 
-    <!--    string of alert-->
     <string name="fps_exceeded">fps exceeded</string>
     <string name="choose_from_gallery">Choose From Gallery</string>
 </resources>

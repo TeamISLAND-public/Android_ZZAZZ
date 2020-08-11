@@ -24,6 +24,7 @@
 package com.teamisland.zzazz.video_trimmer_library.view
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Paint.Style.FILL
@@ -37,6 +38,7 @@ import android.view.View
 import android.widget.Button
 import androidx.annotation.ColorInt
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView.ThumbType.LEFT
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView.ThumbType.RIGHT
@@ -117,23 +119,9 @@ open class RangeSeekBarView @JvmOverloads constructor(
             (thumbs[RIGHT.index].value.toDouble() / (videoFrameCount - 1) * videoDuration).toInt()
 
     /**
-     * Get start frame.
-     */
-    fun getFrameStart(): Int = thumbs[LEFT.index].value
-
-    /**
-     * Get end frames.
-     */
-    fun getFrameEnd(): Int = thumbs[RIGHT.index].value
-
-    /**
      * Get range selected in ms.
      */
     fun getRange(): Range<Int> = Range(getStart(), getEnd())
-
-    internal fun float2DP(float: Float): Float {
-        return TypedValue.applyDimension(COMPLEX_UNIT_DIP, float, context.resources.displayMetrics)
-    }
 
     /**
      * Sets the duration of the video.
@@ -147,7 +135,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
     private fun setStrokePaint() {
         strokePaint.isAntiAlias = true
         strokePaint.style = FILL
-        strokePaint.strokeWidth = float2DP(3f)
+        strokePaint.strokeWidth = float2DP(3f, resources)
         strokePaint.color = 0xffff3898.toInt()
     }
 
@@ -239,7 +227,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
     /**
      * Thumb width.
      */
-    open fun initThumbWidth(context: Context): Int = float2DP(12f).toInt().coerceAtLeast(1)
+    open fun initThumbWidth(context: Context): Int = float2DP(12f, resources).toInt().coerceAtLeast(1)
 
     /**
      * Initialize maxWidth.
@@ -319,7 +307,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
 
         if (thumbs[LEFT.index].value != 0) {
             canvas.drawRect(
-                    float2DP(12f),
+                    float2DP(12f, resources),
                     0f,
                     leftPosStart,
                     height.toFloat(),
@@ -331,22 +319,22 @@ open class RangeSeekBarView @JvmOverloads constructor(
             canvas.drawRect(
                     rightPosEnd,
                     0f,
-                    width - float2DP(12f),
+                    width - float2DP(12f, resources),
                     height.toFloat(),
                     unTrimmedPaint
             )
         }
 
         leftTriangle.reset()
-        leftTriangle.moveTo(leftPosStart + float2DP(3f), (height / 2).toFloat())
-        leftTriangle.lineTo(leftPosStart + float2DP(8f), height / 2 + float2DP(4f))
-        leftTriangle.lineTo(leftPosStart + float2DP(8f), height / 2 - float2DP(4f))
+        leftTriangle.moveTo(leftPosStart + float2DP(3f, resources), (height / 2).toFloat())
+        leftTriangle.lineTo(leftPosStart + float2DP(8f, resources), height / 2 + float2DP(4f, resources))
+        leftTriangle.lineTo(leftPosStart + float2DP(8f, resources), height / 2 - float2DP(4f, resources))
         leftTriangle.close()
 
         rightTriangle.reset()
-        rightTriangle.moveTo(rightPosEnd - float2DP(3f), (height / 2).toFloat())
-        rightTriangle.lineTo(rightPosEnd - float2DP(8f), height / 2 + float2DP(4f))
-        rightTriangle.lineTo(rightPosEnd - float2DP(8f), height / 2 - float2DP(4f))
+        rightTriangle.moveTo(rightPosEnd - float2DP(3f, resources), (height / 2).toFloat())
+        rightTriangle.lineTo(rightPosEnd - float2DP(8f, resources), height / 2 + float2DP(4f, resources))
+        rightTriangle.lineTo(rightPosEnd - float2DP(8f, resources), height / 2 - float2DP(4f, resources))
         rightTriangle.close()
 
         canvas.drawPath(leftTriangle, trianglePaint)
@@ -354,12 +342,12 @@ open class RangeSeekBarView @JvmOverloads constructor(
     }
 
     private fun pixelToScale(pixelValue: Float): Int {
-        return ((pixelValue - float2DP(12f)) * videoFrameCount / (viewWidth - 2 * float2DP(12f))).toInt()
+        return ((pixelValue - float2DP(12f, resources)) * videoFrameCount / (viewWidth - 2 * float2DP(12f, resources))).toInt()
                 .coerceIn(0, videoFrameCount - 1)
     }
 
     private fun scaleToPixel(scaleValue: Int): Float {
-        return (scaleValue * (viewWidth - 2 * float2DP(12f)) / videoFrameCount) + float2DP(12f)
+        return (scaleValue * (viewWidth - 2 * float2DP(12f, resources)) / videoFrameCount) + float2DP(12f, resources)
     }
 
     private fun calculateThumbValue(index: Int) {

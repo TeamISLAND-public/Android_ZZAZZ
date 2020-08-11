@@ -150,7 +150,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/Background"
-                android:contentDescription="@string/play_pause_button"
                 android:src="@drawable/ic_preview_button"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

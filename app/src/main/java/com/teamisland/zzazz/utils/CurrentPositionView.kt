@@ -3,17 +3,15 @@ package com.teamisland.zzazz.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.Style.STROKE
 import android.util.AttributeSet
-import android.util.TypedValue
-import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 import kotlin.math.abs
 
@@ -78,22 +76,18 @@ open class CurrentPositionView @JvmOverloads constructor(
         videoDuration = duration
     }
 
-    internal fun float2DP(float: Float): Float {
-        return TypedValue.applyDimension(COMPLEX_UNIT_DIP, float, context.resources.displayMetrics)
-    }
-
-    private fun getPointInViewWidth(): Float = (markerPos * (width - 2 * float2DP(12f)) / 100).toFloat() + float2DP(12f)
+    private fun getPointInViewWidth(): Float = (markerPos * (width - 2 * float2DP(12f, resources)) / 100).toFloat() + float2DP(12f, resources)
 
     init {
         markerPaint.color = 0xffffffff.toInt()
         markerPaint.style = STROKE
-        markerPaint.strokeWidth = float2DP(2f)
+        markerPaint.strokeWidth = float2DP(2f, resources)
         markerPaint.strokeCap = Paint.Cap.SQUARE
-        markerPaint.setShadowLayer(float2DP(2f), float2DP(2f), 0f, 0x60000000)
+        markerPaint.setShadowLayer(float2DP(2f, resources), float2DP(2f, resources), 0f, 0x60000000)
 
         trimPaint.color = 0xffffffff.toInt()
         trimPaint.style = STROKE
-        trimPaint.strokeWidth = float2DP(1f)
+        trimPaint.strokeWidth = float2DP(1f, resources)
         trimPaint.strokeCap = Paint.Cap.SQUARE
         trimPaint.alpha = 0
 
@@ -121,7 +115,7 @@ open class CurrentPositionView @JvmOverloads constructor(
         super.onDraw(canvas)
         canvas.drawLine(
                 getPointInViewWidth(),
-                float2DP(28f),
+                float2DP(28f, resources),
                 getPointInViewWidth(),
                 height.toFloat(),
                 markerPaint
@@ -129,9 +123,9 @@ open class CurrentPositionView @JvmOverloads constructor(
 
         canvas.drawLine(
                 getPointInViewWidth(),
-                float2DP(16f),
+                float2DP(16f, resources),
                 getPointInViewWidth(),
-                float2DP(32f),
+                float2DP(32f, resources),
                 trimPaint
         )
 
@@ -144,7 +138,7 @@ open class CurrentPositionView @JvmOverloads constructor(
     }
 
     private fun isClicked(pos: Float): Boolean {
-        return abs(getPointInViewWidth() - pos) < float2DP(5f)
+        return abs(getPointInViewWidth() - pos) < float2DP(5f, resources)
     }
 
     /**
@@ -158,7 +152,7 @@ open class CurrentPositionView @JvmOverloads constructor(
                 if (!isClicked(coordinate)) {
                     return false
                 }
-                markerPos = ((event.x - float2DP(12f)) * 100 / (width - 2 * float2DP(12f))).toDouble()
+                markerPos = ((event.x - float2DP(12f, resources)) * 100 / (width - 2 * float2DP(12f, resources))).toDouble()
                 markerPaint.color = 0xffff3898.toInt()
                 textView.visibility = VISIBLE
                 invalidate()
@@ -172,7 +166,7 @@ open class CurrentPositionView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_MOVE -> {
                 // Calculate the distance moved
-                markerPos = ((event.x - float2DP(12f)) * 100 / (width - 2 * float2DP(12f))).toDouble()
+                markerPos = ((event.x - float2DP(12f, resources)) * 100 / (width - 2 * float2DP(12f, resources))).toDouble()
                 if (markerPos < range.getStart() * 100.0 / videoDuration)
                     markerPos = range.getStart() * 100.0 / videoDuration
                 if (markerPos > range.getEnd() * 100.0 / videoDuration)
