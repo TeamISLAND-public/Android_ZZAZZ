@@ -32,9 +32,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"
                 tools:replace="android:resource" />
-        </provider>
-
-        <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
+        </provider> <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />
@@ -45,18 +43,23 @@
             android:screenOrientation="fullSensor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.IntroActivity"
             android:launchMode="singleTop"
             android:theme="@style/NoAnimation" />
-
-        <activity android:name=".ui.ExportActivity" />
         <activity android:name=".ui.TrimmingActivity" />
-        <activity android:name=".ui.ProjectActivity" /> <!-- <activity -->
+        <activity
+            android:name=".ui.ProjectActivity"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity
+            android:name=".utils.SaveProjectActivity"
+            android:theme="@style/Theme.AppCompat.Translucent"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
+        <activity android:name=".ui.ExportActivity" />
     </application>
 
 </manifest>

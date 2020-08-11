@@ -1,6 +1,5 @@
 <resources>
     <!--    string of introactivity-->
-    <string name="take_video">CAMERA</string>
     <string name="select_video">LOAD</string>
     <string name="video_restrictions">video length should not over = %d ,length = %d.</string>
     <string name="alert_2">Don\'t show again</string>
@@ -18,14 +17,16 @@
     <!--    string of projectactivity-->
     <string name="project_title">PROJECT</string>
     <string name="export">EXPORT</string>
-    <string name="add_effect">ADD EFFECT</string>
-    <string name="effect_back">Back</string>
-    <string name="effect_done">Done</string>
     <string name="head_effect">Head</string>
     <string name="left_arm_effect">Left arm</string>
     <string name="right_arm_effect">Right arm</string>
     <string name="left_leg_effect">Left leg</string>
     <string name="right_leg_effect">Right leg</string>
+    <string name="save_project">Project Name</string>
+    <string name="default_name">Project</string>
+    <string name="go_back" translatable="false">Go back</string>
+    <string name="save_the_project" translatable="false">Save the project</string>
+    <string name="play_pause_button" translatable="false">Play pause button</string>
 
     <!--    string of exportactivity-->
     <string name="export_title">PREVIEW</string>
@@ -39,12 +40,6 @@
     <string name="file_name">ZZAZZ</string>
 
     <!--    string of alert-->
-    <string name="selected_video_uri" translatable="false">pre_trim_selected_video_uri</string>
-    <string name="video_select">Video Selection…</string>
     <string name="fps_exceeded">fps exceeded</string>
-    <string name="debugger_tag" translatable="false">"AppZZAZZ Debugger says: "</string>
-    <string name="short_seconds">sec</string>
-    <string name="video_saved_at">Video has been saved at %s</string>
     <string name="choose_from_gallery">Choose From Gallery</string>
-    <string name="play_indicator">Play Indicator</string>
 </resources>

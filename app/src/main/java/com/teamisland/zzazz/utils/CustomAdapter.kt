@@ -1,21 +1,31 @@
 package com.teamisland.zzazz.utils
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.ui.ProjectActivity
 
 /**
  * Override [RecyclerView.Adapter] for effect tab
  */
+@Suppress("StaticFieldLeak")
 class CustomAdapter(
     private val list: ArrayList<Int>,
     private val context: Context,
-    private val onClickItem: View.OnClickListener
+    private val activity: ProjectActivity
 ) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
+
+    companion object {
+        /**
+         * Selected effect
+         */
+        var selectedEffect: ImageView? = null
+    }
 
     /**
      * [RecyclerView.Adapter.onCreateViewHolder]
@@ -36,7 +46,26 @@ class CustomAdapter(
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.imageView.setImageResource(list[position])
-        holder.imageView.setOnClickListener(onClickItem)
+        holder.imageView.setOnClickListener {
+            if (selectedEffect != null && selectedEffect != it) {
+                (selectedEffect ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                selectedEffect = it as ImageView
+                it.isActivated = true
+                it.setBackgroundColor(Color.parseColor("#8E359C"))
+            } else {
+                if (it.isActivated) {
+                    selectedEffect = null
+                    it.isActivated = false
+                    it.setBackgroundColor(Color.TRANSPARENT)
+                } else {
+                    activity.stopVideo()
+
+                    selectedEffect = it as ImageView
+                    it.isActivated = true
+                    it.setBackgroundColor(Color.parseColor("#8E359C"))
+                }
+            }
+        }
     }
 
     /**
@@ -46,6 +75,6 @@ class CustomAdapter(
         /**
          * Effect Image View
          */
-        val imageView = itemView.findViewById<ImageView>(R.id.item)!!
+        val imageView: ImageView = itemView.findViewById(R.id.item)!!
     }
 }

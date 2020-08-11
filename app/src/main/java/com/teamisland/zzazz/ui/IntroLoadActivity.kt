@@ -76,13 +76,13 @@ class IntroLoadActivity(private val packageManager: PackageManager) : Fragment()
         val videoUri = (data ?: return).data ?: return
 
         val videoFps = context?.let { GetVideoData.getFPS(it, videoUri) }
-        if (videoFps!! > resources.getInteger(R.integer.fps_limit)) {
+        if ((videoFps ?: return) > resources.getInteger(R.integer.fps_limit)) {
             Toast.makeText(context, getString(R.string.fps_exceeded), Toast.LENGTH_LONG).show()
             return
         }
 
         val videoDuration = context?.let { GetVideoData.getDuration(it, videoUri) }
-        if (videoDuration!! > resources.getInteger(R.integer.length_limit) * 1000) {
+        if ((videoDuration ?: return) > resources.getInteger(R.integer.length_limit) * 1000) {
             Toast.makeText(context, getString(R.string.length_exceeded), Toast.LENGTH_LONG).show()
             //return
         }
