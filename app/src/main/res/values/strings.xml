@@ -33,8 +33,9 @@
     <string name="save_text">Save</string>
     <string name="saved_text">Saved</string>
     <string name="share_text">Share</string>
-    <string name="loading">Loading</string>
-    <string name="loading_text">Saving video in user\'s device</string>
+    <string name="loading">LOADING</string>
+    <string name="loading_text">Saving video</string>
+    <string name="file_name">ZZAZZ</string>
 
     <!--    string of alert-->
     <string name="fps_exceeded">fps exceeded</string>
