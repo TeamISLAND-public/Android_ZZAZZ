@@ -3,6 +3,9 @@ package com.teamisland.zzazz.utils
 import android.content.res.Resources
 import android.util.TypedValue.*
 
+/**
+ * Unit Converter
+ */
 object UnitConverter {
     /**
      * Converts given float to DP.
