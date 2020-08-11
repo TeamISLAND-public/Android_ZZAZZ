@@ -8,7 +8,12 @@
 
     <!--    string of trimmingactivity-->
     <string name="trim_title">Trim</string>
+    <string name="go_to_project_activity" translatable="false">done</string>
     <string name="go_to_the_main_page">Go to the main page.</string>
+    <string name="video_too_long">Size is too big.</string>
+    <string name="one_frame_advance">+1FRAME</string>
+    <string name="one_frame_retreat">-1FRAME</string>
+    <string name="start_trim">Drag to select a range.</string>
 
     <!--    string of projectactivity-->
     <string name="project_title">PROJECT</string>
@@ -35,6 +40,4 @@
     <string name="fps_exceeded">fps exceeded</string>
     <string name="length_exceeded">length exceeded</string>
     <string name="choose_from_gallery">Choose From Gallery</string>
-    <string name="one_frame_advance">+1 프레임</string>
-    <string name="one_frame_retreat">-1 프레임</string>
 </resources>

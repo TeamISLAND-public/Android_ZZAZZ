@@ -13,10 +13,10 @@ class ItemDecoration : RecyclerView.ItemDecoration() {
      * [RecyclerView.ItemDecoration.getItemOffsets]
      */
     override fun getItemOffsets(
-        outRect: Rect,
-        view: View,
-        parent: RecyclerView,
-        state: RecyclerView.State
+            outRect: Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State
     ) {
         outRect.left = UnitConverter.float2DP(16F, view.resources).toInt()
         outRect.top = UnitConverter.float2DP(10F, view.resources).toInt()

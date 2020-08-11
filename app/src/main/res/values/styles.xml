@@ -13,10 +13,6 @@
         <item name="colorPrimaryDark">@color/Black</item>
     </style>
 
-    <style name="SmallText" parent="TextAppearance.Design.Tab">
-        <item name="textAllCaps">false</item>
-    </style>
-
     <style name="Theme.AppCompat.Translucent">
         <item name="android:windowBackground">@color/DialogBackground</item>
         <item name="windowNoTitle">true</item>

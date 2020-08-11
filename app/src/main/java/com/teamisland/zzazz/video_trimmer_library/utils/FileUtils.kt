@@ -97,7 +97,8 @@ object FileUtils {
             }
         }
         return when {
-            "content".equals(uri.scheme ?: return null, ignoreCase = true) -> // MediaStore (and general)
+            "content".equals(uri.scheme
+                    ?: return null, ignoreCase = true) -> // MediaStore (and general)
                 // Return the remote address
                 if (isGooglePhotosUri(uri)) uri.lastPathSegment else getDataColumn(context, uri, null, null)
             "file".equals(uri.scheme ?: return null, ignoreCase = true) -> // File
@@ -122,7 +123,8 @@ object FileUtils {
         val column = "_data"
         val projection = arrayOf(column)
         try {
-            cursor = context.contentResolver.query(uri ?: return null, projection, selection, selectionArgs, null)
+            cursor = context.contentResolver.query(uri
+                    ?: return null, projection, selection, selectionArgs, null)
             if (cursor != null && cursor.moveToFirst()) {
                 val columnIndex = cursor.getColumnIndexOrThrow(column)
                 return cursor.getString(columnIndex)

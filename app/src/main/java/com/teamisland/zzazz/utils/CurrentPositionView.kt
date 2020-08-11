@@ -1,5 +1,6 @@
 package com.teamisland.zzazz.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -9,6 +10,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.FloatRange
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 import kotlin.math.abs
@@ -19,30 +22,45 @@ import kotlin.math.abs
  */
 @Suppress("LeakingThis")
 open class CurrentPositionView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet?,
-    defStyleAttr: Int = 0
-) :
-    View(context, attrs, defStyleAttr) {
+        context: Context,
+        attrs: AttributeSet?,
+        defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
 
-    private val markerPaint = Paint()
-    private var markerPos = 0.0
+    // current position
+    internal val markerPaint = Paint()
+
+    // current position during trimming
+    private var trimPaint = Paint()
+
+    @FloatRange(from = 0.0, to = 100.0)
+    internal var markerPos = 0.0
     private val layout = LinearLayout(context)
     private val textView = TextView(context)
-    private lateinit var listener: IPositionChangeListener
+    internal lateinit var listener: IPositionChangeListener
     private var videoDuration: Int = 0
-    private var lastX = 0f
-    private var lastPos = 0.0
     private lateinit var range: RangeSeekBarView
+    private lateinit var player: SimpleExoPlayer
 
     private fun getText(): String {
         val pos = videoDuration * markerPos / 100
         val totalSecond = pos / 1000
+        val millisecond = (pos / 10) % 100
         val second = totalSecond % 60
         val minute = totalSecond / 60 % 60
-        return java.util.Formatter().format("%02d:%02d", minute.toInt(), second.toInt()).toString()
+        return java.util.Formatter().format("%02d:%02d:%02d", minute.toInt(), second.toInt(), millisecond.toInt()).toString()
     }
 
+    /**
+     * Set [player]
+     */
+    fun setPlayer(simpleExoPlayer: SimpleExoPlayer) {
+        player = simpleExoPlayer
+    }
+
+    /**
+     * Sets range.
+     */
     fun setRange(range: RangeSeekBarView) {
         this.range = range
     }
@@ -61,22 +79,25 @@ open class CurrentPositionView @JvmOverloads constructor(
         videoDuration = duration
     }
 
-    private fun getPointInViewWidth(): Float {
-        val start = float2DP(20f, resources)
-        val end = width - float2DP(20f, resources)
-        return (((100.0 - markerPos) * start + markerPos * end) / 100.0).toFloat()
-    }
+    private fun getPointInViewWidth(): Float = (markerPos * (width - 2 * float2DP(16f, resources)) / 100).toFloat() + float2DP(16f, resources)
 
     init {
         markerPaint.color = 0xffffffff.toInt()
         markerPaint.style = STROKE
-        markerPaint.strokeWidth = float2DP(5f, resources)
-        markerPaint.strokeCap = Paint.Cap.ROUND
+        markerPaint.strokeWidth = float2DP(2f, resources)
+        markerPaint.strokeCap = Paint.Cap.SQUARE
+        markerPaint.setShadowLayer(float2DP(2f, resources), float2DP(2f, resources), 0f, 0x60000000)
 
-        textView.fontFeatureSettings = "@font/archivo"
+        trimPaint.color = 0xffffffff.toInt()
+        trimPaint.style = STROKE
+        trimPaint.strokeWidth = float2DP(1f, resources)
+        trimPaint.strokeCap = Paint.Cap.SQUARE
+        trimPaint.alpha = 0
+
+        textView.fontFeatureSettings = "@font/archivo_regular"
         textView.textSize = 10F
         textView.visibility = GONE
-        textView.setTextColor(0xffffffff.toInt())
+        textView.setTextColor(0xccffffff.toInt())
 
         layout.addView(textView)
     }
@@ -95,13 +116,20 @@ open class CurrentPositionView @JvmOverloads constructor(
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        canvas.drawLine(
+                getPointInViewWidth(),
+                float2DP(28f, resources),
+                getPointInViewWidth(),
+                height.toFloat(),
+                markerPaint
+        )
 
         canvas.drawLine(
-            getPointInViewWidth(),
-            height - float2DP(47.5f, resources),
-            getPointInViewWidth(),
-            height.toFloat() - float2DP(2.5f, resources),
-            markerPaint
+                getPointInViewWidth(),
+                float2DP(16f, resources),
+                getPointInViewWidth(),
+                float2DP(32f, resources),
+                trimPaint
         )
 
         layout.measure(width, height)
@@ -119,6 +147,7 @@ open class CurrentPositionView @JvmOverloads constructor(
     /**
      * Touch event handler
      */
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val coordinate = event.x
         when (event.action) {
@@ -126,20 +155,21 @@ open class CurrentPositionView @JvmOverloads constructor(
                 if (!isClicked(coordinate)) {
                     return false
                 }
-                lastX = coordinate
-                lastPos = markerPos
+                markerPos = ((event.x - float2DP(16f, resources)) * 100 / (width - 2 * float2DP(16f, resources))).toDouble()
+                markerPaint.color = 0xffff3898.toInt()
                 textView.visibility = VISIBLE
+                invalidate()
                 return true
             }
             MotionEvent.ACTION_UP -> {
+                markerPaint.color = 0xccffffff.toInt()
                 textView.visibility = GONE
                 invalidate()
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
                 // Calculate the distance moved
-                val dx = coordinate - lastX
-                markerPos = lastPos + dx.toDouble() * 100 / (width - 2 * float2DP(20f, resources))
+                markerPos = ((event.x - float2DP(16f, resources)) * 100 / (width - 2 * float2DP(16f, resources))).toDouble()
                 if (markerPos < range.getStart() * 100.0 / videoDuration)
                     markerPos = range.getStart() * 100.0 / videoDuration
                 if (markerPos > range.getEnd() * 100.0 / videoDuration)
@@ -147,11 +177,39 @@ open class CurrentPositionView @JvmOverloads constructor(
                 if (markerPos < 0.0) markerPos = 0.0
                 if (markerPos > 100.0) markerPos = 100.0
                 listener.onChange(markerPos)
-                // Invalidate to request a redraw
+                player.seekTo((videoDuration * markerPos / 100).toLong())
                 invalidate()
                 return true
             }
         }
         return false
+    }
+
+    /**
+     * Make trim current visible.
+     */
+    fun visibleTrimCurrent() {
+        trimPaint.alpha = 255
+        textView.visibility = VISIBLE
+        markerPaint.alpha = 0
+        markerPaint.clearShadowLayer()
+    }
+
+    /**
+     * Make marker current visible.
+     */
+    fun visibleMarkerCurrent() {
+        trimPaint.alpha = 0
+        textView.visibility = GONE
+        markerPaint.alpha = 255
+        markerPaint.setShadowLayer(float2DP(2f, resources), float2DP(2f, resources), 0f, 0x60000000)
+    }
+
+    /**
+     * Change visibility of [textView]
+     */
+    fun changeTextVisibility() {
+        textView.visibility = if (textView.visibility == GONE)
+            VISIBLE else GONE
     }
 }

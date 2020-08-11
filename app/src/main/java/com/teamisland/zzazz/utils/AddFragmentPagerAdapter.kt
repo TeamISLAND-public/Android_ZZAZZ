@@ -9,9 +9,9 @@ import com.teamisland.zzazz.ui.ProjectActivity
  * Override [FragmentStatePagerAdapter] to connect tab and fragment.
  */
 class AddFragmentPagerAdapter(
-    fragmentManager: FragmentManager,
-    private val tabCount: Int,
-    private val activity: ProjectActivity
+        fragmentManager: FragmentManager,
+        private val tabCount: Int,
+        private val activity: ProjectActivity
 ) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     /**

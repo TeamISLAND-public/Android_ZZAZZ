@@ -150,7 +150,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/Background"
-                android:contentDescription="@string/play_pause_button"
                 android:src="@drawable/ic_preview_button"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -181,9 +180,7 @@
             app:tabIndicatorColor="#FF33A8"
             app:tabIndicatorFullWidth="false"
             app:tabMode="scrollable"
-            app:tabSelectedTextColor="@color/White"
-            app:tabTextAppearance="@style/TabText"
-            app:tabTextColor="@color/ContentsText40" />
+            app:tabTextAppearance="@style/TabText" />
 
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/effect_view_pager"

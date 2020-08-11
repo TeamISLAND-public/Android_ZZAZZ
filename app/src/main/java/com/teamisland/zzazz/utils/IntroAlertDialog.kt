@@ -26,8 +26,8 @@ class IntroAlertDialog(context: Context?, val run_function: () -> Unit) : AlertD
         window?.setGravity(Gravity.CENTER)
 
         window?.setLayout(
-            (264 * Resources.getSystem().displayMetrics.density).toInt(),
-            (165 * Resources.getSystem().displayMetrics.density).toInt()
+                (264 * Resources.getSystem().displayMetrics.density).toInt(),
+                (165 * Resources.getSystem().displayMetrics.density).toInt()
         )
 
         textView = findViewById(R.id.intro_alert_text)

@@ -15,9 +15,9 @@ import com.teamisland.zzazz.ui.ProjectActivity
  */
 @Suppress("StaticFieldLeak")
 class CustomAdapter(
-    private val list: ArrayList<Int>,
-    private val context: Context,
-    private val activity: ProjectActivity
+        private val list: ArrayList<Int>,
+        private val context: Context,
+        private val activity: ProjectActivity
 ) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
 
     companion object {

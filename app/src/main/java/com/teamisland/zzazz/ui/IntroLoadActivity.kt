@@ -31,14 +31,14 @@ class IntroLoadActivity(private val packageManager: PackageManager) : Fragment()
 
     private fun dispatchGetVideoIntent() {
         Intent(
-            Intent.ACTION_OPEN_DOCUMENT,
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                Intent.ACTION_OPEN_DOCUMENT,
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         ).also { getVideoIntent ->
             getVideoIntent.type = "video/*"
             getVideoIntent.resolveActivity(packageManager)?.also {
                 startActivityForResult(
-                    Intent.createChooser(getVideoIntent, "Select Video"),
-                    REQUEST_VIDEO_SELECT
+                        Intent.createChooser(getVideoIntent, "Select Video"),
+                        REQUEST_VIDEO_SELECT
                 )
             }
         }
@@ -54,9 +54,9 @@ class IntroLoadActivity(private val packageManager: PackageManager) : Fragment()
      * [Fragment.onCreateView]
      */
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         val view = layoutInflater.inflate(R.layout.activity_intro_load, container, false)
 
