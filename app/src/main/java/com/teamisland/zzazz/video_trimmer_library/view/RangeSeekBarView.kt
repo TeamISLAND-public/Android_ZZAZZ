@@ -24,7 +24,6 @@
 package com.teamisland.zzazz.video_trimmer_library.view
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Paint.Style.FILL
@@ -32,8 +31,6 @@ import android.graphics.Paint.Style.FILL_AND_STROKE
 import android.graphics.Path
 import android.util.AttributeSet
 import android.util.Range
-import android.util.TypedValue
-import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.View
 import android.widget.Button
 import androidx.annotation.ColorInt
