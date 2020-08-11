@@ -204,4 +204,12 @@ open class CurrentPositionView @JvmOverloads constructor(
         markerPaint.alpha = 255
         markerPaint.setShadowLayer(float2DP(2f, resources), float2DP(2f, resources), 0f, 0x60000000)
     }
+
+    /**
+     * Change visibility of [textView]
+     */
+    fun changeTextVisibility() {
+        textView.visibility = if (textView.visibility == GONE)
+            VISIBLE else GONE
+    }
 }
