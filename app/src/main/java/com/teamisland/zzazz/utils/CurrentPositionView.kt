@@ -3,6 +3,7 @@ package com.teamisland.zzazz.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.Style.STROKE
 import android.util.AttributeSet
@@ -34,7 +35,7 @@ open class CurrentPositionView @JvmOverloads constructor(
     private var trimPaint = Paint()
     internal var markerPos = 0.0
     private val layout = LinearLayout(context)
-    internal val textView = TextView(context)
+    private val textView = TextView(context)
     internal lateinit var listener: IPositionChangeListener
     private var videoDuration: Int = 0
     private lateinit var range: RangeSeekBarView
@@ -88,6 +89,7 @@ open class CurrentPositionView @JvmOverloads constructor(
         markerPaint.style = STROKE
         markerPaint.strokeWidth = float2DP(2f)
         markerPaint.strokeCap = Paint.Cap.SQUARE
+        markerPaint.setShadowLayer(float2DP(2f), float2DP(2f), 0f, 0x60000000)
 
         trimPaint.color = 0xffffffff.toInt()
         trimPaint.style = STROKE
