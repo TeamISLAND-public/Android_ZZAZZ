@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -47,6 +48,7 @@ class ProjectActivity : AppCompatActivity() {
         setContentView(R.layout.activity_project)
 
         val path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
+        Log.d("pathpathpath", path)
         uri = Uri.parse(path)
 //        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
 //        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)

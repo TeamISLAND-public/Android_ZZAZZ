@@ -57,21 +57,6 @@ class TrimmingActivity : AppCompatActivity() {
         const val VIDEO_PATH: String = "PATH"
 
         /**
-         * FPS of the trimmed video.
-         */
-        const val VIDEO_FPS: String = "FPS"
-
-        /**
-         * Starting frame index of the trimmed video.
-         */
-        const val VIDEO_START_FRAME: String = "START_F"
-
-        /**
-         * End frame index of the trimmed video.
-         */
-        const val VIDEO_END_FRAME: String = "END_F"
-
-        /**
          * Get a file path from a Uri. This will get the the path for Storage Access
          * Framework Documents, as well as the _data field for the MediaStore and
          * other file-based ContentProviders.
@@ -503,14 +488,7 @@ class TrimmingActivity : AppCompatActivity() {
                 }
         )
         Intent(this, ProjectActivity::class.java).apply {
-            putExtra(VIDEO_FPS, videoFps)
-            val startFrame = rangeSeekBarView.getFrameStart()
-            val endFrame = rangeSeekBarView.getFrameEnd()
-
-            putExtra(VIDEO_START_FRAME, startFrame)
-            putExtra(VIDEO_END_FRAME, endFrame)
-
-            putExtra(VIDEO_PATH, getPath(this@TrimmingActivity, Uri.parse(trimmedVideoFile.path)))
+            putExtra(VIDEO_PATH, trimmedVideoFile.absolutePath)
             startActivity(this)
         }
     }
