@@ -403,13 +403,11 @@ class TrimmingActivity : AppCompatActivity() {
                         return@setOnTouchListener false
                     currentPositionView.markerPos = (event.x * 100 / (currentPositionView.width - 2 * rangeSeekBarView.thumbWidth)).toDouble()
                     currentPositionView.markerPaint.color = 0xffff3898.toInt()
-                    currentPositionView.visibleTrimCurrent()
                     currentPositionView.invalidate()
                     true
                 }
                 MotionEvent.ACTION_UP -> {
                     currentPositionView.markerPaint.color = 0xccffffff.toInt()
-                    currentPositionView.visibleMarkerCurrent()
                     currentPositionView.invalidate()
                     true
                 }
