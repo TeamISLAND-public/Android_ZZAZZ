@@ -224,7 +224,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
     /**
      * Thumb width.
      */
-    open fun initThumbWidth(context: Context): Int = float2DP(12f, resources).toInt().coerceAtLeast(1)
+    open fun initThumbWidth(context: Context): Int = float2DP(16f, resources).toInt().coerceAtLeast(1)
 
     /**
      * Initialize maxWidth.
@@ -323,15 +323,15 @@ open class RangeSeekBarView @JvmOverloads constructor(
         }
 
         leftTriangle.reset()
-        leftTriangle.moveTo(leftPosStart + float2DP(3f, resources), (height / 2).toFloat())
-        leftTriangle.lineTo(leftPosStart + float2DP(8f, resources), height / 2 + float2DP(4f, resources))
-        leftTriangle.lineTo(leftPosStart + float2DP(8f, resources), height / 2 - float2DP(4f, resources))
+        leftTriangle.moveTo(leftPosStart + float2DP(5f, resources), (height / 2).toFloat())
+        leftTriangle.lineTo(leftPosStart + float2DP(10f, resources), height / 2 + float2DP(4f, resources))
+        leftTriangle.lineTo(leftPosStart + float2DP(10f, resources), height / 2 - float2DP(4f, resources))
         leftTriangle.close()
 
         rightTriangle.reset()
-        rightTriangle.moveTo(rightPosEnd - float2DP(3f, resources), (height / 2).toFloat())
-        rightTriangle.lineTo(rightPosEnd - float2DP(8f, resources), height / 2 + float2DP(4f, resources))
-        rightTriangle.lineTo(rightPosEnd - float2DP(8f, resources), height / 2 - float2DP(4f, resources))
+        rightTriangle.moveTo(rightPosEnd - float2DP(6f, resources), (height / 2).toFloat())
+        rightTriangle.lineTo(rightPosEnd - float2DP(11f, resources), height / 2 + float2DP(4f, resources))
+        rightTriangle.lineTo(rightPosEnd - float2DP(11f, resources), height / 2 - float2DP(4f, resources))
         rightTriangle.close()
 
         canvas.drawPath(leftTriangle, trianglePaint)

@@ -79,7 +79,7 @@ open class CurrentPositionView @JvmOverloads constructor(
         videoDuration = duration
     }
 
-    private fun getPointInViewWidth(): Float = (markerPos * (width - 2 * float2DP(12f, resources)) / 100).toFloat() + float2DP(12f, resources)
+    private fun getPointInViewWidth(): Float = (markerPos * (width - 2 * float2DP(16f, resources)) / 100).toFloat() + float2DP(16f, resources)
 
     init {
         markerPaint.color = 0xffffffff.toInt()
@@ -155,7 +155,7 @@ open class CurrentPositionView @JvmOverloads constructor(
                 if (!isClicked(coordinate)) {
                     return false
                 }
-                markerPos = ((event.x - float2DP(12f, resources)) * 100 / (width - 2 * float2DP(12f, resources))).toDouble()
+                markerPos = ((event.x - float2DP(16f, resources)) * 100 / (width - 2 * float2DP(16f, resources))).toDouble()
                 markerPaint.color = 0xffff3898.toInt()
                 textView.visibility = VISIBLE
                 invalidate()
@@ -169,7 +169,7 @@ open class CurrentPositionView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_MOVE -> {
                 // Calculate the distance moved
-                markerPos = ((event.x - float2DP(12f, resources)) * 100 / (width - 2 * float2DP(12f, resources))).toDouble()
+                markerPos = ((event.x - float2DP(16f, resources)) * 100 / (width - 2 * float2DP(16f, resources))).toDouble()
                 if (markerPos < range.getStart() * 100.0 / videoDuration)
                     markerPos = range.getStart() * 100.0 / videoDuration
                 if (markerPos > range.getEnd() * 100.0 / videoDuration)
@@ -192,6 +192,7 @@ open class CurrentPositionView @JvmOverloads constructor(
         trimPaint.alpha = 255
         textView.visibility = VISIBLE
         markerPaint.alpha = 0
+        markerPaint.clearShadowLayer()
     }
 
     /**
@@ -201,5 +202,6 @@ open class CurrentPositionView @JvmOverloads constructor(
         trimPaint.alpha = 0
         textView.visibility = GONE
         markerPaint.alpha = 255
+        markerPaint.setShadowLayer(float2DP(2f, resources), float2DP(2f, resources), 0f, 0x60000000)
     }
 }
