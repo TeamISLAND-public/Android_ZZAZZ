@@ -315,6 +315,14 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
                         this
                 )
         effect_view_pager.adapter = addPagerAdapter
+
+        for (index in 1 until effect_tab.tabCount)
+            (effect_tab.getTabAt(index) ?: return).view.tab_text.setTextColor(
+                    ContextCompat.getColor(
+                            applicationContext,
+                            R.color.ContentsText40
+                    )
+            )
         val tabView = effect_tab.getTabAt(0)
         (tabView ?: return).view.tab_text.typeface =
                 ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
