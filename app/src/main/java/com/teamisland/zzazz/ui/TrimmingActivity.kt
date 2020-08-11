@@ -469,7 +469,7 @@ class TrimmingActivity : AppCompatActivity() {
                 trimmedVideoFile,
                 rangeSeekBarView.getStart().toLong(),
                 rangeSeekBarView.getEnd().toLong(),
-                GetVideoData.getDuration(this, videoUri).toLong(),
+                videoDuration.toLong(),
                 object : VideoTrimmingListener {
                     override fun onVideoPrepared() = Unit
 

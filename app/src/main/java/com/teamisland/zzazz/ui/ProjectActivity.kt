@@ -147,7 +147,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
                 (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
                 (CustomAdapter.selectedEffect
-                    ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                        ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
 
                 val bitmap = (getDrawable(R.drawable.load) as BitmapDrawable).bitmap
@@ -159,13 +159,13 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
                     dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
                 }
                 effectList.add(
-                    Effect(
-                        frame,
-                        frame + 29,
-                        0,
-                        0xFFFFFF,
-                        dataArrayList
-                    )
+                        Effect(
+                                frame,
+                                frame + 29,
+                                0,
+                                0xFFFFFF,
+                                dataArrayList
+                        )
                 )
                 Log.d("effect add", "${effectList.size}")
             }
@@ -300,7 +300,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 
     // make effect tab
     private fun tabInit() {
-        with (effect_tab){
+        with(effect_tab) {
             addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect))))
             addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
             addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
@@ -309,42 +309,42 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         }
 
         val addPagerAdapter =
-            AddFragmentPagerAdapter(
-                supportFragmentManager,
-                5,
-                this
-            )
+                AddFragmentPagerAdapter(
+                        supportFragmentManager,
+                        5,
+                        this
+                )
         effect_view_pager.adapter = addPagerAdapter
         val tabView = effect_tab.getTabAt(0)
         (tabView ?: return).view.tab_text.typeface =
-            ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+                ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
         tabView.view.tab_text.setTextColor(
-            ContextCompat.getColor(
-                applicationContext,
-                R.color.White
-            )
+                ContextCompat.getColor(
+                        applicationContext,
+                        R.color.White
+                )
         )
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 effect_view_pager.currentItem = (tab ?: return).position
                 tab.view.tab_text.typeface =
-                    ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+                        ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
                 tab.view.tab_text.setTextColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.White
-                    )
+                        ContextCompat.getColor(
+                                applicationContext,
+                                R.color.White
+                        )
                 )
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
                 (tab ?: return).view.tab_text.typeface =
-                    ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
+                        ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
                 tab.view.tab_text.setTextColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.ContentsText40
-                    )
+                        ContextCompat.getColor(
+                                applicationContext,
+                                R.color.ContentsText40
+                        )
                 )
             }
 
@@ -381,8 +381,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
         for (i in 0 until effectList.size) {
             for (j in i until effectList.size) {
                 if (effectList[j].getStartFrame() < effectList[i].getStartFrame() ||
-                    (effectList[j].getStartFrame() == effectList[i].getStartFrame()) &&
-                    (effectList[j].getEndFrame() < effectList[i].getEndFrame())
+                        (effectList[j].getStartFrame() == effectList[i].getStartFrame()) &&
+                        (effectList[j].getEndFrame() < effectList[i].getEndFrame())
                 ) {
                     val effect = effectList[i]
                     effectList[i] = effectList[j]
@@ -432,9 +432,9 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
                     if (end) end = false
                     posX2 = event.x
                     val delta =
-                        (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
+                            (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
                     val time = (player.currentPosition - delta).toInt()
-                        .coerceIn(0, videoDuration)
+                            .coerceIn(0, videoDuration)
                     player.seekTo(time.toLong())
                     setCurrentTime(time)
                     posX1 = posX2

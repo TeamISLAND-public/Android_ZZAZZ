@@ -10,9 +10,9 @@ object UnitConverter {
      */
     fun float2DP(float: Float, resources: Resources): Float {
         return applyDimension(
-            COMPLEX_UNIT_DIP,
-            float,
-            resources.displayMetrics
+                COMPLEX_UNIT_DIP,
+                float,
+                resources.displayMetrics
         )
     }
 
@@ -22,9 +22,9 @@ object UnitConverter {
      */
     fun float2SP(float: Float, resources: Resources): Float {
         return applyDimension(
-            COMPLEX_UNIT_SP,
-            float,
-            resources.displayMetrics
+                COMPLEX_UNIT_SP,
+                float,
+                resources.displayMetrics
         )
     }
 
@@ -33,9 +33,9 @@ object UnitConverter {
      */
     fun float2Unit(float: Float, resources: Resources, dimension: Int): Float {
         return applyDimension(
-            dimension,
-            float,
-            resources.displayMetrics
+                dimension,
+                float,
+                resources.displayMetrics
         )
     }
 

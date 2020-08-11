@@ -11,7 +11,7 @@ import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.ZoomableView
 
 class EffectRangeView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
     /**

@@ -24,7 +24,6 @@
     <string name="save_project">Project Name</string>
     <string name="default_name">Project</string>
     <string name="go_back" translatable="false">Go back</string>
-    <string name="save_the_project" translatable="false">Save the project</string>
 
     <!--    string of exportactivity-->
     <string name="export_title">PREVIEW</string>

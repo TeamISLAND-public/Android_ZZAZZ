@@ -116,12 +116,6 @@ open class RangeSeekBarView @JvmOverloads constructor(
             (thumbs[RIGHT.index].value.toDouble() / (videoFrameCount - 1) * videoDuration).toInt()
 
     /**
-     * Get current thumb's point in ms.
-     */
-    fun getCurrent(): Int =
-            (thumbs[currentThumb].value.toDouble() / (videoFrameCount - 1) * videoDuration).toInt()
-
-    /**
      * Get range selected in ms.
      */
     fun getRange(): Range<Int> = Range(getStart(), getEnd())

@@ -16,9 +16,9 @@ class IntroProjectActivity : Fragment() {
      * Override [Fragment.onCreateView]
      */
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         return layoutInflater.inflate(R.layout.activity_intro_project, container, false)
     }

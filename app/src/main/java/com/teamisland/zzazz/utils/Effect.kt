@@ -11,11 +11,11 @@ import androidx.annotation.RequiresApi
  * Class for each effects
  */
 class Effect(
-    private var startFrame: Int,
-    private var endFrame: Int,
-    private val type: Int,
-    private var color: Int,
-    private var dataArrayList: MutableList<Data>
+        private var startFrame: Int,
+        private var endFrame: Int,
+        private val type: Int,
+        private var color: Int,
+        private var dataArrayList: MutableList<Data>
 ) {
     private var visible = true
 
@@ -115,10 +115,10 @@ class Effect(
      * Data of effect on each frames.
      */
     class Data(
-        private var bitmap: Bitmap,
-        private var point: Point,
-        private var width: Int,
-        private var height: Int
+            private var bitmap: Bitmap,
+            private var point: Point,
+            private var width: Int,
+            private var height: Int
     ) {
 
         private var degree: Float = 0F
@@ -188,13 +188,13 @@ class Effect(
      * Coordinate of point
      */
     class Point(
-        /**
-         * x point
-         */
-        var x: Int,
-        /**
-         * y point
-         */
-        var y: Int
+            /**
+             * x point
+             */
+            var x: Int,
+            /**
+             * y point
+             */
+            var y: Int
     )
 }
