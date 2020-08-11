@@ -116,6 +116,12 @@ open class RangeSeekBarView @JvmOverloads constructor(
             (thumbs[RIGHT.index].value.toDouble() / (videoFrameCount - 1) * videoDuration).toInt()
 
     /**
+     * Get current thumb's point in ms.
+     */
+    fun getCurrent(): Int =
+            (thumbs[currentThumb].value.toDouble() / (videoFrameCount - 1) * videoDuration).toInt()
+
+    /**
      * Get range selected in ms.
      */
     fun getRange(): Range<Int> = Range(getStart(), getEnd())
@@ -304,7 +310,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
 
         if (thumbs[LEFT.index].value != 0) {
             canvas.drawRect(
-                    float2DP(12f, resources),
+                    thumbWidth.toFloat(),
                     0f,
                     leftPosStart,
                     height.toFloat(),
@@ -316,7 +322,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
             canvas.drawRect(
                     rightPosEnd,
                     0f,
-                    width - float2DP(12f, resources),
+                    (width - thumbWidth).toFloat(),
                     height.toFloat(),
                     unTrimmedPaint
             )
@@ -339,12 +345,12 @@ open class RangeSeekBarView @JvmOverloads constructor(
     }
 
     private fun pixelToScale(pixelValue: Float): Int {
-        return ((pixelValue - float2DP(12f, resources)) * videoFrameCount / (viewWidth - 2 * float2DP(12f, resources))).toInt()
+        return ((pixelValue - thumbWidth) * videoFrameCount / (viewWidth - 2 * thumbWidth)).toInt()
                 .coerceIn(0, videoFrameCount - 1)
     }
 
     private fun scaleToPixel(scaleValue: Int): Float {
-        return (scaleValue * (viewWidth - 2 * float2DP(12f, resources)) / videoFrameCount) + float2DP(12f, resources)
+        return ((scaleValue * (viewWidth - 2 * thumbWidth) / videoFrameCount) + thumbWidth).toFloat()
     }
 
     private fun calculateThumbValue(index: Int) {
@@ -388,8 +394,8 @@ open class RangeSeekBarView @JvmOverloads constructor(
         invalidate()
     }
 
-    internal fun incrementThumbPos(index: Int, millisecond: Int) {
-        setThumbValue(index, thumbs[index].value + millisecond)
+    internal fun incrementThumbPos(index: Int, frame: Int) {
+        setThumbValue(index, thumbs[index].value + frame)
     }
 
     internal fun setThumbPos(index: Int, pos: Float) {
@@ -462,12 +468,12 @@ open class RangeSeekBarView @JvmOverloads constructor(
      */
     data class Thumb(val index: Int = 0) {
         /**
-         * Value of the thumb.
+         * Frame value of the thumb.
          */
         var value: Int = 0
 
         /**
-         * Position of the thumb.
+         * Left position of the thumb.
          */
         var pos: Float = 0f
 

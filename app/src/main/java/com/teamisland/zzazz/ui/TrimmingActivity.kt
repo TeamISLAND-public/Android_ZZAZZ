@@ -14,7 +14,6 @@ import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Log
-import android.util.Range
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.GONE
@@ -188,18 +187,6 @@ class TrimmingActivity : AppCompatActivity() {
         }
     }
 
-    internal fun stopVideo() {
-        playButton.isActivated = false
-        player.playWhenReady = false
-    }
-
-    private fun testVideoPositionInRange(): Boolean {
-        val now = player.currentPosition.toInt()
-        with(rangeSeekBarView) {
-            return Range(getStart(), getEnd()).contains(now)
-        }
-    }
-
     internal fun testVideoRange() {
         val range = rangeSeekBarView.getRange()
         if (player.currentPosition.toInt() !in range) {
@@ -264,23 +251,27 @@ class TrimmingActivity : AppCompatActivity() {
         playButton.startAnimation(fadeOut)
 
         framePlus.setOnClickListener {
+            stopVideo()
             rangeSeekBarView.incrementThumbPos(rangeSeekBarView.currentThumb, 1)
-            player.seekTo(player.currentPosition + 1)
-            val pos =
-                    ((rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb].pos - (rangeSeekBarView.currentThumb - 1)
-                            * rangeSeekBarView.thumbWidth - float2DP(12f, resources)) / (rangeSeekBarView.viewWidth - 2 * float2DP(12f, resources)))
-                            .toDouble()
-            currentPositionView.setMarkerPos(pos * 100)
+            if (rangeSeekBarView.currentThumb == 0) {
+                player.seekTo(rangeSeekBarView.getStart().toLong())
+                currentPositionView.setMarkerPos(rangeSeekBarView.getStart() * 100.0 / videoDuration)
+            } else {
+                player.seekTo(rangeSeekBarView.getEnd().toLong())
+                currentPositionView.setMarkerPos(rangeSeekBarView.getEnd() * 100.0 / videoDuration)
+            }
         }
 
         frameMinus.setOnClickListener {
+            stopVideo()
             rangeSeekBarView.incrementThumbPos(rangeSeekBarView.currentThumb, -1)
-            player.seekTo(player.currentPosition - 1)
-            val pos =
-                    ((rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb].pos - (rangeSeekBarView.currentThumb - 1)
-                            * rangeSeekBarView.thumbWidth - float2DP(12f, resources)) / (rangeSeekBarView.viewWidth - 2 * float2DP(12f, resources)))
-                            .toDouble()
-            currentPositionView.setMarkerPos(pos * 100)
+            if (rangeSeekBarView.currentThumb == 0) {
+                player.seekTo(rangeSeekBarView.getStart().toLong())
+                currentPositionView.setMarkerPos(rangeSeekBarView.getStart() * 100.0 / videoDuration)
+            } else {
+                player.seekTo(rangeSeekBarView.getEnd().toLong())
+                currentPositionView.setMarkerPos(rangeSeekBarView.getEnd() * 100.0 / videoDuration)
+            }
         }
 
         rangeSeekBarView.setButtons(framePlus, frameMinus)
@@ -292,7 +283,8 @@ class TrimmingActivity : AppCompatActivity() {
             override fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
                 applyTrimRangeChanges()
                 testVideoRange()
-                stopVideo()
+                if (playButton.isActivated)
+                    stopVideo()
             }
 
             override fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
@@ -310,11 +302,12 @@ class TrimmingActivity : AppCompatActivity() {
         rangeSeekBarView.addOnRangeSeekBarListener(addOnRangeSeekBarListener)
         rangeSeekBarView.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                stopVideo()
                 val mThumb: RangeSeekBarView.Thumb
                 val mThumb2: RangeSeekBarView.Thumb
                 when (event?.action) {
                     MotionEvent.ACTION_DOWN -> {
+                        if (playButton.isActivated)
+                            stopVideo()
                         // Remember where we started
                         rangeSeekBarView.currentThumb = rangeSeekBarView.getClosestThumb(event.x)
                         rangeSeekBarView.setButtonVisibility()
@@ -326,6 +319,7 @@ class TrimmingActivity : AppCompatActivity() {
                         mThumb.lastTouchX = event.x
                         rangeSeekBarView.onSeekStart(rangeSeekBarView, rangeSeekBarView.currentThumb, mThumb.value)
                         currentPositionView.visibleTrimCurrent()
+                        player.seekTo((videoDuration * currentPositionView.markerPos / 100).toLong())
                     }
                     MotionEvent.ACTION_MOVE -> {
                         mThumb = rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb]
@@ -367,9 +361,8 @@ class TrimmingActivity : AppCompatActivity() {
                                 pos = ((mThumb.pos - float2DP(12f, resources)) / (rangeSeekBarView.viewWidth - 2 * float2DP(12f, resources))).toDouble()
                             }
                         }
-                        Log.d("current", "pos: $pos, thumb1: ${mThumb.pos}, thumb2: ${mThumb2.pos}, current: ${currentPositionView.markerPos}")
                         rangeSeekBarView.setThumbPos(rangeSeekBarView.currentThumb, mThumb.pos)
-                        player.seekTo((pos * videoDuration / 100).toLong())
+                        player.seekTo((pos * videoDuration).toLong())
                         currentPositionView.setMarkerPos(pos * 100)
                     }
                     else -> {
@@ -395,7 +388,8 @@ class TrimmingActivity : AppCompatActivity() {
              */
             override fun onChange(percentage: Double) {
                 player.seekTo((percentage * videoDuration / 100).toLong())
-                stopVideo()
+                if (playButton.isActivated)
+                    stopVideo()
             }
         }
         currentPositionView.setListener(currentPositionChangeListener)
@@ -503,10 +497,13 @@ class TrimmingActivity : AppCompatActivity() {
 
     private val playButtonClickListenerObject = object : Player.EventListener {
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-            if (playbackState == ExoPlayer.STATE_READY)
+            if (playbackState == ExoPlayer.STATE_READY && playWhenReady)
                 mainVideoView.postDelayed({ startVideo() }, 100)
         }
     }
+
+    private fun testVideoPositionInRange(): Boolean =
+            (rangeSeekBarView.getStart() <= player.currentPosition) && (rangeSeekBarView.getEnd() > player.currentPosition)
 
     private fun playButtonClickHandler(fadeOut: Animation) {
         playButton.startAnimation(fadeOut)
@@ -518,6 +515,7 @@ class TrimmingActivity : AppCompatActivity() {
                 player.seekTo(start.toLong())
                 currentPositionView.setMarkerPos(start * 100.0 / videoDuration)
                 player.addListener(playButtonClickListenerObject)
+                startVideo()
                 return
             }
             player.removeListener(playButtonClickListenerObject)
@@ -525,23 +523,25 @@ class TrimmingActivity : AppCompatActivity() {
         }
     }
 
+    internal fun stopVideo() {
+        playButton.isActivated = false
+        player.playWhenReady = false
+    }
+
     internal fun startVideo() {
         player.playWhenReady = true
         playButton.isActivated = true
         Thread(Runnable {
-            do {
-                val now = rangeSeekBarView.getRange().clamp(player.currentPosition.toInt())
-                println(now)
-                println(videoDuration)
-                currentPositionView.setMarkerPos(now * 100.0 / videoDuration)
-                if (rangeSeekBarView.getEnd() < player.currentPosition)
+            while (player.isPlaying) {
+                currentPositionView.setMarkerPos(player.currentPosition * 100.0 / videoDuration)
+                if (rangeSeekBarView.getEnd() <= player.currentPosition && playButton.isActivated)
                     stopVideo()
                 try {
                     Thread.sleep(10)
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
-            } while (player.isPlaying)
+            }
         }).start()
     }
 

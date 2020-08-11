@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.FloatRange
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
@@ -31,6 +32,8 @@ open class CurrentPositionView @JvmOverloads constructor(
 
     // current position during trimming
     private var trimPaint = Paint()
+
+    @FloatRange(from = 0.0, to = 100.0)
     internal var markerPos = 0.0
     private val layout = LinearLayout(context)
     private val textView = TextView(context)
