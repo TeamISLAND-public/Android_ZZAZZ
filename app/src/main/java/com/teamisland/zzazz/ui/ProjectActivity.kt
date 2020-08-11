@@ -169,7 +169,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
 //        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
 //        bitmapList = ArrayList(endFrame - startFrame + 1)
 
-        uri = intent.getParcelableExtra(TrimmingActivity.VIDEO_URI)
+        path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
+        val uri = Uri.parse(path)
         videoDuration = getDuration(this, uri)
         fps = getFrameCount(this, uri) / (videoDuration / 1000f)
 
@@ -177,7 +178,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
 
-//        Log.d("time", "start")
+        //        Log.d("time", "start")
 //        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
 //        Log.d("time", "end")
 //        mediaMetadataRetriever.release()
@@ -200,7 +201,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
 
                 (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
                 (CustomAdapter.selectedEffect
-                    ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                        ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
 
                 val bitmap = (getDrawable(R.drawable.load) as BitmapDrawable).bitmap
@@ -212,13 +213,13 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
                     dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
                 }
                 effectList.add(
-                    Effect(
-                        frame,
-                        frame + 29,
-                        0,
-                        0xFFFFFF,
-                        dataArrayList
-                    )
+                        Effect(
+                                frame,
+                                frame + 29,
+                                0,
+                                0xFFFFFF,
+                                dataArrayList
+                        )
                 )
                 Log.d("effect add", "${effectList.size}")
             }
@@ -267,8 +268,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         player.prepare(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri))
 
         val layoutParams = RelativeLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
         )
         layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.video_display)
         layoutParams.addRule(RelativeLayout.ALIGN_START, R.id.video_display)
@@ -366,64 +367,58 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
 
     private fun tabInit() {
         with(effect_tab) {
-            addTab(
-                effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.left_arm_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.right_arm_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.left_leg_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.right_leg_effect)))
-            )
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
+            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
         }
 
         val addPagerAdapter =
-            AddFragmentPagerAdapter(
-                supportFragmentManager,
-                5,
-                this
-            )
+                AddFragmentPagerAdapter(
+                        supportFragmentManager,
+                        5,
+                        this
+                )
         effect_view_pager.adapter = addPagerAdapter
+
+        for (index in 1 until effect_tab.tabCount)
+            (effect_tab.getTabAt(index) ?: return).view.tab_text.setTextColor(
+                    ContextCompat.getColor(
+                            applicationContext,
+                            R.color.ContentsText40
+                    )
+            )
         val tabView = effect_tab.getTabAt(0)
         (tabView ?: return).view.tab_text.typeface =
-            ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+                ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
         tabView.view.tab_text.setTextColor(
-            ContextCompat.getColor(
-                applicationContext,
-                R.color.White
-            )
+                ContextCompat.getColor(
+                        applicationContext,
+                        R.color.White
+                )
         )
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 effect_view_pager.currentItem = (tab ?: return).position
                 tab.view.tab_text.typeface =
-                    ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+                        ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
                 tab.view.tab_text.setTextColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.White
-                    )
+                        ContextCompat.getColor(
+                                applicationContext,
+                                R.color.White
+                        )
                 )
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
                 (tab ?: return).view.tab_text.typeface =
-                    ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
+                        ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
                 tab.view.tab_text.setTextColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.ContentsText40
-                    )
+                        ContextCompat.getColor(
+                                applicationContext,
+                                R.color.ContentsText40
+                        )
                 )
             }
 
@@ -460,8 +455,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         for (i in 0 until effectList.size) {
             for (j in i until effectList.size) {
                 if (effectList[j].getStartFrame() < effectList[i].getStartFrame() ||
-                    (effectList[j].getStartFrame() == effectList[i].getStartFrame()) &&
-                    (effectList[j].getEndFrame() < effectList[i].getEndFrame())
+                        (effectList[j].getStartFrame() == effectList[i].getStartFrame()) &&
+                        (effectList[j].getEndFrame() < effectList[i].getEndFrame())
                 ) {
                     val effect = effectList[i]
                     effectList[i] = effectList[j]
@@ -511,9 +506,9 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
                     if (end) end = false
                     posX2 = event.x
                     val delta =
-                        (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
+                            (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
                     val time = (player.currentPosition - delta).toInt()
-                        .coerceIn(0, videoDuration)
+                            .coerceIn(0, videoDuration)
                     player.seekTo(time.toLong())
                     setCurrentTime(time)
                     posX1 = posX2

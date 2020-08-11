@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/Background"
-    tools:context=".ui.ExportActivity">
+    tools:context=".ui.ExportActivity"
+    tools:ignore="Overdraw">
 
     <Button
         android:id="@+id/back"
@@ -46,38 +47,34 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/title" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/video_frame"
+    <RelativeLayout
+        android:id="@+id/video"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="48dp"
-        android:layout_marginBottom="200dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintDimensionRatio="1.125:1"
         app:layout_constraintTop_toTopOf="parent">
 
-        <VideoView
+        <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/preview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_centerInParent="true"
+            tools:foreground="@tools:sample/backgrounds/scenic[1]" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageButton
+            android:id="@+id/playButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@id/preview"
+            android:layout_alignTop="@id/preview"
+            android:layout_alignEnd="@id/preview"
+            android:layout_alignBottom="@id/preview"
+            android:layout_gravity="center"
+            android:background="@null"
+            app:srcCompat="@drawable/ic_preview_button" />
 
-    <ImageButton
-        android:id="@+id/preview_play"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:background="#00FFFFFF"
-        android:scaleType="centerInside"
-        app:layout_constraintBottom_toBottomOf="@id/video_frame"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/video_frame" />
+    </RelativeLayout>
 
     <SeekBar
         android:id="@+id/preview_progress"
@@ -94,7 +91,7 @@
         android:thumbOffset="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video_frame" />
+        app:layout_constraintTop_toBottomOf="@id/video" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -106,7 +103,7 @@
         android:textColor="@color/ContentsText80"
         android:textSize="9sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video_frame"
+        app:layout_constraintTop_toBottomOf="@id/video"
         tools:ignore="SmallSp" />
 
     <TextView
@@ -119,7 +116,7 @@
         android:textColor="@color/ContentsText80"
         android:textSize="9sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video_frame"
+        app:layout_constraintTop_toBottomOf="@id/video"
         tools:ignore="SmallSp" />
 
     <TextView
@@ -137,7 +134,7 @@
         app:layout_constraintEnd_toEndOf="@+id/divider"
         app:layout_constraintHorizontal_bias="0.552"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video_frame"
+        app:layout_constraintTop_toBottomOf="@id/video"
         tools:ignore="SmallSp" />
 
     <Button
@@ -158,7 +155,7 @@
         android:background="#50FFFFFF"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video_frame" />
+        app:layout_constraintTop_toBottomOf="@id/video" />
 
     <TextView
         android:id="@+id/share_text"
@@ -174,7 +171,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.448"
         app:layout_constraintStart_toStartOf="@id/divider"
-        app:layout_constraintTop_toBottomOf="@id/video_frame"
+        app:layout_constraintTop_toBottomOf="@id/video"
         tools:ignore="SmallSp" />
 
     <Button

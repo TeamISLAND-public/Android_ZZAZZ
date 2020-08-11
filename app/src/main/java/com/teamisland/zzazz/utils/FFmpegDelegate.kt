@@ -9,10 +9,10 @@ import java.io.File
 object FFmpegDelegate {
 
     fun getFrameAtMilliSeconds(
-        context: Context,
-        path: String,
-        milliSeconds: Int,
-        width: Int
+            context: Context,
+            path: String,
+            milliSeconds: Int,
+            width: Int
     ): Bitmap? {
         val parentFolder = context.getExternalFilesDir(null) ?: return null
         parentFolder.mkdirs()

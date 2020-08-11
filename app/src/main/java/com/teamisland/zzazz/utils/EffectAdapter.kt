@@ -11,9 +11,9 @@ class EffectAdapter : RecyclerView.Adapter<EffectAdapter.ViewHolder>() {
     val viewData: MutableList<String> = mutableListOf("sdaf", "wer", "werws")
 
     class ViewHolder(view: ViewGroup) : RecyclerView.ViewHolder(
-        LayoutInflater.from(view.context).inflate(
-            R.layout.test, view, false
-        )
+            LayoutInflater.from(view.context).inflate(
+                    R.layout.test, view, false
+            )
     )
 
     /**
@@ -39,7 +39,7 @@ class EffectAdapter : RecyclerView.Adapter<EffectAdapter.ViewHolder>() {
      * @see .onBindViewHolder
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        ViewHolder(parent)
+            ViewHolder(parent)
 
     /**
      * Returns the total number of items in the data set held by the adapter.

@@ -13,7 +13,18 @@
         <item name="colorPrimaryDark">@color/Black</item>
     </style>
 
-    <style name="SmallText" parent="TextAppearance.Design.Tab">
+    <style name="Theme.AppCompat.Translucent">
+        <item name="android:windowBackground">@color/DialogBackground</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="TabText">
+        <item name="android:textSize">12sp</item>
         <item name="textAllCaps">false</item>
     </style>
 

@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:fontFamily="@font/archivo_regular"
+            android:fontFamily="@font/archivo_bold"
             android:gravity="center"
             android:text="@string/trim_title"
             android:textAllCaps="true"
@@ -69,34 +69,23 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <FrameLayout
+        android:id="@+id/frameLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
+        app:layout_constraintTop_toBottomOf="@id/constraintLayout">
 
-        <FrameLayout
-            android:id="@+id/frameLayout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="32dp"
-            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.exoplayer2.ui.PlayerView
-                android:id="@+id/mainVideoView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                app:use_controller="false"
-                tools:foreground="@tools:sample/backgrounds/scenic[1]" />
-
-        </FrameLayout>
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/mainVideoView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:use_controller="false"
+            tools:foreground="@tools:sample/backgrounds/scenic[1]" />
 
         <ImageButton
             android:id="@+id/playButton"
@@ -104,126 +93,131 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@null"
-            app:layout_constraintBottom_toBottomOf="@+id/frameLayout"
-            app:layout_constraintEnd_toEndOf="@id/frameLayout"
-            app:layout_constraintStart_toStartOf="@+id/frameLayout"
-            app:layout_constraintTop_toTopOf="@+id/frameLayout"
+            app:layout_constraintBottom_toBottomOf="@id/mainVideoView"
+            app:layout_constraintEnd_toEndOf="@id/mainVideoView"
+            app:layout_constraintStart_toStartOf="@id/mainVideoView"
+            app:layout_constraintTop_toTopOf="@id/mainVideoView"
             app:srcCompat="@drawable/ic_preview_button" />
 
-        <LinearLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+    </FrameLayout>
 
-            <Button
-                android:id="@+id/frameMinus"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="88dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:background="@drawable/frame_move_button"
-                android:fontFamily="@font/archivo_medium"
-                android:text="@string/one_frame_retreat"
-                android:textColor="@color/btn_text"
-                android:textSize="13sp" />
+    <LinearLayout
+        android:id="@id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/constraintLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-            <Button
-                android:id="@+id/framePlus"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="88dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:background="@drawable/frame_move_button"
-                android:fontFamily="@font/archivo_medium"
-                android:text="@string/one_frame_advance"
-                android:textColor="@color/btn_text"
-                android:textSize="13sp" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/frameMinus"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="88dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/frame_move_button"
+            android:fontFamily="@font/archivo_semibold"
+            android:text="@string/one_frame_retreat"
+            android:textColor="@color/btn_text"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/framePlus"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="88dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/frame_move_button"
+            android:fontFamily="@font/archivo_semibold"
+            android:text="@string/one_frame_advance"
+            android:textColor="@color/btn_text"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/start_trim"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/archivo_bold"
+        android:text="@string/start_trim"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="#E5FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@id/constraintLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
+        android:layout_width="0dp"
+        android:layout_height="84dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout2"
-            android:layout_width="0dp"
-            android:layout_height="64dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
+            android:id="@+id/constraintLayout3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/constraintLayout3"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="19dp"
-                android:layout_marginBottom="5dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <com.teamisland.zzazz.video_trimmer_library.view.TimeLineView
-                    android:id="@+id/timeLineView"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
-                    android:id="@+id/rangeSeekBarView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <com.teamisland.zzazz.utils.CurrentPositionView
-                android:id="@+id/currentPositionView"
+            <com.teamisland.zzazz.video_trimmer_library.view.TimeLineView
+                android:id="@+id/timeLineView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.teamisland.zzazz.utils.SelectedThumbView
-                android:id="@+id/selectedThumbView"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="7dp"
-                app:layout_constraintBottom_toTopOf="@+id/constraintLayout3"
+            <com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
+                android:id="@+id/rangeSeekBarView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/trimText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:fontFamily="@font/archivo_bold"
-            android:gravity="center_vertical|end"
-            android:text="TEST"
-            android:textColor="#E5ffffff"
-            android:textSize="13sp"
-            app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
-            app:layout_constraintEnd_toEndOf="parent" />
+        <com.teamisland.zzazz.utils.CurrentPositionView
+            android:id="@+id/currentPositionView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.teamisland.zzazz.utils.SelectedThumbView
+            android:id="@+id/selectedThumbView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/constraintLayout3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

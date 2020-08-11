@@ -25,11 +25,9 @@ package com.teamisland.zzazz.utils
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Paint.Style.FILL
 import android.util.AttributeSet
 import android.view.View
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
+import com.teamisland.zzazz.R
 import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 
@@ -39,34 +37,34 @@ import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
  */
 @Suppress("LeakingThis")
 open class SelectedThumbView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet?,
-    defStyleAttr: Int = 0
-) :
-    View(context, attrs, defStyleAttr) {
-
-    private val markerPaint = Paint()
+        context: Context,
+        attrs: AttributeSet?,
+        defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
 
     private lateinit var range: RangeSeekBarView
     internal var xPos = 0f
 
+    /**
+     * Sets [range].
+     */
     fun setRange(rangeSeekBarView: RangeSeekBarView) {
-        this.range = rangeSeekBarView
+        range = rangeSeekBarView
         range.addOnRangeSeekBarListener(object : OnRangeSeekBarListener {
             override fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) = Unit
 
             override fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                xPos =
-                    rangeSeekBarView.thumbs[index].pos + rangeSeekBarView.thumbWidth * (index + 1f / 2)
+                xPos = rangeSeekBarView.thumbs[index].pos + rangeSeekBarView.thumbWidth * 1f / 2
                 invalidate()
             }
 
             override fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-                visibility = VISIBLE
+                visibility = GONE
                 onSeek(rangeSeekBarView, index, value)
             }
 
             override fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
+                visibility = VISIBLE
                 onSeek(rangeSeekBarView, index, value)
             }
 
@@ -78,23 +76,21 @@ open class SelectedThumbView @JvmOverloads constructor(
 
     init {
         visibility = GONE
-        markerPaint.color = 0xffffffff.toInt()
-        markerPaint.style = FILL
         isClickable = false
-    }      
-    
-    private val circleRadius = float2DP(3f, resources)
+    }
 
     /**
      * Draws the view.
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawCircle(
-            xPos,
-            circleRadius,
-            circleRadius,
-            markerPaint
+        val arrow = resources.getDrawable(R.drawable.selected_thumb, null)
+        arrow.setBounds(
+                (xPos - arrow.intrinsicWidth / 2).toInt(),
+                0,
+                (xPos + arrow.intrinsicWidth / 2).toInt(),
+                arrow.intrinsicHeight
         )
+        arrow.draw(canvas)
     }
 }
