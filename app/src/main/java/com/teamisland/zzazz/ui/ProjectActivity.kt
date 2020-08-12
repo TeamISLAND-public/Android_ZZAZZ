@@ -8,23 +8,16 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.util.Range
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.*
@@ -35,7 +28,10 @@ import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
 import kotlin.math.max
@@ -68,25 +64,30 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         get() = Dispatchers.Main + job
 
     private lateinit var path: String
-    private var frame = 0
-    private val dataSourceFactory: DataSource.Factory by lazy {
-        DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
-    }
-    internal val player: SimpleExoPlayer by lazy {
-        SimpleExoPlayer.Builder(this).build().also {
-            it.repeatMode = SimpleExoPlayer.REPEAT_MODE_OFF
-            video_display.player = it
-        }
-    }
     private var fps: Float = 0f
-
     private var videoDuration = 0
+
+    /**
+     * Timer during [isPlaying] is true.
+     */
+    private var videoTimer = Timer()
     //    private lateinit var video: BitmapVideo
 //    private lateinit var bitmapList: List<Bitmap>
 //    private var startFrame by Delegates.notNull<Int>()
 //    private var endFrame by Delegates.notNull<Int>()
 
     companion object {
+        /**
+         * Current time of video in Unity.
+         */
+        var time: String = "0"
+
+        /**
+         * Check is video playing.
+         * When video stops, Unity set this variable to false.
+         */
+        var isPlaying: Boolean = false
+
         /**
          * List of effect
          */
@@ -96,6 +97,31 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
          * Check the project is saved
          */
         const val IS_SAVED: Int = 1
+
+        /**
+         * Game object of video player in Unity.
+         */
+        const val VIDEO_OBJECT: String = "VideoPlayer"
+
+        /**
+         * Method name of setting url in Unity
+         */
+        const val SET_URL: String = "setURL"
+
+        /**
+         * Method name of playing video in Unity
+         */
+        const val PLAY: String = "play"
+
+        /**
+         * Method name of pausing video in Unity
+         */
+        const val PAUSE: String = "pause"
+
+        /**
+         * Method name of setting time of a video in Unity
+         */
+        const val SET_TIME: String = "setTime"
     }
 
     /**
@@ -103,7 +129,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
      */
     override fun onRestart() {
         super.onRestart()
-        player.seekTo(0)
+        UnityPlayer.UnitySendMessage(VIDEO_OBJECT, SET_TIME, "0")
         startVideo()
     }
 
@@ -114,7 +140,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
      */
     override fun onPause() {
         super.onPause()
-//        stopVideo()
         mUnityPlayer.pause()
     }
 
@@ -163,13 +188,14 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         setContentView(R.layout.activity_project)
 
         job = Job()
-        mUnityPlayer = UnityPlayer(this)
+        mUnityPlayer = UnityPlayer(this, this)
 
 //        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
 //        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
 //        bitmapList = ArrayList(endFrame - startFrame + 1)
 
         path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
+        UnityPlayer.UnitySendMessage(VIDEO_OBJECT, SET_URL, path)
         val uri = Uri.parse(path)
         videoDuration = getDuration(this, uri)
         fps = getFrameCount(this, uri) / (videoDuration / 1000f)
@@ -188,42 +214,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         projectTimeLineView.videoUri = uri
         setLength()
         setZoomLevel()
-        setCurrentTime(0)
-
-        playVideo()
 
         tabInit()
-
-        (video_display.videoSurfaceView ?: return).setOnClickListener {
-            if (CustomAdapter.selectedEffect != null) {
-                stopVideo()
-                frame = (projectTimeLineView.currentTime * fps / 1000).toInt()
-
-                (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
-                (CustomAdapter.selectedEffect
-                        ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
-                CustomAdapter.selectedEffect = null
-
-                val bitmap = (getDrawable(R.drawable.load) as BitmapDrawable).bitmap
-                val point = Effect.Point(30, 30)
-                val dataArrayList: MutableList<Effect.Data> = mutableListOf()
-
-                // for test
-                for (i in 0 until 30) {
-                    dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
-                }
-                effectList.add(
-                        Effect(
-                                frame,
-                                frame + 29,
-                                0,
-                                0xFFFFFF,
-                                dataArrayList
-                        )
-                )
-                Log.d("effect add", "${effectList.size}")
-            }
-        }
 
 //        save_project.setOnTouchListener { _, event ->
 //            when (event.action) {
@@ -264,19 +256,42 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
 
         back.setOnClickListener { onBackPressed() }
 
-        sliding_view.setOnTouchListener { _, event -> tabLayoutOnTouchEvent(event) }
-        player.prepare(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri))
+        sliding_view.setOnTouchListener { _, event -> slidingLayoutOnTouchEvent(event) }
 
-        val layoutParams = RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.video_display)
-        layoutParams.addRule(RelativeLayout.ALIGN_START, R.id.video_display)
-        layoutParams.addRule(RelativeLayout.ALIGN_TOP, R.id.video_display)
-        layoutParams.addRule(RelativeLayout.ALIGN_END, R.id.video_display)
-        layoutParams.marginStart = 100
-        video_frame.addView(mUnityPlayer, layoutParams)
+        video_frame.addView(mUnityPlayer)
+
+        setCurrentTime("0")
+
+        mUnityPlayer.setOnClickListener {
+            if (CustomAdapter.selectedEffect != null) {
+                stopVideo()
+                time = projectTimeLineView.currentTime.toString()
+
+                (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
+                (CustomAdapter.selectedEffect
+                        ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                CustomAdapter.selectedEffect = null
+
+                val bitmap = (getDrawable(R.drawable.load) as BitmapDrawable).bitmap
+                val point = Effect.Point(30, 30)
+                val dataArrayList: MutableList<Effect.Data> = mutableListOf()
+
+                // for test
+                for (i in 0 until 30) {
+                    dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
+                }
+                effectList.add(
+                        Effect(
+                                (time.toDouble() * fps / 1000).toInt(),
+                                ((time.toDouble() * fps / 1000) + 29).toInt(),
+                                0,
+                                0xFFFFFF,
+                                dataArrayList
+                        )
+                )
+                Log.d("effect add", "${effectList.size}")
+            }
+        }
     }
 
     /**
@@ -288,81 +303,46 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         builder.show()
     }
 
-    internal var end = false
-
     @SuppressLint("ClickableViewAccessibility")
     private fun playVideo() {
-        video_display.requestFocus()
-        startVideo()
-
-        player.addListener(object : Player.EventListener {
-            /**
-             * Called when the value returned from either [.getPlayWhenReady] or [ ][.getPlaybackState] changes.
-             *
-             * @param playWhenReady Whether playback will proceed when ready.
-             * @param playbackState The new [playback state][Player.State].
-             */
-            override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                if (playbackState == Player.STATE_ENDED) {
-                    project_play.isActivated = false
-                    player.playWhenReady = false
-                    end = true
-                }
-            }
-        })
-
         project_play.isSelected = true
-
+        project_play.isActivated = false
         project_play.setOnClickListener {
-            if (player.isPlaying) {
+            if (isPlaying) {
                 stopVideo()
-                UnityPlayer.UnitySendMessage("FrameTransitionManager", "MoveToFrame", "10")
             } else {
-                if (end) {
-                    player.seekTo(0)
-                    end = false
-                    player.addListener(playButtonClickListenerObject)
-                } else
-                    startVideo()
+                startVideo()
             }
         }
     }
 
-    private val playButtonClickListenerObject = object : Player.EventListener {
-        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-            if (playbackState == ExoPlayer.STATE_READY) {
-                video_display.postDelayed({ startVideo() }, 100)
-                project_play.alpha = 1F
-                player.removeListener(this)
-            }
-        }
-    }
-
-    internal fun startVideo() {
-        player.playWhenReady = true
+    private fun startVideo() {
+        if (isPlaying) return
+        UnityPlayer.UnitySendMessage(VIDEO_OBJECT, PLAY, "")
         project_play.isActivated = true
-        mUnityPlayer.resume()
-        videoBinder()
+        isPlaying = true
+
+        videoTimer = Timer()
+        val handler = Handler()
+        val timerTask = object : TimerTask() {
+            override fun run() {
+                if (!isPlaying)
+                    stopVideo()
+
+                handler.post { setCurrentTime(time) }
+            }
+        }
+        videoTimer.schedule(timerTask, 0, 10)
     }
 
     /**
      * Stop video.
      */
     fun stopVideo() {
-        player.playWhenReady = false
+        UnityPlayer.UnitySendMessage(VIDEO_OBJECT, PAUSE, "")
         project_play.isActivated = false
-//        mUnityPlayer.pause()
-    }
-
-    private fun videoBinder() = launch {
-        do {
-            try {
-                setCurrentTime(player.currentPosition.toInt().coerceIn(0, videoDuration))
-                delay(10)
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
-        } while (true)//player.isPlaying)
+        isPlaying = false
+        videoTimer.cancel()
     }
 
     private fun tabInit() {
@@ -466,9 +446,13 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         }
     }
 
-    private fun setCurrentTime(i: Int) {
-        projectTimeLineView.currentTime = i
-        timeIndexView.currentTime = i
+    /**
+     * Call in Unity.
+     */
+    private fun setCurrentTime(index: String) {
+        projectTimeLineView.currentTime = index.toDouble().toInt()
+        timeIndexView.currentTime = index.toDouble().toInt()
+        time = index
     }
 
     private fun setZoomLevel() {
@@ -489,9 +473,10 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
     private var zoomLevel = 0f
     private lateinit var zoomRange: Range<Float>
 
-    private fun tabLayoutOnTouchEvent(event: MotionEvent?): Boolean {
+    private fun slidingLayoutOnTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action?.and(MotionEvent.ACTION_MASK)) {
             MotionEvent.ACTION_DOWN -> {
+                stopVideo()
                 posX1 = event.x
                 mode = 1
             }
@@ -503,15 +488,14 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
             }
             MotionEvent.ACTION_MOVE -> {
                 if (mode == 1) {
-                    if (end) end = false
                     posX2 = event.x
                     val delta =
                             (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
-                    val time = (player.currentPosition - delta).toInt()
+                    val currentTime = (time.toDouble() - delta).toInt()
                             .coerceIn(0, videoDuration)
-                    player.seekTo(time.toLong())
-                    setCurrentTime(time)
+                    setCurrentTime(currentTime.toString())
                     posX1 = posX2
+                    UnityPlayer.UnitySendMessage(VIDEO_OBJECT, SET_TIME, (time.toDouble() / 1000).toString())
                 } else if (mode == 2) {
                     newDist = distance(event)
                     zoomLevel = zoomRange.clamp(zoomLevel * newDist / oldDist)
