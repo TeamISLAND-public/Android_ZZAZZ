@@ -1,16 +1,22 @@
 package com.teamisland.zzazz.ui
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.MotionEvent
+import android.view.View
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
 import kotlinx.android.synthetic.main.activity_intro.*
+import kotlinx.android.synthetic.main.activity_intro.linearLayout
+import kotlinx.android.synthetic.main.activity_trimming.*
 
 /**
  * Main activity of Intro Activity
@@ -45,11 +51,36 @@ class IntroActivity : AppCompatActivity() {
     /**
      * [AppCompatActivity.onCreate]
      */
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intro)
 
-        load.setOnClickListener { getVideo(LOAD_VIDEO) }
+        val shrink = AnimationUtils.loadAnimation(this, R.anim.shrink)
+        shrink.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(animation: Animation?) {
+                take.visibility = View.INVISIBLE
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+                take.visibility = View.VISIBLE
+            }
+
+            override fun onAnimationStart(animation: Animation?) {
+                take.visibility = View.INVISIBLE
+            }
+        })
+        default_zzazz.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    v.startAnimation(shrink)
+                }
+                MotionEvent.ACTION_UP -> {
+                    getVideo(LOAD_VIDEO)
+                }
+            }
+            true
+        }
 
         take.setOnClickListener { getVideo(TAKE_VIDEO) }
 

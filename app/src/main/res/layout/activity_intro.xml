@@ -19,12 +19,28 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.6">
 
-        <ImageButton
-            android:id="@+id/load"
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/Background"
-            android:src="@drawable/ic_zzazz" />
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/point_zzazz"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/default_zzazz"
+                android:layout_alignTop="@id/default_zzazz"
+                android:layout_alignEnd="@id/default_zzazz"
+                android:layout_alignBottom="@id/default_zzazz"
+                android:background="@color/Background" />
+
+            <ImageButton
+                android:id="@+id/default_zzazz"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/Background"
+                android:src="@drawable/ic_zzazz" />
+
+        </RelativeLayout>
 
         <ImageView
             android:id="@+id/arrow"
