@@ -64,8 +64,8 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         get() = Dispatchers.Main + job
 
     private lateinit var path: String
-    private var fps: Float = 0f
     private var videoDuration = 0
+    private var fps: Float = 0f
 
     /**
      * Timer during [isPlaying] is true.
@@ -80,7 +80,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         /**
          * Current time of video in Unity.
          */
-        var time: String = "0"
+        var time: Int = 0
 
         /**
          * Check is video playing.
@@ -101,7 +101,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         /**
          * Game object of video player in Unity.
          */
-        const val VIDEO_OBJECT: String = "VideoPlayer"
+        const val VIDEO_OBJECT: String = "PlayManager"
 
         /**
          * Method name of setting url in Unity
@@ -119,9 +119,9 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         const val PAUSE: String = "pause"
 
         /**
-         * Method name of setting time of a video in Unity
+         * Method name of setting frame of a video in Unity
          */
-        const val SET_TIME: String = "setTime"
+        const val SET_FRAME: String = "setFrame"
     }
 
     /**
@@ -129,7 +129,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
      */
     override fun onRestart() {
         super.onRestart()
-        UnityPlayer.UnitySendMessage(VIDEO_OBJECT, SET_TIME, "0")
+        UnityPlayer.UnitySendMessage(VIDEO_OBJECT, SET_FRAME, "0")
         startVideo()
     }
 
@@ -260,12 +260,12 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
 
         video_frame.addView(mUnityPlayer)
 
-        setCurrentTime("0")
+        setCurrentTime(0)
 
         mUnityPlayer.setOnClickListener {
             if (CustomAdapter.selectedEffect != null) {
                 stopVideo()
-                time = projectTimeLineView.currentTime.toString()
+                time = projectTimeLineView.currentTime
 
                 (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
                 (CustomAdapter.selectedEffect
@@ -289,7 +289,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
                                 dataArrayList
                         )
                 )
-                Log.d("effect add", "${effectList.size}")
             }
         }
     }
@@ -332,7 +331,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
                 handler.post { setCurrentTime(time) }
             }
         }
-        videoTimer.schedule(timerTask, 0, 10)
+        videoTimer.schedule(timerTask, 0, 1)
     }
 
     /**
@@ -449,9 +448,9 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
     /**
      * Call in Unity.
      */
-    private fun setCurrentTime(index: String) {
-        projectTimeLineView.currentTime = index.toDouble().toInt()
-        timeIndexView.currentTime = index.toDouble().toInt()
+    private fun setCurrentTime(index: Int) {
+        projectTimeLineView.currentTime = index
+        timeIndexView.currentTime = index
         time = index
     }
 
@@ -493,9 +492,9 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
                             (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
                     val currentTime = (time.toDouble() - delta).toInt()
                             .coerceIn(0, videoDuration)
-                    setCurrentTime(currentTime.toString())
+                    setCurrentTime(currentTime)
                     posX1 = posX2
-                    UnityPlayer.UnitySendMessage(VIDEO_OBJECT, SET_TIME, (time.toDouble() / 1000).toString())
+                    UnityPlayer.UnitySendMessage(VIDEO_OBJECT, SET_FRAME, (time.toDouble() * fps / 1000).toInt().toString())
                 } else if (mode == 2) {
                     newDist = distance(event)
                     zoomLevel = zoomRange.clamp(zoomLevel * newDist / oldDist)
