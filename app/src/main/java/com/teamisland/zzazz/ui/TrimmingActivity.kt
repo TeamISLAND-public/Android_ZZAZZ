@@ -43,6 +43,7 @@ import com.teamisland.zzazz.video_trimmer_library.utils.TrimVideoUtils
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 import kotlinx.android.synthetic.main.activity_trimming.*
 import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Activity for video trimming.
@@ -54,6 +55,8 @@ class TrimmingActivity : AppCompatActivity() {
          * Uri of the trimmed video.
          */
         const val VIDEO_PATH: String = "PATH"
+        const val MODEL_PATH: String = "MODELPATH"
+
 
         /**
          * Get a file path from a Uri. This will get the the path for Storage Access
@@ -174,6 +177,7 @@ class TrimmingActivity : AppCompatActivity() {
 
     private lateinit var videoUri: Uri
     private lateinit var trimmedVideoFile: File
+    private lateinit var testModelFile: File
     internal var videoDuration: Int = 0
     private var videoFps: Int = 0
     private val dataSourceFactory: DataSource.Factory by lazy {
@@ -217,7 +221,19 @@ class TrimmingActivity : AppCompatActivity() {
         val parentFolder = getExternalFilesDir(null) ?: return
         parentFolder.mkdirs()
         val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
+        val modelname = "test_txt.txt"
+        val modelresult = assets.open(modelname).bufferedReader().use { it.readText() }
         trimmedVideoFile = File(parentFolder, fileName)
+        testModelFile = File(parentFolder, modelname)
+        val stream = FileOutputStream(testModelFile)
+        try {
+            stream.write("%s".format(modelresult).toByteArray())
+        } finally {
+            stream.close()
+        }
+//        Log.d("modelresult", "%s".format(modelresult))
+//        Log.d("testmodelfile", "%s".format(testModelFile.absolutePath))
+//        Log.d("testmodelfile", "%s".format(trimmedVideoFile.absolutePath))
 
         backButton.setOnTouchListener { v, event ->
             when (event.action) {
@@ -482,7 +498,8 @@ class TrimmingActivity : AppCompatActivity() {
                 }
         )
         Intent(this, ProjectActivity::class.java).apply {
-            putExtra(VIDEO_PATH, trimmedVideoFile.absolutePath)
+            putExtra(VIDEO_PATH, trimmedVideoFile.absolutePath);
+            putExtra(MODEL_PATH, testModelFile.absolutePath);
             startActivity(this)
         }
     }

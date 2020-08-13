@@ -14,6 +14,7 @@ import android.util.Range
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -64,6 +65,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         get() = Dispatchers.Main + job
 
     private lateinit var path: String
+    private lateinit var modelpath: String
     private var videoDuration = 0
     private var fps: Float = 0f
 
@@ -104,9 +106,19 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         const val VIDEO_OBJECT: String = "PlayManager"
 
         /**
+         * Game object of video player in Unity.
+         */
+        const val FRAME_VISUALIZER: String = "FrameVisualizer"
+
+        /**
          * Method name of setting url in Unity
          */
         const val SET_URL: String = "setURL"
+
+        /**
+         * Method name of setting url in Unity
+         */
+        const val READ_DATA: String = "ReadData"
 
         /**
          * Method name of playing video in Unity
@@ -195,7 +207,12 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
 //        bitmapList = ArrayList(endFrame - startFrame + 1)
 
         path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
+        modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
         UnityPlayer.UnitySendMessage(VIDEO_OBJECT, SET_URL, path)
+        UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelpath)
+        Log.d("testmodelfile", "%s".format(path))
+        Log.d("testmodelfile", "%s".format(modelpath))
+        Log.d("test with UnityPlayer", "who")
         val uri = Uri.parse(path)
         videoDuration = getDuration(this, uri)
         fps = getFrameCount(this, uri) / (videoDuration / 1000f)
