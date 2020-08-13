@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.MotionEvent
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
@@ -52,6 +52,9 @@ class IntroActivity : AppCompatActivity() {
         load.setOnClickListener { getVideo(LOAD_VIDEO) }
 
         take.setOnClickListener { getVideo(TAKE_VIDEO) }
+
+        val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce)
+        linearLayout.startAnimation(bounce)
     }
 
     /**

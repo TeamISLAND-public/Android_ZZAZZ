@@ -84,7 +84,7 @@ open class SelectedThumbView @JvmOverloads constructor(
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val arrow = resources.getDrawable(R.drawable.selected_thumb, null)
+        val arrow = resources.getDrawable(R.drawable.arrow, null)
         arrow.setBounds(
                 (xPos - arrow.intrinsicWidth / 2).toInt(),
                 0,
