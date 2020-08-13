@@ -83,7 +83,8 @@ open class TimeLineView @JvmOverloads constructor(
             return
         }
         bitmapList.clear()
-        val path = TrimmingActivity.getPath(context, videoUri ?: return)
+//        val path = TrimmingActivity.getPath(context, videoUri ?: return)
+        val path = (videoUri ?: return).path
         BackgroundExecutor.cancelAll("", true)
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {

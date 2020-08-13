@@ -83,7 +83,7 @@ class TrimmingActivity : AppCompatActivity() {
                             Uri.parse("content://downloads/public_downloads"),
                             java.lang.Long.valueOf(id)
                     )
-                    return getDataColumn(context, contentUri, null, null)
+                    return getDataColumn(context, contentUri)
                 } else if (isMediaDocument(uri)) {
                     val docId = DocumentsContract.getDocumentId(uri)
                     val split = docId.split(":".toRegex()).toTypedArray()
@@ -92,21 +92,14 @@ class TrimmingActivity : AppCompatActivity() {
                     when (type) {
                         "image" -> contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                         "video" -> contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                        "audio" -> contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
                     }
-                    val selection = "_id=?"
-                    val selectionArgs = arrayOf(
-                            split[1]
-                    )
                     return getDataColumn(
                             context,
-                            contentUri ?: return null,
-                            selection,
-                            selectionArgs
+                            contentUri ?: return null
                     )
                 }
             } else if ("content".equals(uri.scheme, ignoreCase = true)) {
-                return getDataColumn(context, uri, null, null)
+                return getDataColumn(context, uri)
             } else if ("file".equals(uri.scheme, ignoreCase = true)) {
                 return uri.path
             }
@@ -119,24 +112,14 @@ class TrimmingActivity : AppCompatActivity() {
          *
          * @param context The context.
          * @param uri The Uri to query.
-         * @param selection (Optional) Filter used in the query.
-         * @param selectionArgs (Optional) Selection arguments used in the query.
          * @return The value of the _data column, which is typically a file path.
          */
-        private fun getDataColumn(
-                context: Context, uri: Uri, selection: String?,
-                selectionArgs: Array<String>?
-        ): String? {
+        private fun getDataColumn(context: Context, uri: Uri): String? {
             var cursor: Cursor? = null
             val column = "_data"
-            val projection = arrayOf(
-                    column
-            )
+            val projection = arrayOf(column)
             try {
-                cursor = context.contentResolver.query(
-                        uri, projection, selection, selectionArgs,
-                        null
-                )
+                cursor = context.contentResolver.query(uri, projection, null, null, null)
                 if (cursor != null && cursor.moveToFirst()) {
                     val columnIndex: Int = cursor.getColumnIndexOrThrow(column)
                     return cursor.getString(columnIndex)
@@ -457,8 +440,6 @@ class TrimmingActivity : AppCompatActivity() {
         Config.enableLogCallback { message: LogMessage ->
             if (BuildConfig.DEBUG) Log.d(Config.TAG, message.text)
         }
-        println(videoUri.path)
-        println(getPath(this, videoUri))
     }
 
     private fun startTrimming() {
@@ -488,7 +469,7 @@ class TrimmingActivity : AppCompatActivity() {
     }
 
     private fun setupVideoProperties(): Boolean {
-        videoUri = intent.getParcelableExtra(IntroLoadActivity.VIDEO_URI) ?: return true
+        videoUri = intent.getParcelableExtra(IntroActivity.VIDEO_URI) ?: return true
         videoDuration = GetVideoData.getDuration(this, videoUri)
         videoFps = GetVideoData.getFPS(this, videoUri)
         return false
