@@ -88,29 +88,11 @@ class IntroActivity : AppCompatActivity() {
             else -> null
         }
 
-        if (checkLimitation(videoUri)) {
+        if (videoUri != null) {
             Intent(this, TrimmingActivity::class.java).also {
                 it.putExtra(VIDEO_URI, videoUri)
                 startActivity(it)
             }
         }
-    }
-
-    private fun checkLimitation(uri: Uri?): Boolean {
-        if (uri == null) return false
-
-        val videoFps = this.let { GetVideoData.getFPS(it, uri) }
-        if (videoFps > resources.getInteger(R.integer.fps_limit)) {
-            Toast.makeText(this, getString(R.string.fps_exceeded), Toast.LENGTH_LONG).show()
-            return false
-        }
-
-        val videoDuration = this.let { GetVideoData.getDuration(it, uri) }
-        if (videoDuration > resources.getInteger(R.integer.length_limit) * 1000) {
-            Toast.makeText(this, getString(R.string.length_exceeded), Toast.LENGTH_LONG).show()
-            return false
-        }
-
-        return true
     }
 }
