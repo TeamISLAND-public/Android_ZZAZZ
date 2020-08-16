@@ -40,8 +40,8 @@ class IntroActivity : AppCompatActivity() {
                 startActivityForResult(this, requestCode)
             }
         } else if (requestCode == TAKE_VIDEO) {
-            Intent(MediaStore.ACTION_VIDEO_CAPTURE).apply {
-                startActivityForResult(this, requestCode)
+            Intent(MediaStore.ACTION_VIDEO_CAPTURE).also {
+                startActivityForResult(it, requestCode)
             }
         }
     }
