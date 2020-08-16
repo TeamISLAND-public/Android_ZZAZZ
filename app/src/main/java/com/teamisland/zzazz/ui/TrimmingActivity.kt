@@ -55,7 +55,7 @@ class TrimmingActivity : AppCompatActivity() {
          * Uri of the trimmed video.
          */
         const val VIDEO_PATH: String = "PATH"
-        const val MODEL_PATH: String = "MODELPATH"
+        const val MODEL_PATH: String = "MODEL_PATH"
 
 
         /**
@@ -221,15 +221,13 @@ class TrimmingActivity : AppCompatActivity() {
         val parentFolder = getExternalFilesDir(null) ?: return
         parentFolder.mkdirs()
         val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
-        val modelname = "test_txt.txt"
-        val modelresult = assets.open(modelname).bufferedReader().use { it.readText() }
+        val modelName = "test_txt.txt"
+        val modelResult = assets.open(modelName).bufferedReader().use { it.readText() }
         trimmedVideoFile = File(parentFolder, fileName)
-        testModelFile = File(parentFolder, modelname)
+        testModelFile = File(parentFolder, modelName)
         val stream = FileOutputStream(testModelFile)
-        try {
-            stream.write("%s".format(modelresult).toByteArray())
-        } finally {
-            stream.close()
+        stream.use {
+            it.write("%s".format(modelResult).toByteArray())
         }
 //        Log.d("modelresult", "%s".format(modelresult))
 //        Log.d("testmodelfile", "%s".format(testModelFile.absolutePath))
@@ -498,8 +496,8 @@ class TrimmingActivity : AppCompatActivity() {
                 }
         )
         Intent(this, ProjectActivity::class.java).apply {
-            putExtra(VIDEO_PATH, trimmedVideoFile.absolutePath);
-            putExtra(MODEL_PATH, testModelFile.absolutePath);
+            putExtra(VIDEO_PATH, trimmedVideoFile.absolutePath)
+            putExtra(MODEL_PATH, testModelFile.absolutePath)
             startActivity(this)
         }
     }
