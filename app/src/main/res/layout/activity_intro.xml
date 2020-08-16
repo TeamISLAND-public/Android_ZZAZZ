@@ -45,7 +45,6 @@
 
     </LinearLayout>
 
-
     <ImageButton
         android:id="@+id/take"
         android:layout_width="wrap_content"

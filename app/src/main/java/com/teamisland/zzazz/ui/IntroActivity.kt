@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.MotionEvent
 import android.view.View
-import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -25,7 +24,7 @@ class IntroActivity : AppCompatActivity() {
         /**
          * Uri of the video retrieved.
          */
-        const val VIDEO_URI: String = "pre_trim_video_uri"
+        const val VIDEO_URI: String = "origin_video"
 
         private const val LOAD_VIDEO = 1
 
