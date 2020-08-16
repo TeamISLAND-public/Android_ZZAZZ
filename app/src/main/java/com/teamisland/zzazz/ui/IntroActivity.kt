@@ -15,8 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
 import kotlinx.android.synthetic.main.activity_intro.*
-import kotlinx.android.synthetic.main.activity_intro.linearLayout
-import kotlinx.android.synthetic.main.activity_trimming.*
 
 /**
  * Main activity of Intro Activity
@@ -57,26 +55,16 @@ class IntroActivity : AppCompatActivity() {
         setContentView(R.layout.activity_intro)
 
         val shrink = AnimationUtils.loadAnimation(this, R.anim.shrink)
-        shrink.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationRepeat(animation: Animation?) {
-                take.visibility = View.INVISIBLE
-            }
-
-            override fun onAnimationEnd(animation: Animation?) {
-                take.visibility = View.VISIBLE
-            }
-
-            override fun onAnimationStart(animation: Animation?) {
-                take.visibility = View.INVISIBLE
-            }
-        })
-        default_zzazz.setOnTouchListener { v, event ->
+        zzazz.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    take.visibility = View.INVISIBLE
                     v.startAnimation(shrink)
                 }
                 MotionEvent.ACTION_UP -> {
                     getVideo(LOAD_VIDEO)
+                    v.clearAnimation()
+                    take.visibility = View.VISIBLE
                 }
             }
             true

@@ -20,7 +20,7 @@
         app:layout_constraintVertical_bias="0.6">
 
         <ImageButton
-            android:id="@+id/default_zzazz"
+            android:id="@+id/zzazz"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/Background"
