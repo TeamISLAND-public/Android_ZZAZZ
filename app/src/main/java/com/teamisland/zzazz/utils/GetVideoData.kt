@@ -34,10 +34,10 @@ object GetVideoData {
     /**
      * Returns the number of frames in target video.
      */
-    fun getFrameCount(context: Context, uri: Uri): Int {
+    fun getFrameCount(context: Context, uri: Uri): Long {
         val mediaMediaExtractor = MediaMetadataRetriever()
         mediaMediaExtractor.setDataSource(context, uri)
-        val res = mediaMediaExtractor.extractMetadata(METADATA_KEY_VIDEO_FRAME_COUNT).toInt()
+        val res = mediaMediaExtractor.extractMetadata(METADATA_KEY_VIDEO_FRAME_COUNT)!!.toLong()
         mediaMediaExtractor.release()
         return res
     }
@@ -49,8 +49,7 @@ object GetVideoData {
         val mediaMetadataRetriever = MediaMetadataRetriever()
         mediaMetadataRetriever.setDataSource(context, uri)
         val res =
-                mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                        .toInt()
+            mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!.toInt()
         mediaMetadataRetriever.release()
         return res
     }

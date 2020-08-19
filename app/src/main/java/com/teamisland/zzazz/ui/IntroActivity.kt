@@ -46,7 +46,7 @@ class IntroActivity : AppCompatActivity() {
     }
 
     private inner class IntroFragmentPagerAdapter(fragmentActivity: FragmentActivity) :
-            FragmentStateAdapter(fragmentActivity) {
+        FragmentStateAdapter(fragmentActivity) {
         override fun getItemCount(): Int = NUM_PAGES
 
         override fun createFragment(position: Int): Fragment {

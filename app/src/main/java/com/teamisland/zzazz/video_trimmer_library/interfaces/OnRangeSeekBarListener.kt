@@ -26,13 +26,13 @@ package com.teamisland.zzazz.video_trimmer_library.interfaces
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 
 interface OnRangeSeekBarListener {
-    fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int)
+    fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Long) {}
 
-    fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int)
+    fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Long) {}
 
-    fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int)
+    fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Long) {}
 
-    fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int)
+    fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Long) {}
 
-    fun onDeselect(rangeSeekBarView: RangeSeekBarView)
+    fun onDeselect(rangeSeekBarView: RangeSeekBarView) {}
 }

@@ -23,6 +23,7 @@
  */
 package com.teamisland.zzazz.video_trimmer_library.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -31,9 +32,14 @@ import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.util.AttributeSet
+import android.util.Range
+import android.view.MotionEvent
 import android.view.View
+import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.TrimmingActivity
-import com.teamisland.zzazz.utils.FFmpegDelegate
+import com.teamisland.zzazz.utils.*
+import com.teamisland.zzazz.utils.AbsolutePathRetriever
+import com.teamisland.zzazz.utils.ITrimmingData
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
 import kotlin.math.ceil
 
@@ -41,18 +47,30 @@ import kotlin.math.ceil
  * View for showing thumbnails of video by time.
  */
 open class TimeLineView @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet?,
-        defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet?,
+    defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
+
+    /**
+     * ITrimmingData.
+     */
+    internal lateinit var bindData: ITrimmingData
+
+    /**
+     * CurrentPositionView.
+     */
+    lateinit var currentPositionView: CurrentPositionView
+
     /**
      * Uri of the video attached.
      */
-    var videoUri: Uri? = null
-        private set
+    lateinit var videoUri: Uri
 
-    @Suppress("LeakingThis")
     internal val bitmapList = ArrayList<Bitmap?>()
+
+    private val pointColor = resources.getColor(R.color.PointColor, null)
+    private val grayColor = resources.getColor(R.color.ContentsText80, null)
 
     /**
      * [View.onSizeChanged]
@@ -65,25 +83,21 @@ open class TimeLineView @JvmOverloads constructor(
 
     private fun getBitmap(viewWidth: Int, viewHeight: Int) {
         // Set thumbnail properties (Thumbs are squares)
-        if (videoUri == null) {
-            println("Error: videoUri is null")
-            return
-        }
         val numThumbs = ceil(viewWidth.toDouble() / viewHeight).toInt()
         bitmapList.clear()
         if (isInEditMode) {
             val bitmap = ThumbnailUtils.extractThumbnail(
-                    BitmapFactory.decodeResource(resources, android.R.drawable.sym_def_app_icon)
-                            ?: return,
-                    viewHeight,
-                    viewHeight
+                BitmapFactory.decodeResource(resources, android.R.drawable.sym_def_app_icon)
+                    ?: return,
+                viewHeight,
+                viewHeight
             )
             for (i in 0 until numThumbs)
                 bitmapList.add(bitmap)
             return
         }
         bitmapList.clear()
-        val path = TrimmingActivity.getPath(context, videoUri ?: return)
+        val path = AbsolutePathRetriever.getPath(context, videoUri)
         BackgroundExecutor.cancelAll("", true)
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
@@ -93,28 +107,29 @@ open class TimeLineView @JvmOverloads constructor(
                     val mediaMetadataRetriever = MediaMetadataRetriever()
                     mediaMetadataRetriever.setDataSource(context, videoUri)
                     val videoLengthInMs =
-                            mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                                    .toLong() * 1000L
+                        (mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                            ?: return)
+                            .toLong() * 1000L
                     val interval = videoLengthInMs / numThumbs
                     for (i in 0 until numThumbs) {
                         var bitmap: Bitmap? = when (2) {
                             1 -> mediaMetadataRetriever.getScaledFrameAtTime(
-                                    i * interval,
-                                    MediaMetadataRetriever.OPTION_CLOSEST,
-                                    viewHeight,
-                                    viewHeight
+                                i * interval,
+                                MediaMetadataRetriever.OPTION_CLOSEST,
+                                viewHeight,
+                                viewHeight
                             )
                             2 -> mediaMetadataRetriever.getScaledFrameAtTime(
-                                    i * interval,
-                                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
-                                    viewHeight,
-                                    viewHeight
+                                i * interval,
+                                MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
+                                viewHeight,
+                                viewHeight
                             )
                             3 -> FFmpegDelegate.getFrameAtMilliSeconds(
-                                    context,
-                                    path ?: return,
-                                    (i * interval).toInt() / 1000,
-                                    viewHeight
+                                context,
+                                path ?: return,
+                                (i * interval).toInt() / 1000,
+                                viewHeight
                             )
                             else -> null
                         }
@@ -129,7 +144,7 @@ open class TimeLineView @JvmOverloads constructor(
                     mediaMetadataRetriever.release()
                 } catch (e: Throwable) {
                     Thread.getDefaultUncaughtExceptionHandler()
-                            ?.uncaughtException(Thread.currentThread(), e)
+                        ?.uncaughtException(Thread.currentThread(), e)
                 }
 
             }
@@ -153,10 +168,34 @@ open class TimeLineView @JvmOverloads constructor(
     }
 
     /**
-     * Sets video Uri.
-     * @param data Uri of the target video.
+     *
      */
-    fun setVideo(data: Uri) {
-        videoUri = data
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event == null)
+            return false
+        val thumbWidth = UnitConverter.float2DP(16f, resources)
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                currentPositionView.markerPaint.color = pointColor
+                currentPositionView.textView.visibility = VISIBLE
+                currentPositionView.invalidate()
+                return true
+            }
+            MotionEvent.ACTION_UP -> {
+                currentPositionView.markerPaint.color = grayColor
+                currentPositionView.textView.visibility = GONE
+                currentPositionView.invalidate()
+                return true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val availLength = currentPositionView.width - 2 * thumbWidth
+                val adjustedX = Range(0f, availLength).clamp(event.x)
+                val desiredPositionFraction = adjustedX * bindData.duration / availLength
+                bindData.currentVideoPosition = desiredPositionFraction.toLong()
+                return true
+            }
+        }
+        return false
     }
 }

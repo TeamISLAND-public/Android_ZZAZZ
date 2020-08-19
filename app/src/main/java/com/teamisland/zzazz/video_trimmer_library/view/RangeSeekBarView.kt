@@ -23,6 +23,7 @@
  */
 package com.teamisland.zzazz.video_trimmer_library.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -31,220 +32,157 @@ import android.graphics.Paint.Style.FILL_AND_STROKE
 import android.graphics.Path
 import android.util.AttributeSet
 import android.util.Range
+import android.view.MotionEvent
 import android.view.View
-import android.widget.Button
-import androidx.annotation.ColorInt
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.CurrentPositionView
+import com.teamisland.zzazz.utils.ITrimmingData
+import com.teamisland.zzazz.utils.SelectedThumbView
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
-import com.teamisland.zzazz.video_trimmer_library.interfaces.OnRangeSeekBarListener
-import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView.ThumbType.LEFT
-import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView.ThumbType.RIGHT
-import kotlin.math.absoluteValue
+import kotlin.math.abs
+import kotlin.math.round
 
 /**
  * Ranged seekbar with current position bar.
  */
 @Suppress("LeakingThis")
 open class RangeSeekBarView @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet?,
-        defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet?,
+    defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    /**
-     * ThumbType.
-     * @property index Index of thumb
-     */
-    enum class ThumbType(val index: Int) {
-        /**
-         * Left thumb; start
-         */
-        LEFT(0),
+    private val leftThumb = Thumb(0)
+    private val rightThumb = Thumb(1)
 
-        /**
-         * Right thumb; end
-         */
-        RIGHT(1)
-    }
+    private val currentThumb: Thumb?
+        get() {
+            return when (currentThumbIndex) {
+                0 -> leftThumb
+                1 -> rightThumb
+                else -> null
+            }
+        }
 
-    @Suppress("MemberVisibilityCanBePrivate")
     // shadow rectangle paint of ends
-    private val shadowPaint = Paint()
+    private val thumbLimitPaint = Paint().apply {
+        isAntiAlias = true
+        color = 0xff2b2b2b.toInt()
+    }
 
     // shadow rectangle on untrimmed range
-    private val unTrimmedPaint = Paint()
+    private val outsideThumbShadow = Paint().apply {
+        color = 0xb2070707.toInt()
+    }
 
     // paint of thumbs
-    private val strokePaint = Paint()
+    private val thumbPaint = Paint().apply {
+        isAntiAlias = true
+        style = FILL
+        strokeWidth = float2DP(3f, resources)
+        color = resources.getColor(R.color.PointColor, null)
+    }
 
     // paint of triangles in thumbs
-    private val trianglePaint = Paint()
-
-    /**
-     * Array of thumbs
-     */
-    val thumbs: Array<Thumb> = arrayOf(Thumb(LEFT.index), Thumb(RIGHT.index))
-    private var listeners = HashSet<OnRangeSeekBarListener>()
-    internal var viewWidth: Int = 0
-    private lateinit var frameAdvance: Button
-    private lateinit var frameRetreat: Button
-    internal var currentThumb: Int = -1
-    private var videoFrameCount: Int = 0
-    private val leftTriangle = Path()
-    private val rightTriangle = Path()
-
-    /**
-     * Duration of target video.
-     */
-    var videoDuration: Int = 0
-
-    /**
-     * Thumb width.
-     */
-    val thumbWidth: Int = initThumbWidth(context)
-
-    /**
-     * Get start point in ms.
-     */
-    fun getStart(): Int =
-            (thumbs[LEFT.index].value.toDouble() / (videoFrameCount - 1) * videoDuration).toInt()
-
-    /**
-     * Get endpoint in ms.
-     */
-    fun getEnd(): Int =
-            (thumbs[RIGHT.index].value.toDouble() / (videoFrameCount - 1) * videoDuration).toInt()
-
-    /**
-     * Get range selected in ms.
-     */
-    fun getRange(): Range<Int> = Range(getStart(), getEnd())
-
-    /**
-     * Sets the duration of the video.
-     */
-    fun setFrameCount(count: Int) {
-        videoFrameCount = count
-        thumbs[LEFT.index].value = 0
-        thumbs[RIGHT.index].value = count - 1
+    private val trianglePaint = Paint().apply {
+        color = 0xff2a2a2a.toInt()
+        isAntiAlias = true
+        style = FILL_AND_STROKE
     }
 
-    private fun setStrokePaint() {
-        strokePaint.isAntiAlias = true
-        strokePaint.style = FILL
-        strokePaint.strokeWidth = float2DP(3f, resources)
-        strokePaint.color = 0xffff3898.toInt()
+    // Path of thumb triangles.
+    private val leftTriangle by lazy {
+        Path().apply {
+            val dp5 = float2DP(5f, resources)
+            val dp4 = float2DP(4f, resources)
+            val dp10 = float2DP(10f, resources)
+            moveTo(dp5, 0f)
+            lineTo(dp10, dp4)
+            lineTo(dp10, -dp4)
+            close()
+        }
     }
-
-    private fun setShadowPaint() {
-        shadowPaint.isAntiAlias = true
-        shadowPaint.color = initShadowColor()
-    }
-
-    private fun setUnTrimmedPaint() {
-        unTrimmedPaint.color = 0xb2070707.toInt()
-    }
-
-    private fun setTrianglePaint() {
-        trianglePaint.color = 0xff2a2a2a.toInt()
-        trianglePaint.isAntiAlias = true
-        trianglePaint.style = FILL_AND_STROKE
-    }
-
-    init {
-        isFocusable = true
-        isFocusableInTouchMode = true
-
-        setStrokePaint()
-        setShadowPaint()
-        setUnTrimmedPaint()
-        setTrianglePaint()
-    }
-
-    /**
-     * Sets frame move button.
-     */
-    fun setButtons(advance: Button, retreat: Button) {
-        frameAdvance = advance
-        frameRetreat = retreat
-        setButtonVisibility()
-    }
-
-    internal fun setButtonVisibility() {
-        when (currentThumb) {
-            -1 -> {
-                frameAdvance.visibility = INVISIBLE
-                frameRetreat.visibility = INVISIBLE
-            }
-            LEFT.index -> {
-                frameAdvance.visibility = VISIBLE
-                frameRetreat.visibility = VISIBLE
-                if (thumbs[LEFT.index].value + 1 < thumbs[RIGHT.index].value) {
-                    frameAdvance.background = resources.getDrawable(R.drawable.ic_button_desel, null)
-                    frameAdvance.isClickable = true
-                } else {
-                    frameAdvance.background = resources.getDrawable(R.drawable.ic_button_sel, null)
-                    frameAdvance.isClickable = false
-                }
-                if (thumbs[LEFT.index].value > 0) {
-                    frameRetreat.background = resources.getDrawable(R.drawable.ic_button_desel, null)
-                    frameRetreat.isClickable = true
-                } else {
-                    frameRetreat.background = resources.getDrawable(R.drawable.ic_button_sel, null)
-                    frameRetreat.isClickable = false
-                }
-            }
-            RIGHT.index -> {
-                frameAdvance.visibility = VISIBLE
-                frameRetreat.visibility = VISIBLE
-                if (thumbs[RIGHT.index].value < videoFrameCount - 1) {
-                    frameAdvance.background = resources.getDrawable(R.drawable.ic_button_desel, null)
-                    frameAdvance.isClickable = true
-                } else {
-                    frameAdvance.background = resources.getDrawable(R.drawable.ic_button_sel, null)
-                    frameAdvance.isClickable = false
-                }
-                if (thumbs[LEFT.index].value < thumbs[RIGHT.index].value - 1) {
-                    frameRetreat.background = resources.getDrawable(R.drawable.ic_button_desel, null)
-                    frameRetreat.isClickable = true
-                } else {
-                    frameRetreat.background = resources.getDrawable(R.drawable.ic_button_sel, null)
-                    frameRetreat.isClickable = false
-                }
-            }
+    private val rightTriangle by lazy {
+        Path().apply {
+            val dp4 = float2DP(4f, resources)
+            val dp11 = float2DP(11f, resources)
+            moveTo(-float2DP(6f, resources), 0f)
+            lineTo(-dp11, dp4)
+            lineTo(-dp11, -dp4)
+            close()
         }
     }
 
-    /**
-     * Color of the shadow.
-     */
-    @ColorInt
-    open fun initShadowColor(): Int = 0xff2b2b2b.toInt()
+    internal var currentThumbIndex: Int = -1
+
+    internal lateinit var bindData: ITrimmingData
+
+    internal lateinit var currentPositionView: CurrentPositionView
+
+    internal lateinit var selectedThumbView: SelectedThumbView
 
     /**
      * Thumb width.
      */
-    open fun initThumbWidth(context: Context): Int = float2DP(16f, resources).toInt().coerceAtLeast(1)
+    internal val thumbWidth: Int = float2DP(16f, resources).coerceAtLeast(1f).toInt()
 
     /**
-     * Initialize maxWidth.
+     *
      */
-    fun initMaxWidth() {
-        onSeekStop(this, LEFT.index, thumbs[LEFT.index].value)
-        onSeekStop(this, RIGHT.index, thumbs[RIGHT.index].value)
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        when (event?.action) {
+            MotionEvent.ACTION_DOWN -> {
+                selectedThumbView.visibility = GONE
+
+                currentThumbIndex = getClosestThumb(event.x)
+
+                if (currentThumbIndex != -1) {
+                    val currentThumb1 = currentThumb!!
+                    currentThumb1.lastTouchX = event.x - currentThumb1.position
+                    currentPositionView.visibleTrimCurrent()
+                }
+
+                if (currentThumbIndex == -1 && event.x in leftThumb.position..rightThumb.position)
+                    return false
+                return true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (currentThumbIndex == -1) return true
+
+                var newPos = event.x - currentThumb!!.lastTouchX
+                if (currentThumbIndex == 1)
+                    newPos -= thumbWidth
+
+                val fl = width - 2f * thumbWidth
+                val pos3 = Range(0f, fl).clamp(newPos - x)
+
+                val snapPosition = round(pos3 * bindData.frameCount / fl).toLong()
+
+                if (currentThumbIndex == 0) bindData.rangeStartIndex = snapPosition
+                else bindData.rangeExclusiveEndIndex = snapPosition
+                return true
+            }
+            MotionEvent.ACTION_UP -> {
+                if (currentThumbIndex == -1) return true
+
+                selectedThumbView.visibility = VISIBLE
+                currentPositionView.visibleMarkerCurrent()
+                bindData.updateUI()
+                return true
+            }
+        }
+        return false
     }
 
     /**
-     * [View.onMeasure]
+     *
      */
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        viewWidth = measuredWidth
-        for ((index, thumb) in thumbs.withIndex())
-            thumb.pos = ((viewWidth - thumbWidth) * index).toFloat()
+    override fun invalidate() {
+        super.invalidate()
 
-        // Fire listener callback
-        onCreate(this, currentThumb, getThumbValue(currentThumb))
+        selectedThumbView.xPos = (currentThumb ?: return).position + thumbWidth / 2
+        selectedThumbView.invalidate()
     }
 
     /**
@@ -253,227 +191,71 @@ open class RangeSeekBarView @JvmOverloads constructor(
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        val heightF = height.toFloat()
+        val widthF = width.toFloat()
+        val thumbWidthF = thumbWidth.toFloat()
+        val widthSubThumb = widthF - thumbWidthF
 
-        //left
-        canvas.drawRect(
-                0f,
-                0f,
-                0f + thumbWidth,
-                height.toFloat(),
-                shadowPaint
-        )
-        //right
-        canvas.drawRect(
-                viewWidth.toFloat(),
-                0f,
-                (viewWidth - thumbWidth).toFloat(),
-                height.toFloat(),
-                shadowPaint
-        )
+        // Thumb shadow.
+        canvas.drawRect(0f, 0f, 0f + thumbWidth, heightF, thumbLimitPaint)
+        canvas.drawRect(widthF, 0f, widthSubThumb, heightF, thumbLimitPaint)
 
-        val leftPosStart = thumbs[LEFT.index].pos
-        val leftPosEnd = leftPosStart + thumbWidth
-
-        val rightPosStart = thumbs[RIGHT.index].pos
-        val rightPosEnd = rightPosStart + thumbWidth
-
-        if (thumbs[LEFT.index].value == 0 && thumbs[RIGHT.index].value == (videoFrameCount - 1)) {
-            strokePaint.color = shadowPaint.color
-            trianglePaint.color = 0xffff3898.toInt()
+        if (bindData.rangeStartIndex == 0L && bindData.rangeExclusiveEndIndex == bindData.frameCount) {
+            thumbPaint.color = 0xff2b2b2b.toInt()
+            trianglePaint.color = resources.getColor(R.color.PointColor, null)
         } else {
-            strokePaint.color = 0xffff3898.toInt()
+            thumbPaint.color = resources.getColor(R.color.PointColor, null)
             trianglePaint.color = 0xff2a2a2a.toInt()
         }
 
-        //left
-        canvas.drawRect(
-                leftPosStart,
-                0f,
-                leftPosEnd,
-                height.toFloat(),
-                strokePaint
-        )
-        //right
-        canvas.drawRect(
-                rightPosStart,
-                0f,
-                rightPosEnd,
-                height.toFloat(),
-                strokePaint
-        )
+        val leftPosEnd = leftThumb.position + thumbWidth
+        val rightPosEnd = rightThumb.position + thumbWidth
 
-        if (thumbs[LEFT.index].value != 0) {
-            canvas.drawRect(
-                    thumbWidth.toFloat(),
-                    0f,
-                    leftPosStart,
-                    height.toFloat(),
-                    unTrimmedPaint
-            )
-        }
+        // Shadow at the outside of thumbs.
+        if (bindData.rangeStartIndex > 0L)
+            canvas.drawRect(thumbWidthF, 0f, leftThumb.position, heightF, outsideThumbShadow)
+        if (bindData.rangeExclusiveEndIndex < bindData.frameCount)
+            canvas.drawRect(rightPosEnd, 0f, widthSubThumb, heightF, outsideThumbShadow)
 
-        if (thumbs[RIGHT.index].value != (videoFrameCount - 1)) {
-            canvas.drawRect(
-                    rightPosEnd,
-                    0f,
-                    (width - thumbWidth).toFloat(),
-                    height.toFloat(),
-                    unTrimmedPaint
-            )
-        }
+        // Draw trimming thumbs.
+        canvas.drawRect(leftThumb.position, 0f, leftPosEnd, heightF, thumbPaint)
+        canvas.drawRect(rightThumb.position, 0f, rightPosEnd, heightF, thumbPaint)
 
-        leftTriangle.reset()
-        leftTriangle.moveTo(leftPosStart + float2DP(5f, resources), (height / 2).toFloat())
-        leftTriangle.lineTo(leftPosStart + float2DP(10f, resources), height / 2 + float2DP(4f, resources))
-        leftTriangle.lineTo(leftPosStart + float2DP(10f, resources), height / 2 - float2DP(4f, resources))
-        leftTriangle.close()
-
-        rightTriangle.reset()
-        rightTriangle.moveTo(rightPosEnd - float2DP(6f, resources), (height / 2).toFloat())
-        rightTriangle.lineTo(rightPosEnd - float2DP(11f, resources), height / 2 + float2DP(4f, resources))
-        rightTriangle.lineTo(rightPosEnd - float2DP(11f, resources), height / 2 - float2DP(4f, resources))
-        rightTriangle.close()
-
+        // Draw triangles!
+        canvas.save()
+        canvas.translate(leftThumb.position, heightF / 2)
         canvas.drawPath(leftTriangle, trianglePaint)
+        canvas.translate(rightPosEnd - leftThumb.position, 0f)
         canvas.drawPath(rightTriangle, trianglePaint)
+        canvas.restore()
     }
 
-    private fun pixelToScale(pixelValue: Float): Int {
-        return ((pixelValue - thumbWidth) * videoFrameCount / (viewWidth - 2 * thumbWidth)).toInt()
-                .coerceIn(0, videoFrameCount - 1)
-    }
+    private fun getClosestThumb(xPos: Float): Int {
+        val acceptDistance = thumbWidth
 
-    private fun scaleToPixel(scaleValue: Int): Float {
-        return ((scaleValue * (viewWidth - 2 * thumbWidth) / videoFrameCount) + thumbWidth).toFloat()
-    }
-
-    private fun calculateThumbValue(index: Int) {
-        if (index < thumbs.size && thumbs.isNotEmpty()) {
-            val th = thumbs[index]
-            val pos: Float
-            pos = if (index == LEFT.index)
-                th.pos + thumbWidth
-            else
-                th.pos
-            th.value = pixelToScale(pos)
-            onSeek(this, index, th.value)
-            setButtonVisibility()
+        val thumbWidthHalf = thumbWidth / 2f
+        val leftDistance = abs(leftThumb.position + thumbWidthHalf - xPos)
+        val rightDistance = abs(rightThumb.position + thumbWidthHalf - xPos)
+        when {
+            rightDistance < leftDistance -> if (rightDistance < acceptDistance) return 1
+            leftDistance < acceptDistance -> return 0
         }
+        return -1
     }
 
-    private fun calculateThumbPos(index: Int) {
-        if (index < thumbs.size && thumbs.isNotEmpty()) {
-            val th = thumbs[index]
-            th.pos = if (index == LEFT.index)
-                scaleToPixel(th.value) - thumbWidth
-            else
-                scaleToPixel(th.value)
-            onSeek(this, index, th.value)
-            setButtonVisibility()
-        }
-    }
-
-    private fun getThumbValue(index: Int): Int {
-        if (index == -1) return 0
-        return thumbs[index].value
-    }
-
-    /**
-     * Sets thumb value.
-     */
-    private fun setThumbValue(index: Int, value: Int) {
-        thumbs[index].value = value
-        calculateThumbPos(index)
-        // Tell the view we want a complete redraw
-        invalidate()
-    }
-
-    internal fun incrementThumbPos(index: Int, frame: Int) {
-        setThumbValue(index, thumbs[index].value + frame)
-    }
-
-    internal fun setThumbPos(index: Int, pos: Float) {
-        if (index == -1) return
-        thumbs[index].pos = pos
-        calculateThumbValue(index)
-        // Tell the view we want a complete redraw
-        invalidate()
-    }
-
-    internal fun getClosestThumb(xPos: Float): Int {
-        if (thumbs.isEmpty())
-            return -1
-        var closest = -1
-        var minDistanceFound = Float.MAX_VALUE
-        //        Log.d("AppLog", "xPos:$xPos -> x: $x")
-        for (thumb in thumbs) {
-            val thumbPos = thumb.pos + thumbWidth / 2
-//                    if (thumb.index == LEFT.index) thumb.pos + thumbWidth / 2 else thumb.pos + thumbWidth * 3 / 2
-//            Log.d("AppLog", "thumb ${thumb.index} pos: $thumbPos")
-            // Find thumb closest to x coordinate
-            val xMin = thumbPos - thumbWidth / 2
-            val xMax = thumbPos + thumbWidth / 2
-            if (xPos in xMin..xMax) {
-                val distance = (thumbPos - xPos).absoluteValue
-                if (distance < minDistanceFound) {
-                    closest = thumb.index
-//                    Log.d("AppLog", "x: $x distance: $distance selectedThumb:$closest")
-                    minDistanceFound = distance
+    internal inner class Thumb(private val index: Int) {
+        internal val position: Float
+            get() {
+                return when (index) {
+                    0 -> {
+                        (width.toFloat() - 2 * thumbWidth) * bindData.rangeStartIndex / bindData.frameCount
+                    }
+                    1 -> {
+                        (width.toFloat() - 2 * thumbWidth) * bindData.rangeExclusiveEndIndex / bindData.frameCount + thumbWidth
+                    }
+                    else -> 0f
                 }
             }
-        }
-        return closest
-    }
-
-    /**
-     * Adds [OnRangeSeekBarListener] to the view.
-     */
-    fun addOnRangeSeekBarListener(listener: OnRangeSeekBarListener) {
-        listeners.add(listener)
-    }
-
-    private fun onCreate(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration / videoFrameCount
-        listeners.forEach { item -> item.onCreate(rangeSeekBarView, index, position) }
-    }
-
-    private fun onSeek(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration / videoFrameCount
-        listeners.forEach { item -> item.onSeek(rangeSeekBarView, index, position) }
-    }
-
-    internal fun onSeekStart(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration / videoFrameCount
-        listeners.forEach { item -> item.onSeekStart(rangeSeekBarView, index, position) }
-    }
-
-    internal fun onSeekStop(rangeSeekBarView: RangeSeekBarView, index: Int, value: Int) {
-        val position = value * videoDuration / videoFrameCount
-        listeners.forEach { item -> item.onSeekStop(rangeSeekBarView, index, position) }
-    }
-
-    internal fun onDeselect(rangeSeekBarView: RangeSeekBarView) {
-        listeners.forEach { item -> item.onDeselect(rangeSeekBarView) }
-    }
-
-    /**
-     * Thumb data container class.
-     * @property index Index of the thumb.
-     */
-    data class Thumb(val index: Int = 0) {
-        /**
-         * Frame value of the thumb.
-         */
-        var value: Int = 0
-
-        /**
-         * Left position of the thumb.
-         */
-        var pos: Float = 0f
-
-        /**
-         * Last coordinate X of touch.
-         */
-        var lastTouchX: Float = 0f
+        internal var lastTouchX: Float = 0f
     }
 }

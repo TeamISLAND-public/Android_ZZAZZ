@@ -115,7 +115,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope {
 //        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
 //        bitmapList = ArrayList(endFrame - startFrame + 1)
 
-        path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
+        path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)!!
         val uri = Uri.parse(path)
         videoDuration = getDuration(this, uri)
         fps = getFrameCount(this, uri) / (videoDuration / 1000f)

@@ -18,7 +18,13 @@ import kotlinx.android.synthetic.main.activity_intro_load.view.*
 /**
  * Main activity of Intro Activity
  */
-class IntroLoadActivity(private val packageManager: PackageManager) : Fragment() {
+class IntroLoadActivity : Fragment {
+
+    constructor(packageManager: PackageManager) : super() {
+        myPackageManager = packageManager
+    }
+
+    constructor()
 
     companion object {
         /**
@@ -27,18 +33,19 @@ class IntroLoadActivity(private val packageManager: PackageManager) : Fragment()
         const val VIDEO_URI: String = "pre_trim_video_uri"
 
         private const val REQUEST_VIDEO_SELECT = 1
+        private lateinit var myPackageManager: PackageManager
     }
 
     private fun dispatchGetVideoIntent() {
         Intent(
-                Intent.ACTION_OPEN_DOCUMENT,
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            Intent.ACTION_OPEN_DOCUMENT,
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         ).also { getVideoIntent ->
             getVideoIntent.type = "video/*"
-            getVideoIntent.resolveActivity(packageManager)?.also {
+            getVideoIntent.resolveActivity(myPackageManager)?.also {
                 startActivityForResult(
-                        Intent.createChooser(getVideoIntent, "Select Video"),
-                        REQUEST_VIDEO_SELECT
+                    Intent.createChooser(getVideoIntent, "Select Video"),
+                    REQUEST_VIDEO_SELECT
                 )
             }
         }
@@ -54,9 +61,9 @@ class IntroLoadActivity(private val packageManager: PackageManager) : Fragment()
      * [Fragment.onCreateView]
      */
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         val view = layoutInflater.inflate(R.layout.activity_intro_load, container, false)
 

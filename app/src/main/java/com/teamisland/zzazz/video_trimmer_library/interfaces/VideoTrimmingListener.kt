@@ -26,22 +26,35 @@ package com.teamisland.zzazz.video_trimmer_library.interfaces
 import android.net.Uri
 import androidx.annotation.UiThread
 
+/**
+ * Interface for trimming function events.
+ */
 interface VideoTrimmingListener {
+    /**
+     * Calls upon the video given by parameter is prepared.
+     */
     @UiThread
-    fun onVideoPrepared()
+    fun onVideoPrepared() {
+    }
 
+    /**
+     * Calls when trimming procedure has been started.
+     */
     @UiThread
-    fun onTrimStarted()
+    fun onTrimStarted() {
+    }
 
     /**
      * @param uri the result, trimmed video, or null if failed
      */
     @UiThread
-    fun onFinishedTrimming(uri: Uri?)
+    fun onFinishedTrimming(uri: Uri?) {
+    }
 
     /**
      * check {[android.media.MediaPlayer.OnErrorListener]}
      */
     @UiThread
-    fun onErrorWhileViewingVideo(what: Int, extra: Int)
+    fun onErrorWhileViewingVideo(what: Int, extra: Int) {
+    }
 }
