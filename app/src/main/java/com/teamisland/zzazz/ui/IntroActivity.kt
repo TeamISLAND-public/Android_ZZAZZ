@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.teamisland.zzazz.R
 import kotlinx.android.synthetic.main.activity_intro.*
+import java.io.File
 
 /**
  * Activity before video trimming.
@@ -25,10 +26,16 @@ class IntroActivity : AppCompatActivity() {
     /**
      * [AppCompatActivity.onCreate]
      */
+    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intro)
 
+        val list = File(filesDir.absolutePath + "/trim").listFiles()
+        for (f in list) {
+            if (f.extension == "mp4")
+                f.delete()
+        }
 
         val pagerAdapter = IntroFragmentPagerAdapter(this)
         intro_view_pager.adapter = pagerAdapter
@@ -46,7 +53,7 @@ class IntroActivity : AppCompatActivity() {
     }
 
     private inner class IntroFragmentPagerAdapter(fragmentActivity: FragmentActivity) :
-            FragmentStateAdapter(fragmentActivity) {
+        FragmentStateAdapter(fragmentActivity) {
         override fun getItemCount(): Int = NUM_PAGES
 
         override fun createFragment(position: Int): Fragment {

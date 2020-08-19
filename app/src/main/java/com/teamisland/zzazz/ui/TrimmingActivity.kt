@@ -43,7 +43,6 @@ import com.teamisland.zzazz.video_trimmer_library.utils.TrimVideoUtils
 import com.teamisland.zzazz.video_trimmer_library.view.RangeSeekBarView
 import kotlinx.android.synthetic.main.activity_trimming.*
 import java.io.File
-import java.io.FileOutputStream
 
 /**
  * Activity for video trimming.
@@ -55,6 +54,10 @@ class TrimmingActivity : AppCompatActivity() {
          * Uri of the trimmed video.
          */
         const val VIDEO_PATH: String = "PATH"
+
+        /**
+         * Path of the core model
+         */
         const val MODEL_PATH: String = "MODEL_PATH"
 
 
@@ -83,8 +86,8 @@ class TrimmingActivity : AppCompatActivity() {
                 } else if (isDownloadsDocument(uri)) {
                     val id = DocumentsContract.getDocumentId(uri)
                     val contentUri = ContentUris.withAppendedId(
-                            Uri.parse("content://downloads/public_downloads"),
-                            java.lang.Long.valueOf(id)
+                        Uri.parse("content://downloads/public_downloads"),
+                        java.lang.Long.valueOf(id)
                     )
                     return getDataColumn(context, contentUri, null, null)
                 } else if (isMediaDocument(uri)) {
@@ -99,13 +102,13 @@ class TrimmingActivity : AppCompatActivity() {
                     }
                     val selection = "_id=?"
                     val selectionArgs = arrayOf(
-                            split[1]
+                        split[1]
                     )
                     return getDataColumn(
-                            context,
-                            contentUri ?: return null,
-                            selection,
-                            selectionArgs
+                        context,
+                        contentUri ?: return null,
+                        selection,
+                        selectionArgs
                     )
                 }
             } else if ("content".equals(uri.scheme, ignoreCase = true)) {
@@ -127,18 +130,18 @@ class TrimmingActivity : AppCompatActivity() {
          * @return The value of the _data column, which is typically a file path.
          */
         private fun getDataColumn(
-                context: Context, uri: Uri, selection: String?,
-                selectionArgs: Array<String>?
+            context: Context, uri: Uri, selection: String?,
+            selectionArgs: Array<String>?
         ): String? {
             var cursor: Cursor? = null
             val column = "_data"
             val projection = arrayOf(
-                    column
+                column
             )
             try {
                 cursor = context.contentResolver.query(
-                        uri, projection, selection, selectionArgs,
-                        null
+                    uri, projection, selection, selectionArgs,
+                    null
                 )
                 if (cursor != null && cursor.moveToFirst()) {
                     val columnIndex: Int = cursor.getColumnIndexOrThrow(column)
@@ -218,20 +221,18 @@ class TrimmingActivity : AppCompatActivity() {
 
         if (setupVideoProperties()) return
 
-        val parentFolder = getExternalFilesDir(null) ?: return
+        val parentFolder = File(filesDir.absolutePath + "/trim")
+//        val parentFolder = getExternalFilesDir(null) ?: return
         parentFolder.mkdirs()
         val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
         val modelName = "test_txt.txt"
-        val modelResult = assets.open(modelName).bufferedReader().use { it.readText() }
+//        val modelResult = assets.open(modelName).bufferedReader().use { it.readText() }
         trimmedVideoFile = File(parentFolder, fileName)
-        testModelFile = File(parentFolder, modelName)
-        val stream = FileOutputStream(testModelFile)
-        stream.use {
-            it.write("%s".format(modelResult).toByteArray())
-        }
-//        Log.d("modelresult", "%s".format(modelresult))
-//        Log.d("testmodelfile", "%s".format(testModelFile.absolutePath))
-//        Log.d("testmodelfile", "%s".format(trimmedVideoFile.absolutePath))
+        testModelFile = File(filesDir, modelName)
+//        val stream = FileOutputStream(testModelFile)
+//        stream.use {
+//            it.write("%s".format(modelResult).toByteArray())
+//        }
 
         backButton.setOnTouchListener { v, event ->
             when (event.action) {
@@ -330,13 +331,18 @@ class TrimmingActivity : AppCompatActivity() {
                         }
                         mThumb = rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb]
                         mThumb.lastTouchX = event.x
-                        rangeSeekBarView.onSeekStart(rangeSeekBarView, rangeSeekBarView.currentThumb, mThumb.value)
+                        rangeSeekBarView.onSeekStart(
+                            rangeSeekBarView,
+                            rangeSeekBarView.currentThumb,
+                            mThumb.value
+                        )
                         currentPositionView.visibleTrimCurrent()
                         player.seekTo((videoDuration * currentPositionView.markerPos / 100).toLong())
                     }
                     MotionEvent.ACTION_MOVE -> {
                         mThumb = rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb]
-                        mThumb2 = rangeSeekBarView.thumbs[if (rangeSeekBarView.currentThumb == RangeSeekBarView.ThumbType.LEFT.index) RangeSeekBarView.ThumbType.RIGHT.index else RangeSeekBarView.ThumbType.LEFT.index]
+                        mThumb2 =
+                            rangeSeekBarView.thumbs[if (rangeSeekBarView.currentThumb == RangeSeekBarView.ThumbType.LEFT.index) RangeSeekBarView.ThumbType.RIGHT.index else RangeSeekBarView.ThumbType.LEFT.index]
                         // Calculate the distance moved
                         val dx = event.x - mThumb.lastTouchX
                         val newX = mThumb.pos + dx
@@ -345,7 +351,8 @@ class TrimmingActivity : AppCompatActivity() {
                         when (rangeSeekBarView.currentThumb) {
                             0 -> {
                                 when {
-                                    newX >= (mThumb2.pos - rangeSeekBarView.thumbWidth) -> mThumb.pos = mThumb2.pos - rangeSeekBarView.thumbWidth
+                                    newX >= (mThumb2.pos - rangeSeekBarView.thumbWidth) -> mThumb.pos =
+                                        mThumb2.pos - rangeSeekBarView.thumbWidth
                                     newX <= 0 -> mThumb.pos = 0f
                                     else -> {
                                         //Check if thumb is not out of max width
@@ -356,12 +363,15 @@ class TrimmingActivity : AppCompatActivity() {
                                         mThumb.lastTouchX = event.x
                                     }
                                 }
-                                pos = (mThumb.pos / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.thumbWidth)).toDouble()
+                                pos =
+                                    (mThumb.pos / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.thumbWidth)).toDouble()
                             }
                             else -> {
                                 when {
-                                    newX <= (mThumb2.pos + rangeSeekBarView.thumbWidth) -> mThumb.pos = mThumb2.pos + rangeSeekBarView.thumbWidth
-                                    newX >= (rangeSeekBarView.viewWidth - rangeSeekBarView.thumbWidth) -> mThumb.pos = (rangeSeekBarView.viewWidth - rangeSeekBarView.thumbWidth).toFloat()
+                                    newX <= (mThumb2.pos + rangeSeekBarView.thumbWidth) -> mThumb.pos =
+                                        mThumb2.pos + rangeSeekBarView.thumbWidth
+                                    newX >= (rangeSeekBarView.viewWidth - rangeSeekBarView.thumbWidth) -> mThumb.pos =
+                                        (rangeSeekBarView.viewWidth - rangeSeekBarView.thumbWidth).toFloat()
                                     else -> {
                                         //Check if thumb is not out of max width
                                         //                        checkPositionThumb(mThumb2, mThumb, dx, false)
@@ -371,7 +381,8 @@ class TrimmingActivity : AppCompatActivity() {
                                         mThumb.lastTouchX = event.x
                                     }
                                 }
-                                pos = ((mThumb.pos - rangeSeekBarView.thumbWidth) / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.thumbWidth)).toDouble()
+                                pos =
+                                    ((mThumb.pos - rangeSeekBarView.thumbWidth) / (rangeSeekBarView.viewWidth - 2 * rangeSeekBarView.thumbWidth)).toDouble()
                             }
                         }
                         rangeSeekBarView.setThumbPos(rangeSeekBarView.currentThumb, mThumb.pos)
@@ -383,7 +394,11 @@ class TrimmingActivity : AppCompatActivity() {
                         if (rangeSeekBarView.currentThumb == -1)
                             return false
                         mThumb = rangeSeekBarView.thumbs[rangeSeekBarView.currentThumb]
-                        rangeSeekBarView.onSeekStop(rangeSeekBarView, rangeSeekBarView.currentThumb, mThumb.value)
+                        rangeSeekBarView.onSeekStop(
+                            rangeSeekBarView,
+                            rangeSeekBarView.currentThumb,
+                            mThumb.value
+                        )
                     }
                 }
                 return true
@@ -415,7 +430,8 @@ class TrimmingActivity : AppCompatActivity() {
                 MotionEvent.ACTION_DOWN -> {
                     if (event.x < rangeSeekBarView.thumbs[0].pos || event.x > rangeSeekBarView.thumbs[1].pos + rangeSeekBarView.thumbWidth)
                         return@setOnTouchListener false
-                    currentPositionView.markerPos = (event.x * 100 / (currentPositionView.width - 2 * rangeSeekBarView.thumbWidth)).toDouble()
+                    currentPositionView.markerPos =
+                        (event.x * 100 / (currentPositionView.width - 2 * rangeSeekBarView.thumbWidth)).toDouble()
                     currentPositionView.markerPaint.color = 0xffff3898.toInt()
                     currentPositionView.changeTextVisibility()
                     currentPositionView.invalidate()
@@ -428,11 +444,14 @@ class TrimmingActivity : AppCompatActivity() {
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    currentPositionView.markerPos = (event.x * 100 / (currentPositionView.width - 2 * rangeSeekBarView.thumbWidth)).toDouble()
+                    currentPositionView.markerPos =
+                        (event.x * 100 / (currentPositionView.width - 2 * rangeSeekBarView.thumbWidth)).toDouble()
                     if (currentPositionView.markerPos < rangeSeekBarView.getStart() * 100.0 / videoDuration)
-                        currentPositionView.markerPos = rangeSeekBarView.getStart() * 100.0 / videoDuration
+                        currentPositionView.markerPos =
+                            rangeSeekBarView.getStart() * 100.0 / videoDuration
                     if (currentPositionView.markerPos > rangeSeekBarView.getEnd() * 100.0 / videoDuration)
-                        currentPositionView.markerPos = rangeSeekBarView.getEnd() * 100.0 / videoDuration
+                        currentPositionView.markerPos =
+                            rangeSeekBarView.getEnd() * 100.0 / videoDuration
                     if (currentPositionView.markerPos < 0.0) currentPositionView.markerPos = 0.0
                     if (currentPositionView.markerPos > 100.0) currentPositionView.markerPos = 100.0
                     currentPositionView.listener.onChange(currentPositionView.markerPos)
@@ -445,7 +464,7 @@ class TrimmingActivity : AppCompatActivity() {
         }
 
         val mediaSource: MediaSource =
-                ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(videoUri)
+            ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(videoUri)
 
         player.prepare(mediaSource)
         player.addListener(object : Player.EventListener {
@@ -477,23 +496,23 @@ class TrimmingActivity : AppCompatActivity() {
 
     private fun startTrimming() {
         TrimVideoUtils.startTrim(
-                this,
-                videoUri,
-                trimmedVideoFile,
-                rangeSeekBarView.getStart().toLong(),
-                rangeSeekBarView.getEnd().toLong(),
-                videoDuration.toLong(),
-                object : VideoTrimmingListener {
-                    override fun onVideoPrepared() = Unit
+            this,
+            videoUri,
+            trimmedVideoFile,
+            rangeSeekBarView.getStart().toLong(),
+            rangeSeekBarView.getEnd().toLong(),
+            videoDuration.toLong(),
+            object : VideoTrimmingListener {
+                override fun onVideoPrepared() = Unit
 
-                    override fun onTrimStarted() = Unit
+                override fun onTrimStarted() = Unit
 
-                    override fun onFinishedTrimming(uri: Uri?) {
-                    }
-
-                    override fun onErrorWhileViewingVideo(what: Int, extra: Int) {
-                    }
+                override fun onFinishedTrimming(uri: Uri?) {
                 }
+
+                override fun onErrorWhileViewingVideo(what: Int, extra: Int) {
+                }
+            }
         )
         Intent(this, ProjectActivity::class.java).apply {
             putExtra(VIDEO_PATH, trimmedVideoFile.absolutePath)
@@ -517,7 +536,7 @@ class TrimmingActivity : AppCompatActivity() {
     }
 
     private fun testVideoPositionInRange(): Boolean =
-            (rangeSeekBarView.getStart() <= player.currentPosition) && (rangeSeekBarView.getEnd() > player.currentPosition)
+        (rangeSeekBarView.getStart() <= player.currentPosition) && (rangeSeekBarView.getEnd() > player.currentPosition)
 
     private fun playButtonClickHandler(fadeOut: Animation) {
         playButton.startAnimation(fadeOut)
@@ -545,7 +564,7 @@ class TrimmingActivity : AppCompatActivity() {
     internal fun startVideo() {
         player.playWhenReady = true
         playButton.isActivated = true
-        Thread(Runnable {
+        Thread {
             while (player.isPlaying) {
                 currentPositionView.setMarkerPos(player.currentPosition * 100.0 / videoDuration)
                 if (rangeSeekBarView.getEnd() <= player.currentPosition && playButton.isActivated)
@@ -556,7 +575,7 @@ class TrimmingActivity : AppCompatActivity() {
                     e.printStackTrace()
                 }
             }
-        }).start()
+        }.start()
     }
 
     internal fun applyTrimRangeChanges() {

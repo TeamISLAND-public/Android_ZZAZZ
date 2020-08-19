@@ -62,6 +62,10 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
+    /**
+     * Path of result video
+     */
+    private lateinit var resultPath: String
     private lateinit var path: String
     private lateinit var modelpath: String
     private var videoDuration = 0
@@ -99,12 +103,12 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         const val IS_SAVED: Int = 1
 
         /**
-         * Game object of video player in Unity.
+         * Play manager object of video player in Unity.
          */
-        const val VIDEO_OBJECT: String = "PlayManager"
+        const val PLAY_MANAGER: String = "PlayManager"
 
         /**
-         * Game object of video player in Unity.
+         * Frame visualizer of effect object of video player in Unity.
          */
         const val FRAME_VISUALIZER: String = "FrameVisualizer"
 
@@ -114,7 +118,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         const val SET_URL: String = "setURL"
 
         /**
-         * Method name of setting url in Unity
+         * Method name of reading test data in Unity
          */
         const val READ_DATA: String = "ReadData"
 
@@ -132,6 +136,11 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
          * Method name of setting frame of a video in Unity
          */
         const val SET_FRAME: String = "setFrame"
+
+        /**
+         * Method name of exporting result video in Unity
+         */
+        const val EXPORT: String = "exportVideo"
     }
 
     /**
@@ -139,7 +148,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
      */
     override fun onRestart() {
         super.onRestart()
-        UnityPlayer.UnitySendMessage(VIDEO_OBJECT, SET_FRAME, "0")
+        UnityPlayer.UnitySendMessage(PLAY_MANAGER, SET_FRAME, "0")
         startVideo()
     }
 
@@ -200,16 +209,13 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         job = Job()
         mUnityPlayer = UnityPlayer(this, this)
 
-//        startFrame = intent.getIntExtra(TrimmingActivity.VIDEO_START_FRAME, 0)
-//        endFrame = intent.getIntExtra(TrimmingActivity.VIDEO_END_FRAME, 0)
-//        bitmapList = ArrayList(endFrame - startFrame + 1)
-
+        resultPath = dataDir.absolutePath + "/result.mp4"
         path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
         modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
-        UnityPlayer.UnitySendMessage(VIDEO_OBJECT, SET_URL, path)
+        UnityPlayer.UnitySendMessage(PLAY_MANAGER, SET_URL, path)
         UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelpath)
-        Log.d("testmodelfile", "%s".format(path))
-        Log.d("testmodelfile", "%s".format(modelpath))
+        Log.d("testmodelfile", path)
+        Log.d("testmodelfile", modelpath)
         Log.d("test with UnityPlayer", "who")
         val uri = Uri.parse(path)
         videoDuration = getDuration(this, uri)
@@ -219,11 +225,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
 
-        //        Log.d("time", "start")
-//        bitmapList = mediaMetadataRetriever.getFramesAtIndex(startFrame, endFrame - startFrame + 1)
-//        Log.d("time", "end")
-//        mediaMetadataRetriever.release()
-//        video = BitmapVideo(this, fps, bitmapList, video_display, project_play)
         playVideo()
 
         projectTimeLineView.videoUri = uri
@@ -249,21 +250,16 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
 //            true
 //        }
 
-        gotoExportActivity.setOnTouchListener { _, event ->
+        gotoExportActivity.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    gotoExportActivity.alpha = 0.5F
+                    v.alpha = 0.5F
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    gotoExportActivity.alpha = 1F
+                    v.alpha = 1F
                     stopVideo()
-                    Intent(this, ExportActivity::class.java).apply {
-//                        putExtra("URI", exportProject())
-                        putExtra("URI", uri)
-                    }.also {
-                        startActivity(it)
-                    }
+                    exportVideo()
                 }
             }
             true
@@ -284,7 +280,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
 
                 (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
                 (CustomAdapter.selectedEffect
-                        ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                    ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
 
                 val bitmap = (getDrawable(R.drawable.load) as BitmapDrawable).bitmap
@@ -296,13 +292,13 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
                     dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
                 }
                 effectList.add(
-                        Effect(
-                                (time.toDouble() * fps / 1000).toInt(),
-                                ((time.toDouble() * fps / 1000) + 29).toInt(),
-                                0,
-                                0xFFFFFF,
-                                dataArrayList
-                        )
+                    Effect(
+                        (time.toDouble() * fps / 1000).toInt(),
+                        ((time.toDouble() * fps / 1000) + 29).toInt(),
+                        0,
+                        0xFFFFFF,
+                        dataArrayList
+                    )
                 )
             }
         }
@@ -332,7 +328,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
 
     private fun startVideo() {
         if (isPlaying) return
-        UnityPlayer.UnitySendMessage(VIDEO_OBJECT, PLAY, "")
+        UnityPlayer.UnitySendMessage(PLAY_MANAGER, PLAY, "")
         project_play.isActivated = true
         isPlaying = true
 
@@ -353,7 +349,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
      * Stop video.
      */
     fun stopVideo() {
-        UnityPlayer.UnitySendMessage(VIDEO_OBJECT, PAUSE, "")
+        UnityPlayer.UnitySendMessage(PLAY_MANAGER, PAUSE, "")
         project_play.isActivated = false
         isPlaying = false
         videoTimer.cancel()
@@ -361,58 +357,72 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
 
     private fun tabInit() {
         with(effect_tab) {
-            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect))))
-            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
-            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
-            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
-            addTab(effect_tab.newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
+            addTab(
+                effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect)))
+            )
+            addTab(
+                effect_tab.newTab()
+                    .setCustomView(createTabView(getString(R.string.left_arm_effect)))
+            )
+            addTab(
+                effect_tab.newTab()
+                    .setCustomView(createTabView(getString(R.string.right_arm_effect)))
+            )
+            addTab(
+                effect_tab.newTab()
+                    .setCustomView(createTabView(getString(R.string.left_leg_effect)))
+            )
+            addTab(
+                effect_tab.newTab()
+                    .setCustomView(createTabView(getString(R.string.right_leg_effect)))
+            )
         }
 
         val addPagerAdapter =
-                AddFragmentPagerAdapter(
-                        supportFragmentManager,
-                        5,
-                        this
-                )
+            AddFragmentPagerAdapter(
+                supportFragmentManager,
+                5,
+                this
+            )
         effect_view_pager.adapter = addPagerAdapter
 
         for (index in 1 until effect_tab.tabCount)
             (effect_tab.getTabAt(index) ?: return).view.tab_text.setTextColor(
-                    ContextCompat.getColor(
-                            applicationContext,
-                            R.color.ContentsText40
-                    )
+                ContextCompat.getColor(
+                    applicationContext,
+                    R.color.ContentsText40
+                )
             )
         val tabView = effect_tab.getTabAt(0)
         (tabView ?: return).view.tab_text.typeface =
-                ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+            ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
         tabView.view.tab_text.setTextColor(
-                ContextCompat.getColor(
-                        applicationContext,
-                        R.color.White
-                )
+            ContextCompat.getColor(
+                applicationContext,
+                R.color.White
+            )
         )
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 effect_view_pager.currentItem = (tab ?: return).position
                 tab.view.tab_text.typeface =
-                        ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+                    ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
                 tab.view.tab_text.setTextColor(
-                        ContextCompat.getColor(
-                                applicationContext,
-                                R.color.White
-                        )
+                    ContextCompat.getColor(
+                        applicationContext,
+                        R.color.White
+                    )
                 )
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
                 (tab ?: return).view.tab_text.typeface =
-                        ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
+                    ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
                 tab.view.tab_text.setTextColor(
-                        ContextCompat.getColor(
-                                applicationContext,
-                                R.color.ContentsText40
-                        )
+                    ContextCompat.getColor(
+                        applicationContext,
+                        R.color.ContentsText40
+                    )
                 )
             }
 
@@ -432,6 +442,14 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
 
     }
 
+    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+    private fun exportVideo() {
+        stopVideo()
+        val dialog = LoadingDialog(this, LoadingDialog.EXPORT, path, fps, resultPath)
+        dialog.create()
+        dialog.show()
+    }
+
     /**
      * [AppCompatActivity.onActivityResult]
      */
@@ -445,24 +463,6 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
         }
     }
 
-    private fun sortEffect() {
-        for (i in 0 until effectList.size) {
-            for (j in i until effectList.size) {
-                if (effectList[j].getStartFrame() < effectList[i].getStartFrame() ||
-                        (effectList[j].getStartFrame() == effectList[i].getStartFrame()) &&
-                        (effectList[j].getEndFrame() < effectList[i].getEndFrame())
-                ) {
-                    val effect = effectList[i]
-                    effectList[i] = effectList[j]
-                    effectList[j] = effect
-                }
-            }
-        }
-    }
-
-    /**
-     * Call in Unity.
-     */
     private fun setCurrentTime(index: Int) {
         projectTimeLineView.currentTime = index
         timeIndexView.currentTime = index
@@ -504,12 +504,16 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
                 if (mode == 1) {
                     posX2 = event.x
                     val delta =
-                            (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
+                        (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
                     val currentTime = (time.toDouble() - delta).toInt()
-                            .coerceIn(0, videoDuration)
+                        .coerceIn(0, videoDuration)
                     setCurrentTime(currentTime)
                     posX1 = posX2
-                    UnityPlayer.UnitySendMessage(VIDEO_OBJECT, SET_FRAME, (time.toDouble() * fps / 1000).toInt().toString())
+                    UnityPlayer.UnitySendMessage(
+                        PLAY_MANAGER,
+                        SET_FRAME,
+                        (time.toDouble() * fps / 1000).toInt().toString()
+                    )
                 } else if (mode == 2) {
                     newDist = distance(event)
                     zoomLevel = zoomRange.clamp(zoomLevel * newDist / oldDist)
@@ -536,33 +540,4 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
     override fun onUnityPlayerUnloaded() {
         mUnityPlayer.unload()
     }
-
-    // export project to export activity
-//    @Suppress("BlockingMethodInNonBlockingContext")
-//    @SuppressLint("SimpleDateFormat")
-//    private fun exportProject(): Uri {
-//        val time = System.currentTimeMillis()
-//        val date = Date(time)
-//        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
-//        val filename = nameFormat.format(date)
-//        val file = filesDir.absoluteFile.path + "/$filename.mp4"
-//        val output = FileOutputStream(File(file))
-//
-//        var frame = 0
-//        Thread {
-//            while (frame <= endFrame - startFrame + 1) {
-//                 convert bitmap to bytes
-//                val size = bitmapList[frame].rowBytes * bitmapList[frame].height
-//                val bytes = ByteBuffer.allocate(size)
-//                bitmapList[frame++].copyPixelsToBuffer(bytes)
-//                val byteArray = ByteArray(size)
-//                 error
-//                bytes.get(byteArray, 0, byteArray.size)
-//
-//                output.write(byteArray)
-//            }
-//        }.start()
-//
-//        return Uri.parse(file)
-//    }
 }
