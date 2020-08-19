@@ -45,7 +45,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
     internal val videoFrameCount: Long by lazy { GetVideoData.getFrameCount(this, videoUri) }
 
-    private lateinit var trimmedVideoDestinationFile: File
+    internal lateinit var trimmedVideoDestinationFile: File
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
     }
@@ -272,13 +272,19 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
             dataBinder.startMs,
             dataBinder.endMs,
             videoDuration.toLong(),
-            object : VideoTrimmingListener {}
+            object : VideoTrimmingListener {
+                /**
+                 * @param uri the result, trimmed video, or null if failed
+                 */
+                override fun onFinishedTrimming(uri: Uri?) {
+                    Intent(this@TrimmingActivity, ProjectActivity::class.java).apply {
+                        putExtra(VIDEO_PATH, trimmedVideoDestinationFile.absolutePath)
+                    }.also {
+                        startActivity(it)
+                    }
+                }
+            }
         )
-        Intent(this, ProjectActivity::class.java).apply {
-            putExtra(VIDEO_PATH, trimmedVideoDestinationFile.absolutePath)
-        }.also {
-            startActivity(it)
-        }
     }
 
     ////////// Permission checking functions.

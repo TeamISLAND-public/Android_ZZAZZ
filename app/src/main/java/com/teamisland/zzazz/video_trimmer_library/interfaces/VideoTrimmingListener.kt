@@ -31,30 +31,9 @@ import androidx.annotation.UiThread
  */
 interface VideoTrimmingListener {
     /**
-     * Calls upon the video given by parameter is prepared.
-     */
-    @UiThread
-    fun onVideoPrepared() {
-    }
-
-    /**
-     * Calls when trimming procedure has been started.
-     */
-    @UiThread
-    fun onTrimStarted() {
-    }
-
-    /**
      * @param uri the result, trimmed video, or null if failed
      */
     @UiThread
     fun onFinishedTrimming(uri: Uri?) {
-    }
-
-    /**
-     * check {[android.media.MediaPlayer.OnErrorListener]}
-     */
-    @UiThread
-    fun onErrorWhileViewingVideo(what: Int, extra: Int) {
     }
 }

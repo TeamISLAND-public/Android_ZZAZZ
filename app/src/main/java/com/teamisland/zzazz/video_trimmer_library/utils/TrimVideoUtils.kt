@@ -44,7 +44,7 @@ import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.*
 
-object TrimVideoUtils {
+internal object TrimVideoUtils {
     private const val DEFAULT_BUFFER_SIZE = 1024 * 1024
 
     @JvmStatic
@@ -88,8 +88,6 @@ object TrimVideoUtils {
                 outputTrimmedVideoFile.absolutePath,
                 startMs,
                 endMs,
-                true,
-                true
             )
 //            Log.d("AppLog", "succeeded trimming using Android framework API?$succeeded")
         }
@@ -135,23 +133,22 @@ object TrimVideoUtils {
             }
         }
         for (track in tracks) {
-            var currentSample: Long = 0
             var currentTime = 0.0
             var lastTime = -1.0
             var startSample1: Long = -1
             var endSample1: Long = -1
-            for (element in track.sampleDurations) {
+            for ((currentSample, element) in track.sampleDurations.withIndex()) {
+                val currentSampleL = currentSample.toLong()
                 if (currentTime > lastTime && currentTime <= startTime1) {
                     // current sample is still before the new starttime
-                    startSample1 = currentSample
+                    startSample1 = currentSampleL
                 }
                 if (currentTime > lastTime && currentTime <= endTime1) {
                     // current sample is after the new start time and still before the new endtime
-                    endSample1 = currentSample
+                    endSample1 = currentSampleL
                 }
                 lastTime = currentTime
                 currentTime += element.toDouble() / track.trackMetaData.timescale.toDouble()
-                ++currentSample
             }
             movie.addTrack(AppendTrack(CroppedTrack(track, startSample1, endSample1)))
         }
@@ -177,8 +174,6 @@ object TrimVideoUtils {
         dstPath: String,
         startMs: Long,
         endMs: Long,
-        useAudio: Boolean,
-        useVideo: Boolean
     ): Boolean {
         // Set up MediaExtractor to read from the source.
         val extractor = MediaExtractor()
@@ -197,11 +192,10 @@ object TrimVideoUtils {
                 val mime = format.getString(MediaFormat.KEY_MIME)
                 var selectCurrentTrack = false
                 if (mime != null) {
-                    if (mime.startsWith("audio/") && useAudio) {
+                    if (mime.startsWith("audio/"))
                         selectCurrentTrack = true
-                    } else if (mime.startsWith("video/") && useVideo) {
+                    else if (mime.startsWith("video/"))
                         selectCurrentTrack = true
-                    }
                 }
                 if (selectCurrentTrack) {
                     extractor.selectTrack(i)
@@ -279,17 +273,14 @@ object TrimVideoUtils {
         next: Boolean
     ): Double {
         val timeOfSyncSamples = DoubleArray(track.syncSamples.size)
-        var currentSample: Long = 0
         var currentTime = 0.0
-        for (i in 0 until track.sampleDurations.size) {
-            val delta = track.sampleDurations[i]
-            if (Arrays.binarySearch(track.syncSamples, currentSample + 1) >= 0) {
+        for ((currentSample, element) in track.sampleDurations.withIndex()) {
+            if (Arrays.binarySearch(track.syncSamples, currentSample + 1L) >= 0) {
                 // samples always start with 1 but we start with zero therefore +1
-                timeOfSyncSamples[Arrays.binarySearch(track.syncSamples, currentSample + 1)] =
+                timeOfSyncSamples[Arrays.binarySearch(track.syncSamples, currentSample + 1L)] =
                     currentTime
             }
-            currentTime += delta.toDouble() / track.trackMetaData.timescale.toDouble()
-            ++currentSample
+            currentTime += element.toDouble() / track.trackMetaData.timescale.toDouble()
         }
         var previous = 0.0
         for (timeOfSyncSample in timeOfSyncSamples) {
