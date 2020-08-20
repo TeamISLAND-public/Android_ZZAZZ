@@ -24,10 +24,11 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 
 internal object BackgroundExecutor {
-    private val DEFAULT_EXECUTOR: Executor = Executors.newScheduledThreadPool(2 * Runtime.getRuntime().availableProcessors())
+    private val DEFAULT_EXECUTOR: Executor =
+        Executors.newScheduledThreadPool(2 * Runtime.getRuntime().availableProcessors())
     private val executor = DEFAULT_EXECUTOR
-    private val TASKS = ArrayList<Task>()
-    private val CURRENT_SERIAL = ThreadLocal<String>()
+    internal val TASKS = ArrayList<Task>()
+    internal val CURRENT_SERIAL = ThreadLocal<String>()
 
     /**
      * Execute a runnable after the given delay.
@@ -112,7 +113,7 @@ internal object BackgroundExecutor {
      * @param serial the serial queue
      * @return task if found, `null` otherwise
      */
-    private fun take(serial: String): Task? {
+    internal fun take(serial: String): Task? {
         val len = TASKS.size
         for (i in 0 until len) {
             if (serial == TASKS[i].serial) {
@@ -222,7 +223,8 @@ internal object BackgroundExecutor {
                     if (next != null) {
                         if (next.remainingDelay != 0L) {
                             /* the delay may not have elapsed yet */
-                            next.remainingDelay = max(0L, targetTimeMillis - System.currentTimeMillis())
+                            next.remainingDelay =
+                                max(0L, targetTimeMillis - System.currentTimeMillis())
                         }
                         /* a task having the same serial was queued, execute it */
                         execute(next)

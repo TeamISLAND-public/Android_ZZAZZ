@@ -12,10 +12,7 @@
         android:id="@+id/constraintLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:paddingBottom="16dp"
+        android:paddingVertical="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -24,21 +21,19 @@
             android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_gravity="center_vertical"
             android:layout_marginStart="16dp"
-            android:layout_weight="1"
             android:background="#00FFFFFF"
             android:contentDescription="@string/go_to_the_main_page"
+            android:paddingHorizontal="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/back" />
+            app:srcCompat="@drawable/ic_left_arrow_button" />
 
         <TextView
+            android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
             android:fontFamily="@font/archivo_bold"
             android:gravity="center"
             android:text="@string/trim_title"
@@ -53,10 +48,8 @@
         <TextView
             android:id="@+id/gotoProjectActivity"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_gravity="center_vertical|end"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_weight="1"
             android:background="@android:color/transparent"
             android:fontFamily="@font/archivo_bold"
             android:gravity="center_vertical|end"
@@ -80,24 +73,14 @@
         app:layout_constraintTop_toBottomOf="@id/constraintLayout">
 
         <com.google.android.exoplayer2.ui.PlayerView
+            android:animateLayoutChanges="true"
             android:id="@+id/mainVideoView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:use_controller="false"
+            app:controller_layout_id="@layout/trimming_video_player_controller_layout"
+            app:use_controller="true"
             tools:foreground="@tools:sample/backgrounds/scenic[1]" />
-
-        <ImageButton
-            android:id="@+id/playButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@null"
-            app:layout_constraintBottom_toBottomOf="@id/mainVideoView"
-            app:layout_constraintEnd_toEndOf="@id/mainVideoView"
-            app:layout_constraintStart_toStartOf="@id/mainVideoView"
-            app:layout_constraintTop_toTopOf="@id/mainVideoView"
-            app:srcCompat="@drawable/ic_preview_button" />
 
     </FrameLayout>
 
@@ -141,7 +124,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/start_trim"
+        android:id="@+id/trimming_hint_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -181,8 +164,8 @@
                 android:id="@+id/timeLineView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -192,6 +175,7 @@
                 android:id="@+id/rangeSeekBarView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:focusableInTouchMode="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -213,6 +197,8 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
+            android:clickable="false"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/constraintLayout3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

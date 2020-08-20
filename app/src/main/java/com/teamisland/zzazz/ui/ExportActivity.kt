@@ -88,7 +88,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         setContentView(R.layout.activity_export)
 
         //This is for test
-        uri = intent.getParcelableExtra("URI")
+        uri = intent.getParcelableExtra("URI")!!
 
         videoInit()
 
@@ -207,7 +207,9 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         MediaMetadataRetriever().also {
             it.setDataSource(this, uri)
             val time = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-            duration = time.toInt()
+            if (time != null) {
+                duration = time.toInt()
+            }
             val minute = duration / 60000
             val second = duration / 1000 - minute * 60
             video_length.text = String.format("%02d:%02d", minute, second)
