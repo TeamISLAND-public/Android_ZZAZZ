@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="Background">#070707</color>
+    <color name="Background">#FF070707</color>
     <color name="DialogBackground">#B2070707</color>
     <color name="ZZAZZWhite">#E5FFFFFF</color>
     <color name="ActivityTitle">#E6FFFFFF</color>
     <color name="ContentsText80">#CCFFFFFF</color>
     <color name="ContentsText40">#66FFFFFF</color>
-    <color name="White">#FFF</color>
-    <color name="Black">#000</color>
-    <color name="PointColor">#FF3898</color>
+    <color name="White">#FFFFFFFF</color>
+    <color name="Black">#FF000000</color>
+    <color name="PointColor">#FFFF3898</color>
 </resources>
