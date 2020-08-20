@@ -7,11 +7,8 @@ import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
-import android.util.Range
 import android.view.MotionEvent
-import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
+import android.view.View.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -160,8 +157,8 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
 
     internal fun setButtonEnable() {
         if (rangeSeekBarView.currentThumbIndex == -1) {
-            framePlus.visibility = View.INVISIBLE
-            frameMinus.visibility = View.INVISIBLE
+            framePlus.visibility = INVISIBLE
+            frameMinus.visibility = INVISIBLE
             return
         }
         framePlus.visibility = VISIBLE
@@ -230,13 +227,12 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         player.addListener(object : Player.EventListener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (!isPlaying) return
-                val overrun = dataBinder.endMs <= player.currentPosition
-                if (overrun)
+                if (dataBinder.endMs <= player.currentPosition)
                     player.seekTo(dataBinder.startMs)
                 launch {
                     while (player.isPlaying) {
                         currentPositionView.invalidate()
-                        if (overrun) {
+                        if (dataBinder.endMs <= player.currentPosition) {
                             player.playWhenReady = false
                             break
                         }
