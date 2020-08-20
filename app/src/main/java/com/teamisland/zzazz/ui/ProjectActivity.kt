@@ -56,6 +56,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     private lateinit var modelpath: String
     private var videoDuration = 0
     private var fps: Float = 0f
+    private var frameCount: Int = 0
 
     //    private lateinit var video: BitmapVideo
 //    private lateinit var bitmapList: List<Bitmap>
@@ -179,7 +180,8 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
         val uri = Uri.parse(path)
         videoDuration = getDuration(this, uri)
-        fps = getFrameCount(this, uri) / (videoDuration / 1000f)
+        frameCount = getFrameCount(this, uri)
+        fps = frameCount / (videoDuration / 1000f)
 
         zoomLevel = float2DP(0.06f, resources)
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
@@ -279,7 +281,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         UnityPlayer.UnitySendMessage(
             PLAY_MANAGER,
             SET_VIDEO,
-            "$originPath:${getFrameCount(this, uri)}"
+            "$originPath:$frameCount"
         )
     }
 
@@ -310,6 +312,9 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         project_play.isActivated = true
         isPlaying = true
 
+        if (frame == frameCount)
+            frame = 0
+
         GlobalScope.launch {
             var time = 1000 * frame / fps
             while (isPlaying) {
@@ -317,6 +322,10 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
                 frame = (time * fps / 1000).toInt()
                 setCurrentTime(time.toInt())
                 delay(1)
+                if (frameCount == frame) {
+                    stopVideo()
+                    break
+                }
             }
         }
     }
