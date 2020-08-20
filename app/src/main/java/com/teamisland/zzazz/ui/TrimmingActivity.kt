@@ -38,7 +38,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
 
     ////////// Class member declaration.
 
-    private val videoUri: Uri by lazy { intent.getParcelableExtra(IntroLoadActivity.VIDEO_URI)!! }
+    private val videoUri: Uri by lazy { intent.getParcelableExtra(IntroActivity.VIDEO_URI)!! }
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
     internal val videoFrameCount: Long by lazy { GetVideoData.getFrameCount(this, videoUri) }
 

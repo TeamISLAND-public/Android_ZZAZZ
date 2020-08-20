@@ -30,7 +30,6 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
 
 /**
  * Ranged seekbar with current position bar.
@@ -42,7 +41,7 @@ class SelectedThumbView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private val arrow: Drawable =
-        ResourcesCompat.getDrawable(resources, R.drawable.selected_thumb, null)!!.apply {
+        ResourcesCompat.getDrawable(resources, R.drawable.arrow, null)!!.apply {
             setBounds(-intrinsicHeight / 2, 0, intrinsicWidth / 2, intrinsicHeight)
         }
 
