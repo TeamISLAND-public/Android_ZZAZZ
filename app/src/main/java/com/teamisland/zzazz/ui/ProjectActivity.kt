@@ -283,7 +283,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
                     ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
 
-                val bitmap = (getDrawable(R.drawable.load) as BitmapDrawable).bitmap
+                val bitmap = (ContextCompat.getDrawable(this, R.drawable.load) as BitmapDrawable).bitmap
                 val point = Effect.Point(30, 30)
                 val dataArrayList: MutableList<Effect.Data> = mutableListOf()
 
@@ -342,7 +342,7 @@ class ProjectActivity : AppCompatActivity(), CoroutineScope, IUnityPlayerLifecyc
                 handler.post { setCurrentTime(time) }
             }
         }
-        videoTimer.schedule(timerTask, 0, 1)
+        videoTimer.schedule(timerTask, 0, 10)
     }
 
     /**

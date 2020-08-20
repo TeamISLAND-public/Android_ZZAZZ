@@ -256,7 +256,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
             // when user starts dragging
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                preview_progress.thumb = getDrawable(R.drawable.seekbar_pressed_thumb)
+                preview_progress.thumb =
+                    ContextCompat.getDrawable(this@ExportActivity, R.drawable.seekbar_pressed_thumb)
                 preview_progress.progressTintList =
                     ColorStateList.valueOf(getColor(R.color.PointColor))
                 playing = player.isPlaying
@@ -267,7 +268,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             // when user stops touching
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 player.seekTo(preview_progress.progress.toLong())
-                preview_progress.thumb = getDrawable(R.drawable.seekbar_normal_thumb)
+                preview_progress.thumb =
+                    ContextCompat.getDrawable(this@ExportActivity, R.drawable.seekbar_normal_thumb)
                 preview_progress.progressTintList = ColorStateList.valueOf(getColor(R.color.White))
                 when {
                     preview_progress.progress == duration -> {
@@ -438,7 +440,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                     handler.post {
                         dialog.dismiss()
 
-                        save.background = getDrawable(R.drawable.check)
+                        save.background =
+                            ContextCompat.getDrawable(this@ExportActivity, R.drawable.check)
                         val finRadius = hypot((save.width * 2).toDouble(), save.height.toDouble())
                         val animation = ViewAnimationUtils.createCircularReveal(
                             save, 0, save.height / 2, 0F,

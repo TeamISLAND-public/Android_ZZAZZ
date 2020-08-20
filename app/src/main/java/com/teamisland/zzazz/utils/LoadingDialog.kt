@@ -158,7 +158,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             // images to video
             Log.d("Export", "Convert the images to a video.")
 //        val videoPath = filesDir.absolutePath + "/video.mp4"
-//        FFmpeg.execute("-i $capturePath/img%08d.png -vcodec libx264 -r $fps -pix_fmt yuv420p $videoPath")
+//        FFmpeg.execute("-i $capturePath/img%08d.png -r $fps -pix_fmt yuv420p $videoPath")
             FFmpeg.execute("-i $capturePath/img%08d.png -r $fps -pix_fmt yuv420p $resultPath")
 
             // combine audio and video
