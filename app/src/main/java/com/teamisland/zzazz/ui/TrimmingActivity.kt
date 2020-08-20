@@ -91,6 +91,8 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
                 get() = rangeStartIndex * videoDuration / videoFrameCount
             override val endMs: Long
                 get() = rangeExclusiveEndIndex * videoDuration / videoFrameCount
+            override val endExcludeMs: Long
+                get() = (rangeExclusiveEndIndex - 1) * videoDuration / videoFrameCount
 
             override var currentVideoPosition: Long = 0
                 get() = player.currentPosition
@@ -130,7 +132,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
 
     @Suppress("UNUSED_PARAMETER")
     internal fun onRangeEndChanged(old: Long) {
-        dataBinder.currentVideoPosition = dataBinder.endMs
+        dataBinder.currentVideoPosition = dataBinder.endExcludeMs
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -216,12 +218,12 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         player.addListener(object : Player.EventListener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (!isPlaying) return
-                if (dataBinder.endMs <= player.currentPosition)
+                if (dataBinder.endExcludeMs <= player.currentPosition)
                     player.seekTo(dataBinder.startMs)
                 launch {
                     while (player.isPlaying) {
                         currentPositionView.invalidate()
-                        if (dataBinder.endMs <= player.currentPosition) {
+                        if (dataBinder.endExcludeMs <= player.currentPosition) {
                             player.playWhenReady = false
                             break
                         }

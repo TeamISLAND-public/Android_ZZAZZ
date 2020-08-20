@@ -10,4 +10,5 @@ internal interface ITrimmingData {
     var currentVideoPosition: Long
     val duration: Int
     val frameCount: Long
+    val endExcludeMs: Long
 }
