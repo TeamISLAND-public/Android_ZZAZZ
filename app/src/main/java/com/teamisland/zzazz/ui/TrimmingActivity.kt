@@ -15,6 +15,7 @@ import android.view.View.VISIBLE
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.arthenica.mobileffmpeg.Config
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
@@ -23,10 +24,10 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.AbsolutePathRetriever
+import com.teamisland.zzazz.utils.FFmpegDelegate
 import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.ITrimmingData
-import com.teamisland.zzazz.video_trimmer_library.interfaces.VideoTrimmingListener
-import com.teamisland.zzazz.video_trimmer_library.utils.TrimVideoUtils
 import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -45,7 +46,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
     internal val videoFrameCount: Long by lazy { GetVideoData.getFrameCount(this, videoUri) }
 
-    internal lateinit var trimmedVideoDestinationFile: File
+    private lateinit var trimmedVideoDestinationFile: File
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
     }
@@ -265,26 +266,14 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun startTrimming() {
-        TrimVideoUtils.startTrim(
-            this,
-            videoUri,
-            trimmedVideoDestinationFile,
-            dataBinder.startMs,
-            dataBinder.endMs,
-            videoDuration.toLong(),
-            object : VideoTrimmingListener {
-                /**
-                 * @param uri the result, trimmed video, or null if failed
-                 */
-                override fun onFinishedTrimming(uri: Uri?) {
-                    Intent(this@TrimmingActivity, ProjectActivity::class.java).apply {
-                        putExtra(VIDEO_PATH, trimmedVideoDestinationFile.absolutePath)
-                    }.also {
-                        startActivity(it)
-                    }
-                }
-            }
-        )
+        val inPath = AbsolutePathRetriever.getPath(this, videoUri) ?: return
+        val outPath = trimmedVideoDestinationFile.absolutePath
+        FFmpegDelegate.trimVideo(inPath, dataBinder.startMs, dataBinder.endMs, outPath) { i ->
+            if (i == Config.RETURN_CODE_SUCCESS)
+                Intent(this, ProjectActivity::class.java).apply {
+                    putExtra(VIDEO_PATH, outPath)
+                }.also { startActivity(it) }
+        }
     }
 
     ////////// Permission checking functions.
