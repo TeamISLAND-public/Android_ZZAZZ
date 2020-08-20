@@ -126,15 +126,6 @@ class LoadingDialog(context: Context, private val request: Int) :
 //        FFmpeg.execute("-i $path $audioPath")
             Log.d("Export", "Finish extracting audio.")
 
-            // export images from origin video
-            Log.d("Export", "Start exporting the images from an origin video.")
-            originPath = context.filesDir.absolutePath + "/video_image"
-            val originFile = File(originPath)
-            if (!originFile.exists())
-                originFile.mkdir()
-            FFmpeg.execute("-r 1 -i $path -r 1 $originPath/img%08d.png")
-            Log.d("Export", "Finish exporting the images from an origin video.")
-
             capturePath = context.filesDir.absolutePath + "/capture_image"
             val captureFile = File(capturePath)
             if (!captureFile.exists())
