@@ -69,7 +69,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     internal val dataBinder by lazy {
         object : ITrimmingData {
 
-            override val fps = videoFps
             override val duration = videoDuration
             override val frameCount = videoFrameCount
 
@@ -99,20 +98,11 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
                     onRangeEndChanged(oldValue)
                     onRangeChanged(rangeStartIndex, oldValue, false)
                 }
-            override val frameRange: Range<Long>
-                get() = Range(rangeStartIndex, rangeExclusiveEndIndex)
-
-            override val startFrameIndexFraction: Double =
-                rangeStartIndex / videoFrameCount.toDouble()
-            override val endFrameIndexFraction: Double =
-                rangeExclusiveEndIndex / videoFrameCount.toDouble()
 
             override val startMs: Long
                 get() = rangeStartIndex * videoDuration / videoFrameCount
             override val endMs: Long
                 get() = rangeExclusiveEndIndex * videoDuration / videoFrameCount
-            override val millisecondRange: Range<Long>
-                get() = Range(startMs, endMs)
 
             override var currentVideoPosition: Long = 0
                 get() = player.currentPosition
