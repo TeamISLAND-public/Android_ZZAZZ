@@ -39,7 +39,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     ////////// Class member declaration.
 
     private val videoUri: Uri by lazy { intent.getParcelableExtra(IntroLoadActivity.VIDEO_URI)!! }
-    internal val videoFps: Int by lazy { GetVideoData.getFPS(this, videoUri) }
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
     internal val videoFrameCount: Long by lazy { GetVideoData.getFrameCount(this, videoUri) }
 
@@ -169,17 +168,15 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         with(rangeSeekBarView) {
             when (currentThumbIndex) {
                 0 -> {
-                    framePlus.isClickable = left + 1 < right
-                    frameMinus.isClickable = left > 0
+                    framePlus.isEnabled = left + 1 < right
+                    frameMinus.isEnabled = left > 0
                 }
                 1 -> {
-                    framePlus.isClickable = right < frameCount
-                    frameMinus.isClickable = left + 1 < right
+                    framePlus.isEnabled = right < frameCount
+                    frameMinus.isEnabled = left + 1 < right
                 }
             }
         }
-        framePlus.isEnabled = framePlus.isClickable
-        frameMinus.isEnabled = frameMinus.isClickable
     }
 
     ////////// Overrides.
