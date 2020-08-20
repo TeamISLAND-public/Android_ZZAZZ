@@ -48,7 +48,7 @@ object FFmpegDelegate {
         callback: (Int) -> Unit
     ) {
         Thread {
-            FFmpeg.execute("-i $inPath -ss ${startMs / 1000.0} -to ${endMs / 1000.0} -c:v copy -c:a aac $outPath")
+            FFmpeg.execute("-i $inPath -ss ${startMs / 1000.0} -to ${endMs / 1000.0} $outPath")
             callback(Config.getLastReturnCode())
         }.start()
     }

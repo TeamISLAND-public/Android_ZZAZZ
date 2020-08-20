@@ -42,14 +42,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
     internal val videoFrameCount: Long by lazy { GetVideoData.getFrameCount(this, videoUri) }
 
-    private val trimmedVideoDestinationFile: File by lazy {
-        // Set destination location.
-        val parentFolder = getExternalFilesDir(null)!!
-        parentFolder.mkdirs()
-        val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
-        File(parentFolder, fileName)
-    }
-
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
     }
@@ -253,11 +245,22 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
 
     private fun startTrimming() {
         val inPath = AbsolutePathRetriever.getPath(this, videoUri) ?: return
-        val outPath = trimmedVideoDestinationFile.absolutePath
+        val outPath = run {
+            // Set destination location.
+            val parentFolder = getExternalFilesDir(null)!!
+            parentFolder.mkdirs()
+            val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
+            File(parentFolder, fileName)
+        }.absolutePath
         FFmpegDelegate.trimVideo(inPath, dataBinder.startMs, dataBinder.endMs, outPath) { i ->
             if (i == Config.RETURN_CODE_SUCCESS)
                 Intent(this, ProjectActivity::class.java).apply {
+                    println(outPath)
                     putExtra(VIDEO_PATH, outPath)
+                    putExtra(
+                        VIDEO_FRAME_COUNT,
+                        dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
+                    )
                 }.also { startActivity(it) }
         }
     }
@@ -290,7 +293,12 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         /**
          * Uri of the trimmed video.
          */
-        const val VIDEO_PATH: String = "PATH"
+        const val VIDEO_PATH: String = "TRIMMED_PATH"
+
+        /**
+         * Uri of the trimmed video.
+         */
+        const val VIDEO_FRAME_COUNT: String = "TRIMMED_FRAME_COUNT"
     }
 
     ////////// Coroutine codes.
