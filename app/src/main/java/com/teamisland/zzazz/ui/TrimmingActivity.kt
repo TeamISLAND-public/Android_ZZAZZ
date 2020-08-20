@@ -46,7 +46,14 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
     internal val videoFrameCount: Long by lazy { GetVideoData.getFrameCount(this, videoUri) }
 
-    private lateinit var trimmedVideoDestinationFile: File
+    private val trimmedVideoDestinationFile: File by lazy {
+        // Set destination location.
+        val parentFolder = getExternalFilesDir(null)!!
+        parentFolder.mkdirs()
+        val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
+        File(parentFolder, fileName)
+    }
+
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
     }
@@ -209,12 +216,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         // Take permission to R/W external storage.
         takePermission(arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE))
 
-        // Set destination location.
-        val parentFolder = getExternalFilesDir(null) ?: return
-        parentFolder.mkdirs()
-        val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
-        trimmedVideoDestinationFile = File(parentFolder, fileName)
-
         // Set click handlers.
         backButton.setOnClickListener { onBackPressed() }
         gotoProjectActivity.setOnClickListener { startTrimming() }
@@ -239,12 +240,13 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         player.addListener(object : Player.EventListener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (!isPlaying) return
-                if (dataBinder.endMs <= player.currentPosition)
+                val overrun = dataBinder.endMs <= player.currentPosition
+                if (overrun)
                     player.seekTo(dataBinder.startMs)
                 launch {
                     while (player.isPlaying) {
                         currentPositionView.invalidate()
-                        if (dataBinder.endMs <= player.currentPosition) {
+                        if (overrun) {
                             player.playWhenReady = false
                             break
                         }
@@ -252,6 +254,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
                     }
                 }
             }
+
         })
 
         dataBinder.updateUI()
