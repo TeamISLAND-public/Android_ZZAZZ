@@ -251,7 +251,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
                 CustomAdapter.selectedEffect = null
 
                 val bitmap =
-                    (ContextCompat.getDrawable(this, R.drawable.load) as BitmapDrawable).bitmap
+                    (ContextCompat.getDrawable(this, R.drawable.back) as BitmapDrawable).bitmap
                 val point = Effect.Point(30, 30)
                 val dataArrayList: MutableList<Effect.Data> = mutableListOf()
 
@@ -428,12 +428,16 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 
     }
 
-    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private fun exportVideo() {
         stopVideo()
-        val dialog = LoadingDialog(this, LoadingDialog.EXPORT, path, fps, resultPath)
-        dialog.create()
-        dialog.show()
+//        val dialog = LoadingDialog(this, LoadingDialog.EXPORT, path, fps, resultPath)
+//        dialog.create()
+//        dialog.show()
+        Intent(this, ExportActivity::class.java).apply {
+            Log.d("path", resultPath)
+            putExtra("RESULT", path)
+            ContextCompat.startActivity(this@ProjectActivity, this, null)
+        }
     }
 
     /**

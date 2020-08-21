@@ -133,59 +133,24 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             true
         }
 
-        back.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    back.alpha = 0.4F
-                }
+        back.setOnClickListener { finish() }
 
-                MotionEvent.ACTION_UP -> {
-                    back.alpha = 1F
-                    done = true
-                    finish()
-                }
+        save.setOnClickListener { videoSave() }
+
+        share.setOnClickListener {
+            Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(
+                    Intent.EXTRA_STREAM,
+                    FileProvider.getUriForFile(
+                        this@ExportActivity,
+                        "com.teamisland.zzazz.fileprovider",
+                        File(uri.path)
+                    )
+                )
+                type = "video/*"
+                startActivity(Intent.createChooser(this, "Share"))
             }
-            true
-        }
-
-        save.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    save.alpha = 0.4F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    save.alpha = 1F
-                    videoSave()
-                }
-            }
-            true
-        }
-
-        share.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    share.alpha = 0.4F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    share.alpha = 1F
-                    Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(
-                            Intent.EXTRA_STREAM,
-                            FileProvider.getUriForFile(
-                                this@ExportActivity,
-                                "com.teamisland.zzazz.fileprovider",
-                                File(uri.path)
-                            )
-                        )
-                        type = "video/*"
-                        startActivity(Intent.createChooser(this, "Share"))
-                    }
-                }
-            }
-            true
         }
 
         //This is for test device which is the emulator

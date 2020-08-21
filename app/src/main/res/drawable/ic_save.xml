@@ -1,21 +1,5 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="16dp"
-    android:height="16dp"
-    android:viewportWidth="16"
-    android:viewportHeight="16">
-  <path
-      android:pathData="M0,1.9741C0,0.879 0.8934,0 1.9741,0H12.3809L16,3.63V14.0259C16,15.1188 15.1188,16 14.0259,16H1.9741C0.8812,16 0,15.1188 0,14.0259V1.9741ZM1.9741,1C1.4413,1 1,1.4357 1,1.9741V14.0259C1,14.5665 1.4335,15 1.9741,15H14.0259C14.5665,15 15,14.5665 15,14.0259V4.0433L11.9658,1H1.9741Z"
-      android:fillColor="#ffffff"
-      android:fillAlpha="0.9"
-      android:fillType="evenOdd"/>
-  <path
-      android:pathData="M3,2.6826H10V5.6826H3V2.6826ZM4,3.6826V4.6826H9V3.6826H4Z"
-      android:fillColor="#ffffff"
-      android:fillAlpha="0.9"
-      android:fillType="evenOdd"/>
-  <path
-      android:pathData="M7.9385,9.277C7.1101,9.277 6.4385,9.9486 6.4385,10.777C6.4385,11.6054 7.1101,12.277 7.9385,12.277C8.7669,12.277 9.4385,11.6054 9.4385,10.777C9.4385,9.9486 8.7669,9.277 7.9385,9.277ZM5.4385,10.777C5.4385,9.3963 6.5578,8.277 7.9385,8.277C9.3192,8.277 10.4385,9.3963 10.4385,10.777C10.4385,12.1577 9.3192,13.277 7.9385,13.277C6.5578,13.277 5.4385,12.1577 5.4385,10.777Z"
-      android:fillColor="#ffffff"
-      android:fillAlpha="0.9"
-      android:fillType="evenOdd"/>
-</vector>
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/save" android:state_pressed="false"/>
+    <item android:drawable="@drawable/save_dim" android:state_pressed="true"/>
+</selector>

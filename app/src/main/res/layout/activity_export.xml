@@ -8,52 +8,61 @@
     tools:context=".ui.ExportActivity"
     tools:ignore="Overdraw">
 
-    <Button
-        android:id="@+id/back"
-        android:layout_width="15dp"
-        android:layout_height="10dp"
-        android:layout_marginStart="20dp"
-        android:background="@drawable/back"
-        app:layout_constraintBottom_toBottomOf="@id/title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/title" />
-
-    <TextView
-        android:id="@id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/archivo_medium"
-        android:text="@string/export_title"
-        android:textAlignment="center"
-        android:textColor="@color/ActivityTitle"
-        android:textSize="15sp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/status"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/done_export"
-        android:layout_width="41dp"
-        android:layout_height="20dp"
-        android:layout_marginEnd="13dp"
-        android:background="@color/Background"
-        android:fontFamily="@font/archivo_bold"
-        android:text="@string/done"
-        android:textAlignment="center"
-        android:textColor="@color/White"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@id/title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/title" />
+        <Button
+            android:id="@+id/back"
+            android:layout_width="15dp"
+            android:layout_height="10dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/ic_back"
+            app:layout_constraintBottom_toBottomOf="@id/title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/title" />
+
+        <TextView
+            android:id="@id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/archivo_medium"
+            android:text="@string/export_title"
+            android:textAlignment="center"
+            android:textColor="@color/ActivityTitle"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/done_export"
+            android:layout_width="41dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="13dp"
+            android:background="@color/Background"
+            android:fontFamily="@font/archivo_bold"
+            android:text="@string/done"
+            android:textAlignment="center"
+            android:textColor="@color/White"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@id/title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/title" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <RelativeLayout
         android:id="@+id/video"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="48dp"
-        app:layout_constraintDimensionRatio="1.125:1"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintBottom_toTopOf="@id/progress"
+        app:layout_constraintTop_toBottomOf="@id/status">
 
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/preview"
@@ -76,113 +85,132 @@
 
     </RelativeLayout>
 
-    <SeekBar
-        android:id="@+id/preview_progress"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/progress"
         android:layout_width="match_parent"
-        android:layout_height="16dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginRight="32dp"
-        android:maxHeight="16dp"
-        android:progressBackgroundTint="#66FFFFFF"
-        android:progressTint="@color/White"
-        android:splitTrack="false"
-        android:thumb="@drawable/seekbar_normal_thumb"
-        android:thumbOffset="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video" />
-
-    <TextView
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="28dp"
-        android:fontFamily="@font/archivo_regular"
-        android:text="@string/start_preview"
-        android:textColor="@color/ContentsText80"
-        android:textSize="9sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video"
-        tools:ignore="SmallSp" />
+        android:layout_marginBottom="14dp"
+        app:layout_constraintBottom_toTopOf="@id/content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-    <TextView
-        android:id="@+id/video_length"
-        android:layout_width="wrap_content"
+        <SeekBar
+            android:id="@+id/preview_progress"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginRight="32dp"
+            android:maxHeight="16dp"
+            android:progressBackgroundTint="#66FFFFFF"
+            android:progressTint="@color/White"
+            android:splitTrack="false"
+            android:thumb="@drawable/seekbar_normal_thumb"
+            android:thumbOffset="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="28dp"
+            android:fontFamily="@font/archivo_regular"
+            android:text="@string/start_preview"
+            android:textColor="@color/ContentsText80"
+            android:textSize="9sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SmallSp" />
+
+        <TextView
+            android:id="@+id/video_length"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="32dp"
+            android:fontFamily="@font/archivo_regular"
+            android:textColor="@color/ContentsText80"
+            android:textSize="9sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SmallSp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="32dp"
-        android:fontFamily="@font/archivo_regular"
-        android:textColor="@color/ContentsText80"
-        android:textSize="9sp"
+        android:layout_marginBottom="17dp"
+        app:layout_constraintBottom_toTopOf="@id/adView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video"
-        tools:ignore="SmallSp" />
+        app:layout_constraintStart_toStartOf="parent">
 
-    <TextView
-        android:id="@+id/save_text"
-        android:layout_width="64dp"
-        android:layout_height="16dp"
-        android:layout_marginTop="60dp"
-        android:background="@color/Background"
-        android:fontFamily="@font/archivo_medium"
-        android:gravity="center"
-        android:text="@string/save_text"
-        android:textAllCaps="false"
-        android:textColor="@color/ContentsText80"
-        android:textSize="11sp"
-        app:layout_constraintEnd_toEndOf="@+id/divider"
-        app:layout_constraintHorizontal_bias="0.552"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video"
-        tools:ignore="SmallSp" />
+        <TextView
+            android:id="@+id/save_text"
+            android:layout_width="64dp"
+            android:layout_height="16dp"
+            android:background="@color/Background"
+            android:fontFamily="@font/archivo_medium"
+            android:gravity="center"
+            android:text="@string/save_text"
+            android:textAllCaps="false"
+            android:textColor="@color/ContentsText80"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toEndOf="@+id/divider"
+            app:layout_constraintHorizontal_bias="0.552"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SmallSp" />
 
-    <Button
-        android:id="@+id/save"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/save"
-        app:layout_constraintEnd_toEndOf="@id/save_text"
-        app:layout_constraintStart_toStartOf="@id/save_text"
-        app:layout_constraintTop_toBottomOf="@id/save_text" />
+        <Button
+            android:id="@+id/save"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/ic_save"
+            app:layout_constraintEnd_toEndOf="@id/save_text"
+            app:layout_constraintStart_toStartOf="@id/save_text"
+            app:layout_constraintTop_toBottomOf="@id/save_text" />
 
-    <View
-        android:id="@id/divider"
-        android:layout_width="0.25dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="52dp"
-        android:background="#50FFFFFF"
-        app:layout_constraintEnd_toStartOf="parent"
-        app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/video" />
+        <View
+            android:id="@id/divider"
+            android:layout_width="0.25dp"
+            android:layout_height="64dp"
+            android:background="#50FFFFFF"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/share_text"
-        android:layout_width="64dp"
-        android:layout_height="16dp"
-        android:layout_marginTop="60dp"
-        android:background="@color/Background"
-        android:fontFamily="@font/archivo_medium"
-        android:gravity="center"
-        android:text="@string/share_text"
-        android:textColor="@color/ContentsText80"
-        android:textSize="11sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.448"
-        app:layout_constraintStart_toStartOf="@id/divider"
-        app:layout_constraintTop_toBottomOf="@id/video"
-        tools:ignore="SmallSp" />
+        <TextView
+            android:id="@+id/share_text"
+            android:layout_width="64dp"
+            android:layout_height="16dp"
+            android:background="@color/Background"
+            android:fontFamily="@font/archivo_medium"
+            android:gravity="center"
+            android:text="@string/share_text"
+            android:textColor="@color/ContentsText80"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.448"
+            app:layout_constraintStart_toStartOf="@id/divider"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SmallSp" />
 
-    <Button
-        android:id="@+id/share"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/share"
-        app:layout_constraintEnd_toEndOf="@id/share_text"
-        app:layout_constraintStart_toStartOf="@id/share_text"
-        app:layout_constraintTop_toBottomOf="@id/share_text" />
+        <Button
+            android:id="@+id/share"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/ic_share"
+            app:layout_constraintEnd_toEndOf="@id/share_text"
+            app:layout_constraintStart_toStartOf="@id/share_text"
+            app:layout_constraintTop_toBottomOf="@id/share_text" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"
