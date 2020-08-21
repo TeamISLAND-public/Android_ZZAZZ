@@ -2,18 +2,18 @@ package com.teamisland.zzazz.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
-import android.view.*
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewAnimationUtils
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.SeekBar
@@ -34,11 +34,10 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
+import com.teamisland.zzazz.utils.LoadingDialog
 import kotlinx.android.synthetic.main.activity_export.*
-import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.*
 import java.io.File
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.coroutines.CoroutineContext
@@ -333,10 +332,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         "BlockingMethodInNonBlockingContext",
         "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
     )
-    @SuppressLint("SimpleDateFormat", "SetTextI18n", "InflateParams")
     private fun videoSave() {
-        var checkStop = false
-
         //Check permission
         if (ContextCompat.checkSelfPermission(
                 this,
@@ -351,114 +347,31 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             )
         }
 
-        val input = contentResolver.openInputStream(Uri.fromFile(File(uri.path)))
-
-        //Video name is depended by time
-        val time = System.currentTimeMillis()
-        val date = Date(time)
-        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
-        val filename = nameFormat.format(date) + ".mp4"
-
-        val contentValues = ContentValues()
-        contentValues.put(
-            MediaStore.Files.FileColumns.RELATIVE_PATH,
-            Environment.DIRECTORY_MOVIES + "/ZZAZZ"
+        val dialog = LoadingDialog(
+            this,
+            LoadingDialog.SAVE
         )
-        contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename)
-        contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "video/*")
-        contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 1)
-
-        val outputUri =
-            contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
-
-        val parcelFileDescriptor =
-            contentResolver.openFileDescriptor(outputUri ?: return, "w", null)
-
-        val output = FileOutputStream((parcelFileDescriptor ?: return).fileDescriptor)
-
-        val data = ByteArray(1024)
-        var total = 0F
-        var count: Int
-        val len: Float = (input ?: return).available().toFloat()
-        val handler = Handler()
-
-        val dialog = Dialog(this@ExportActivity, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
-
-        var isExport = false
-        var isFinished = false
-
-        //during saving
-        GlobalScope.launch {
-            handler.post {
-                save.visibility = View.GONE
-                dialog.setCancelable(false)
-                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                dialog.setContentView(R.layout.loading_dialog)
-                dialog.create()
-                dialog.show()
-                dialog.text.text = getString(R.string.loading) + "(00%)"
-                val window = dialog.window
-                window?.setBackgroundDrawable(ColorDrawable(getColor(R.color.DialogBackground)))
-                window?.setGravity(Gravity.CENTER)
-            }
-            count = try {
-                input.read(data)
-            } catch (e: Exception) {
-                -1
-            }
-            while (count != -1) {
-                total += count
-                handler.post {
-                    dialog.text.text =
-                        getString(R.string.loading) + "(${(total / len * 100).toInt()}%)"
-                }
-
-                try {
-                    output.write(data, 0, count)
-                    count = input.read(data)
-                } catch (e: Exception) {
-                    checkStop = true
-                    break
-                }
-            }
-
-            if (!checkStop) {
-                input.close()
-                output.flush()
-                output.close()
-                contentValues.clear()
-                contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 0)
-                contentResolver.update(outputUri, contentValues, null, null)
-                isExport = true
-            }
-        }
+        dialog.create()
+        dialog.show()
 
         // after saved
         GlobalScope.launch {
-            while (!isFinished) {
-                while (isExport) {
-                    handler.post {
-                        dialog.dismiss()
+            Handler().post {
+                save.background =
+                    ContextCompat.getDrawable(this@ExportActivity, R.drawable.check)
+                val finRadius = hypot((save.width * 2).toDouble(), save.height.toDouble())
+                val animation = ViewAnimationUtils.createCircularReveal(
+                    save, 0, save.height / 2, 0F,
+                    finRadius.toFloat()
+                )
+                animation.duration = 1000
+                save.visibility = View.VISIBLE
+                animation.start()
+                save.isEnabled = false
+                save_text.text = getText(R.string.saved_text)
 
-                        save.background =
-                            ContextCompat.getDrawable(this@ExportActivity, R.drawable.check)
-                        val finRadius = hypot((save.width * 2).toDouble(), save.height.toDouble())
-                        val animation = ViewAnimationUtils.createCircularReveal(
-                            save, 0, save.height / 2, 0F,
-                            finRadius.toFloat()
-                        )
-                        animation.duration = 1000
-                        save.visibility = View.VISIBLE
-                        animation.start()
-                        save.isEnabled = false
-                        save_text.text = getText(R.string.saved_text)
-
-                        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                        vibrator.vibrate(VibrationEffect.createOneShot(200, 20))
-                    }
-                    isFinished = true
-                    isExport = false
-                }
+                val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                vibrator.vibrate(VibrationEffect.createOneShot(200, 20))
             }
         }
     }

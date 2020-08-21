@@ -17,7 +17,6 @@
     <string name="project_title">PROJECT</string>
     <string name="export">EXPORT</string>
     <string name="apply_effect">Applying effect</string>
-    <string name="export_video">Exporting video</string>
     <string name="head_effect">Head</string>
     <string name="left_arm_effect">Left arm</string>
     <string name="right_arm_effect">Right arm</string>
@@ -34,14 +33,18 @@
     <string name="save_text">Save</string>
     <string name="saved_text">Saved</string>
     <string name="share_text">Share</string>
-    <string name="loading">LOADING</string>
-    <string name="save_video">Saving video</string>
     <string name="file_name">ZZAZZ</string>
 
     <!--    string of alert-->
     <string name="fps_exceeded">fps exceeded</string>
     <string name="choose_from_gallery">Choose From Gallery</string>
     <string name="play_pause_button">Play / Pause button</string>
+
+    <!--    string of loading dialog-->
+    <string name="loading">LOADING</string>
+    <string name="trim_video">Downloading video</string>
+    <string name="export_video">Exporting video</string>
+    <string name="save_video">Saving video</string>
 
     <string name="game_view_content_description" translatable="false">Game view</string>
 </resources>

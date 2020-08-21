@@ -1,6 +1,6 @@
 package com.teamisland.zzazz.utils
 
-internal interface ITrimmingData {
+interface ITrimmingData {
     fun updateUI()
 
     var rangeStartIndex: Long

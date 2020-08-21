@@ -2,26 +2,35 @@ package com.teamisland.zzazz.utils
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.Gravity
 import android.view.Window
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.content.ContextCompat.startActivity
+import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
 import com.bumptech.glide.Glide
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
+import com.teamisland.zzazz.ui.TrimmingActivity
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.properties.Delegates
 
 /**
@@ -30,14 +39,35 @@ import kotlin.properties.Delegates
 class LoadingDialog(context: Context, private val request: Int) :
     Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
 
-    private lateinit var path: String
+    // Variable for trim
+    private var dataBinder: ITrimmingData? = null
+    private var uri: Uri? = null
+
+    // Variable for export
+    private var path: String = ""
     private var fps by Delegates.notNull<Float>()
-    private lateinit var resultPath: String
+    private var resultPath: String = ""
     private var audioPath: String = ""
     private var originPath: String = ""
     private var capturePath: String = ""
 
     private var percentage: Int = 0
+
+    /**
+     * Constructor for [TRIM]
+     */
+    constructor(
+        context: Context,
+        request: Int,
+        dataBinder: ITrimmingData,
+        uri: Uri
+    ) : this(
+        context,
+        request
+    ) {
+        this.dataBinder = dataBinder
+        this.uri = uri
+    }
 
     /**
      * Constructor for [EXPORT]
@@ -56,19 +86,24 @@ class LoadingDialog(context: Context, private val request: Int) :
 
     companion object {
         /**
+         * Trim video.
+         */
+        const val TRIM: Int = 0
+
+        /**
          * Add effect.
          */
-        const val APPLY_EFFECT: Int = 0
+        const val APPLY_EFFECT: Int = 1
 
         /**
          * Export video.
          */
-        const val EXPORT: Int = 1
+        const val EXPORT: Int = 2
 
         /**
          * Save video.
          */
-        const val SAVE: Int = 2
+        const val SAVE: Int = 3
     }
 
     /**
@@ -84,33 +119,62 @@ class LoadingDialog(context: Context, private val request: Int) :
         window?.setGravity(Gravity.CENTER)
 
         Glide.with(context).load(R.drawable.loading).into(load_gif)
+        loading_text.text =
+            context.getString(R.string.loading) + " (" + String.format(
+                "%02d",
+                percentage
+            ) + "%)"
 
         when (request) {
+            TRIM -> {
+                text.text = context.getString(R.string.trim_video)
+                dataBinder?.let { uri?.let { it1 -> trimVideo(it, it1) } }
+            }
             APPLY_EFFECT -> {
-                text.text =
-                    context.getString(R.string.apply_effect) + " (" + String.format(
-                        "%02d",
-                        percentage
-                    ) + "%)"
+                text.text = context.getString(R.string.apply_effect)
                 applyEffect()
             }
             EXPORT -> {
-                text.text =
-                    context.getString(R.string.export_video) + " (" + String.format(
-                        "%02d",
-                        percentage
-                    ) + "%)"
+                text.text = context.getString(R.string.export_video)
                 exportVideo()
             }
             SAVE -> {
-                text.text =
-                    context.getString(R.string.save_video) + " (" + String.format(
-                        "%02d",
-                        percentage
-                    ) + "%)"
-                saveVideo()
+                text.text = context.getString(R.string.save_video)
+                saveVideo(path)
             }
             else -> return
+        }
+    }
+
+    private fun trimVideo(dataBinder: ITrimmingData, uri: Uri) {
+        val inPath = AbsolutePathRetriever.getPath(context, uri) ?: return
+        val outPath = run {
+            // Set destination location.
+            val parentFolder = context.filesDir
+            parentFolder.mkdirs()
+            val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
+            File(parentFolder, fileName)
+        }.absolutePath
+        FFmpegDelegate.trimVideo(inPath, dataBinder.startMs, dataBinder.endMs, outPath) { i ->
+            if (i == Config.RETURN_CODE_SUCCESS) {
+                // export images from origin video
+                Log.d("Export", "Start exporting the images from an origin video.")
+                val originPath = context.filesDir.absolutePath + "/video_image"
+                val originFile = File(originPath)
+                if (!originFile.exists())
+                    originFile.mkdir()
+                FFmpeg.execute("-r 1 -i $outPath $originPath/img%08d.png")
+                Log.d("Export", "Finish exporting the images from an origin video.")
+
+                Intent(context, ProjectActivity::class.java).apply {
+                    println(outPath)
+                    putExtra(TrimmingActivity.VIDEO_PATH, outPath)
+                    putExtra(
+                        TrimmingActivity.VIDEO_FRAME_COUNT,
+                        dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
+                    )
+                }.also { startActivity(context, it, null) }
+            }
         }
     }
 
@@ -138,7 +202,6 @@ class LoadingDialog(context: Context, private val request: Int) :
             )
         }
     }
-
 
     /**
      * Called in Unity.
@@ -171,5 +234,75 @@ class LoadingDialog(context: Context, private val request: Int) :
         }
     }
 
-    private fun saveVideo() {}
+    @SuppressLint("SetTextI18n", "SimpleDateFormat")
+    private fun saveVideo(path: String) {
+        //Video name is depended by time
+        val time = System.currentTimeMillis()
+        val date = Date(time)
+        val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
+        val filename = nameFormat.format(date) + ".mp4"
+
+        val contentValues = ContentValues().apply {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                put(
+                    MediaStore.Files.FileColumns.RELATIVE_PATH,
+                    Environment.DIRECTORY_MOVIES + "/ZZAZZ"
+                )
+                put(MediaStore.Files.FileColumns.IS_PENDING, 1)
+            }
+            put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename)
+            put(MediaStore.Files.FileColumns.MIME_TYPE, "video/*")
+        }
+
+//        val input = context.contentResolver.openInputStream(Uri.fromFile(File(uri.path)))
+        val input = context.contentResolver.openInputStream(Uri.parse(path))
+
+        val outputUri =
+            context.contentResolver.insert(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            )
+
+        val parcelFileDescriptor =
+            context.contentResolver.openFileDescriptor(outputUri ?: return, "w", null)
+
+        val output = FileOutputStream((parcelFileDescriptor ?: return).fileDescriptor)
+
+        val data = ByteArray(1024)
+        var total = 0F
+        var count: Int
+        val len: Float = (input ?: return).available().toFloat()
+
+        count = try {
+            input.read(data)
+        } catch (e: Exception) {
+            -1
+        }
+        while (count != -1) {
+            percentage = (total / len * 100).toInt()
+            loading_text.text = context.getString(R.string.loading) + " (" + String.format(
+                "%02d",
+                percentage
+            ) + "%)"
+
+            try {
+                output.write(data, 0, count)
+                count = input.read(data)
+                total += count
+            } catch (e: Exception) {
+                break
+            }
+        }
+
+        input.close()
+        output.flush()
+        output.close()
+        contentValues.clear()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 0)
+        }
+        context.contentResolver.update(outputUri, contentValues, null, null)
+
+        dismiss()
+    }
 }

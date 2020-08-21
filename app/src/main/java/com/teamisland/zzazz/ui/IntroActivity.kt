@@ -3,18 +3,15 @@ package com.teamisland.zzazz.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.GetVideoData
 import kotlinx.android.synthetic.main.activity_intro.*
-import java.io.File
 
 /**
  * Main activity of Intro Activity
@@ -69,6 +66,11 @@ class IntroActivity : AppCompatActivity() {
             }
             true
         }
+
+        val files = filesDir
+        for (file in files.listFiles() ?: return)
+            if (file.extension == "mp4" || file.extension == "mp3")
+                file.delete()
 
         take.setOnClickListener { getVideo(TAKE_VIDEO) }
 

@@ -7,12 +7,14 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.util.Range
 import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -177,10 +179,11 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 
         resultPath = dataDir.absolutePath + "/result.mp4"
         path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
+        frameCount = intent.getIntExtra(TrimmingActivity.VIDEO_FRAME_COUNT, 0)
 //        modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
+
         val uri = Uri.parse(path)
         videoDuration = getDuration(this, uri)
-        frameCount = getFrameCount(this, uri).toInt()
         fps = frameCount / (videoDuration / 1000f)
 
         zoomLevel = float2DP(0.06f, resources)
@@ -271,18 +274,10 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
             }
         }
 
-        // export images from origin video
-        Log.d("Export", "Start exporting the images from an origin video.")
-        val originPath = filesDir.absolutePath + "/video_image"
-        val originFile = File(originPath)
-        if (!originFile.exists())
-            originFile.mkdir()
-//        FFmpeg.execute("-r 1 -i $path $originPath/img%08d.png")
-        Log.d("Export", "Finish exporting the images from an origin video.")
         UnityPlayer.UnitySendMessage(
             PLAY_MANAGER,
             SET_VIDEO,
-            "$originPath:$frameCount"
+            "$path:$frameCount"
         )
     }
 
