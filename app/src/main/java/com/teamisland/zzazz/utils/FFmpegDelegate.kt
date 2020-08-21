@@ -3,16 +3,23 @@ package com.teamisland.zzazz.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
 import java.io.File
 
+/**
+ * Capsulizes FFmpeg jobs.
+ */
 object FFmpegDelegate {
 
+    /**
+     * Gets bitmap of frame at the specified milliseconds.
+     */
     fun getFrameAtMilliSeconds(
-            context: Context,
-            path: String,
-            milliSeconds: Int,
-            width: Int
+        context: Context,
+        path: String,
+        milliSeconds: Int,
+        width: Int
     ): Bitmap? {
         val parentFolder = context.getExternalFilesDir(null) ?: return null
         parentFolder.mkdirs()
@@ -20,7 +27,7 @@ object FFmpegDelegate {
         val file = File(parentFolder, fileName)
         val trimmedVideoFile = file.absolutePath
 
-        FFmpeg.execute("-hwaccel:v auto -ss ${milliSeconds / 1000.0} -i $path -filter:v scale=${width}:-1 -vframes 1 -y $trimmedVideoFile")
+        FFmpeg.execute("-ss ${milliSeconds / 1000.0} -i $path -filter:v scale=${width}:-1 -vframes 1 -y $trimmedVideoFile")
         val option = BitmapFactory.Options().apply {
             outWidth = width
             inJustDecodeBounds = false
@@ -28,5 +35,23 @@ object FFmpegDelegate {
         val res = BitmapFactory.decodeFile(trimmedVideoFile, option)
         file.delete()
         return res
+    }
+
+    /**
+     * Trims video. Uses output seek for accuracy, so it can be little slow.
+     */
+    fun trimVideo(
+        inPath: String,
+        startMs: Long,
+        endMs: Long,
+        outPath: String,
+        callback: (Int) -> Unit
+    ) {
+        val start = startMs / 1000.0
+        val end = endMs / 1000.0
+        Thread {
+            FFmpeg.execute("-ss $start -i $inPath -to ${end - start} $outPath")
+            callback(Config.getLastReturnCode())
+        }.start()
     }
 }

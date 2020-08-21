@@ -180,7 +180,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
         val uri = Uri.parse(path)
         videoDuration = getDuration(this, uri)
-        frameCount = getFrameCount(this, uri)
+        frameCount = getFrameCount(this, uri).toInt()
         fps = frameCount / (videoDuration / 1000f)
 
         zoomLevel = float2DP(0.06f, resources)

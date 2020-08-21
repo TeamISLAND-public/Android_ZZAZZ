@@ -43,7 +43,7 @@ import kotlin.math.roundToInt
  * View for showing thumbnails of video by time.
  */
 open class ProjectTimeLineView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
     private val backgroundPaint = Paint()
@@ -79,14 +79,14 @@ open class ProjectTimeLineView @JvmOverloads constructor(
         bitmapList.clear()
         val frameCount: Int
         try {
-            frameCount = GetVideoData.getFrameCount(context, videoUri).coerceAtLeast(1)
+            frameCount = GetVideoData.getFrameCount(context, videoUri).coerceAtLeast(1L).toInt()
         } catch (a: UninitializedPropertyAccessException) {
             Log.w("ProjectTimeLineView", a.message ?: "")
             return
         }
         sampleMsQuantum =
-                (videoLength * 90f / frameCount).roundToInt()
-                        .coerceAtLeast(1)
+            (videoLength * 90f / frameCount).roundToInt()
+                .coerceAtLeast(1)
 
         val numThumbs = (frameCount / 90f).roundToInt().coerceAtLeast(1)
         BackgroundExecutor.cancelAll("", true)
@@ -98,12 +98,12 @@ open class ProjectTimeLineView @JvmOverloads constructor(
                     val intervalUs = sampleMsQuantum * 1000L
                     for (i in 0 until numThumbs) {
                         var bitmap: Bitmap? =
-                                mediaMetadataRetriever.getScaledFrameAtTime(
-                                        i * intervalUs,
-                                        MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
-                                        viewHeight,
-                                        viewHeight
-                                )
+                            mediaMetadataRetriever.getScaledFrameAtTime(
+                                i * intervalUs,
+                                MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
+                                viewHeight,
+                                viewHeight
+                            )
                         if (bitmap != null)
                             bitmap = extractThumbnail(bitmap, viewHeight, viewHeight)
                         bitmapList.add(bitmap)
@@ -112,7 +112,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
                     mediaMetadataRetriever.release()
                 } catch (e: Throwable) {
                     Thread.getDefaultUncaughtExceptionHandler()
-                            ?.uncaughtException(Thread.currentThread(), e)
+                        ?.uncaughtException(Thread.currentThread(), e)
                 }
             }
         })
@@ -129,7 +129,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
         val fl = sampleMsQuantum * pxPerMs
 
         var x =
-                if (originLocation > 0) originLocation else originLocation % height
+            if (originLocation > 0) originLocation else originLocation % height
 
         val endPoint = pixelInterval + originLocation
 
@@ -140,22 +140,22 @@ open class ProjectTimeLineView @JvmOverloads constructor(
         }
 
         canvas.drawRect(
-                endPoint,
-                0f,
-                endPoint + height,
-                height.toFloat(),
-                backgroundPaint
+            endPoint,
+            0f,
+            endPoint + height,
+            height.toFloat(),
+            backgroundPaint
         )
 
         val linePaint = Paint()
         linePaint.color = Color.WHITE
         linePaint.strokeWidth = UnitConverter.float2DP(1f, resources)
         canvas.drawLine(
-                (this.width / 2).toFloat(),
-                0f,
-                (this.width / 2).toFloat(),
-                this.height.toFloat(),
-                linePaint
+            (this.width / 2).toFloat(),
+            0f,
+            (this.width / 2).toFloat(),
+            this.height.toFloat(),
+            linePaint
         )
     }
 }

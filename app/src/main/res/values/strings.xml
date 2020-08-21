@@ -1,6 +1,6 @@
 <resources>
     <!--    string of introactivity-->
-    <string name="select_video">LOAD</string>
+    <string name="load">Tap to load a video.</string>
     <string name="video_restrictions">video length should not over = %d ,length = %d.</string>
     <string name="alert_2">Don\'t show again</string>
 
@@ -41,6 +41,7 @@
     <!--    string of alert-->
     <string name="fps_exceeded">fps exceeded</string>
     <string name="choose_from_gallery">Choose From Gallery</string>
+    <string name="play_pause_button">Play / Pause button</string>
 
     <string name="game_view_content_description" translatable="false">Game view</string>
 </resources>
