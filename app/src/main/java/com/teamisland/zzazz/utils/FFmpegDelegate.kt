@@ -49,9 +49,7 @@ object FFmpegDelegate {
     ) {
         val start = startMs / 1000.0
         val end = endMs / 1000.0
-        Thread {
-            FFmpeg.execute("-ss $start -i $inPath -to ${end - start} $outPath")
-            callback(Config.getLastReturnCode())
-        }.start()
+        FFmpeg.execute("-ss $start -i $inPath -to ${end - start} $outPath")
+        callback(Config.getLastReturnCode())
     }
 }
