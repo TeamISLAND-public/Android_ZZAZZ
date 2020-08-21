@@ -47,7 +47,7 @@
             android:id="@+id/project_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/archivo_medium"
+            android:fontFamily="@font/archivo_bold"
             android:gravity="center"
             android:paddingVertical="16dp"
             android:text="@string/project_title"
