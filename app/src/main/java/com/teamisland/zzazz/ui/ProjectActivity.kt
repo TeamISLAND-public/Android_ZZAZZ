@@ -318,11 +318,11 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         GlobalScope.launch {
             var time = 1000 * frame / fps
             while (isPlaying) {
-                time++
+                time += 10
                 frame = (time * fps / 1000).toInt()
                 setCurrentTime(time.toInt())
-                delay(1)
-                if (frameCount == frame) {
+                delay(10)
+                if (frameCount <= frame) {
                     stopVideo()
                     break
                 }
