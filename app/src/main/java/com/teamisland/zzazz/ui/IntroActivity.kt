@@ -53,6 +53,7 @@ class IntroActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intro)
+        window.navigationBarColor = getColor(R.color.Background)
 
         val shrink = AnimationUtils.loadAnimation(this, R.anim.shrink)
         zzazz.setOnTouchListener { v, event ->

@@ -87,6 +87,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
+        window.navigationBarColor = getColor(R.color.Background)
 
         val path = intent.getStringExtra("RESULT")
         uri = Uri.parse(path)

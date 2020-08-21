@@ -192,6 +192,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trimming)
+        window.navigationBarColor = getColor(R.color.Background)
 
         // Take permission to R/W external storage.
         takePermission(arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE))

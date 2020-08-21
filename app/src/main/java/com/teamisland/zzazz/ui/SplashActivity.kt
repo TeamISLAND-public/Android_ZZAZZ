@@ -20,6 +20,7 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+        window.navigationBarColor = getColor(R.color.Background)
 
         val intent = Intent(this, IntroActivity::class.java)
 

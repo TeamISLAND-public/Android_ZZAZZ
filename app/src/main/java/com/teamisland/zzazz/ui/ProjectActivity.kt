@@ -172,6 +172,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
+        window.navigationBarColor = getColor(R.color.Background)
 
         mUnityPlayer = UnityPlayer(this, this)
 
