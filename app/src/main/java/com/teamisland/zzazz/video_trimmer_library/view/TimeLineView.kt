@@ -36,10 +36,7 @@ import android.util.Range
 import android.view.MotionEvent
 import android.view.View
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.ui.TrimmingActivity
 import com.teamisland.zzazz.utils.*
-import com.teamisland.zzazz.utils.AbsolutePathRetriever
-import com.teamisland.zzazz.utils.ITrimmingData
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
 import kotlin.math.ceil
 
@@ -97,7 +94,11 @@ open class TimeLineView @JvmOverloads constructor(
             return
         }
         bitmapList.clear()
-        val path = AbsolutePathRetriever.getPath(context, videoUri)
+        val path = try {
+            AbsolutePathRetriever.getPath(context, videoUri)
+        } catch (e: Exception) {
+            null
+        }
         BackgroundExecutor.cancelAll("", true)
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {

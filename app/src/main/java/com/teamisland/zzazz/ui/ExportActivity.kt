@@ -33,8 +33,9 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.GetVideoData
 import kotlinx.android.synthetic.main.activity_export.*
-import kotlinx.android.synthetic.main.export_dialog.*
+import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
@@ -87,8 +88,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
 
-        //This is for test
-        uri = intent.getParcelableExtra("URI")!!
+        val path = intent.getStringExtra("RESULT")
+        uri = Uri.parse(path)
 
         videoInit()
 
@@ -124,7 +125,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                     done = true
                     Intent(this, IntroActivity::class.java).apply {
                         flags =
-                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                         startActivity(this)
                     }
                 }
@@ -172,12 +173,12 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                     Intent().apply {
                         action = Intent.ACTION_SEND
                         putExtra(
-                                Intent.EXTRA_STREAM,
-                                FileProvider.getUriForFile(
-                                        this@ExportActivity,
-                                        "com.teamisland.zzazz.fileprovider",
-                                        File(uri.path)
-                                )
+                            Intent.EXTRA_STREAM,
+                            FileProvider.getUriForFile(
+                                this@ExportActivity,
+                                "com.teamisland.zzazz.fileprovider",
+                                File(uri.path)
+                            )
                         )
                         type = "video/*"
                         startActivity(Intent.createChooser(this, "Share"))
@@ -206,10 +207,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         //Get duration from uri & set duration
         MediaMetadataRetriever().also {
             it.setDataSource(this, uri)
-            val time = it.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-            if (time != null) {
-                duration = time.toInt()
-            }
+            duration = GetVideoData.getDuration(this, uri)
             val minute = duration / 60000
             val second = duration / 1000 - minute * 60
             video_length.text = String.format("%02d:%02d", minute, second)
@@ -242,25 +240,26 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         })
 
         preview_progress.setOnSeekBarChangeListener(object :
-                SeekBar.OnSeekBarChangeListener {
+            SeekBar.OnSeekBarChangeListener {
 
             var playing = true
             var isDragging = false
 
             // while dragging
             override fun onProgressChanged(
-                    seekBar: SeekBar?,
-                    progress: Int,
-                    fromUser: Boolean
+                seekBar: SeekBar?,
+                progress: Int,
+                fromUser: Boolean
             ) {
                 if (isDragging) player.seekTo(progress.toLong())
             }
 
             // when user starts dragging
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                preview_progress.thumb = getDrawable(R.drawable.seekbar_pressed_thumb)
+                preview_progress.thumb =
+                    ContextCompat.getDrawable(this@ExportActivity, R.drawable.seekbar_pressed_thumb)
                 preview_progress.progressTintList =
-                        ColorStateList.valueOf(getColor(R.color.PointColor))
+                    ColorStateList.valueOf(getColor(R.color.PointColor))
                 playing = player.isPlaying
                 player.playWhenReady = false
                 isDragging = true
@@ -269,7 +268,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             // when user stops touching
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 player.seekTo(preview_progress.progress.toLong())
-                preview_progress.thumb = getDrawable(R.drawable.seekbar_normal_thumb)
+                preview_progress.thumb =
+                    ContextCompat.getDrawable(this@ExportActivity, R.drawable.seekbar_normal_thumb)
                 preview_progress.progressTintList = ColorStateList.valueOf(getColor(R.color.White))
                 when {
                     preview_progress.progress == duration -> {
@@ -330,8 +330,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @Suppress(
-            "BlockingMethodInNonBlockingContext",
-            "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
+        "BlockingMethodInNonBlockingContext",
+        "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
     )
     @SuppressLint("SimpleDateFormat", "SetTextI18n", "InflateParams")
     private fun videoSave() {
@@ -339,15 +339,15 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
         //Check permission
         if (ContextCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-                != PackageManager.PERMISSION_GRANTED
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    1
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                1
             )
         }
 
@@ -361,18 +361,18 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
         val contentValues = ContentValues()
         contentValues.put(
-                MediaStore.Files.FileColumns.RELATIVE_PATH,
-                Environment.DIRECTORY_MOVIES + "/ZZAZZ"
+            MediaStore.Files.FileColumns.RELATIVE_PATH,
+            Environment.DIRECTORY_MOVIES + "/ZZAZZ"
         )
         contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename)
         contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "video/*")
         contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 1)
 
         val outputUri =
-                contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
+            contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
 
         val parcelFileDescriptor =
-                contentResolver.openFileDescriptor(outputUri ?: return, "w", null)
+            contentResolver.openFileDescriptor(outputUri ?: return, "w", null)
 
         val output = FileOutputStream((parcelFileDescriptor ?: return).fileDescriptor)
 
@@ -393,10 +393,10 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                 save.visibility = View.GONE
                 dialog.setCancelable(false)
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                dialog.setContentView(R.layout.export_dialog)
+                dialog.setContentView(R.layout.loading_dialog)
                 dialog.create()
                 dialog.show()
-                dialog.loading.text = getString(R.string.loading) + "(00%)"
+                dialog.text.text = getString(R.string.loading) + "(00%)"
                 val window = dialog.window
                 window?.setBackgroundDrawable(ColorDrawable(getColor(R.color.DialogBackground)))
                 window?.setGravity(Gravity.CENTER)
@@ -409,8 +409,8 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             while (count != -1) {
                 total += count
                 handler.post {
-                    dialog.loading.text =
-                            getString(R.string.loading) + "(${(total / len * 100).toInt()}%)"
+                    dialog.text.text =
+                        getString(R.string.loading) + "(${(total / len * 100).toInt()}%)"
                 }
 
                 try {
@@ -440,11 +440,12 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                     handler.post {
                         dialog.dismiss()
 
-                        save.background = getDrawable(R.drawable.check)
+                        save.background =
+                            ContextCompat.getDrawable(this@ExportActivity, R.drawable.check)
                         val finRadius = hypot((save.width * 2).toDouble(), save.height.toDouble())
                         val animation = ViewAnimationUtils.createCircularReveal(
-                                save, 0, save.height / 2, 0F,
-                                finRadius.toFloat()
+                            save, 0, save.height / 2, 0F,
+                            finRadius.toFloat()
                         )
                         animation.duration = 1000
                         save.visibility = View.VISIBLE
@@ -466,9 +467,9 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
      * Request permission to save video.
      */
     override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
     ) {
         if (requestCode == 1)
             return

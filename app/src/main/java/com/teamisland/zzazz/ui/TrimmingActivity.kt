@@ -42,6 +42,8 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
     internal val videoFrameCount: Long by lazy { GetVideoData.getFrameCount(this, videoUri) }
 
+    private lateinit var testModelFile: File
+
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
     }
@@ -194,6 +196,8 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         // Take permission to R/W external storage.
         takePermission(arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE))
 
+        val modelName = "test_txt.txt"
+        testModelFile = File(filesDir, modelName)
         // Set click handlers.
         backButton.setOnClickListener { onBackPressed() }
         gotoProjectActivity.setOnClickListener { startTrimming() }
@@ -301,6 +305,11 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
          * Uri of the trimmed video.
          */
         const val VIDEO_FRAME_COUNT: String = "TRIMMED_FRAME_COUNT"
+
+        /**
+         * Path of the core model
+         */
+        const val MODEL_PATH: String = "MODEL_PATH"
     }
 
     ////////// Coroutine codes.

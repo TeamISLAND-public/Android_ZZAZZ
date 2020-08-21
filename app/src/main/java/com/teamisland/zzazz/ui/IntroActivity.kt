@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
 import kotlinx.android.synthetic.main.activity_intro.*
+import java.io.File
 
 /**
  * Main activity of Intro Activity

@@ -66,9 +66,6 @@
             android:layout_marginEnd="14dp"
             android:background="@null"
             android:fontFamily="@font/archivo_bold"
-            android:gravity="center_vertical|end"
-            android:minWidth="0dp"
-            android:minHeight="0dp"
             android:padding="2dp"
             android:text="@string/export"
             android:textAllCaps="true"
@@ -88,27 +85,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/constraintLayout">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <RelativeLayout
             android:id="@+id/video_frame"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_gravity="center_horizontal|top"
             android:layout_weight="1">
 
-            <com.google.android.exoplayer2.ui.PlayerView
-                android:id="@+id/video_display"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:use_controller="false"
-                tools:foreground="@tools:sample/backgrounds/scenic[1]">
-
-            </com.google.android.exoplayer2.ui.PlayerView>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </RelativeLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/sliding_view"
