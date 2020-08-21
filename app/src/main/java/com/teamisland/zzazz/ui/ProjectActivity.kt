@@ -177,7 +177,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 
         resultPath = dataDir.absolutePath + "/result.mp4"
         path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
-        modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
+//        modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
         val uri = Uri.parse(path)
         videoDuration = getDuration(this, uri)
         frameCount = getFrameCount(this, uri).toInt()
@@ -187,6 +187,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
 
+        modelpath = filesDir.absolutePath + "test_txt.txt"
         UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelpath)
         Log.d("testmodelfile", path)
         Log.d("testmodelfile", modelpath)
@@ -276,7 +277,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         val originFile = File(originPath)
         if (!originFile.exists())
             originFile.mkdir()
-//        FFmpeg.execute("-r 1 -i $path -r 1 $originPath/img%08d.png")
+//        FFmpeg.execute("-r 1 -i $path $originPath/img%08d.png")
         Log.d("Export", "Finish exporting the images from an origin video.")
         UnityPlayer.UnitySendMessage(
             PLAY_MANAGER,
@@ -318,14 +319,16 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         GlobalScope.launch {
             var time = 1000 * frame / fps
             while (isPlaying) {
-                time += 10
-                frame = (time * fps / 1000).toInt()
-                setCurrentTime(time.toInt())
-                delay(10)
+                time += 50
                 if (frameCount <= frame) {
+                    frame = frameCount - 1
+                    setCurrentTime(videoDuration)
                     stopVideo()
                     break
                 }
+                frame = (time * fps / 1000).toInt()
+                setCurrentTime(time.toInt())
+                delay(50)
             }
         }
     }
