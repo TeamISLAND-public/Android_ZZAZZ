@@ -22,18 +22,16 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
         window.navigationBarColor = getColor(R.color.Background)
 
-        val intent = Intent(this, IntroActivity::class.java)
-
         val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
         fadeOut.startOffset = 1000
-        fadeOut.duration = 1000
+        fadeOut.duration = 500
         fadeOut.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationRepeat(animation: Animation?) {
             }
 
             override fun onAnimationEnd(animation: Animation?) {
                 splash.visibility = View.GONE
-                startActivity(intent)
+                Intent(this@SplashActivity, IntroActivity::class.java).also { startActivity(it) }
                 finish()
             }
 
