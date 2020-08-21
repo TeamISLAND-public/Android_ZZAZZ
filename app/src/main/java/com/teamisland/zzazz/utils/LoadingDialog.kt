@@ -97,19 +97,14 @@ class LoadingDialog(context: Context, private val request: Int) :
         const val TRIM: Int = 0
 
         /**
-         * Add effect.
-         */
-        const val APPLY_EFFECT: Int = 1
-
-        /**
          * Export video.
          */
-        const val EXPORT: Int = 2
+        const val EXPORT: Int = 1
 
         /**
          * Save video.
          */
-        const val SAVE: Int = 3
+        const val SAVE: Int = 2
     }
 
     /**
@@ -132,10 +127,6 @@ class LoadingDialog(context: Context, private val request: Int) :
             TRIM -> {
                 text.text = context.getString(R.string.trim_video)
                 job = trimVideo(dataBinder ?: return, uri ?: return)
-            }
-            APPLY_EFFECT -> {
-                text.text = context.getString(R.string.apply_effect)
-                job = applyEffect()
             }
             EXPORT -> {
                 text.text = context.getString(R.string.export_video)
@@ -190,9 +181,6 @@ class LoadingDialog(context: Context, private val request: Int) :
                 }
             }
         }
-
-    private fun applyEffect(): Job =
-        CoroutineScope(Dispatchers.IO).launch { }
 
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private fun exportVideo(): Job =
