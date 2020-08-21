@@ -2,7 +2,7 @@
 <resources>
 <!--    TODO translating in to korean-->
     <!--    string of introactivity-->
-    <string name="select_video">LOAD</string>
+    <string name="load">Tap to load a video.</string>
     <string name="video_restrictions">video length should not over = %d ,length = %d.</string>
     <string name="alert_2">see this message no more</string>
 
