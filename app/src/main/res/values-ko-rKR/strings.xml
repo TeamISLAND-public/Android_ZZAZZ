@@ -2,6 +2,11 @@
 <resources>
 <!--    TODO translating in to korean-->
     <!--    string of introactivity-->
+    <string name="intro1">Super cool,\nbut also\nsuper easy!</string>
+    <string name="intro2">Let\'s\nspice up\nyour videos.</string>
+    <string name="intro3">Want a video\nthat gets\ntons of Likes?</string>
+    <string name="intro4">Heyyy.\nThere\'s some\ncool stuff here.</string>
+    <string name="intro5">Tap, Tap, Ta-da!\nYou just made an artwooork.</string>
     <string name="load">Tap to load a video.</string>
     <string name="video_restrictions">video length should not over = %d ,length = %d.</string>
     <string name="alert_2">see this message no more</string>
