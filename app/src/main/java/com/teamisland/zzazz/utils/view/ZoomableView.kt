@@ -81,10 +81,8 @@ abstract class ZoomableView @JvmOverloads constructor(
     /**
      * Range of valid time.
      */
-    private val timeRange: IntRange
-        get() {
-            return 0..videoLength
-        }
+    val timeRange: IntRange
+        get() = 0..videoLength
 
     /**
      * Returns desired position of the input time.

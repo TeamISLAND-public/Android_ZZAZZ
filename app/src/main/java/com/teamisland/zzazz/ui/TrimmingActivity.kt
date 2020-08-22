@@ -116,7 +116,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     @Suppress("UNUSED_PARAMETER")
     internal fun onCurrentVideoPositionChanged(old: Long, new: Long) {
         player.seekTo(new)
-        dataBinder.updateUI()
+        currentPositionView.invalidate()
     }
 
     @Suppress("UNUSED_PARAMETER")

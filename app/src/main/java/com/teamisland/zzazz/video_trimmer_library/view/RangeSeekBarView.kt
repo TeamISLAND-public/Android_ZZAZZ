@@ -34,6 +34,7 @@ import android.util.AttributeSet
 import android.util.Range
 import android.view.MotionEvent
 import android.view.View
+import androidx.annotation.IntRange
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.view.CurrentPositionView
 import com.teamisland.zzazz.utils.ITrimmingData
@@ -200,6 +201,7 @@ open class RangeSeekBarView @JvmOverloads constructor(
         canvas.drawRect(0f, 0f, 0f + thumbWidth, heightF, thumbLimitPaint)
         canvas.drawRect(widthF, 0f, widthSubThumb, heightF, thumbLimitPaint)
 
+        // Set colors.
         if (bindData.rangeStartIndex == 0L && bindData.rangeExclusiveEndIndex == bindData.frameCount) {
             thumbPaint.color = 0xff2b2b2b.toInt()
             trianglePaint.color = resources.getColor(R.color.PointColor, null)
@@ -234,26 +236,24 @@ open class RangeSeekBarView @JvmOverloads constructor(
         val acceptDistance = thumbWidth
 
         val thumbWidthHalf = thumbWidth / 2f
-        val leftDistance = abs(leftThumb.position + thumbWidthHalf - xPos)
-        val rightDistance = abs(rightThumb.position + thumbWidthHalf - xPos)
+        val adjustedX = xPos - thumbWidthHalf
+        val leftDistance = abs(leftThumb.position - adjustedX)
+        val rightDistance = abs(rightThumb.position - adjustedX)
+        val postAcceptDistance = thumbWidthHalf + acceptDistance
         when {
-            rightDistance < leftDistance -> if (rightDistance < acceptDistance) return 1
-            leftDistance < acceptDistance -> return 0
+            rightDistance < leftDistance -> if (rightDistance < postAcceptDistance) return 1
+            leftDistance < postAcceptDistance -> return 0
         }
         return -1
     }
 
-    internal inner class Thumb(private val index: Int) {
+    internal inner class Thumb(@IntRange(from = 0, to = 1) private val index: Int) {
         internal val position: Float
             get() {
-                return when (index) {
-                    0 -> {
-                        (width.toFloat() - 2 * thumbWidth) * bindData.rangeStartIndex / bindData.frameCount
-                    }
-                    1 -> {
-                        (width.toFloat() - 2 * thumbWidth) * bindData.rangeExclusiveEndIndex / bindData.frameCount + thumbWidth
-                    }
-                    else -> 0f
+                val availLength = width.toFloat() - 2 * thumbWidth
+                with(bindData) {
+                    return if (index == 0) availLength * rangeStartIndex / frameCount
+                    else availLength * rangeExclusiveEndIndex / frameCount + thumbWidth
                 }
             }
         internal var lastTouchX: Float = 0f
