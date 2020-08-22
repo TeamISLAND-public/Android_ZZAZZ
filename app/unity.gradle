@@ -21,8 +21,8 @@ task copyUnityLibs(type: Copy) {
 }
 
 task copyUnityResources {
-    dependsOn 'cleanUnity'
-    dependsOn 'copyUnityAssets'
-    dependsOn 'copyUnityJniLibs'
-    dependsOn 'copyUnityLibs'
+//    dependsOn 'cleanUnity'
+//    dependsOn 'copyUnityAssets'
+//    dependsOn 'copyUnityJniLibs'
+//    dependsOn 'copyUnityLibs'
 }

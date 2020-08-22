@@ -200,37 +200,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 
         tabInit()
 
-//        save_project.setOnTouchListener { _, event ->
-//            when (event.action) {
-//                MotionEvent.ACTION_DOWN -> {
-//                    save_project.alpha = 0.5F
-//                }
-//
-//                MotionEvent.ACTION_UP -> {
-//                    stopVideo()
-//                    Intent(this, SaveProjectActivity::class.java).also {
-//                        startActivityForResult(it, IS_SAVED)
-//                    }
-//                    save_project.alpha = 1F
-//                }
-//            }
-//            true
-//        }
-
-        gotoExportActivity.setOnTouchListener { v, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    v.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    v.alpha = 1F
-                    stopVideo()
-                    exportVideo()
-                }
-            }
-            true
-        }
+        gotoExportActivity.setOnClickListener { exportVideo() }
 
         back.setOnClickListener { onBackPressed() }
 
@@ -451,17 +421,20 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 
     private fun setCurrentTime(index: Int) {
         projectTimeLineView.currentTime = index
+        projectEffectEditor.currentTime = index
         timeIndexView.currentTime = index
         frame = (index * fps / 1000).toInt()
     }
 
     private fun setZoomLevel() {
         projectTimeLineView.dpPerMs = zoomLevel
+        projectEffectEditor.dpPerMs = zoomLevel
         timeIndexView.dpPerMs = zoomLevel
     }
 
     private fun setLength() {
         projectTimeLineView.videoLength = videoDuration
+        projectEffectEditor.videoLength = videoDuration
         timeIndexView.videoLength = videoDuration
     }
 

@@ -11,7 +11,7 @@ import kotlin.math.roundToInt
  * Zoomable view abstraction.
  */
 abstract class ZoomableView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     /**
@@ -77,9 +77,7 @@ abstract class ZoomableView @JvmOverloads constructor(
      * Range of valid time.
      */
     val timeRange: IntRange
-        get() {
-            return 0..videoLength
-        }
+        get() = 0..videoLength
 
     /**
      * Returns desired position of the input time.

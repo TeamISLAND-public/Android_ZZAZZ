@@ -23,11 +23,9 @@
  */
 package com.teamisland.zzazz.utils
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils.extractThumbnail
@@ -46,12 +44,11 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
-    private val backgroundPaint = Paint()
-    internal var sampleMsQuantum = 50
-
-    init {
-        backgroundPaint.color = resources.getColor(R.color.Background, null)
+    private val backgroundPaint = Paint().apply {
+        color = resources.getColor(R.color.Background, null)
     }
+
+    internal var sampleMsQuantum = 50
 
     /**
      * Uri of target video.
@@ -59,23 +56,17 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     lateinit var videoUri: Uri
 
     /**
-     * [View.onSizeChanged]
+     *
      */
-    override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
-        super.onSizeChanged(w, h, oldW, oldH)
-        if (w != oldW)
-            getBitmap(h)
-    }
-
-    override fun updateOnSync() {
-        timeInterval = (videoLength * currentTime / pixelInterval).toInt()
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        getBitmap()
     }
 
     internal val bitmapList = ArrayList<Bitmap?>()
 
-    private var timeInterval: Int = 0
-
-    private fun getBitmap(viewHeight: Int) {
+    private fun getBitmap() {
+        val viewHeight = height
         bitmapList.clear()
         val frameCount: Int
         try {
@@ -121,9 +112,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     /**
      * [View.onDraw]
      */
-    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
-        if (bitmapList.size == 0) return
         val originLocation = getPositionOfTime(0)
 
         val fl = sampleMsQuantum * pxPerMs
@@ -135,27 +124,17 @@ open class ProjectTimeLineView @JvmOverloads constructor(
 
         while (x < width && x < endPoint) {
             val temp = ((x - originLocation) / fl).roundToInt().coerceIn(0, bitmapList.size - 1)
-            bitmapList[temp]?.let { canvas.drawBitmap(it, x, 0f, null) }
+            try {
+                bitmapList[temp]?.let { canvas.drawBitmap(it, x, 0f, null) }
+            } catch (e: Throwable) {
+                Log.e(
+                    "ProjectTimeLineView",
+                    "Drawing bitmap failed. Index $temp position $x error $e"
+                )
+            }
             x += height
         }
 
-        canvas.drawRect(
-            endPoint,
-            0f,
-            endPoint + height,
-            height.toFloat(),
-            backgroundPaint
-        )
-
-        val linePaint = Paint()
-        linePaint.color = Color.WHITE
-        linePaint.strokeWidth = UnitConverter.float2DP(1f, resources)
-        canvas.drawLine(
-            (this.width / 2).toFloat(),
-            0f,
-            (this.width / 2).toFloat(),
-            this.height.toFloat(),
-            linePaint
-        )
+        canvas.drawRect(endPoint, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
     }
 }

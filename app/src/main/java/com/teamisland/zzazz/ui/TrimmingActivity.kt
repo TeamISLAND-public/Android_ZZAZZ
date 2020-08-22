@@ -124,7 +124,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     @Suppress("UNUSED_PARAMETER")
     internal fun onCurrentVideoPositionChanged(old: Long, new: Long) {
         player.seekTo(new)
-        dataBinder.updateUI()
+        currentPositionView.invalidate()
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -309,6 +309,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         /**
          * Path of the core model
          */
+        @Suppress("unused")
         const val MODEL_PATH: String = "MODEL_PATH"
     }
 

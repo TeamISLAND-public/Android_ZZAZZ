@@ -69,7 +69,7 @@
             android:padding="2dp"
             android:text="@string/export"
             android:textAllCaps="true"
-            android:textColor="@color/White"
+            android:textColor="@color/done_btn_text"
             android:textSize="13sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -113,21 +113,22 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.teamisland.zzazz.ui.project.EffectRangeView
-                android:id="@+id/effectRangeView"
-                android:layout_width="0dp"
-                android:layout_height="4dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/timeIndexView" />
-
             <com.teamisland.zzazz.utils.ProjectTimeLineView
                 android:id="@+id/projectTimeLineView"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/effectRangeView" />
+                app:layout_constraintTop_toBottomOf="@+id/timeIndexView" />
+
+            <com.teamisland.zzazz.utils.ProjectEffectEditor
+                android:id="@+id/projectEffectEditor"
+                android:layout_width="wrap_content"
+                android:layout_height="120dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/projectTimeLineView" />
 
             <ImageButton
                 android:id="@+id/project_play"
@@ -137,27 +138,33 @@
                 android:src="@drawable/ic_preview_button"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="40dp"
+                android:background="@color/White"
+                app:layout_constraintEnd_toEndOf="@+id/projectTimeLineView"
+                app:layout_constraintStart_toStartOf="@+id/projectTimeLineView"
+                app:layout_constraintTop_toTopOf="@+id/projectTimeLineView" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.25dp"
-        android:background="@color/ContentsText40"
-        app:layout_constraintBottom_toTopOf="@id/add_effect" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/add_effect"
         android:layout_width="match_parent"
         android:layout_height="125dp"
         android:background="@color/Background"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/effect_tab"
             android:layout_width="match_parent"
             android:layout_height="40dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tabGravity="fill"
             app:tabIndicator="@drawable/tab_indicator"
