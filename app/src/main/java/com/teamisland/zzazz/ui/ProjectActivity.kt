@@ -7,14 +7,12 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.util.Range
 import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -22,7 +20,6 @@ import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.*
 import com.teamisland.zzazz.utils.GetVideoData.getDuration
-import com.teamisland.zzazz.utils.GetVideoData.getFrameCount
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
@@ -31,7 +28,6 @@ import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.io.File
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -55,6 +51,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
      */
     private lateinit var resultPath: String
     private lateinit var path: String
+    private lateinit var imagePath: String
     private lateinit var modelpath: String
     private var videoDuration = 0
     private var fps: Float = 0f
@@ -70,12 +67,6 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
          * Current time of video in Unity.
          */
         var frame: Int = 0
-
-        /**
-         * Check is video playing.
-         * When video stops, Unity set this variable to false.
-         */
-        var isPlaying: Boolean = false
 
         /**
          * List of effect
@@ -179,6 +170,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 
         resultPath = dataDir.absolutePath + "/result.mp4"
         path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
+        imagePath = intent.getStringExtra(TrimmingActivity.IMAGE_PATH)
         frameCount = intent.getIntExtra(TrimmingActivity.VIDEO_FRAME_COUNT, 0)
 //        modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
 
@@ -190,7 +182,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
 
-        modelpath = filesDir.absolutePath + "test_txt.txt"
+        modelpath = filesDir.absolutePath + "/test_txt.txt"
         UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelpath)
         Log.d("testmodelfile", path)
         Log.d("testmodelfile", modelpath)
@@ -277,7 +269,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         UnityPlayer.UnitySendMessage(
             PLAY_MANAGER,
             SET_VIDEO,
-            "$path:$frameCount"
+            "$imagePath:$frameCount"
         )
     }
 
@@ -295,7 +287,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         project_play.isSelected = true
         project_play.isActivated = false
         project_play.setOnClickListener {
-            if (isPlaying) {
+            if (it.isActivated) {
                 stopVideo()
             } else {
                 startVideo()
@@ -304,16 +296,15 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     }
 
     private fun startVideo() {
-        if (isPlaying) return
+        if (project_play.isActivated) return
         project_play.isActivated = true
-        isPlaying = true
 
         if (frame == frameCount)
             frame = 0
 
         GlobalScope.launch {
             var time = 1000 * frame / fps
-            while (isPlaying) {
+            while (project_play.isActivated) {
                 time += 50
                 if (frameCount <= frame) {
                     frame = frameCount - 1
@@ -333,7 +324,6 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
      */
     fun stopVideo() {
         project_play.isActivated = false
-        isPlaying = false
     }
 
     private fun tabInit() {
@@ -426,7 +416,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private fun exportVideo() {
         stopVideo()
-        val dialog = LoadingDialog(this, LoadingDialog.EXPORT, path, fps, resultPath)
+        val dialog = LoadingDialog(this, LoadingDialog.EXPORT, path, imagePath, fps, resultPath)
         dialog.create()
         dialog.show()
     }

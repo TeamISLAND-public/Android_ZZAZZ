@@ -279,9 +279,14 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
 
     companion object {
         /**
-         * Uri of the trimmed video.
+         * Path of the trimmed video.
          */
         const val VIDEO_PATH: String = "TRIMMED_PATH"
+
+        /**
+         * Path of the images of trimmed video.
+         */
+        const val IMAGE_PATH: String = "IMAGE_PATH"
 
         /**
          * Frame count of the trimmed video.

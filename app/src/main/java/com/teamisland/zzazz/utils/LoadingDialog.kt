@@ -50,7 +50,7 @@ class LoadingDialog(context: Context, private val request: Int) :
     private var fps by Delegates.notNull<Float>()
     private var resultPath: String = ""
     private var audioPath: String = ""
-    private var originPath: String = ""
+    private var imagePath: String = ""
     private var capturePath: String = ""
 
     // Variable for save
@@ -82,10 +82,12 @@ class LoadingDialog(context: Context, private val request: Int) :
         context: Context,
         request: Int,
         path: String,
+        imagePath: String,
         fps: Float,
         resultPath: String
     ) : this(context, request) {
         this.path = path
+        this.imagePath = imagePath
         this.fps = fps
         this.resultPath = resultPath
     }
@@ -176,6 +178,7 @@ class LoadingDialog(context: Context, private val request: Int) :
 
                     Intent(context, ProjectActivity::class.java).apply {
                         putExtra(TrimmingActivity.VIDEO_PATH, outPath)
+                        putExtra(TrimmingActivity.IMAGE_PATH, "$originPath/img%08d.png")
                         putExtra(
                             TrimmingActivity.VIDEO_FRAME_COUNT,
                             dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
@@ -205,7 +208,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             UnityPlayer.UnitySendMessage(
                 ProjectActivity.PLAY_MANAGER,
                 ProjectActivity.EXPORT,
-                "$originPath:$capturePath"
+                "$imagePath:$capturePath"
             )
         }
 
@@ -226,7 +229,7 @@ class LoadingDialog(context: Context, private val request: Int) :
 //        FFmpeg.execute("-i $videoPath -i $audioPath -vcodec copy -c:a aac $resultPath")
 
             File(audioPath).delete()
-            for (img in File(originPath).listFiles())
+            for (img in File(imagePath).listFiles())
                 img.delete()
             for (img in File(capturePath).listFiles())
                 img.delete()
