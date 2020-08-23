@@ -1,4 +1,4 @@
-final def unitySourcePath = "../../Android_Unity/unityLibrary"
+final def unitySourcePath = "../../Core_Unity/Export/unityLibrary"
 
 task cleanUnity(type: Delete) {
     delete 'libs/unity-classes.jar', 'src/main/jniLibs', 'src/main/assets'
@@ -21,8 +21,8 @@ task copyUnityLibs(type: Copy) {
 }
 
 task copyUnityResources {
-//    dependsOn 'cleanUnity'
-//    dependsOn 'copyUnityAssets'
-//    dependsOn 'copyUnityJniLibs'
-//    dependsOn 'copyUnityLibs'
+    dependsOn 'cleanUnity'
+    dependsOn 'copyUnityAssets'
+    dependsOn 'copyUnityJniLibs'
+    dependsOn 'copyUnityLibs'
 }

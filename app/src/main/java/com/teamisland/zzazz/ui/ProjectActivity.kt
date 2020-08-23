@@ -29,6 +29,7 @@ import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.Contract
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.max
@@ -212,12 +213,12 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 
         mUnityPlayer.setOnClickListener {
             if (CustomAdapter.selectedEffect != null) {
+                val b = CustomAdapter.selectedEffect ?: return@setOnClickListener
                 stopVideo()
                 frame = (projectTimeLineView.currentTime * fps / 1000).toInt()
 
-                (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
-                (CustomAdapter.selectedEffect
-                    ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                b.isActivated = false
+                b.setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
 
                 val bitmap =
@@ -229,15 +230,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
                 for (i in 0 until 30) {
                     dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
                 }
-                effectList.add(
-                    Effect(
-                        frame,
-                        frame + 29,
-                        0,
-                        0xFFFFFF,
-                        dataArrayList
-                    )
-                )
+                effectList.add(Effect(frame, frame + 29, 0, 0xFFFFFF, dataArrayList))
             }
         }
 
@@ -265,7 +258,6 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         builder.show()
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private fun playVideo() {
         project_play.isSelected = true
         project_play.isActivated = false
@@ -395,7 +387,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     }
 
     private fun saveProject() {
-
+        // TODO: 2020/08/23 Implement saving.
     }
 
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")

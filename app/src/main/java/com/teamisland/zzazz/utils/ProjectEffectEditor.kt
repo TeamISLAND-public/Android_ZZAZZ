@@ -9,7 +9,7 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 
 /**
- *
+ * Effect range & editor.
  */
 class ProjectEffectEditor @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -22,9 +22,16 @@ class ProjectEffectEditor @JvmOverloads constructor(
         strokeWidth = float2DP(1f, resources)
     }
 
+    private val rangePaint = Paint().apply {
+        color = resources.getColor(R.color.PointColor, null)
+        alpha = 0xb3
+        style = Paint.Style.FILL
+    }
+
     private val leftKnobTriangle by lazy {
         ContextCompat.getDrawable(context, R.drawable.ic_project_effect_left_triangle)!!.apply {
             val halfHeight = intrinsicHeight / 2
+            // Anchor at end-center.
             setBounds(-intrinsicWidth, -halfHeight, 0, halfHeight)
         }
     }
@@ -32,6 +39,7 @@ class ProjectEffectEditor @JvmOverloads constructor(
     private val rightKnobTriangle by lazy {
         ContextCompat.getDrawable(context, R.drawable.ic_project_effect_right_triangle)!!.apply {
             val halfHeight = intrinsicHeight / 2
+            // Anchor at start-center.
             setBounds(0, -halfHeight, intrinsicWidth, halfHeight)
         }
     }
@@ -59,10 +67,13 @@ class ProjectEffectEditor @JvmOverloads constructor(
 
 
     /**
-     *
+     * Knob drawer.
      */
     override fun onDraw(canvas: Canvas) {
         val heightF = height.toFloat()
+
+//        canvas.drawRect(rect, rangePaint)
+
         canvas.drawLine(leftKnobPosition, 0f, leftKnobPosition, heightF, knobPaint)
         canvas.drawLine(rightKnobPosition, 0f, rightKnobPosition, heightF, knobPaint)
 
