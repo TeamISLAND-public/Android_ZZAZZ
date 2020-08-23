@@ -303,20 +303,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
     private fun videoSave() {
         var checkStop = false
 
-        //Check permission
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                1
-            )
-        }
-
         val input = contentResolver.openInputStream(Uri.fromFile(File(uri.path)))
 
         //Video name is depended by time
@@ -427,18 +413,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                 }
             }
         }
-    }
-
-    /**
-     * Request permission to save video.
-     */
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == 1)
-            return
     }
 
     /**

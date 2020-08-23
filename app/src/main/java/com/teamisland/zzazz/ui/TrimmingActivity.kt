@@ -194,9 +194,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         setContentView(R.layout.activity_trimming)
         window.navigationBarColor = getColor(R.color.Background)
 
-        // Take permission to R/W external storage.
-        takePermission(arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE))
-
         val modelName = "test_txt.txt"
         testModelFile = File(filesDir, modelName)
         // Set click handlers.
@@ -269,28 +266,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
                         dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
                     )
                 }.also { startActivity(it) }
-        }
-    }
-
-    ////////// Permission checking functions.
-
-    private fun hasAllPermission(permission: Array<String>): Boolean =
-        permission.all { ActivityCompat.checkSelfPermission(this, it) == PERMISSION_GRANTED }
-
-    private fun requestPermission(permission: Array<String>) =
-        ActivityCompat.requestPermissions(this, permission, 1)
-
-    private fun takePermission(permission: Array<String>) {
-        if (hasAllPermission(permission)) return
-
-        if (permission.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }) {
-            val builder = AlertDialog.Builder(this)
-            builder.setMessage("Permission is needed to read & write the video.")
-            builder.setPositiveButton(android.R.string.ok) { _, _ -> requestPermission(permission) }
-            builder.setNegativeButton(android.R.string.cancel, null)
-            builder.show()
-        } else {
-            requestPermission(permission)
         }
     }
 

@@ -13,6 +13,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.PermissionManager
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import kotlinx.android.synthetic.main.activity_intro.*
 import java.util.*
@@ -35,6 +36,8 @@ class IntroActivity : AppCompatActivity() {
 
     private lateinit var circle: ImageView
     private lateinit var underline: ImageView
+
+    private val permissionManager = PermissionManager(this, this)
 
     @Suppress("SameParameterValue")
     private fun getVideo(requestCode: Int) {
@@ -70,6 +73,8 @@ class IntroActivity : AppCompatActivity() {
         val index = random.nextInt(textArray.size - 1)
         random_text.text = textArray[index]
         random_text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 40f)
+
+        checkPermission()
 
         circle = ImageView(this).apply {
             setImageResource(R.drawable.circle_point)
@@ -127,6 +132,23 @@ class IntroActivity : AppCompatActivity() {
 
         val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce)
         linearLayout.startAnimation(bounce)
+    }
+
+    private fun checkPermission() {
+        if (!permissionManager.checkPermission())
+            permissionManager.requestPermission()
+    }
+
+    /**
+     * [AppCompatActivity.onRequestPermissionsResult]
+     */
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (!permissionManager.permissionResult(requestCode, grantResults))
+            permissionManager.requestPermission()
     }
 
     private fun setPosition(id: Int, startMargin: Int, bottomMargin: Int) {
