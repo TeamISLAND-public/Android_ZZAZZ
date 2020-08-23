@@ -38,7 +38,7 @@
         <!--            android:contentDescription="@string/save_the_project"-->
         <!--            android:gravity="center"-->
         <!--            android:padding="8dp"-->
-        <!--            android:src="@drawable/ic_save_project"-->
+        <!--            android:src="@drawable/save_project"-->
         <!--            app:layout_constraintBottom_toBottomOf="parent"-->
         <!--            app:layout_constraintStart_toEndOf="@+id/back"-->
         <!--            app:layout_constraintTop_toTopOf="parent" />-->
@@ -162,7 +162,7 @@
             android:layout_height="40dp"
             app:layout_constraintTop_toTopOf="parent"
             app:tabGravity="fill"
-            app:tabIndicator="@drawable/tab_indicator"
+            app:tabIndicator="@drawable/ic_tab_indicator"
             app:tabIndicatorColor="#FF33A8"
             app:tabIndicatorFullWidth="false"
             app:tabMinWidth="80dp"
