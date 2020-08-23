@@ -218,15 +218,9 @@ class LoadingDialog(context: Context, private val request: Int) :
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "unused")
     fun encodeVideo() {
         CoroutineScope(Dispatchers.Default).launch {
-            // images to video
-            Log.d("Export", "Convert the images to a video.")
-//        val videoPath = filesDir.absolutePath + "/video.mp4"
-//        FFmpeg.execute("-i $capturePath/img%08d.png -r $fps -pix_fmt yuv420p $videoPath")
-            FFmpeg.execute("-i $capturePath/img%08d.png -r $fps -pix_fmt yuv420p $resultPath")
-
-            // combine audio and video
-            Log.d("Export", "Combine the audio and the video.")
-//        FFmpeg.execute("-i $videoPath -i $audioPath -vcodec copy -c:a aac $resultPath")
+            // get result video
+            Log.d("Export", "Convert the images to a video and Combine with audio.")
+            FFmpeg.execute("-i $capturePath/img%08d.png -i $audioPath -r $fps -pix_fmt yuv420p $resultPath")
 
             File(audioPath).delete()
             for (img in File(imagePath).listFiles())
