@@ -30,6 +30,8 @@ import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.Contract
+import java.io.File
 import java.util.ArrayList
 import kotlin.math.abs
 import kotlin.math.max
@@ -220,12 +222,12 @@ class ProjectActivity : AppCompatActivity() {
 
         mUnityPlayer.setOnClickListener {
             if (CustomAdapter.selectedEffect != null) {
+                val b = CustomAdapter.selectedEffect ?: return@setOnClickListener
                 stopVideo()
                 frame = (projectTimeLineView.currentTime * fps / 1000).roundToInt()
 
-                (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
-                (CustomAdapter.selectedEffect
-                    ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                b.isActivated = false
+                b.setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
 
                 val bitmap =
@@ -237,15 +239,7 @@ class ProjectActivity : AppCompatActivity() {
                 for (i in 0 until 30) {
                     dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
                 }
-                effectList.add(
-                    Effect(
-                        frame,
-                        frame + 29,
-                        0,
-                        0xFFFFFF,
-                        dataArrayList
-                    )
-                )
+                effectList.add(Effect(frame, frame + 29, 0, 0xFFFFFF, dataArrayList))
             }
         }
 
@@ -265,7 +259,6 @@ class ProjectActivity : AppCompatActivity() {
         builder.show()
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private fun playVideo() {
         project_play.isSelected = true
         project_play.isActivated = false
@@ -395,7 +388,7 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     private fun saveProject() {
-
+        // TODO: 2020/08/23 Implement saving.
     }
 
     private fun exportVideo() {
