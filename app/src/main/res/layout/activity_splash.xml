@@ -9,7 +9,7 @@
         android:id="@+id/splash"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@drawable/splash_image"
+        android:src="@mipmap/ic_zzazz"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
