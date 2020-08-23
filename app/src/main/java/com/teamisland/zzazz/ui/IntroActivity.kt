@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -92,9 +91,9 @@ class IntroActivity : AppCompatActivity() {
         }
 
         if (videoUri != null) {
-            Intent(this, TrimmingActivity::class.java).also {
-                it.putExtra(VIDEO_URI, videoUri)
-                startActivity(it)
+            Intent(this, TrimmingActivity::class.java).apply {
+                putExtra(VIDEO_URI, videoUri)
+                startActivity(this)
             }
         }
     }

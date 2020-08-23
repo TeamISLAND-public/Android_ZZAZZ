@@ -120,7 +120,7 @@ class LoadingDialog(context: Context, private val request: Int) :
         window?.setGravity(Gravity.CENTER)
 
         Glide.with(context).load(R.drawable.loading).into(load_gif)
-        progress.text = percentage.toString()
+        progress.text = String.format("%02d", percentage) + "%"
 
         val job: Job
         when (request) {
@@ -136,7 +136,10 @@ class LoadingDialog(context: Context, private val request: Int) :
                 text.text = context.getString(R.string.save_video)
                 job = saveVideo(path)
             }
-            else -> return
+            else -> {
+                dismiss()
+                return
+            }
         }
 
         cancel.setOnClickListener {
@@ -155,7 +158,6 @@ class LoadingDialog(context: Context, private val request: Int) :
             val outPath = run {
                 // Set destination location.
                 val parentFolder = context.filesDir
-                parentFolder.mkdirs()
                 val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
                 File(parentFolder, fileName)
             }.absolutePath
@@ -171,13 +173,14 @@ class LoadingDialog(context: Context, private val request: Int) :
                     Log.d("Export", "Finish exporting the images from an origin video.")
 
                     Intent(context, ProjectActivity::class.java).apply {
-                        println(outPath)
                         putExtra(TrimmingActivity.VIDEO_PATH, outPath)
                         putExtra(
                             TrimmingActivity.VIDEO_FRAME_COUNT,
                             dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
                         )
                     }.also { startActivity(context, it, null) }
+
+                    dismiss()
                 }
             }
         }
@@ -207,7 +210,7 @@ class LoadingDialog(context: Context, private val request: Int) :
     /**
      * Called in Unity.
      */
-    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "unused")
     fun encodeVideo() {
         CoroutineScope(Dispatchers.Default).launch {
             // images to video
@@ -283,7 +286,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             }
             while (count != -1) {
                 percentage = (total / len * 100).toInt()
-                text.text = percentage.toString()
+                text.text = String.format("%02d", percentage) + "%"
 
                 try {
                     (output ?: return@launch).write(data, 0, count)
