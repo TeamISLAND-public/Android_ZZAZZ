@@ -148,7 +148,9 @@ class LoadingDialog(context: Context, private val request: Int) :
                 input?.close()
                 output?.flush()
                 output?.close()
-            }
+            } else
+                FFmpeg.cancel()
+            dismiss()
         }
     }
 
