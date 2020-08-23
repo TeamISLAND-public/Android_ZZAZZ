@@ -1,4 +1,6 @@
 <resources>
+    <string name="app_name">ZZAZZ</string>
+
     <!--    string of introactivity-->
     <string name="intro1">Super cool,\nbut also\nsuper easy!</string>
     <string name="intro2">Let\'s\nspice up\nyour videos.</string>
