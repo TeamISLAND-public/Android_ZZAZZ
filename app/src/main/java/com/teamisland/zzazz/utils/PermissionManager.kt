@@ -31,7 +31,7 @@ class PermissionManager(private val context: Context, private val activity: Acti
         for (permission in permissions)
             if (ContextCompat.checkSelfPermission(
                     context,
-                    permission
+                    permissiong
                 ) != PackageManager.PERMISSION_GRANTED
             )
                 permissionList.add(permission)
@@ -44,9 +44,8 @@ class PermissionManager(private val context: Context, private val activity: Acti
     /**
      * Request the permissions to use an application.
      */
-    public fun requestPermission() {
+    public fun requestPermission() =
         ActivityCompat.requestPermissions(activity, permissionList.toTypedArray(), permissionResult)
-    }
 
     /**
      * Check a user permits an every permissions.

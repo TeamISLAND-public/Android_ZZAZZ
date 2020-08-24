@@ -135,7 +135,7 @@ class IntroActivity : AppCompatActivity() {
     }
 
     private fun checkPermission() {
-        if (!permissionManager.checkPermission())
+        if (permissionManager.checkPermission())
             permissionManager.requestPermission()
     }
 
