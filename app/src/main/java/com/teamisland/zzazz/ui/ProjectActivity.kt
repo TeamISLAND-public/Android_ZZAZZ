@@ -221,19 +221,9 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 
         project_title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15f)
 
-        gotoExportActivity.setOnTouchListener { v, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    v.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    v.alpha = 1F
-                    stopVideo()
-                    exportVideo()
-                }
-            }
-            true
+        gotoExportActivity.setOnClickListener {
+            stopVideo()
+            exportVideo()
         }
         gotoExportActivity.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
 

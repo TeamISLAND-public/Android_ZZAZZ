@@ -49,7 +49,7 @@
             android:fontFamily="@font/archivo_bold"
             android:text="@string/done"
             android:textAlignment="center"
-            android:textColor="@color/White"
+            android:textColor="@color/white_btn_text"
             app:layout_constraintBottom_toBottomOf="@id/export_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/export_title" />

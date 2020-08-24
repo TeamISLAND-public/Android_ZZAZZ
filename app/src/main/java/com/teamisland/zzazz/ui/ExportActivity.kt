@@ -12,7 +12,10 @@ import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
 import android.util.TypedValue
-import android.view.*
+import android.view.Gravity
+import android.view.View
+import android.view.ViewAnimationUtils
+import android.view.Window
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.SeekBar
@@ -115,23 +118,13 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
         video.setOnClickListener { playButton.startAnimation(fadeOut) }
 
-        done_export.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    done_export.alpha = 0.4F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    done_export.alpha = 1F
-                    done = true
-                    Intent(this, IntroActivity::class.java).apply {
-                        flags =
-                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                        startActivity(this)
-                    }
-                }
+        done_export.setOnClickListener {
+            done = true
+            Intent(this, IntroActivity::class.java).apply {
+                flags =
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(this)
             }
-            true
         }
         done_export.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
 
