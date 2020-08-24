@@ -178,7 +178,7 @@ class LoadingDialog(context: Context, private val request: Int) :
 
                     Intent(context, ProjectActivity::class.java).apply {
                         putExtra(TrimmingActivity.VIDEO_PATH, outPath)
-                        putExtra(TrimmingActivity.IMAGE_PATH, "$originPath/img%08d.png")
+                        putExtra(TrimmingActivity.IMAGE_PATH, originPath)
                         putExtra(
                             TrimmingActivity.VIDEO_FRAME_COUNT,
                             dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
