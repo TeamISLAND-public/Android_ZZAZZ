@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.util.Range
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
@@ -218,6 +219,8 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 //            true
 //        }
 
+        project_title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15f)
+
         gotoExportActivity.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -232,6 +235,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
             }
             true
         }
+        gotoExportActivity.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
 
         back.setOnClickListener { onBackPressed() }
 
@@ -374,21 +378,26 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         effect_view_pager.adapter = addPagerAdapter
 
         for (index in 1 until effect_tab.tabCount)
-            (effect_tab.getTabAt(index) ?: return).view.tab_text.setTextColor(
+            (effect_tab.getTabAt(index) ?: return).view.tab_text.apply {
+                setTextColor(
+                    ContextCompat.getColor(
+                        applicationContext,
+                        R.color.ContentsText40
+                    )
+                )
+                setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
+            }
+        val tabView = effect_tab.getTabAt(0)
+        (tabView ?: return).view.tab_text.apply {
+            setTextColor(
                 ContextCompat.getColor(
                     applicationContext,
-                    R.color.ContentsText40
+                    R.color.White
                 )
             )
-        val tabView = effect_tab.getTabAt(0)
-        (tabView ?: return).view.tab_text.typeface =
-            ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
-        tabView.view.tab_text.setTextColor(
-            ContextCompat.getColor(
-                applicationContext,
-                R.color.White
-            )
-        )
+            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
+            typeface = ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+        }
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 effect_view_pager.currentItem = (tab ?: return).position
@@ -417,6 +426,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         })
         effect_view_pager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(effect_tab))
     }
+
 
     private fun createTabView(tabName: String): View? {
         val tabView = View.inflate(applicationContext, R.layout.custom_tab, null)

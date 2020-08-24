@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View.*
 import androidx.appcompat.app.AppCompatActivity
@@ -193,9 +194,17 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         testModelFile = File(filesDir, modelName)
         // Set click handlers.
         backButton.setOnClickListener { onBackPressed() }
+
+        trim_title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16f)
         gotoProjectActivity.setOnClickListener { startTrimming() }
-        framePlus.setOnClickListener { moveSelectedFrameIndexBy(1) }
+        gotoProjectActivity.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
+
         frameMinus.setOnClickListener { moveSelectedFrameIndexBy(-1) }
+        frameMinus.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
+        framePlus.setOnClickListener { moveSelectedFrameIndexBy(1) }
+        framePlus.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
+
+        trimming_hint_text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
 
         // Set controller(play/pause button) timeout.
         mainVideoView.controllerShowTimeoutMs = 1000

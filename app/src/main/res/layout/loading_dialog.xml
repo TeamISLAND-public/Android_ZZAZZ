@@ -24,12 +24,12 @@
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textColor="@color/ActivityTitle"
-        android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/load_gif" />
 
     <TextView
+        android:id="@+id/comment"
         android:layout_width="216dp"
         android:layout_height="16dp"
         android:fontFamily="@font/archivo_regular"
@@ -37,11 +37,9 @@
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textColor="#99FFFFFF"
-        android:textSize="10sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text"
-        tools:ignore="SmallSp" />
+        app:layout_constraintTop_toBottomOf="@id/text" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

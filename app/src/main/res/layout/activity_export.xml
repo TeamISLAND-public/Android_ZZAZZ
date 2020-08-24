@@ -22,12 +22,12 @@
             android:layout_height="10dp"
             android:layout_marginStart="20dp"
             android:background="@drawable/ic_back"
-            app:layout_constraintBottom_toBottomOf="@id/title"
+            app:layout_constraintBottom_toBottomOf="@id/export_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/title" />
+            app:layout_constraintTop_toTopOf="@+id/export_title" />
 
         <TextView
-            android:id="@id/title"
+            android:id="@id/export_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/archivo_bold"
@@ -50,10 +50,9 @@
             android:text="@string/done"
             android:textAlignment="center"
             android:textColor="@color/White"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toBottomOf="@id/title"
+            app:layout_constraintBottom_toBottomOf="@id/export_title"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/title" />
+            app:layout_constraintTop_toTopOf="@id/export_title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -112,6 +111,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:id="@+id/start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
@@ -119,10 +119,8 @@
             android:fontFamily="@font/archivo_regular"
             android:text="@string/start_preview"
             android:textColor="@color/ContentsText80"
-            android:textSize="9sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="SmallSp" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/video_length"
@@ -132,10 +130,8 @@
             android:layout_marginEnd="32dp"
             android:fontFamily="@font/archivo_regular"
             android:textColor="@color/ContentsText80"
-            android:textSize="9sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="SmallSp" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -158,7 +154,6 @@
             android:text="@string/save_text"
             android:textAllCaps="false"
             android:textColor="@color/ContentsText80"
-            android:textSize="11sp"
             app:layout_constraintEnd_toEndOf="@+id/divider"
             app:layout_constraintHorizontal_bias="0.552"
             app:layout_constraintStart_toStartOf="parent"
@@ -193,7 +188,6 @@
             android:gravity="center"
             android:text="@string/share_text"
             android:textColor="@color/ContentsText80"
-            android:textSize="11sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.448"
             app:layout_constraintStart_toStartOf="@id/divider"

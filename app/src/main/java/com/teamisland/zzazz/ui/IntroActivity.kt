@@ -132,6 +132,7 @@ class IntroActivity : AppCompatActivity() {
 
         val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce)
         linearLayout.startAnimation(bounce)
+        load_text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
     }
 
     private fun checkPermission() {

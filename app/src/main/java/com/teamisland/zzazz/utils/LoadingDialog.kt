@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.Window
 import androidx.core.content.ContextCompat.getColor
@@ -84,6 +85,8 @@ class LoadingDialog(context: Context, private val request: Int) :
         window?.setGravity(Gravity.CENTER)
 
         Glide.with(context).load(R.drawable.loading).into(load_gif)
+        text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
+        comment.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10f)
 
         when (request) {
             APPLY_EFFECT -> {
