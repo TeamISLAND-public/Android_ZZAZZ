@@ -31,7 +31,7 @@ class PermissionManager(private val context: Context, private val activity: Acti
         for (permission in permissions)
             if (ContextCompat.checkSelfPermission(
                     context,
-                    permissiong
+                    permission
                 ) != PackageManager.PERMISSION_GRANTED
             )
                 permissionList.add(permission)
