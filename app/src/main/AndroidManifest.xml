@@ -15,6 +15,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_zzazz"
+        android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_zzazz_round"
         android:supportsRtl="true"
@@ -39,6 +40,7 @@
 
         <activity
             android:name=".ui.SplashActivity"
+            android:label="@string/app_name"
             android:noHistory="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -49,23 +51,28 @@
         </activity>
         <activity
             android:name=".ui.IntroActivity"
+            android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/NoAnimation" />
         <activity
             android:name=".ui.TrimmingActivity"
+            android:label="@string/app_name"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ProjectActivity"
+            android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".utils.SaveProjectActivity"
+            android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Translucent"
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
         <activity
             android:name=".ui.ExportActivity"
+            android:label="@string/app_name"
             android:screenOrientation="portrait" />
     </application>
 
