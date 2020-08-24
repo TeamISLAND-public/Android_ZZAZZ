@@ -66,11 +66,6 @@ class IntroActivity : AppCompatActivity() {
             true
         }
 
-        val files = filesDir
-        for (file in files.listFiles() ?: return)
-            if (file.extension == "mp4" || file.extension == "mp3")
-                file.delete()
-
         take.setOnClickListener { getVideo(TAKE_VIDEO) }
 
         val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce)
