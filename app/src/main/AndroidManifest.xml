@@ -40,7 +40,7 @@
         <activity
             android:name=".ui.SplashActivity"
             android:noHistory="true"
-            android:screenOrientation="fullSensor">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -50,16 +50,23 @@
         <activity
             android:name=".ui.IntroActivity"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/NoAnimation" />
-        <activity android:name=".ui.TrimmingActivity" />
+        <activity
+            android:name=".ui.TrimmingActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.ProjectActivity"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".utils.SaveProjectActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Translucent"
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
-        <activity android:name=".ui.ExportActivity" />
+        <activity
+            android:name=".ui.ExportActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
