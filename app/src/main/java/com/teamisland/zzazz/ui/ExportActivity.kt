@@ -2,7 +2,6 @@ package com.teamisland.zzazz.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,7 +9,6 @@ import android.content.res.ColorStateList
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.*
-import android.provider.MediaStore
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewAnimationUtils
@@ -38,8 +36,6 @@ import com.teamisland.zzazz.utils.LoadingDialog
 import kotlinx.android.synthetic.main.activity_export.*
 import kotlinx.coroutines.*
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.hypot
 

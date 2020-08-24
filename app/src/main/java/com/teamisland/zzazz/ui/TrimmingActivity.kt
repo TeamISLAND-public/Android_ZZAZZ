@@ -3,7 +3,6 @@ package com.teamisland.zzazz.ui
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
@@ -12,7 +11,6 @@ import android.view.View.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.arthenica.mobileffmpeg.Config
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
@@ -21,8 +19,9 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.*
+import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.ITrimmingData
+import com.teamisland.zzazz.utils.LoadingDialog
 import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.*
 import java.io.File
