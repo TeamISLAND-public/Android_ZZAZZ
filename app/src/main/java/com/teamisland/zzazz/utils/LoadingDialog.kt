@@ -181,7 +181,7 @@ class LoadingDialog(context: Context, private val request: Int) :
                         putExtra(TrimmingActivity.IMAGE_PATH, originPath)
                         putExtra(
                             TrimmingActivity.VIDEO_FRAME_COUNT,
-                            dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
+                            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
                         )
                     }.also { startActivity(context, it, null) }
 

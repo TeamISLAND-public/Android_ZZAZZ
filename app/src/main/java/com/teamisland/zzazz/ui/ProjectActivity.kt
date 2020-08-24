@@ -30,6 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.properties.Delegates
 
 /**
  * Activity for make project
@@ -55,7 +56,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     private lateinit var modelpath: String
     private var videoDuration = 0
     private var fps: Float = 0f
-    private var frameCount: Int = 0
+    private var frameCount by Delegates.notNull<Int>()
 
     //    private lateinit var video: BitmapVideo
 //    private lateinit var bitmapList: List<Bitmap>
@@ -299,20 +300,20 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         if (project_play.isActivated) return
         project_play.isActivated = true
 
-        if (frame == frameCount)
+        if (frame == frameCount - 1)
             frame = 0
 
         GlobalScope.launch {
             var time = 1000 * frame / fps
             while (project_play.isActivated) {
                 time += 50
+                frame = (time * fps / 1000).toInt()
                 if (frameCount <= frame) {
+                    setCurrentTime(videoDuration - 1)
                     frame = frameCount - 1
-                    setCurrentTime(videoDuration)
                     stopVideo()
                     break
                 }
-                frame = (time * fps / 1000).toInt()
                 setCurrentTime(time.toInt())
                 delay(50)
             }
