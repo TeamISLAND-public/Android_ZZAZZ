@@ -44,7 +44,7 @@ class PermissionManager(private val context: Context, private val activity: Acti
     /**
      * Request the permissions to use an application.
      */
-    public fun requestPermission() =
+    public fun requestPermission(): Unit =
         ActivityCompat.requestPermissions(activity, permissionList.toTypedArray(), permissionResult)
 
     /**
