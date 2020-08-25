@@ -56,7 +56,7 @@ open class CurrentPositionView @JvmOverloads constructor(
     internal val textView by lazy {
         val textViewT = TextView(context)
         textViewT.fontFeatureSettings = "@font/archivo_regular"
-        textViewT.textSize = float2DP(10f, resources)
+        textViewT.textSize = 10f
         textViewT.visibility = GONE
         textViewT.setTextColor(0xccffffff.toInt())
         textViewT

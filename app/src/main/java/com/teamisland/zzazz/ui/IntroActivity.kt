@@ -54,7 +54,7 @@ class IntroActivity : AppCompatActivity() {
         }
     }
 
-    g/**
+    /**
      * [AppCompatActivity.onResume]
      */
     override fun onResume() {
