@@ -47,19 +47,21 @@ class ProjectEffectEditor @JvmOverloads constructor(
     private var leftKnobPosition: Float = 0.0f
     private var rightKnobPosition: Float = 0.0f
 
-    private var leftKnobTime: Int
-        get() {
-            return getTimeOfPosition(leftKnobPosition)
-        }
+    /**
+     * Time in ms where left knob is pointing.
+     */
+    var leftKnobTime: Int
+        get() = getTimeOfPosition(leftKnobPosition)
         set(value) {
             leftKnobPosition = getPositionOfTime(value)
             invalidate()
         }
 
-    private var rightKnobTime: Int
-        get() {
-            return getTimeOfPosition(rightKnobPosition)
-        }
+    /**
+     * Time in ms where right knob is pointing.
+     */
+    var rightKnobTime: Int
+        get() = getTimeOfPosition(rightKnobPosition)
         set(value) {
             rightKnobPosition = getPositionOfTime(value)
             invalidate()
@@ -71,6 +73,8 @@ class ProjectEffectEditor @JvmOverloads constructor(
      */
     override fun onDraw(canvas: Canvas) {
         val heightF = height.toFloat()
+
+        // TODO: 2020/08/24 Draw ranges
 
 //        canvas.drawRect(rect, rangePaint)
 

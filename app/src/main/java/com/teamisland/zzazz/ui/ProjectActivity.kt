@@ -6,6 +6,7 @@ import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.util.Range
@@ -30,7 +31,6 @@ import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jetbrains.annotations.Contract
 import java.io.File
 import java.util.ArrayList
 import kotlin.math.abs
@@ -58,20 +58,13 @@ class ProjectActivity : AppCompatActivity() {
         mUnityPlayer.destroy()
     }
 
-    /**
-     * Path of result video
-     */
-    private lateinit var resultPath: String
-    private lateinit var imagePath: String
-    private lateinit var modelOutput: ArrayList<Person?>
-    private var videoDuration = 0
-    private var fps: Float = 0f
-    private var frameCount by Delegates.notNull<Int>()
-
-    //    private lateinit var video: BitmapVideo
-//    private lateinit var bitmapList: List<Bitmap>
-//    private var startFrame by Delegates.notNull<Int>()
-//    private var endFrame by Delegates.notNull<Int>()
+    private val videoDuration: Int by lazy { getDuration(this, uri) }
+    private val resultPath: String by lazy { dataDir.absolutePath + "/result.mp4" }
+    private val modelPath: String by lazy { filesDir.absolutePath + "test_txt.txt" }
+    private val frameCount: Int by lazy { getFrameCount(this, uri).toInt() }
+    private val path: String by lazy { intent.getStringExtra(TrimmingActivity.VIDEO_PATH) }
+    private val fps: Float by lazy { frameCount * 1000f / videoDuration }
+    private val uri: Uri by lazy { Uri.parse(path) }
 
     companion object {
         /**
@@ -169,6 +162,33 @@ class ProjectActivity : AppCompatActivity() {
         mUnityPlayer.windowFocusChanged(hasFocus)
     }
 
+    ////////// Unity data exchange.
+
+    private var unityDataBridge: UnityDataBridge? = null
+
+    /**
+     * Used for unity interface accepting.
+     */
+    @Suppress("unused")
+    fun accept(li: UnityDataBridge) {
+        unityDataBridge = li
+        li.isUserAGoat("hi")
+        li.onSuccessfulAccept()
+        li.onFrameCountRetrieve(frameCount)
+        li.onPathRetrieve(resultPath)
+        li.onFrameRateRetrieve(fps)
+    }
+
+    /**
+     * Used for unity message sending test.
+     */
+    @Suppress("unused")
+    fun whoAmI(s: String) {
+        Log.d("Unity whoAmI", s)
+    }
+
+    ////////// Creation codes.
+
     /**
      * [AppCompatActivity.onCreate]
      */
@@ -177,29 +197,16 @@ class ProjectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
-        window.navigationBarColor = getColor(R.color.Background)
 
-        resultPath = dataDir.absolutePath + "/result.mp4"
-        imagePath = intent.getStringExtra(TrimmingActivity.IMAGE_PATH)
-        frameCount = intent.getIntExtra(TrimmingActivity.VIDEO_FRAME_COUNT, 0)
-        videoDuration = intent.getIntExtra(TrimmingActivity.VIDEO_DURATION, 0)
-        modelOutput = intent.getSerializableExtra(TrimmingActivity.MODEL_OUTPUT) as ArrayList<Person?>
-
-        Log.i(
-            "zzazz_core1",
-            String.format(
-                "shape %d %s %d",
-                modelOutput[1]!!.keyPoints.size, //21
-                modelOutput[0]!!.keyPoints[0].position.toString(), //Position(x=0.13257)
-                modelOutput.size
-            )
-        )
-
-        fps = frameCount / (videoDuration / 1000f)
+//        modelPath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
 
         zoomLevel = float2DP(0.06f, resources)
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
+
+        UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelPath)
+        Log.d("testmodelfile", path)
+        Log.d("testmodelfile", modelPath)
 
         playVideo()
 
@@ -229,17 +236,6 @@ class ProjectActivity : AppCompatActivity() {
                 b.isActivated = false
                 b.setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
-
-                val bitmap =
-                    (ContextCompat.getDrawable(this, R.drawable.back) as BitmapDrawable).bitmap
-                val point = Effect.Point(30, 30)
-                val dataArrayList: MutableList<Effect.Data> = mutableListOf()
-
-                // for test
-                for (i in 0 until 30) {
-                    dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
-                }
-                effectList.add(Effect(frame, frame + 29, 0, 0xFFFFFF, dataArrayList))
             }
         }
 
@@ -304,25 +300,11 @@ class ProjectActivity : AppCompatActivity() {
 
     private fun tabInit() {
         with(effect_tab) {
-            addTab(
-                effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.left_arm_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.right_arm_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.left_leg_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.right_leg_effect)))
-            )
+            addTab(newTab().setCustomView(createTabView(getString(R.string.head_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
         }
 
         val addPagerAdapter =
@@ -388,7 +370,7 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     private fun saveProject() {
-        // TODO: 2020/08/23 Implement saving.
+        /* no-op */
     }
 
     private fun exportVideo() {
@@ -411,10 +393,11 @@ class ProjectActivity : AppCompatActivity() {
         }
     }
 
-    private fun setCurrentTime(index: Int) {
-        projectTimeLineView.currentTime = index
-        projectEffectEditor.currentTime = index
-        timeIndexView.currentTime = index
+    private fun setCurrentTime(ms: Int) {
+        projectTimeLineView.currentTime = ms
+        projectEffectEditor.currentTime = ms
+        timeIndexView.currentTime = ms
+        frame = (ms * fps / 1000).toInt()
     }
 
     private fun setZoomLevel() {
