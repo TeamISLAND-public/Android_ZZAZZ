@@ -6,6 +6,7 @@ import android.view.View
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.UnitConverter.px2dp
 import kotlin.math.roundToInt
+import kotlin.properties.Delegates
 
 /**
  * Zoomable view abstraction.
@@ -17,13 +18,13 @@ abstract class ZoomableView @JvmOverloads constructor(
     /**
      * Duration of the video in ms.
      */
-    var videoLength: Int = 17860
+    var videoLength: Int by Delegates.notNull()
 
     /**
      * Current time in ms. Note that current time will be located at the horizontal center of the view.
      * @exception IllegalArgumentException When the input is out of range : [0, [videoLength]]
      */
-    var currentTime: Int = 3770
+    var currentTime: Int = 0
         set(value) {
             if (value !in 0..videoLength)
                 throw IllegalArgumentException("Current time should be between 0 and the duration of the video, inclusive.")

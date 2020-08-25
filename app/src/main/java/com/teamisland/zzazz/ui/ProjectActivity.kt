@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -29,7 +28,6 @@ import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jetbrains.annotations.Contract
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.max
@@ -37,9 +35,14 @@ import kotlin.math.max
 /**
  * Activity for make project
  */
-class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
+class ProjectActivity : AppCompatActivity() {
 
-    private lateinit var mUnityPlayer: UnityPlayer
+    private val mUnityPlayer: UnityPlayer by lazy {
+        UnityPlayer(this, object : IUnityPlayerLifecycleEvents {
+            override fun onUnityPlayerUnloaded() = Unit
+            override fun onUnityPlayerQuitted() = Unit
+        })
+    }
 
     /**
      * Destroys the activity and finishes ongoing coroutines.
@@ -49,20 +52,13 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         mUnityPlayer.destroy()
     }
 
-    /**
-     * Path of result video
-     */
-    private lateinit var resultPath: String
-    private lateinit var path: String
-    private lateinit var modelpath: String
-    private var videoDuration = 0
-    private var fps: Float = 0f
-    private var frameCount: Int = 0
-
-    //    private lateinit var video: BitmapVideo
-//    private lateinit var bitmapList: List<Bitmap>
-//    private var startFrame by Delegates.notNull<Int>()
-//    private var endFrame by Delegates.notNull<Int>()
+    private val videoDuration: Int by lazy { getDuration(this, uri) }
+    private val resultPath: String by lazy { dataDir.absolutePath + "/result.mp4" }
+    private val modelPath: String by lazy { filesDir.absolutePath + "test_txt.txt" }
+    private val frameCount: Int by lazy { getFrameCount(this, uri).toInt() }
+    private val path: String by lazy { intent.getStringExtra(TrimmingActivity.VIDEO_PATH) }
+    private val fps: Float by lazy { frameCount * 1000f / videoDuration }
+    private val uri: Uri by lazy { Uri.parse(path) }
 
     companion object {
         /**
@@ -75,11 +71,6 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
          * When video stops, Unity set this variable to false.
          */
         var isPlaying: Boolean = false
-
-        /**
-         * List of effect
-         */
-        var effectList: MutableList<Effect> = mutableListOf()
 
         /**
          * Check the project is saved
@@ -165,6 +156,33 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         mUnityPlayer.windowFocusChanged(hasFocus)
     }
 
+    ////////// Unity data exchange.
+
+    private var unityDataBridge: UnityDataBridge? = null
+
+    /**
+     * Used for unity interface accepting.
+     */
+    @Suppress("unused")
+    fun accept(li: UnityDataBridge) {
+        unityDataBridge = li
+        li.isUserAGoat("hi")
+        li.onSuccessfulAccept()
+        li.onFrameCountRetrieve(frameCount)
+        li.onPathRetrieve(resultPath)
+        li.onFrameRateRetrieve(fps)
+    }
+
+    /**
+     * Used for unity message sending test.
+     */
+    @Suppress("unused")
+    fun whoAmI(s: String) {
+        Log.d("Unity whoAmI", s)
+    }
+
+    ////////// Creation codes.
+
     /**
      * [AppCompatActivity.onCreate]
      */
@@ -174,24 +192,15 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
 
-        mUnityPlayer = UnityPlayer(this, this)
-
-        resultPath = dataDir.absolutePath + "/result.mp4"
-        path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
-//        modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
-        val uri = Uri.parse(path)
-        videoDuration = getDuration(this, uri)
-        frameCount = getFrameCount(this, uri).toInt()
-        fps = frameCount / (videoDuration / 1000f)
+//        modelPath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
 
         zoomLevel = float2DP(0.06f, resources)
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
 
-        modelpath = filesDir.absolutePath + "test_txt.txt"
-        UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelpath)
+        UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelPath)
         Log.d("testmodelfile", path)
-        Log.d("testmodelfile", modelpath)
+        Log.d("testmodelfile", modelPath)
 
         playVideo()
 
@@ -220,17 +229,6 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
                 b.isActivated = false
                 b.setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
-
-                val bitmap =
-                    (ContextCompat.getDrawable(this, R.drawable.load) as BitmapDrawable).bitmap
-                val point = Effect.Point(30, 30)
-                val dataArrayList: MutableList<Effect.Data> = mutableListOf()
-
-                // for test
-                for (i in 0 until 30) {
-                    dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
-                }
-                effectList.add(Effect(frame, frame + 29, 0, 0xFFFFFF, dataArrayList))
             }
         }
 
@@ -305,25 +303,11 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 
     private fun tabInit() {
         with(effect_tab) {
-            addTab(
-                effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.left_arm_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.right_arm_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.left_leg_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.right_leg_effect)))
-            )
+            addTab(newTab().setCustomView(createTabView(getString(R.string.head_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
+            addTab(newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
         }
 
         val addPagerAdapter =
@@ -387,7 +371,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     }
 
     private fun saveProject() {
-        // TODO: 2020/08/23 Implement saving.
+        /* no-op */
     }
 
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
@@ -411,11 +395,11 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         }
     }
 
-    private fun setCurrentTime(index: Int) {
-        projectTimeLineView.currentTime = index
-        projectEffectEditor.currentTime = index
-        timeIndexView.currentTime = index
-        frame = (index * fps / 1000).toInt()
+    private fun setCurrentTime(ms: Int) {
+        projectTimeLineView.currentTime = ms
+        projectEffectEditor.currentTime = ms
+        timeIndexView.currentTime = ms
+        frame = (ms * fps / 1000).toInt()
     }
 
     private fun setZoomLevel() {
@@ -472,18 +456,4 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     }
 
     private fun distance(event: MotionEvent): Float = abs(event.getX(0) - event.getX(1))
-
-    /**
-     * [IUnityPlayerLifecycleEvents.onUnityPlayerQuitted]
-     */
-    override fun onUnityPlayerQuitted() {
-        mUnityPlayer.quit()
-    }
-
-    /**
-     * [IUnityPlayerLifecycleEvents.onUnityPlayerUnloaded]
-     */
-    override fun onUnityPlayerUnloaded() {
-        mUnityPlayer.unload()
-    }
 }

@@ -3,6 +3,7 @@ package com.teamisland.zzazz.ui
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
+import android.app.ActivityOptions
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
@@ -267,7 +268,18 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
                         VIDEO_FRAME_COUNT,
                         dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
                     )
-                }.also { startActivity(it) }
+                }.also {
+                    runOnUiThread {
+                        startActivity(
+                            it,
+                            ActivityOptions.makeCustomAnimation(
+                                this,
+                                R.anim.trim_to_project_activity_transition_in,
+                                R.anim.trim_to_project_activity_transition_out,
+                            ).toBundle()
+                        )
+                    }
+                }
         }
     }
 

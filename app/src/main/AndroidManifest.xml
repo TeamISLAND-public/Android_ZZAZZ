@@ -54,6 +54,7 @@
         <activity android:name=".ui.TrimmingActivity" />
         <activity
             android:name=".ui.ProjectActivity"
+            android:process=":unityplayer"
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".utils.SaveProjectActivity"
