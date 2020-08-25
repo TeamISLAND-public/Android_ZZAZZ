@@ -17,6 +17,7 @@
         android:layout_marginStart="16dp"
         android:fontFamily="@font/archivo_bold"
         android:textColor="@color/ZZAZZWhite"
+        android:textSize="40dp"
         android:translationZ="2dp"
         app:layout_constraintBottom_toTopOf="@id/linearLayout"
         app:layout_constraintStart_toStartOf="parent"

@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -90,24 +89,24 @@ class IntroActivity : AppCompatActivity() {
 
         when (index) {
             0 -> {
-                setPosition(circle.id, 132, 132)
-                setPosition(underline.id, 16, 44)
+                setPosition(circle.id, 116, 7)
+                setPosition(underline.id, 0, 135)
             }
             1 -> {
-                setPosition(circle.id, 40, 88)
-                setPosition(underline.id, 16, 44)
+                setPosition(circle.id, 24, 51)
+                setPosition(underline.id, 0, 135)
             }
             2 -> {
-                setPosition(circle.id, 152, 132)
-                setPosition(underline.id, 16, 44)
+                setPosition(circle.id, 136, 7)
+                setPosition(underline.id, 0, 135)
             }
             3 -> {
-                setPosition(circle.id, 16, 132)
-                setPosition(underline.id, 16, 44)
+                setPosition(circle.id, 0, 7)
+                setPosition(underline.id, 0, 135)
             }
             4 -> {
-                setPosition(circle.id, 178, 132)
-                setPosition(underline.id, 64, 44)
+                setPosition(circle.id, 162, 7)
+                setPosition(underline.id, 48, 135)
             }
         }
 
@@ -150,32 +149,27 @@ class IntroActivity : AppCompatActivity() {
             permissionManager.requestPermission()
     }
 
-    private fun setPosition(id: Int, startMargin: Int, bottomMargin: Int) {
-        val bias =
-            if (id == circle.id) 1 - (bottomMargin + 24) / 220f
-            else 1 - (bottomMargin + 4) / 220f
+    private fun setPosition(
+        id: Int,
+        startToStartMargin: Int,
+        topToTopMargin: Int
+    ) {
         ConstraintSet().apply {
             clone(constraintLayout)
             connect(
                 id,
                 ConstraintSet.START,
-                constraintLayout.id,
+                random_text.id,
                 ConstraintSet.START,
-                float2DP(startMargin.toFloat(), resources).toInt()
+                float2DP(startToStartMargin.toFloat(), resources).toInt()
             )
             connect(
                 id,
                 ConstraintSet.TOP,
-                constraintLayout.id,
-                ConstraintSet.TOP
+                random_text.id,
+                ConstraintSet.TOP,
+                float2DP(topToTopMargin.toFloat(), resources).toInt()
             )
-            connect(
-                id,
-                ConstraintSet.BOTTOM,
-                linearLayout.id,
-                ConstraintSet.TOP
-            )
-            setVerticalBias(id, bias)
         }.applyTo(constraintLayout)
     }
 
