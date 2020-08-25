@@ -33,6 +33,8 @@ class IntroActivity : AppCompatActivity() {
         private const val TAKE_VIDEO = 2
     }
 
+    private lateinit var random: Random
+    private lateinit var textArray: Array<String>
     private lateinit var circle: ImageView
     private lateinit var underline: ImageView
 
@@ -52,6 +54,14 @@ class IntroActivity : AppCompatActivity() {
         }
     }
 
+    g/**
+     * [AppCompatActivity.onResume]
+     */
+    override fun onResume() {
+        super.onResume()
+        setRandomText()
+    }
+
     /**
      * [AppCompatActivity.onCreate]
      */
@@ -61,16 +71,14 @@ class IntroActivity : AppCompatActivity() {
         setContentView(R.layout.activity_intro)
         window.navigationBarColor = getColor(R.color.Background)
 
-        val random = Random()
-        val textArray = arrayOf(
+        random = Random()
+        textArray = arrayOf(
             getString(R.string.intro1),
             getString(R.string.intro2),
             getString(R.string.intro3),
             getString(R.string.intro4),
             getString(R.string.intro5)
         )
-        val index = random.nextInt(textArray.size - 1)
-        random_text.text = textArray[index]
 
         checkPermission()
 
@@ -86,6 +94,34 @@ class IntroActivity : AppCompatActivity() {
             addView(circle)
             addView(underline)
         }
+
+        setRandomText()
+
+        val shrink = AnimationUtils.loadAnimation(this, R.anim.shrink)
+        zzazz.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    take.visibility = View.INVISIBLE
+                    v.startAnimation(shrink)
+                }
+                MotionEvent.ACTION_UP -> {
+                    getVideo(LOAD_VIDEO)
+                    v.clearAnimation()
+                    take.visibility = View.VISIBLE
+                }
+            }
+            true
+        }
+
+        take.setOnClickListener { getVideo(TAKE_VIDEO) }
+
+        val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce)
+        linearLayout.startAnimation(bounce)
+    }
+
+    private fun setRandomText() {
+        val index = random.nextInt(textArray.size - 1)
+        random_text.text = textArray[index]
 
         when (index) {
             0 -> {
@@ -109,27 +145,6 @@ class IntroActivity : AppCompatActivity() {
                 setPosition(underline.id, 48, 135)
             }
         }
-
-        val shrink = AnimationUtils.loadAnimation(this, R.anim.shrink)
-        zzazz.setOnTouchListener { v, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    take.visibility = View.INVISIBLE
-                    v.startAnimation(shrink)
-                }
-                MotionEvent.ACTION_UP -> {
-                    getVideo(LOAD_VIDEO)
-                    v.clearAnimation()
-                    take.visibility = View.VISIBLE
-                }
-            }
-            true
-        }
-
-        take.setOnClickListener { getVideo(TAKE_VIDEO) }
-
-        val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce)
-        linearLayout.startAnimation(bounce)
     }
 
     private fun checkPermission() {
