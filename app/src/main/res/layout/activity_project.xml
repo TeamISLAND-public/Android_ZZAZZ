@@ -53,10 +53,12 @@
             android:text="@string/project_title"
             android:textAllCaps="true"
             android:textColor="@color/ActivityTitle"
+            android:textSize="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintStart_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpUsage" />
 
         <Button
             android:id="@+id/gotoExportActivity"
@@ -69,9 +71,12 @@
             android:text="@string/export"
             android:textAllCaps="true"
             android:textColor="@color/white_btn_text"
+            android:textSize="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpUsage" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout

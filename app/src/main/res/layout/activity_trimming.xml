@@ -39,10 +39,12 @@
             android:text="@string/trim_title"
             android:textAllCaps="true"
             android:textColor="@color/ActivityTitle"
+            android:textSize="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpUsage" />
 
         <TextView
             android:id="@+id/gotoProjectActivity"
@@ -55,10 +57,12 @@
             android:text="@string/go_to_project_activity"
             android:textAllCaps="true"
             android:textColor="@color/white_btn_text"
+            android:textSize="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-        
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpUsage" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
@@ -71,11 +75,11 @@
         app:layout_constraintTop_toBottomOf="@id/constraintLayout">
 
         <com.google.android.exoplayer2.ui.PlayerView
-            android:animateLayoutChanges="true"
             android:id="@+id/mainVideoView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:animateLayoutChanges="true"
             app:controller_layout_id="@layout/trimming_video_player_controller_layout"
             app:use_controller="true"
             tools:foreground="@tools:sample/backgrounds/scenic[1]" />
@@ -103,7 +107,9 @@
             android:background="@drawable/ic_frame_move_button"
             android:fontFamily="@font/archivo_semibold"
             android:text="@string/one_frame_retreat"
-            android:textColor="@color/point_btn_text" />
+            android:textColor="@color/point_btn_text"
+            android:textSize="12dp"
+            tools:ignore="SpUsage" />
 
         <Button
             android:id="@+id/framePlus"
@@ -115,7 +121,9 @@
             android:background="@drawable/ic_frame_move_button"
             android:fontFamily="@font/archivo_semibold"
             android:text="@string/one_frame_advance"
-            android:textColor="@color/point_btn_text" />
+            android:textColor="@color/point_btn_text"
+            android:textSize="12dp"
+            tools:ignore="SpUsage" />
 
     </LinearLayout>
 
@@ -129,9 +137,11 @@
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textColor="#E5FFFFFF"
+        android:textSize="14dp"
         app:layout_constraintBottom_toTopOf="@id/constraintLayout2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="SpUsage" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout2"

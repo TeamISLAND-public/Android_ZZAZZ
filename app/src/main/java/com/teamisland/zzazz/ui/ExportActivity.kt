@@ -114,8 +114,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         playButton.setOnClickListener { playButtonClickHandler(fadeOut) }
         playButton.startAnimation(fadeOut)
 
-        export_title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15f)
-
         video.setOnClickListener { playButton.startAnimation(fadeOut) }
 
         done_export.setOnClickListener {
@@ -126,14 +124,11 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                 startActivity(this)
             }
         }
-        done_export.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
 
         back.setOnClickListener { finish() }
 
-        save_text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 11f)
         save.setOnClickListener { videoSave() }
 
-        share_text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 11f)
         share.setOnClickListener {
             Intent().apply {
                 action = Intent.ACTION_SEND
@@ -173,8 +168,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
             val minute = duration / 60000
             val second = duration / 1000 - minute * 60
             video_length.text = String.format("%02d:%02d", minute, second)
-            video_length.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 9f)
-            start.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 9f)
         }
         preview_progress.max = duration
         preview_progress.progress = 0

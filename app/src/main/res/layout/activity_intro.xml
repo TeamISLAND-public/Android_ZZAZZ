@@ -58,7 +58,9 @@
             android:text="@string/load"
             android:textAlignment="center"
             android:textAllCaps="false"
-            android:textColor="@color/ContentsText80" />
+            android:textColor="@color/ContentsText80"
+            android:textSize="14dp"
+            tools:ignore="SpUsage" />
 
     </LinearLayout>
 

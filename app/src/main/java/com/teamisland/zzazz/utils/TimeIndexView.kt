@@ -20,7 +20,7 @@ class TimeIndexView @JvmOverloads constructor(
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
     private val paint = Paint()
-    private val textSize = float2DP(9f, resources)
+    private val textSize = float2DP(8f, resources)
     private val max = float2SP(120f, resources)
     private val downPower = 2f
     private var timeInterval: Int = 0

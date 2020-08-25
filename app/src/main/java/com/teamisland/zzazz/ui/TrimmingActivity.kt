@@ -195,16 +195,10 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         // Set click handlers.
         backButton.setOnClickListener { onBackPressed() }
 
-        trim_title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16f)
         gotoProjectActivity.setOnClickListener { startTrimming() }
-        gotoProjectActivity.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f)
 
         frameMinus.setOnClickListener { moveSelectedFrameIndexBy(-1) }
-        frameMinus.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
         framePlus.setOnClickListener { moveSelectedFrameIndexBy(1) }
-        framePlus.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
-
-        trimming_hint_text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
 
         // Set controller(play/pause button) timeout.
         mainVideoView.controllerShowTimeoutMs = 1000

@@ -219,13 +219,10 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 //            true
 //        }
 
-        project_title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15f)
-
         gotoExportActivity.setOnClickListener {
             stopVideo()
             exportVideo()
         }
-        gotoExportActivity.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
 
         back.setOnClickListener { onBackPressed() }
 
@@ -368,15 +365,12 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         effect_view_pager.adapter = addPagerAdapter
 
         for (index in 1 until effect_tab.tabCount)
-            (effect_tab.getTabAt(index) ?: return).view.tab_text.apply {
-                setTextColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.ContentsText40
-                    )
+            (effect_tab.getTabAt(index) ?: return).view.tab_text.setTextColor(
+                ContextCompat.getColor(
+                    applicationContext,
+                    R.color.ContentsText40
                 )
-                setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
-            }
+            )
         val tabView = effect_tab.getTabAt(0)
         (tabView ?: return).view.tab_text.apply {
             setTextColor(
@@ -385,7 +379,6 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
                     R.color.White
                 )
             )
-            setTextSize(TypedValue.COMPLEX_UNIT_DIP, 12f)
             typeface = ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
         }
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {

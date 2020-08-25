@@ -34,11 +34,12 @@
             android:text="@string/export_title"
             android:textAlignment="center"
             android:textColor="@color/ActivityTitle"
-            android:textSize="15sp"
+            android:textSize="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpUsage" />
 
         <Button
             android:id="@+id/done_export"
@@ -50,9 +51,11 @@
             android:text="@string/done"
             android:textAlignment="center"
             android:textColor="@color/white_btn_text"
+            android:textSize="12dp"
             app:layout_constraintBottom_toBottomOf="@id/export_title"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/export_title" />
+            app:layout_constraintTop_toTopOf="@id/export_title"
+            tools:ignore="SpUsage" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -119,8 +122,10 @@
             android:fontFamily="@font/archivo_regular"
             android:text="@string/start_preview"
             android:textColor="@color/ContentsText80"
+            android:textSize="9dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpUsage" />
 
         <TextView
             android:id="@+id/video_length"
@@ -130,8 +135,10 @@
             android:layout_marginEnd="32dp"
             android:fontFamily="@font/archivo_regular"
             android:textColor="@color/ContentsText80"
+            android:textSize="9dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpUsage" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -154,11 +161,12 @@
             android:text="@string/save_text"
             android:textAllCaps="false"
             android:textColor="@color/ContentsText80"
+            android:textSize="12dp"
             app:layout_constraintEnd_toEndOf="@+id/divider"
             app:layout_constraintHorizontal_bias="0.552"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="SmallSp" />
+            tools:ignore="SmallSp,SpUsage" />
 
         <Button
             android:id="@+id/save"
@@ -188,11 +196,12 @@
             android:gravity="center"
             android:text="@string/share_text"
             android:textColor="@color/ContentsText80"
+            android:textSize="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.448"
             app:layout_constraintStart_toStartOf="@id/divider"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="SmallSp" />
+            tools:ignore="SmallSp,SpUsage" />
 
         <Button
             android:id="@+id/share"
