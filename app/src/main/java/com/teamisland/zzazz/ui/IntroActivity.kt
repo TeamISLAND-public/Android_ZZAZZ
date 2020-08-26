@@ -95,8 +95,6 @@ class IntroActivity : AppCompatActivity() {
             addView(underline)
         }
 
-        setRandomText()
-
         val shrink = AnimationUtils.loadAnimation(this, R.anim.shrink)
         zzazz.setOnTouchListener { v, event ->
             when (event.action) {
