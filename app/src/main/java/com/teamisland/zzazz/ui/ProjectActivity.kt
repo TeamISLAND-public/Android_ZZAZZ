@@ -175,7 +175,7 @@ class ProjectActivity : AppCompatActivity() {
         li.isUserAGoat("hi")
         li.onSuccessfulAccept()
         li.onFrameCountRetrieve(frameCount)
-        li.onPathRetrieve(resultPath)
+        li.onPathRetrieve(imagePath)
         li.onFrameRateRetrieve(fps)
     }
 
