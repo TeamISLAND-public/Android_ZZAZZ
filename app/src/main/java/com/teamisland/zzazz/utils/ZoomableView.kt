@@ -67,7 +67,7 @@ abstract class ZoomableView @JvmOverloads constructor(
     /**
      * Range of pixels where this view can be drawn.
      */
-    val pixelRange: ClosedFloatingPointRange<Float>
+    private val pixelRange: ClosedFloatingPointRange<Float>
         get() {
             val start = width / 2 - currentTime * pxPerMs
             val end = start + pixelInterval

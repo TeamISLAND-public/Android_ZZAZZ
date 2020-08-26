@@ -11,6 +11,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import android.util.Log
 
 internal object AbsolutePathRetriever {
     /**
@@ -83,19 +84,16 @@ internal object AbsolutePathRetriever {
      * @return The value of the _data column, which is typically a file path.
      */
     private fun getDataColumn(
-        context: Context, uri: Uri, selection: String?,
+        context: Context,
+        uri: Uri,
+        selection: String?,
         selectionArgs: Array<String>?
     ): String? {
         var cursor: Cursor? = null
         val column = "_data"
-        val projection = arrayOf(
-            column
-        )
+        val projection = arrayOf(column)
         try {
-            cursor = context.contentResolver.query(
-                uri, projection, selection, selectionArgs,
-                null
-            )
+            cursor = context.contentResolver.query(uri, projection, selection, selectionArgs, null)
             if (cursor != null && cursor.moveToFirst()) {
                 val columnIndex: Int = cursor.getColumnIndexOrThrow(column)
                 return cursor.getString(columnIndex)

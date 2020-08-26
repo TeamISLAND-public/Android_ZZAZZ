@@ -1,19 +1,11 @@
 package com.teamisland.zzazz.ui
 
-import android.Manifest.permission.READ_EXTERNAL_STORAGE
-import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
-import android.content.Intent
-import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import com.arthenica.mobileffmpeg.Config
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
@@ -21,12 +13,10 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import com.google.android.material.snackbar.Snackbar
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.AbsolutePathRetriever
-import com.teamisland.zzazz.utils.FFmpegDelegate
 import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.ITrimmingData
+import com.teamisland.zzazz.utils.LoadingDialog
 import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -204,17 +194,17 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trimming)
-
-        // Take permission to R/W external storage.
-        takePermission(arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE))
+        window.navigationBarColor = getColor(R.color.Background)
 
         val modelName = "test_txt.txt"
         testModelFile = File(filesDir, modelName)
         // Set click handlers.
         backButton.setOnClickListener { onBackPressed() }
+
         gotoProjectActivity.setOnClickListener { startTrimming() }
-        framePlus.setOnClickListener { moveSelectedFrameIndexBy(1) }
+
         frameMinus.setOnClickListener { moveSelectedFrameIndexBy(-1) }
+        framePlus.setOnClickListener { moveSelectedFrameIndexBy(1) }
 
         // Set controller(play/pause button) timeout.
         mainVideoView.controllerShowTimeoutMs = 1000
@@ -268,70 +258,9 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun startTrimming() {
-        if (isTrimming) {
-            Snackbar.make(mainLayout, "Trimming, please wait...", Snackbar.LENGTH_SHORT).show()
-            return
-        }
-        isTrimming = true
-        val inPath = AbsolutePathRetriever.getPathAnyway(this, videoUri) ?: return
-        val outPath = run {
-            // Set destination location.
-            val parentFolder = getExternalFilesDir(null)!!
-            parentFolder.mkdirs()
-            val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
-            File(parentFolder, fileName)
-        }.absolutePath
-        FFmpegDelegate.trimVideo(inPath, dataBinder.startMs, dataBinder.endMs, outPath) { code ->
-            isTrimming = false
-            if (code != Config.RETURN_CODE_SUCCESS) {
-                Snackbar.make(mainLayout, "Trim ERROR", Snackbar.LENGTH_SHORT).show()
-                return@trimVideo
-            }
-            Intent(this, ProjectActivity::class.java).apply {
-                println(outPath)
-                putExtra(VIDEO_PATH, outPath)
-                putExtra(
-                    VIDEO_FRAME_COUNT,
-                    dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
-                )
-            }.also {
-                runOnUiThread {
-                    startActivity(
-                        it,
-                        ActivityOptions.makeCustomAnimation(
-                            this,
-                            R.anim.trim_to_project_activity_transition_in,
-                            R.anim.trim_to_project_activity_transition_out,
-                        ).toBundle()
-                    )
-                }
-            }
-        }
-        FFmpegDelegate
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////// Permission checking functions.
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private fun hasAllPermission(permission: Array<String>): Boolean =
-        permission.all { ActivityCompat.checkSelfPermission(this, it) == PERMISSION_GRANTED }
-
-    private fun requestPermission(permission: Array<String>) =
-        ActivityCompat.requestPermissions(this, permission, 1)
-
-    private fun takePermission(permission: Array<String>) {
-        if (hasAllPermission(permission)) return
-
-        if (permission.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }) {
-            val builder = AlertDialog.Builder(this)
-            builder.setMessage("Permission is needed to read & write the video.")
-            builder.setPositiveButton(android.R.string.ok) { _, _ -> requestPermission(permission) }
-            builder.setNegativeButton(android.R.string.cancel, null)
-            builder.show()
-        } else {
-            requestPermission(permission)
-        }
+        val dialog = LoadingDialog(this, LoadingDialog.TRIM, dataBinder, videoUri)
+        dialog.create()
+        dialog.show()
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -340,14 +269,24 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
 
     companion object {
         /**
-         * Uri of the trimmed video.
+         * Path of the trimmed audio.
          */
-        const val VIDEO_PATH: String = "TRIMMED_PATH"
+        const val AUDIO_PATH: String = "AUDIO_PATH"
 
         /**
-         * Uri of the trimmed video.
+         * Path of the folder which has images of trimmed video.
+         */
+        const val IMAGE_PATH: String = "IMAGE_PATH"
+
+        /**
+         * Frame count of the trimmed video.
          */
         const val VIDEO_FRAME_COUNT: String = "TRIMMED_FRAME_COUNT"
+
+        /**
+         * Duration of the trimmed video.
+         */
+        const val VIDEO_DURATION: String = "TRIMMED_DURATION"
 
         /**
          * Path of the core model

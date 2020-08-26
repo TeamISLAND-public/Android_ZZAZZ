@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.UnitConverter.float2SP
 import java.util.*
 import kotlin.math.floor
@@ -19,7 +20,7 @@ class TimeIndexView @JvmOverloads constructor(
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
     private val paint = Paint()
-    private val textSize = float2SP(9f, resources)
+    private val textSize = float2DP(8f, resources)
     private val max = float2SP(120f, resources)
     private val downPower = 2f
     private var timeInterval: Int = 0

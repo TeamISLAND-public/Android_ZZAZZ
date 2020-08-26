@@ -1,5 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/take_video_desel" android:state_pressed="false" />
-    <item android:drawable="@drawable/take_video_sel" android:state_pressed="true" />
-</selector>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <path
+      android:strokeWidth="1"
+      android:pathData="M24,24m-23.5,0a23.5,23.5 0,1 1,47 0a23.5,23.5 0,1 1,-47 0"
+      android:fillColor="#333333">
+    <aapt:attr name="android:strokeColor">
+      <gradient 
+          android:startY="0"
+          android:startX="24"
+          android:endY="48"
+          android:endX="24"
+          android:type="linear">
+        <item android:offset="0" android:color="#00000000"/>
+        <item android:offset="1" android:color="#66070707"/>
+      </gradient>
+    </aapt:attr>
+  </path>
+  <path
+      android:pathData="M17,18L27,18A1,1 0,0 1,28 19L28,29A1,1 0,0 1,27 30L17,30A1,1 0,0 1,16 29L16,19A1,1 0,0 1,17 18z"
+      android:fillColor="#ffffff"
+      android:fillAlpha="0.9"/>
+  <path
+      android:pathData="M32,20L28,21.5V26.5L32,28V20Z"
+      android:fillColor="#ffffff"
+      android:fillAlpha="0.9"/>
+</vector>
