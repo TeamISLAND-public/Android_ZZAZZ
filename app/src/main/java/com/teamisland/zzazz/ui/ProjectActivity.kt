@@ -129,6 +129,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
      */
     override fun onResume() {
         super.onResume()
+        stopVideo()
         mUnityPlayer.resume()
     }
 

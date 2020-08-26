@@ -28,7 +28,6 @@ import android.content.Context
 import android.graphics.*
 import android.media.ThumbnailUtils.extractThumbnail
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
@@ -43,7 +42,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
     private val backgroundPaint = Paint()
-    internal var sampleMsQuantum = 50
+    private var sampleMsQuantum = 50
 
     init {
         backgroundPaint.color = resources.getColor(R.color.Background, null)
