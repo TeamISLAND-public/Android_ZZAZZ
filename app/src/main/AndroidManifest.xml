@@ -63,6 +63,7 @@
             android:name=".ui.ProjectActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
+            android:process=":unityplayer"
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".utils.SaveProjectActivity"

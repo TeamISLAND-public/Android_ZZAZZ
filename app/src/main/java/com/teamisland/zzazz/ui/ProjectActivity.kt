@@ -37,9 +37,14 @@ import kotlin.math.max
 /**
  * Activity for make project
  */
-class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
+class ProjectActivity : AppCompatActivity() {
 
-    private lateinit var mUnityPlayer: UnityPlayer
+    private val mUnityPlayer: UnityPlayer by lazy {
+        UnityPlayer(this, object : IUnityPlayerLifecycleEvents {
+            override fun onUnityPlayerUnloaded() = Unit
+            override fun onUnityPlayerQuitted() = Unit
+        })
+    }
 
     /**
      * Destroys the activity and finishes ongoing coroutines.
@@ -138,6 +143,14 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     override fun onResume() {
         super.onResume()
         mUnityPlayer.resume()
+
+        val files = filesDir
+        for (file in files.listFiles() ?: return)
+            if (file.extension == "mp4" || file.extension == "mp3")
+                file.delete()
+        val images = File(filesDir, "/video_image")
+        for (image in images.listFiles() ?: return)
+            image.delete()
     }
 
     /**
@@ -174,8 +187,6 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
         window.navigationBarColor = getColor(R.color.Background)
-
-        mUnityPlayer = UnityPlayer(this, this)
 
         resultPath = dataDir.absolutePath + "/result.mp4"
         path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
@@ -505,18 +516,4 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     }
 
     private fun distance(event: MotionEvent): Float = abs(event.getX(0) - event.getX(1))
-
-    /**
-     * [IUnityPlayerLifecycleEvents.onUnityPlayerQuitted]
-     */
-    override fun onUnityPlayerQuitted() {
-        mUnityPlayer.quit()
-    }
-
-    /**
-     * [IUnityPlayerLifecycleEvents.onUnityPlayerUnloaded]
-     */
-    override fun onUnityPlayerUnloaded() {
-        mUnityPlayer.unload()
-    }
 }
