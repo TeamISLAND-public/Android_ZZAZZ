@@ -3,7 +3,6 @@ package com.teamisland.zzazz.ui
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
@@ -12,7 +11,6 @@ import android.view.View.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.arthenica.mobileffmpeg.Config
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
@@ -21,10 +19,9 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.AbsolutePathRetriever
-import com.teamisland.zzazz.utils.FFmpegDelegate
 import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.ITrimmingData
+import com.teamisland.zzazz.utils.LoadingDialog
 import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -250,25 +247,9 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun startTrimming() {
-        val inPath = AbsolutePathRetriever.getPath(this, videoUri) ?: return
-        val outPath = run {
-            // Set destination location.
-            val parentFolder = getExternalFilesDir(null)!!
-            parentFolder.mkdirs()
-            val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
-            File(parentFolder, fileName)
-        }.absolutePath
-        FFmpegDelegate.trimVideo(inPath, dataBinder.startMs, dataBinder.endMs, outPath) { i ->
-            if (i == Config.RETURN_CODE_SUCCESS)
-                Intent(this, ProjectActivity::class.java).apply {
-                    println(outPath)
-                    putExtra(VIDEO_PATH, outPath)
-                    putExtra(
-                        VIDEO_FRAME_COUNT,
-                        dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
-                    )
-                }.also { startActivity(it) }
-        }
+        val dialog = LoadingDialog(this, LoadingDialog.TRIM, dataBinder, videoUri)
+        dialog.create()
+        dialog.show()
     }
 
     ////////// Permission checking functions.
@@ -297,14 +278,24 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
 
     companion object {
         /**
-         * Uri of the trimmed video.
+         * Path of the trimmed audio.
          */
-        const val VIDEO_PATH: String = "TRIMMED_PATH"
+        const val AUDIO_PATH: String = "AUDIO_PATH"
 
         /**
-         * Uri of the trimmed video.
+         * Path of the folder which has images of trimmed video.
+         */
+        const val IMAGE_PATH: String = "IMAGE_PATH"
+
+        /**
+         * Frame count of the trimmed video.
          */
         const val VIDEO_FRAME_COUNT: String = "TRIMMED_FRAME_COUNT"
+
+        /**
+         * Duration of the trimmed video.
+         */
+        const val VIDEO_DURATION: String = "TRIMMED_DURATION"
 
         /**
          * Path of the core model

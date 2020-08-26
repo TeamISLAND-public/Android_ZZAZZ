@@ -20,7 +20,6 @@ import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.*
 import com.teamisland.zzazz.utils.GetVideoData.getDuration
-import com.teamisland.zzazz.utils.GetVideoData.getFrameCount
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
@@ -29,9 +28,9 @@ import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.io.File
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.properties.Delegates
 
 /**
  * Activity for make project
@@ -57,11 +56,11 @@ class ProjectActivity : AppCompatActivity() {
      * Path of result video
      */
     private lateinit var resultPath: String
-    private lateinit var path: String
+    private lateinit var imagePath: String
     private lateinit var modelpath: String
     private var videoDuration = 0
     private var fps: Float = 0f
-    private var frameCount: Int = 0
+    private var frameCount by Delegates.notNull<Int>()
 
     //    private lateinit var video: BitmapVideo
 //    private lateinit var bitmapList: List<Bitmap>
@@ -73,12 +72,6 @@ class ProjectActivity : AppCompatActivity() {
          * Current time of video in Unity.
          */
         var frame: Int = 0
-
-        /**
-         * Check is video playing.
-         * When video stops, Unity set this variable to false.
-         */
-        var isPlaying: Boolean = false
 
         /**
          * List of effect
@@ -141,6 +134,7 @@ class ProjectActivity : AppCompatActivity() {
      */
     override fun onResume() {
         super.onResume()
+        stopVideo()
         mUnityPlayer.resume()
 
         val files = filesDir
@@ -187,25 +181,23 @@ class ProjectActivity : AppCompatActivity() {
         setContentView(R.layout.activity_project)
 
         resultPath = dataDir.absolutePath + "/result.mp4"
-        path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
+        imagePath = intent.getStringExtra(TrimmingActivity.IMAGE_PATH)
+        frameCount = intent.getIntExtra(TrimmingActivity.VIDEO_FRAME_COUNT, 0)
 //        modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
-        val uri = Uri.parse(path)
-        videoDuration = getDuration(this, uri)
-        frameCount = getFrameCount(this, uri).toInt()
+        videoDuration = intent.getIntExtra(TrimmingActivity.VIDEO_DURATION, 0)
         fps = frameCount / (videoDuration / 1000f)
 
         zoomLevel = float2DP(0.06f, resources)
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
 
-        modelpath = filesDir.absolutePath + "test_txt.txt"
+        modelpath = filesDir.absolutePath + "/test_txt.txt"
         UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelpath)
-        Log.d("testmodelfile", path)
-        Log.d("testmodelfile", modelpath)
 
         playVideo()
 
-        projectTimeLineView.videoUri = uri
+        projectTimeLineView.path = imagePath
+        projectTimeLineView.frameCount = frameCount
         setLength()
         setZoomLevel()
 
@@ -282,18 +274,10 @@ class ProjectActivity : AppCompatActivity() {
             }
         }
 
-        // export images from origin video
-        Log.d("Export", "Start exporting the images from an origin video.")
-        val originPath = filesDir.absolutePath + "/video_image"
-        val originFile = File(originPath)
-        if (!originFile.exists())
-            originFile.mkdir()
-//        FFmpeg.execute("-r 1 -i $path $originPath/img%08d.png")
-        Log.d("Export", "Finish exporting the images from an origin video.")
         UnityPlayer.UnitySendMessage(
             PLAY_MANAGER,
             SET_VIDEO,
-            "$originPath:$frameCount"
+            "$imagePath:$frameCount"
         )
     }
 
@@ -311,7 +295,7 @@ class ProjectActivity : AppCompatActivity() {
         project_play.isSelected = true
         project_play.isActivated = false
         project_play.setOnClickListener {
-            if (isPlaying) {
+            if (it.isActivated) {
                 stopVideo()
             } else {
                 startVideo()
@@ -320,24 +304,23 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     private fun startVideo() {
-        if (isPlaying) return
+        if (project_play.isActivated) return
         project_play.isActivated = true
-        isPlaying = true
 
-        if (frame == frameCount)
+        if (frame == frameCount - 1)
             frame = 0
 
         GlobalScope.launch {
             var time = 1000 * frame / fps
-            while (isPlaying) {
+            while (project_play.isActivated) {
                 time += 50
+                frame = (time * fps / 1000).toInt()
                 if (frameCount <= frame) {
+                    setCurrentTime(videoDuration - 1)
                     frame = frameCount - 1
-                    setCurrentTime(videoDuration)
                     stopVideo()
                     break
                 }
-                frame = (time * fps / 1000).toInt()
                 setCurrentTime(time.toInt())
                 delay(50)
             }
@@ -349,7 +332,6 @@ class ProjectActivity : AppCompatActivity() {
      */
     fun stopVideo() {
         project_play.isActivated = false
-        isPlaying = false
     }
 
     private fun tabInit() {
@@ -442,7 +424,7 @@ class ProjectActivity : AppCompatActivity() {
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private fun exportVideo() {
         stopVideo()
-        val dialog = LoadingDialog(this, LoadingDialog.EXPORT, path, fps, resultPath)
+        val dialog = LoadingDialog(this, LoadingDialog.EXPORT, imagePath, fps, resultPath)
         dialog.create()
         dialog.show()
     }

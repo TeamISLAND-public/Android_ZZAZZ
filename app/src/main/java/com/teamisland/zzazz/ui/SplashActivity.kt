@@ -8,6 +8,7 @@ import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
 import kotlinx.android.synthetic.main.activity_splash.*
+import java.io.File
 
 /**
  * Splash for start application zzazz
@@ -20,6 +21,14 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+
+        val files = filesDir
+        for (file in files.listFiles() ?: return)
+            if (file.extension == "mp4" || file.extension == "mp3")
+                file.delete()
+        val images = File(filesDir, "/video_image")
+        for (image in images.listFiles() ?: return)
+            image.delete()
 
         val intent = Intent(this, IntroActivity::class.java)
 
