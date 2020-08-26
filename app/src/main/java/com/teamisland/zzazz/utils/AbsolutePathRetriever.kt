@@ -8,6 +8,10 @@ import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Log
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 
 internal object AbsolutePathRetriever {
     /**
@@ -122,5 +126,37 @@ internal object AbsolutePathRetriever {
      */
     private fun isMediaDocument(uri: Uri): Boolean {
         return "com.android.providers.media.documents" == uri.authority
+    }
+
+    fun getPathAnyway(context: Context, uri: Uri): String? {
+        return try {
+            getPath(context, uri)
+        } catch (e: Exception) {
+            getPathFromUri(context, uri)
+        }
+    }
+
+    private fun getPathFromUri(context: Context, uri: Uri): String? {
+        val inputStream: InputStream
+        var filePath: String? = null
+        if (uri.authority != null) {
+            inputStream = context.contentResolver.openInputStream(uri)!!
+            val photoFile: File = createTemporalFileFrom(context, inputStream)
+            filePath = photoFile.path
+            inputStream.close()
+        }
+        return filePath
+    }
+
+    private fun createTemporalFileFrom(context: Context, inputStream: InputStream): File {
+        val targetFile = File(context.filesDir, "tempFile.mp4")
+        var read: Int
+        val buffer = ByteArray(8 * 1024)
+        val outputStream: OutputStream = FileOutputStream(targetFile)
+        while (inputStream.read(buffer).also { read = it } != -1) {
+            outputStream.write(buffer, 0, read)
+        }
+        outputStream.flush()
+        return targetFile
     }
 }
