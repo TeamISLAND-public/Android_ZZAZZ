@@ -2,14 +2,11 @@ package com.teamisland.zzazz.utils
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import android.view.Gravity
 import android.view.Window
@@ -46,7 +43,6 @@ class LoadingDialog(context: Context, private val request: Int) :
     private var uri: Uri? = null
 
     // Variable for export
-    private var path: String = ""
     private var fps by Delegates.notNull<Float>()
     private var resultPath: String = ""
     private var audioPath: String = ""
@@ -81,12 +77,10 @@ class LoadingDialog(context: Context, private val request: Int) :
     constructor(
         context: Context,
         request: Int,
-        path: String,
         imagePath: String,
         fps: Float,
         resultPath: String
     ) : this(context, request) {
-        this.path = path
         this.imagePath = imagePath
         this.fps = fps
         this.resultPath = resultPath
@@ -136,7 +130,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             }
             SAVE -> {
                 text.text = context.getString(R.string.save_video)
-                job = saveVideo(path)
+                job = saveVideo()
             }
             else -> {
                 dismiss()
@@ -159,32 +153,32 @@ class LoadingDialog(context: Context, private val request: Int) :
     private fun trimVideo(dataBinder: ITrimmingData, uri: Uri): Job =
         CoroutineScope(Dispatchers.IO).launch {
             val inPath = AbsolutePathRetriever.getPath(context, uri) ?: return@launch
+            val parentPath = context.filesDir.absolutePath + "/video_image"
             val outPath = run {
-                // Set destination location.
-                val parentFolder = context.filesDir
-                val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
+                val parentFolder = File(parentPath)
+                if (!parentFolder.exists())
+                    parentFolder.mkdir()
+                val fileName = "img%08d.png"
                 File(parentFolder, fileName)
             }.absolutePath
             FFmpegDelegate.trimVideo(inPath, dataBinder.startMs, dataBinder.endMs, outPath) { i ->
                 if (i == Config.RETURN_CODE_SUCCESS) {
-                    // export images from origin video
-                    Log.d("Export", "Start exporting the images from an origin video.")
-                    val originPath = context.filesDir.absolutePath + "/video_image"
-                    val originFile = File(originPath)
-                    if (!originFile.exists())
-                        originFile.mkdir()
-                    FFmpeg.execute("-r 1 -i $outPath $originPath/img%08d.png")
-                    Log.d("Export", "Finish exporting the images from an origin video.")
-
+                    FFmpeg.execute("-i $inPath -ss ${dataBinder.startMs} -t ${dataBinder.endMs - dataBinder.startMs} ${context.filesDir.absolutePath}/audio.mp3")
                     Intent(context, ProjectActivity::class.java).apply {
-                        putExtra(TrimmingActivity.VIDEO_PATH, outPath)
-                        putExtra(TrimmingActivity.IMAGE_PATH, originPath)
+                        putExtra(
+                            TrimmingActivity.AUDIO_PATH,
+                            context.filesDir.absolutePath + "/audio.mp3"
+                        )
+                        putExtra(TrimmingActivity.IMAGE_PATH, parentPath)
                         putExtra(
                             TrimmingActivity.VIDEO_FRAME_COUNT,
-                            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
+                            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
+                        )
+                        putExtra(
+                            TrimmingActivity.VIDEO_DURATION,
+                            (dataBinder.endMs - dataBinder.startMs + 1).toInt()
                         )
                     }.also { startActivity(context, it, null) }
-
                     dismiss()
                 }
             }
@@ -194,11 +188,6 @@ class LoadingDialog(context: Context, private val request: Int) :
     private fun exportVideo(): Job =
         CoroutineScope(Dispatchers.Default).launch {
             File(context.filesDir.absolutePath + "/result.mp4").delete()
-            // extract audio from video
-            Log.d("Export", "Start extracting audio.")
-            audioPath = context.filesDir.absolutePath + "/audio.mp3"
-//        FFmpeg.execute("-i $path $audioPath")
-            Log.d("Export", "Finish extracting audio.")
 
             capturePath = context.filesDir.absolutePath + "/capture_image"
             val captureFile = File(capturePath)
@@ -239,72 +228,13 @@ class LoadingDialog(context: Context, private val request: Int) :
 
     @Suppress("BlockingMethodInNonBlockingContext")
     @SuppressLint("SetTextI18n", "SimpleDateFormat")
-    private fun saveVideo(path: String): Job =
+    private fun saveVideo(): Job =
         CoroutineScope(Dispatchers.IO).launch {
             //Video name is depended by time
             val time = System.currentTimeMillis()
             val date = Date(time)
             val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
             val filename = nameFormat.format(date) + ".mp4"
-
-            val contentValues = ContentValues().apply {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                    put(
-                        MediaStore.Files.FileColumns.RELATIVE_PATH,
-                        Environment.DIRECTORY_MOVIES + "/ZZAZZ"
-                    )
-                    put(MediaStore.Files.FileColumns.IS_PENDING, 1)
-                }
-                put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename)
-                put(MediaStore.Files.FileColumns.MIME_TYPE, "video/*")
-            }
-
-//        val input = context.contentResolver.openInputStream(Uri.fromFile(File(uri.path)))
-            input = context.contentResolver.openInputStream(Uri.parse(path))
-
-            val outputUri =
-                context.contentResolver.insert(
-                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                    contentValues
-                )
-
-            val parcelFileDescriptor =
-                context.contentResolver.openFileDescriptor(outputUri ?: return@launch, "w", null)
-
-            output = FileOutputStream((parcelFileDescriptor ?: return@launch).fileDescriptor)
-
-            val data = ByteArray(1024)
-            var total = 0F
-            var count: Int
-            val len: Float = (input ?: return@launch).available().toFloat()
-
-            count = try {
-                (input ?: return@launch).read(data)
-            } catch (e: Exception) {
-                -1
-            }
-            while (count != -1) {
-                percentage = (total / len * 100).toInt()
-                text.text = String.format("%02d", percentage) + "%"
-
-                try {
-                    (output ?: return@launch).write(data, 0, count)
-                    count = (input ?: return@launch).read(data)
-                    total += count
-                } catch (e: Exception) {
-                    break
-                }
-            }
-
-            (input ?: return@launch).close()
-            (output ?: return@launch).flush()
-            (output ?: return@launch).close()
-            contentValues.clear()
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 0)
-            }
-            context.contentResolver.update(outputUri, contentValues, null, null)
-
             dismiss()
         }
 }

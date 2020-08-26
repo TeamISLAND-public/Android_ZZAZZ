@@ -25,19 +25,15 @@ package com.teamisland.zzazz.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.media.MediaMetadataRetriever
+import android.graphics.*
 import android.media.ThumbnailUtils.extractThumbnail
-import android.net.Uri
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
 import kotlin.math.roundToInt
+import kotlin.properties.Delegates
 
 /**
  * View for showing thumbnails of video by time.
@@ -56,7 +52,12 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     /**
      * Uri of target video.
      */
-    lateinit var videoUri: Uri
+    lateinit var path: String
+
+    /**
+     * The number of frames
+     */
+    var frameCount: Int by Delegates.notNull()
 
     /**
      * [View.onSizeChanged]
@@ -77,39 +78,24 @@ open class ProjectTimeLineView @JvmOverloads constructor(
 
     private fun getBitmap(viewHeight: Int) {
         bitmapList.clear()
-        val frameCount: Int
-        try {
-            frameCount = GetVideoData.getFrameCount(context, videoUri).coerceAtLeast(1L).toInt()
-        } catch (a: UninitializedPropertyAccessException) {
-            Log.w("ProjectTimeLineView", a.message ?: "")
-            return
-        }
         sampleMsQuantum =
             (videoLength * 90f / frameCount).roundToInt()
                 .coerceAtLeast(1)
 
-        val numThumbs = (frameCount / 90f).roundToInt().coerceAtLeast(1)
+        val numThumbs = width / viewHeight
         BackgroundExecutor.cancelAll("", true)
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
                 try {
-                    val mediaMetadataRetriever = MediaMetadataRetriever()
-                    mediaMetadataRetriever.setDataSource(context, videoUri)
-                    val intervalUs = sampleMsQuantum * 1000L
-                    for (i in 0 until numThumbs) {
+                    for (i in 1..numThumbs) {
+                        val frame = (frameCount * i / numThumbs.toFloat()).roundToInt()
                         var bitmap: Bitmap? =
-                            mediaMetadataRetriever.getScaledFrameAtTime(
-                                i * intervalUs,
-                                MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
-                                viewHeight,
-                                viewHeight
-                            )
+                            BitmapFactory.decodeFile(path + "/img%08d.png".format(frame))
                         if (bitmap != null)
                             bitmap = extractThumbnail(bitmap, viewHeight, viewHeight)
                         bitmapList.add(bitmap)
                         invalidate()
                     }
-                    mediaMetadataRetriever.release()
                 } catch (e: Throwable) {
                     Thread.getDefaultUncaughtExceptionHandler()
                         ?.uncaughtException(Thread.currentThread(), e)

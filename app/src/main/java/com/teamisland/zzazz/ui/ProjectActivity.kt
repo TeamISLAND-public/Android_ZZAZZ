@@ -51,7 +51,6 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
      * Path of result video
      */
     private lateinit var resultPath: String
-    private lateinit var path: String
     private lateinit var imagePath: String
     private lateinit var modelpath: String
     private var videoDuration = 0
@@ -170,13 +169,10 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         mUnityPlayer = UnityPlayer(this, this)
 
         resultPath = dataDir.absolutePath + "/result.mp4"
-        path = intent.getStringExtra(TrimmingActivity.VIDEO_PATH)
         imagePath = intent.getStringExtra(TrimmingActivity.IMAGE_PATH)
         frameCount = intent.getIntExtra(TrimmingActivity.VIDEO_FRAME_COUNT, 0)
 //        modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
-
-        val uri = Uri.parse(path)
-        videoDuration = getDuration(this, uri)
+        videoDuration = intent.getIntExtra(TrimmingActivity.VIDEO_DURATION, 0)
         fps = frameCount / (videoDuration / 1000f)
 
         zoomLevel = float2DP(0.06f, resources)
@@ -185,12 +181,11 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 
         modelpath = filesDir.absolutePath + "/test_txt.txt"
         UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelpath)
-        Log.d("testmodelfile", path)
-        Log.d("testmodelfile", modelpath)
 
         playVideo()
 
-        projectTimeLineView.videoUri = uri
+        projectTimeLineView.path = imagePath
+        projectTimeLineView.frameCount = frameCount
         setLength()
         setZoomLevel()
 
@@ -417,7 +412,7 @@ class ProjectActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private fun exportVideo() {
         stopVideo()
-        val dialog = LoadingDialog(this, LoadingDialog.EXPORT, path, imagePath, fps, resultPath)
+        val dialog = LoadingDialog(this, LoadingDialog.EXPORT, imagePath, fps, resultPath)
         dialog.create()
         dialog.show()
     }
