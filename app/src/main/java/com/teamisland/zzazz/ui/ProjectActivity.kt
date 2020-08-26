@@ -59,7 +59,7 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     private val videoDuration: Int by lazy { getDuration(this, uri) }
-    private val resultPath: String by lazy { dataDir.absolutePath + "/result.mp4" }
+    private val resultPath: String by lazy { filesDir.absolutePath + "/video_image" }
     private val modelPath: String by lazy { filesDir.absolutePath + "test_txt.txt" }
     private val frameCount: Int by lazy { getFrameCount(this, uri).toInt() }
     private val path: String by lazy { intent.getStringExtra(TrimmingActivity.VIDEO_PATH) }
