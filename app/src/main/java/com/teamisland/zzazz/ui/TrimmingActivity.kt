@@ -5,6 +5,7 @@ import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
@@ -25,6 +26,7 @@ import com.teamisland.zzazz.utils.AbsolutePathRetriever
 import com.teamisland.zzazz.utils.FFmpegDelegate
 import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.ITrimmingData
+import com.teamisland.zzazz.inference.PoseEstimation
 import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -43,6 +45,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     internal val videoFrameCount: Long by lazy { GetVideoData.getFrameCount(this, videoUri) }
 
     private lateinit var testModelFile: File
+    private lateinit var zzazzInference: PoseEstimation
 
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
@@ -269,6 +272,8 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
                     )
                 }.also { startActivity(it) }
         }
+        zzazzInference = PoseEstimation(this)
+        zzazzInference.estimatePose(Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888))
     }
 
     ////////// Permission checking functions.
