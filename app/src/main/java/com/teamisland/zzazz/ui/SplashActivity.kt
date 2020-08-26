@@ -24,27 +24,28 @@ class SplashActivity : AppCompatActivity() {
         window.navigationBarColor = getColor(R.color.Background)
 
         val files = filesDir
-        for (file in files.listFiles() ?: return)
-            if (file.extension == "mp4" || file.extension == "mp3")
-                file.delete()
+        files.listFiles()?.let {
+            for (file in it)
+                if (file.extension in arrayOf("mp4", "mp3"))
+                    file.delete()
+        }
         val images = File(filesDir, "/video_image")
-        for (image in images.listFiles() ?: return)
-            image.delete()
+        images.listFiles()?.let {
+            for (image in it)
+                image.delete()
+        }
 
         val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
         fadeOut.startOffset = 1000
         fadeOut.duration = 500
         fadeOut.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationRepeat(animation: Animation?) {
-            }
+            override fun onAnimationStart(animation: Animation?) = Unit
+            override fun onAnimationRepeat(animation: Animation?) = Unit
 
             override fun onAnimationEnd(animation: Animation?) {
                 splash.visibility = View.GONE
                 Intent(this@SplashActivity, IntroActivity::class.java).also { startActivity(it) }
                 finish()
-            }
-
-            override fun onAnimationStart(animation: Animation?) {
             }
         })
 
