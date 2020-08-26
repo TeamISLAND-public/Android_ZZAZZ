@@ -1,15 +1,12 @@
 package com.teamisland.zzazz.ui
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.*
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.animation.Animation
@@ -17,7 +14,6 @@ import android.view.animation.AnimationUtils
 import android.widget.SeekBar
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.google.android.exoplayer2.ExoPlayer
@@ -82,6 +78,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
+        window.navigationBarColor = getColor(R.color.Background)
 
         val path = intent.getStringExtra("RESULT")
         uri = Uri.parse(path)
@@ -109,78 +106,33 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
         video.setOnClickListener { playButton.startAnimation(fadeOut) }
 
-        done_export.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    done_export.alpha = 0.4F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    done_export.alpha = 1F
-                    done = true
-                    Intent(this, IntroActivity::class.java).apply {
-                        flags =
-                            Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                        startActivity(this)
-                    }
-                }
+        done_export.setOnClickListener {
+            done = true
+            Intent(this, IntroActivity::class.java).apply {
+                flags =
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(this)
             }
-            true
         }
 
-        back.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    back.alpha = 0.4F
-                }
+        back.setOnClickListener { finish() }
 
-                MotionEvent.ACTION_UP -> {
-                    back.alpha = 1F
-                    done = true
-                    finish()
-                }
+        save.setOnClickListener { videoSave() }
+
+        share.setOnClickListener {
+            Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(
+                    Intent.EXTRA_STREAM,
+                    FileProvider.getUriForFile(
+                        this@ExportActivity,
+                        "com.teamisland.zzazz.fileprovider",
+                        File(uri.path)
+                    )
+                )
+                type = "video/*"
+                startActivity(Intent.createChooser(this, "Share"))
             }
-            true
-        }
-
-        save.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    save.alpha = 0.4F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    save.alpha = 1F
-                    videoSave()
-                }
-            }
-            true
-        }
-
-        share.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    share.alpha = 0.4F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    share.alpha = 1F
-                    Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(
-                            Intent.EXTRA_STREAM,
-                            FileProvider.getUriForFile(
-                                this@ExportActivity,
-                                "com.teamisland.zzazz.fileprovider",
-                                File(uri.path)
-                            )
-                        )
-                        type = "video/*"
-                        startActivity(Intent.createChooser(this, "Share"))
-                    }
-                }
-            }
-            true
         }
 
         //This is for test device which is the emulator
@@ -329,20 +281,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
     )
     private fun videoSave() {
-        //Check permission
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                1
-            )
-        }
-
         val dialog = LoadingDialog(
             this,
             LoadingDialog.SAVE
@@ -370,18 +308,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
                 vibrator.vibrate(VibrationEffect.createOneShot(200, 20))
             }
         }
-    }
-
-    /**
-     * Request permission to save video.
-     */
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == 1)
-            return
     }
 
     /**

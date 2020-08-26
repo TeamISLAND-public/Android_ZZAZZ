@@ -6,7 +6,6 @@ import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.util.Range
@@ -19,7 +18,6 @@ import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.*
-import com.teamisland.zzazz.utils.GetVideoData.getDuration
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
@@ -136,14 +134,6 @@ class ProjectActivity : AppCompatActivity() {
         super.onResume()
         stopVideo()
         mUnityPlayer.resume()
-
-        val files = filesDir
-        for (file in files.listFiles() ?: return)
-            if (file.extension == "mp4" || file.extension == "mp3")
-                file.delete()
-        val images = File(filesDir, "/video_image")
-        for (image in images.listFiles() ?: return)
-            image.delete()
     }
 
     /**
@@ -179,6 +169,7 @@ class ProjectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
+        window.navigationBarColor = getColor(R.color.Background)
 
         resultPath = dataDir.absolutePath + "/result.mp4"
         imagePath = intent.getStringExtra(TrimmingActivity.IMAGE_PATH)
@@ -220,19 +211,9 @@ class ProjectActivity : AppCompatActivity() {
 //            true
 //        }
 
-        gotoExportActivity.setOnTouchListener { v, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    v.alpha = 0.5F
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    v.alpha = 1F
-                    stopVideo()
-                    exportVideo()
-                }
-            }
-            true
+        gotoExportActivity.setOnClickListener {
+            stopVideo()
+            exportVideo()
         }
 
         back.setOnClickListener { onBackPressed() }
@@ -254,7 +235,7 @@ class ProjectActivity : AppCompatActivity() {
                 CustomAdapter.selectedEffect = null
 
                 val bitmap =
-                    (ContextCompat.getDrawable(this, R.drawable.load) as BitmapDrawable).bitmap
+                    (ContextCompat.getDrawable(this, R.drawable.back) as BitmapDrawable).bitmap
                 val point = Effect.Point(30, 30)
                 val dataArrayList: MutableList<Effect.Data> = mutableListOf()
 
@@ -373,14 +354,15 @@ class ProjectActivity : AppCompatActivity() {
                 )
             )
         val tabView = effect_tab.getTabAt(0)
-        (tabView ?: return).view.tab_text.typeface =
-            ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
-        tabView.view.tab_text.setTextColor(
-            ContextCompat.getColor(
-                applicationContext,
-                R.color.White
+        (tabView ?: return).view.tab_text.apply {
+            setTextColor(
+                ContextCompat.getColor(
+                    applicationContext,
+                    R.color.White
+                )
             )
-        )
+            typeface = ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+        }
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 effect_view_pager.currentItem = (tab ?: return).position
@@ -410,6 +392,7 @@ class ProjectActivity : AppCompatActivity() {
         effect_view_pager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(effect_tab))
     }
 
+
     private fun createTabView(tabName: String): View? {
         val tabView = View.inflate(applicationContext, R.layout.custom_tab, null)
         val textView = tabView.findViewById<TextView>(R.id.tab_text)
@@ -421,7 +404,6 @@ class ProjectActivity : AppCompatActivity() {
 
     }
 
-    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private fun exportVideo() {
         stopVideo()
         val dialog = LoadingDialog(this, LoadingDialog.EXPORT, imagePath, fps, resultPath)

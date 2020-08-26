@@ -8,9 +8,14 @@ import android.provider.MediaStore
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintSet
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.PermissionManager
+import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import kotlinx.android.synthetic.main.activity_intro.*
+import java.util.*
 
 /**
  * Main activity of Intro Activity
@@ -28,6 +33,13 @@ class IntroActivity : AppCompatActivity() {
         private const val TAKE_VIDEO = 2
     }
 
+    private lateinit var random: Random
+    private lateinit var textArray: Array<String>
+    private lateinit var circle: ImageView
+    private lateinit var underline: ImageView
+
+    private val permissionManager = PermissionManager(this, this)
+
     @Suppress("SameParameterValue")
     private fun getVideo(requestCode: Int) {
         if (requestCode == LOAD_VIDEO) {
@@ -43,12 +55,45 @@ class IntroActivity : AppCompatActivity() {
     }
 
     /**
+     * [AppCompatActivity.onResume]
+     */
+    override fun onResume() {
+        super.onResume()
+        setRandomText()
+    }
+
+    /**
      * [AppCompatActivity.onCreate]
      */
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intro)
+        window.navigationBarColor = getColor(R.color.Background)
+
+        random = Random()
+        textArray = arrayOf(
+            getString(R.string.intro1),
+            getString(R.string.intro2),
+            getString(R.string.intro3),
+            getString(R.string.intro4),
+            getString(R.string.intro5)
+        )
+
+        checkPermission()
+
+        circle = ImageView(this).apply {
+            setImageResource(R.drawable.circle_point)
+            id = View.generateViewId()
+        }
+        underline = ImageView(this).apply {
+            setImageResource(R.drawable.underline)
+            id = View.generateViewId()
+        }
+        constraintLayout.apply {
+            addView(circle)
+            addView(underline)
+        }
 
         val shrink = AnimationUtils.loadAnimation(this, R.anim.shrink)
         zzazz.setOnTouchListener { v, event ->
@@ -70,6 +115,75 @@ class IntroActivity : AppCompatActivity() {
 
         val bounce = AnimationUtils.loadAnimation(this, R.anim.bounce)
         linearLayout.startAnimation(bounce)
+    }
+
+    private fun setRandomText() {
+        val index = random.nextInt(textArray.size - 1)
+        random_text.text = textArray[index]
+
+        when (index) {
+            0 -> {
+                setPosition(circle.id, 116, 7)
+                setPosition(underline.id, 0, 135)
+            }
+            1 -> {
+                setPosition(circle.id, 24, 51)
+                setPosition(underline.id, 0, 135)
+            }
+            2 -> {
+                setPosition(circle.id, 136, 7)
+                setPosition(underline.id, 0, 135)
+            }
+            3 -> {
+                setPosition(circle.id, 0, 7)
+                setPosition(underline.id, 0, 135)
+            }
+            4 -> {
+                setPosition(circle.id, 162, 7)
+                setPosition(underline.id, 48, 135)
+            }
+        }
+    }
+
+    private fun checkPermission() {
+        if (permissionManager.checkPermission())
+            permissionManager.requestPermission()
+    }
+
+    /**
+     * [AppCompatActivity.onRequestPermissionsResult]
+     */
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (!permissionManager.permissionResult(requestCode, grantResults))
+            permissionManager.requestPermission()
+    }
+
+    private fun setPosition(
+        id: Int,
+        startToStartMargin: Int,
+        topToTopMargin: Int
+    ) {
+        ConstraintSet().apply {
+            clone(constraintLayout)
+            connect(
+                id,
+                ConstraintSet.START,
+                random_text.id,
+                ConstraintSet.START,
+                float2DP(startToStartMargin.toFloat(), resources).toInt()
+            )
+            connect(
+                id,
+                ConstraintSet.TOP,
+                random_text.id,
+                ConstraintSet.TOP,
+                float2DP(topToTopMargin.toFloat(), resources).toInt()
+            )
+        }.applyTo(constraintLayout)
     }
 
     /**

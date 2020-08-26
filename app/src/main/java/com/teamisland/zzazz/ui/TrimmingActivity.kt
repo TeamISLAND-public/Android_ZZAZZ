@@ -1,16 +1,11 @@
 package com.teamisland.zzazz.ui
 
-import android.Manifest.permission.READ_EXTERNAL_STORAGE
-import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
@@ -189,17 +184,17 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trimming)
-
-        // Take permission to R/W external storage.
-        takePermission(arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE))
+        window.navigationBarColor = getColor(R.color.Background)
 
         val modelName = "test_txt.txt"
         testModelFile = File(filesDir, modelName)
         // Set click handlers.
         backButton.setOnClickListener { onBackPressed() }
+
         gotoProjectActivity.setOnClickListener { startTrimming() }
-        framePlus.setOnClickListener { moveSelectedFrameIndexBy(1) }
+
         frameMinus.setOnClickListener { moveSelectedFrameIndexBy(-1) }
+        framePlus.setOnClickListener { moveSelectedFrameIndexBy(1) }
 
         // Set controller(play/pause button) timeout.
         mainVideoView.controllerShowTimeoutMs = 1000
@@ -250,28 +245,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         val dialog = LoadingDialog(this, LoadingDialog.TRIM, dataBinder, videoUri)
         dialog.create()
         dialog.show()
-    }
-
-    ////////// Permission checking functions.
-
-    private fun hasAllPermission(permission: Array<String>): Boolean =
-        permission.all { ActivityCompat.checkSelfPermission(this, it) == PERMISSION_GRANTED }
-
-    private fun requestPermission(permission: Array<String>) =
-        ActivityCompat.requestPermissions(this, permission, 1)
-
-    private fun takePermission(permission: Array<String>) {
-        if (hasAllPermission(permission)) return
-
-        if (permission.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }) {
-            val builder = AlertDialog.Builder(this)
-            builder.setMessage("Permission is needed to read & write the video.")
-            builder.setPositiveButton(android.R.string.ok) { _, _ -> requestPermission(permission) }
-            builder.setNegativeButton(android.R.string.cancel, null)
-            builder.show()
-        } else {
-            requestPermission(permission)
-        }
     }
 
     ////////// Companion codes.

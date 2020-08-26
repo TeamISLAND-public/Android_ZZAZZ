@@ -21,9 +21,10 @@ class ProjectAlertDialog(context: Context?, val run_function: () -> Unit) : Aler
         window?.setGravity(Gravity.CENTER)
 
         window?.setLayout(
-                (256 * Resources.getSystem().displayMetrics.density).toInt(),
-                (160 * Resources.getSystem().displayMetrics.density).toInt()
+            (256 * Resources.getSystem().displayMetrics.density).toInt(),
+            (160 * Resources.getSystem().displayMetrics.density).toInt()
         )
+
         stayHere.setOnClickListener {
             dismiss()
         }
