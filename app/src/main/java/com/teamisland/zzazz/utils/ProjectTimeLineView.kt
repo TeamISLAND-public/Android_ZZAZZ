@@ -32,7 +32,6 @@ import android.view.View
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
 import kotlin.math.roundToInt
-import kotlin.properties.Delegates
 
 /**
  * View for showing thumbnails of video by time.
@@ -54,11 +53,6 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     lateinit var path: String
 
     /**
-     * The number of frames
-     */
-    var frameCount: Int by Delegates.notNull()
-
-    /**
      * [View.onSizeChanged]
      */
     override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
@@ -68,7 +62,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     }
 
     override fun updateOnSync() {
-        timeInterval = (videoLength * currentTime / pixelInterval).toInt()
+        timeInterval = (frameCount * currentTime / pixelInterval).toInt()
     }
 
     internal val bitmapList = ArrayList<Bitmap?>()
@@ -86,10 +80,12 @@ open class ProjectTimeLineView @JvmOverloads constructor(
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
                 try {
-                    for (i in 1..numThumbs) {
-                        val frame = (frameCount * i / numThumbs.toFloat()).roundToInt()
+                    for (i in 0 until numThumbs) {
+                        var frame = (frameCount * i / numThumbs.toFloat()).roundToInt()
+                        if (frame >= frameCount)
+                            frame = frameCount - 1
                         var bitmap: Bitmap? =
-                            BitmapFactory.decodeFile(path + "/img%08d.png".format(frame))
+                            BitmapFactory.decodeFile(path + "/img%08d.png".format(frame + 1))
                         if (bitmap != null)
                             bitmap = extractThumbnail(bitmap, viewHeight, viewHeight)
                         bitmapList.add(bitmap)
@@ -136,10 +132,10 @@ open class ProjectTimeLineView @JvmOverloads constructor(
         linePaint.color = Color.WHITE
         linePaint.strokeWidth = UnitConverter.float2DP(1f, resources)
         canvas.drawLine(
-            (this.width / 2).toFloat(),
+            (width / 2).toFloat(),
             0f,
-            (this.width / 2).toFloat(),
-            this.height.toFloat(),
+            (width / 2).toFloat(),
+            height.toFloat(),
             linePaint
         )
     }
