@@ -1,6 +1,7 @@
 package com.teamisland.zzazz.utils
 
 import android.annotation.SuppressLint
+import android.app.ActivityOptions
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -8,7 +9,6 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.util.TypedValue
 import android.view.Gravity
 import android.view.Window
 import androidx.core.content.ContextCompat.getColor

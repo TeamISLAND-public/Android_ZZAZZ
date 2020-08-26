@@ -247,8 +247,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     ////////// Misc.
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private var isTrimming = false
-
     private fun moveSelectedFrameIndexBy(amount: Int) {
         player.playWhenReady = false
         when (rangeSeekBarView.currentThumbIndex) {
