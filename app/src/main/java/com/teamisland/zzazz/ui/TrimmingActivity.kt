@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import com.google.android.material.snackbar.Snackbar
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.AbsolutePathRetriever
 import com.teamisland.zzazz.utils.FFmpegDelegate
@@ -37,7 +38,9 @@ import kotlin.coroutines.CoroutineContext
  */
 class TrimmingActivity : AppCompatActivity(), CoroutineScope {
 
-    ////////// Class member declaration.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Fields.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private val videoUri: Uri by lazy { intent.getParcelableExtra(IntroActivity.VIDEO_URI)!! }
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
@@ -119,7 +122,9 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
-    ////////// IMPORTANT: data bind event handlers are here.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Data binding event handlers.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /** DO NOT USE [ITrimmingData.currentVideoPosition] HERE. */
     @Suppress("UNUSED_PARAMETER")
@@ -143,12 +148,16 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         dataBinder.currentVideoPosition = dataBinder.startMs
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// UI updaters.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     internal fun goProjectButtonEnableCheck(start: Long, end: Long) {
         val seekDur = end - start
         val lengthLimit = resources.getInteger(R.integer.length_limit)
-        gotoProjectActivity.isEnabled = (seekDur <= lengthLimit)
+        val b = seekDur <= lengthLimit
+        gotoProjectActivity.isEnabled = b
+        currentPositionView.isEligible = b
     }
 
     internal fun setButtonEnable() {
@@ -176,7 +185,9 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// Overrides.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * [AppCompatActivity.dispatchTouchEvent]
@@ -242,6 +253,12 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         dataBinder.updateUI()
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Misc.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private var isTrimming = false
+
     private fun moveSelectedFrameIndexBy(amount: Int) {
         player.playWhenReady = false
         when (rangeSeekBarView.currentThumbIndex) {
@@ -251,7 +268,12 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun startTrimming() {
-        val inPath = AbsolutePathRetriever.getPath(this, videoUri) ?: return
+        if (isTrimming) {
+            Snackbar.make(mainLayout, "Trimming, please wait...", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+        isTrimming = true
+        val inPath = AbsolutePathRetriever.getPathAnyway(this, videoUri) ?: return
         val outPath = run {
             // Set destination location.
             val parentFolder = getExternalFilesDir(null)!!
@@ -259,31 +281,38 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
             val fileName = "trimmedVideo_${System.currentTimeMillis()}.mp4"
             File(parentFolder, fileName)
         }.absolutePath
-        FFmpegDelegate.trimVideo(inPath, dataBinder.startMs, dataBinder.endMs, outPath) { i ->
-            if (i == Config.RETURN_CODE_SUCCESS)
-                Intent(this, ProjectActivity::class.java).apply {
-                    println(outPath)
-                    putExtra(VIDEO_PATH, outPath)
-                    putExtra(
-                        VIDEO_FRAME_COUNT,
-                        dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
+        FFmpegDelegate.trimVideo(inPath, dataBinder.startMs, dataBinder.endMs, outPath) { code ->
+            isTrimming = false
+            if (code != Config.RETURN_CODE_SUCCESS) {
+                Snackbar.make(mainLayout, "Trim ERROR", Snackbar.LENGTH_SHORT).show()
+                return@trimVideo
+            }
+            Intent(this, ProjectActivity::class.java).apply {
+                println(outPath)
+                putExtra(VIDEO_PATH, outPath)
+                putExtra(
+                    VIDEO_FRAME_COUNT,
+                    dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex
+                )
+            }.also {
+                runOnUiThread {
+                    startActivity(
+                        it,
+                        ActivityOptions.makeCustomAnimation(
+                            this,
+                            R.anim.trim_to_project_activity_transition_in,
+                            R.anim.trim_to_project_activity_transition_out,
+                        ).toBundle()
                     )
-                }.also {
-                    runOnUiThread {
-                        startActivity(
-                            it,
-                            ActivityOptions.makeCustomAnimation(
-                                this,
-                                R.anim.trim_to_project_activity_transition_in,
-                                R.anim.trim_to_project_activity_transition_out,
-                            ).toBundle()
-                        )
-                    }
                 }
+            }
         }
+        FFmpegDelegate
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// Permission checking functions.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private fun hasAllPermission(permission: Array<String>): Boolean =
         permission.all { ActivityCompat.checkSelfPermission(this, it) == PERMISSION_GRANTED }
@@ -305,7 +334,9 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// Companion codes.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     companion object {
         /**
@@ -325,7 +356,9 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         const val MODEL_PATH: String = "MODEL_PATH"
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// Coroutine codes.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private val job = Job()
 

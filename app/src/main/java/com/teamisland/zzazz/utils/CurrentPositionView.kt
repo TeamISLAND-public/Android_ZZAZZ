@@ -71,6 +71,8 @@ open class CurrentPositionView @JvmOverloads constructor(
     private var showMarkerPaint = true
 
     private fun getText(): String {
+        if (!isEligible)
+            return "Size too long."
         val pos = bindData.currentVideoPosition
         val totalSecond = pos / 1000
         val millisecond = (pos / 10) % 100
@@ -113,6 +115,15 @@ open class CurrentPositionView @JvmOverloads constructor(
         textView.visibility = GONE
         invalidate()
     }
+
+    /**
+     * If the trimming range is eligible.
+     */
+    var isEligible: Boolean = false
+        set(value) {
+            field = value
+            invalidate()
+        }
 
     /**
      * Draws the view.

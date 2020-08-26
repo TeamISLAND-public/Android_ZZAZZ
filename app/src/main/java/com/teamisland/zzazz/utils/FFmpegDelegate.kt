@@ -54,4 +54,19 @@ object FFmpegDelegate {
             callback(Config.getLastReturnCode())
         }.start()
     }
+
+    /**
+     * Extracts all frames in the video.
+     * @param outPath Should be .png & contains %08d.
+     */
+    fun extractFrames(
+        inPath: String,
+        outPath: String,
+        callback: (Int) -> Unit
+    ) {
+        Thread {
+            FFmpeg.execute("-i $inPath -vsync 0 $outPath")
+            callback(Config.getLastReturnCode())
+        }.start()
+    }
 }

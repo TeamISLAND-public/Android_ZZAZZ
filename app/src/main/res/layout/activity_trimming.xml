@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/Background"
@@ -73,11 +74,11 @@
         app:layout_constraintTop_toBottomOf="@id/constraintLayout">
 
         <com.google.android.exoplayer2.ui.PlayerView
-            android:animateLayoutChanges="true"
             android:id="@+id/mainVideoView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:animateLayoutChanges="true"
             app:controller_layout_id="@layout/trimming_video_player_controller_layout"
             app:use_controller="true"
             tools:foreground="@tools:sample/backgrounds/scenic[1]" />

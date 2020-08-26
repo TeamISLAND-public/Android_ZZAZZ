@@ -123,13 +123,13 @@ open class ProjectTimeLineView @JvmOverloads constructor(
         val endPoint = pixelInterval + originLocation
 
         while (x < width && x < endPoint) {
-            val temp = ((x - originLocation) / fl).roundToInt().coerceIn(0, bitmapList.size - 1)
             try {
+                val temp = ((x - originLocation) / fl).roundToInt().coerceIn(0, bitmapList.size - 1)
                 bitmapList[temp]?.let { canvas.drawBitmap(it, x, 0f, null) }
             } catch (e: Throwable) {
                 Log.e(
                     "ProjectTimeLineView",
-                    "Drawing bitmap failed. Index $temp position $x error $e"
+                    "Drawing bitmap failed. Position $x error $e"
                 )
             }
             x += height
