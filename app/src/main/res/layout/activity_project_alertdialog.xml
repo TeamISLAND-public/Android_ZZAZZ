@@ -8,25 +8,32 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/stayHere"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:fontFamily="@font/archivo_regular"
-        android:gravity="center"
-        android:text="Cancel"
-        android:textColor="@color/White"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline2" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
+        android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="120dp" />
+        android:layout_marginTop="22dp"
+        android:fontFamily="@font/archivo_semibold"
+        android:text="Go back to trim?"
+        android:textColor="@color/White"
+        android:textSize="14dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="SpUsage" />
+
+    <TextView
+        android:id="@+id/alert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:fontFamily="@font/archivo_regular"
+        android:text="The ongoing history will disappear."
+        android:textColor="#9fff"
+        android:textSize="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView6"
+        tools:ignore="SpUsage" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline3"
@@ -43,36 +50,33 @@
         android:gravity="center"
         android:text="Go back to trim"
         android:textColor="@color/PointColor"
-        android:textSize="14sp"
+        android:textSize="14dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline3" />
+        app:layout_constraintTop_toTopOf="@+id/guideline3"
+        tools:ignore="SpUsage" />
 
     <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
-        android:fontFamily="@font/archivo_semibold"
-        android:text="Go back to trim?"
-        android:textColor="@color/White"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:id="@+id/stayHere"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:fontFamily="@font/archivo_regular"
-        android:text="The ongoing history will disappear."
-        android:textColor="#9fff"
-        android:textSize="11sp"
+        android:gravity="center"
+        android:text="Cancel"
+        android:textColor="@color/context_white_btn_text"
+        android:textSize="14dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView6"
-        tools:ignore="SmallSp" />
+        app:layout_constraintTop_toTopOf="@+id/guideline2"
+        tools:ignore="SpUsage" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="120dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
