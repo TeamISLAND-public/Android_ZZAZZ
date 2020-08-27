@@ -2,6 +2,7 @@ package com.teamisland.zzazz.utils.dialog
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -10,6 +11,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.Gravity
 import android.view.Window
@@ -22,12 +24,12 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
 import com.teamisland.zzazz.ui.TrimmingActivity
-import com.teamisland.zzazz.utils.AbsolutePathRetriever
+import com.teamisland.zzazz.utils.AbsolutePathRetriever.getPath
 import com.teamisland.zzazz.utils.FFmpegDelegate
 import com.teamisland.zzazz.utils.ITrimmingData
 import com.teamisland.zzazz.utils.inference.JsonConverter
-import com.teamisland.zzazz.utils.inference.PoseEstimation
 import com.teamisland.zzazz.utils.inference.Person
+import com.teamisland.zzazz.utils.inference.PoseEstimation
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.*
@@ -164,7 +166,7 @@ class LoadingDialog(context: Context, private val request: Int) :
     @Suppress("BlockingMethodInNonBlockingContext")
     private fun trimVideo(dataBinder: ITrimmingData, uri: Uri): Job =
         CoroutineScope(Dispatchers.IO).launch {
-            val inPath = AbsolutePathRetriever.getPath(context, uri) ?: return@launch
+            val inPath = getPath(context, uri) ?: return@launch
             val parentPath = context.filesDir.absolutePath + "/video_image"
             val outPath = run {
                 val parentFolder = File(parentPath)
@@ -241,8 +243,9 @@ class LoadingDialog(context: Context, private val request: Int) :
             dismiss()
         }
 
-    private fun inferenceVideo(dataBinder: ITrimmingData, path: String){
-        val frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
+    private fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
+        val frameCount =
+            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
         personList.clear()
         for (i in 0 until frameCount) {
             val bitmap: Bitmap? =
@@ -310,12 +313,34 @@ class LoadingDialog(context: Context, private val request: Int) :
             val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
             val filename = nameFormat.format(date) + ".mp4"
 
-            val path = Environment.DIRECTORY_MOVIES + "/ZZAZZ"
+            val contentValues = ContentValues()
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                contentValues.put(
+                    MediaStore.Files.FileColumns.RELATIVE_PATH,
+                    Environment.DIRECTORY_MOVIES + "/ZZAZZ"
+                )
+            }
+            contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename)
+            contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "video/*")
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 1)
+            }
+
+            val outputUri =
+                context.contentResolver.insert(
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    contentValues
+                )
+
+            val path = getPath(
+                context,
+                outputUri ?: return@launch
+            ) + Environment.DIRECTORY_MOVIES + "/ZZAZZ"
             if (!File(path).exists())
                 File(path).mkdir()
 
             FFmpeg.execute("-i ${context.filesDir.absolutePath}/result.mp4 $path/$filename")
-            
+
             dismiss()
         }
 }
