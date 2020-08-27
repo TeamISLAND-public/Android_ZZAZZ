@@ -316,7 +316,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
                 contentValues.put(
                     MediaStore.Files.FileColumns.RELATIVE_PATH,
-                    Environment.DIRECTORY_MOVIES + "/ZZAZZ"
+                    Environment.DIRECTORY_DCIM + "/ZZAZZ"
                 )
             contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename)
             contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "video/*")
@@ -334,6 +334,11 @@ class LoadingDialog(context: Context, private val request: Int) :
                 File(path).mkdir()
 
             FFmpeg.execute("-i ${context.filesDir.absolutePath}/result.mp4 $path/$filename")
+
+            contentValues.clear()
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) 
+                contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 0)
+            context.contentResolver.update(outputUri, contentValues, null, null)
 
             dismiss()
         }
