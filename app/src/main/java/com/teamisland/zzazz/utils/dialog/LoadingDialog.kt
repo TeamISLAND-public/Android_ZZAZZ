@@ -284,7 +284,7 @@ class LoadingDialog(context: Context, private val request: Int) :
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "unused")
     fun encodeVideo() {
         CoroutineScope(Dispatchers.Default).launch {
-            // get result video
+            // Get result video
             Log.d("Export", "Convert the images to a video and Combine with audio.")
             FFmpeg.execute("-i $capturePath/img%08d.png -i $audioPath -r $fps -pix_fmt yuv420p $resultPath")
 
@@ -293,7 +293,6 @@ class LoadingDialog(context: Context, private val request: Int) :
                 img.delete()
             for (img in File(capturePath).listFiles())
                 img.delete()
-//        File(videoPath).delete()
             dismiss()
             Intent(context, ExportActivity::class.java).apply {
                 Log.d("path", resultPath)
@@ -307,24 +306,22 @@ class LoadingDialog(context: Context, private val request: Int) :
     @SuppressLint("SetTextI18n", "SimpleDateFormat")
     private fun saveVideo(): Job =
         CoroutineScope(Dispatchers.IO).launch {
-            //Video name is depended by time
+            // Video name is depended by time.
             val time = System.currentTimeMillis()
             val date = Date(time)
             val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
             val filename = nameFormat.format(date) + ".mp4"
 
             val contentValues = ContentValues()
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
                 contentValues.put(
                     MediaStore.Files.FileColumns.RELATIVE_PATH,
                     Environment.DIRECTORY_MOVIES + "/ZZAZZ"
                 )
-            }
             contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename)
             contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "video/*")
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
                 contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 1)
-            }
 
             val outputUri =
                 context.contentResolver.insert(
