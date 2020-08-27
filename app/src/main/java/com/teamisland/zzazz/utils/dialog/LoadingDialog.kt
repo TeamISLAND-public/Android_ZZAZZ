@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.Gravity
 import android.view.Window
@@ -308,6 +309,13 @@ class LoadingDialog(context: Context, private val request: Int) :
             val date = Date(time)
             val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
             val filename = nameFormat.format(date) + ".mp4"
+
+            val path = Environment.DIRECTORY_MOVIES + "/ZZAZZ"
+            if (!File(path).exists())
+                File(path).mkdir()
+
+            FFmpeg.execute("-i ${context.filesDir.absolutePath}/result.mp4 $path/$filename")
+            
             dismiss()
         }
 }

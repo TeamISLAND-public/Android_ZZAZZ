@@ -177,7 +177,7 @@ class ProjectActivity : AppCompatActivity() {
         setContentView(R.layout.activity_project)
         window.navigationBarColor = getColor(R.color.Background)
 
-        resultPath = dataDir.absolutePath + "/result.mp4"
+        resultPath = filesDir.absolutePath + "/result.mp4"
         imagePath = intent.getStringExtra(TrimmingActivity.IMAGE_PATH)
         frameCount = intent.getIntExtra(TrimmingActivity.VIDEO_FRAME_COUNT, 0)
         videoDuration = intent.getIntExtra(TrimmingActivity.VIDEO_DURATION, 0)
