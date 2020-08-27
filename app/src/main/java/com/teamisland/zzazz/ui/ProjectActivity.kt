@@ -300,11 +300,11 @@ class ProjectActivity : AppCompatActivity() {
                 frame = (time * fps / 1000).toInt()
                 if (frameCount <= frame) {
                     frame = frameCount - 1
-                    setCurrentTime(frame)
+                    setCurrentTime(time.toInt())
                     stopVideo()
                     break
                 }
-                setCurrentTime(frame)
+                setCurrentTime(time.toInt())
                 delay(50)
             }
         }
