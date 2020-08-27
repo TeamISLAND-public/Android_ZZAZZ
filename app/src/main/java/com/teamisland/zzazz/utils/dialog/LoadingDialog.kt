@@ -332,11 +332,8 @@ class LoadingDialog(context: Context, private val request: Int) :
                     contentValues
                 )
 
-            val path = getPath(
-                context,
-                outputUri ?: return@launch
-            ) + Environment.DIRECTORY_MOVIES + "/ZZAZZ"
-            if (!File(path).exists())
+            val path = getPath(context, outputUri ?: return@launch)
+            if (!File(path ?: return@launch).exists())
                 File(path).mkdir()
 
             FFmpeg.execute("-i ${context.filesDir.absolutePath}/result.mp4 $path/$filename")
