@@ -33,7 +33,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"
                 tools:replace="android:resource" />
-        </provider> <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
+        </provider>
+        <!-- Sample AdMob App ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />
@@ -45,7 +46,6 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -65,12 +65,6 @@
             android:screenOrientation="portrait"
             android:process=":unityplayer"
             android:windowSoftInputMode="adjustNothing" />
-        <activity
-            android:name=".utils.SaveProjectActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Translucent"
-            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
         <activity
             android:name=".ui.ExportActivity"
             android:label="@string/app_name"
