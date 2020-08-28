@@ -16,7 +16,7 @@ import kotlin.math.pow
  * Time index view.
  */
 class TimeIndexView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
     private val paint = Paint()
@@ -33,7 +33,7 @@ class TimeIndexView @JvmOverloads constructor(
 
     override fun updateOnSync() {
         timeInterval = downPower.pow(floor(log(max, downPower) - log(pxPerMs, downPower))).toInt()
-                .coerceAtLeast(1)
+            .coerceAtLeast(1)
     }
 
     private fun getTimeText(ms: Int, printDecimals: Boolean): String {
@@ -53,8 +53,8 @@ class TimeIndexView @JvmOverloads constructor(
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         setMeasuredDimension(
-                getDefaultSize(suggestedMinimumWidth, widthMeasureSpec),
-                float2SP(11f, resources).toInt() + paddingTop + paddingBottom
+            getDefaultSize(suggestedMinimumWidth, widthMeasureSpec),
+            float2SP(11f, resources).toInt() + paddingTop + paddingBottom
         )
     }
 
