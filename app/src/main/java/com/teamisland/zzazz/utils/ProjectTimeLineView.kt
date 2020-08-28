@@ -43,7 +43,9 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
-    private var sampleMsQuantum = 50
+    private val sampleMsQuantum: Int by lazy {
+        (videoLength * 90f / frameCount).roundToInt().coerceAtLeast(1)
+    }
     private val backgroundPaint = Paint().apply {
         color = resources.getColor(R.color.Background, null)
     }
@@ -66,21 +68,16 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     private fun getBitmap() {
         val viewHeight = height
         bitmapList.clear()
-        sampleMsQuantum =
-            (videoLength * 90f / frameCount).roundToInt()
-                .coerceAtLeast(1)
 
-        val numThumbs = width / viewHeight
         BackgroundExecutor.cancelAll("", true)
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
                 try {
-                    for (i in 0 until numThumbs) {
-                        var frame = (frameCount * i / numThumbs.toFloat()).roundToInt()
-                        if (frame >= frameCount)
-                            frame = frameCount - 1
+                    for (i in 0 until frameCount) {
+                        val s = path + "/img%08d.png".format(i + 1)
+                        Log.d("image path", s)
                         var bitmap: Bitmap? =
-                            BitmapFactory.decodeFile(path + "/img%08d.png".format(frame + 1))
+                            BitmapFactory.decodeFile(s)
                         if (bitmap != null)
                             bitmap = extractThumbnail(bitmap, viewHeight, viewHeight)
                         bitmapList.add(bitmap)
@@ -102,15 +99,15 @@ open class ProjectTimeLineView @JvmOverloads constructor(
 
         val fl = sampleMsQuantum * pxPerMs
 
-        var x =
-            if (originLocation > 0) originLocation else originLocation % height
+        var x = if (originLocation > 0) originLocation else originLocation % height
 
         val endPoint = pixelInterval + originLocation
 
         while (x < width && x < endPoint) {
             try {
-                val temp = ((x - originLocation) / fl).roundToInt().coerceIn(0, bitmapList.size - 1)
-                bitmapList[temp]?.let { canvas.drawBitmap(it, x, 0f, null) }
+                val index = ((x - originLocation) * bitmapList.size / pixelInterval).toInt()
+                    .coerceAtMost(bitmapList.size - 1)
+                bitmapList[index]?.let { canvas.drawBitmap(it, x, 0f, null) }
             } catch (e: Throwable) {
                 Log.e(
                     "ProjectTimeLineView",
