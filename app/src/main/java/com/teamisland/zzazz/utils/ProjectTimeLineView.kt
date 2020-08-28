@@ -35,7 +35,6 @@ import android.view.View
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
 import kotlin.math.roundToInt
-import kotlin.properties.Delegates
 
 /**
  * View for showing thumbnails of video by time.
@@ -53,11 +52,6 @@ open class ProjectTimeLineView @JvmOverloads constructor(
      * Uri of target video.
      */
     lateinit var path: String
-
-    /**
-     * The number of frames
-     */
-    var frameCount: Int by Delegates.notNull()
 
     /**
      *
@@ -81,10 +75,12 @@ open class ProjectTimeLineView @JvmOverloads constructor(
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
                 try {
-                    for (i in 1..numThumbs) {
-                        val frame = (frameCount * i / numThumbs.toFloat()).roundToInt()
+                    for (i in 0 until numThumbs) {
+                        var frame = (frameCount * i / numThumbs.toFloat()).roundToInt()
+                        if (frame >= frameCount)
+                            frame = frameCount - 1
                         var bitmap: Bitmap? =
-                            BitmapFactory.decodeFile(path + "/img%08d.png".format(frame))
+                            BitmapFactory.decodeFile(path + "/img%08d.png".format(frame + 1))
                         if (bitmap != null)
                             bitmap = extractThumbnail(bitmap, viewHeight, viewHeight)
                         bitmapList.add(bitmap)

@@ -170,7 +170,10 @@ class LoadingDialog(context: Context, private val request: Int) :
                             TrimmingActivity.AUDIO_PATH,
                             context.filesDir.absolutePath + "/audio.mp3"
                         )
-                        putExtra(TrimmingActivity.IMAGE_PATH, parentPath)
+                        putExtra(
+                            TrimmingActivity.IMAGE_PATH,
+                            "${context.filesDir.absolutePath}/video_image"
+                        )
                         putExtra(
                             TrimmingActivity.VIDEO_FRAME_COUNT,
                             (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()

@@ -18,6 +18,7 @@ import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.*
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.UnitConverter.px2dp
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
@@ -27,6 +28,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.roundToInt
+import kotlin.properties.Delegates
 
 /**
  * Activity for make project
@@ -75,16 +78,6 @@ class ProjectActivity : AppCompatActivity() {
          * Check the project is saved
          */
         const val IS_SAVED: Int = 1
-
-        /**
-         * Play manager object of video player in Unity.
-         */
-        const val PLAY_MANAGER: String = "PlayManager"
-
-        /**
-         * Method name of exporting result video in Unity
-         */
-        const val EXPORT: String = "exportVideo"
     }
 
     /**
@@ -228,7 +221,7 @@ class ProjectActivity : AppCompatActivity() {
         mUnityPlayer.setOnClickListener {
             CustomAdapter.selectedEffect?.let {
                 stopVideo()
-                frame = (projectTimeLineView.currentTime * fps / 1000).toInt()
+                frame = (projectTimeLineView.currentTime * fps / 1000).roundToInt()
 
                 it.isActivated = false
                 it.setBackgroundColor(Color.TRANSPARENT)
@@ -271,8 +264,8 @@ class ProjectActivity : AppCompatActivity() {
                 time += 50
                 frame = (time * fps / 1000).toInt()
                 if (frameCount <= frame) {
-                    setCurrentTime(videoDuration - 1)
                     frame = frameCount - 1
+                    setCurrentTime(time.toInt())
                     stopVideo()
                     break
                 }
@@ -401,6 +394,8 @@ class ProjectActivity : AppCompatActivity() {
         projectTimeLineView.videoLength = videoDuration
         projectEffectEditor.videoLength = videoDuration
         timeIndexView.videoLength = videoDuration
+        projectTimeLineView.frameCount = frameCount
+        timeIndexView.frameCount = frameCount
     }
 
     private var posX1 = 0f
@@ -408,6 +403,8 @@ class ProjectActivity : AppCompatActivity() {
     private var mode = 0
     private var newDist = 0f
     private var oldDist = 0f
+
+    // dp / time
     private var zoomLevel = 0f
     private lateinit var zoomRange: Range<Float>
 
@@ -427,12 +424,18 @@ class ProjectActivity : AppCompatActivity() {
             MotionEvent.ACTION_MOVE -> {
                 if (mode == 1) {
                     posX2 = event.x
-                    val delta =
-                        (posX2 - posX1) / resources.displayMetrics.density / zoomLevel
-                    val currentTime = ((1000 * frame / fps).toDouble() - delta).toInt()
-                        .coerceIn(0, videoDuration)
+                    val deltaTime = (px2dp((posX2 - posX1), resources) / zoomLevel).roundToInt()
+                    val currentTime =
+                        when {
+                            (1000 * frame / fps).roundToInt() - deltaTime >= videoDuration -> videoDuration
+                            (1000 * frame / fps).roundToInt() - deltaTime < 0 -> 0
+                            else -> (1000 * frame / fps).roundToInt() - deltaTime
+                        }
+                    if (frame != (currentTime * fps / 1000).roundToInt()) {
+                        posX1 = posX2
+                        frame = (currentTime * fps / 1000).roundToInt()
+                    }
                     setCurrentTime(currentTime)
-                    posX1 = posX2
                 } else if (mode == 2) {
                     newDist = distance(event)
                     zoomLevel = zoomRange.clamp(zoomLevel * newDist / oldDist)
