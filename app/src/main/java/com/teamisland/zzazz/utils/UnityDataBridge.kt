@@ -18,17 +18,7 @@ interface UnityDataBridge {
     fun isUserAGoat(any: Any)
 
     /**
-     * Retrieving video path to unity.
+     * Retrieves video data.
      */
-    fun onPathRetrieve(path: String)
-
-    /**
-     * Retrieving video frame count to unity.
-     */
-    fun onFrameCountRetrieve(count: Int)
-
-    /**
-     * Retrieving video frame rate to unity.
-     */
-    fun onFrameRateRetrieve(fps: Float)
+    fun retrieveMetadata(path: String, count: Int, fps: Float)
 }
