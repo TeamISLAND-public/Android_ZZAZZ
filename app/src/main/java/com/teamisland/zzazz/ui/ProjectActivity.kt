@@ -36,7 +36,6 @@ import java.util.ArrayList
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
-import kotlin.properties.Delegates
 
 /**
  * Activity for make project
@@ -58,25 +57,29 @@ class ProjectActivity : AppCompatActivity() {
         mUnityPlayer.destroy()
     }
 
-    private val videoDuration: Int by lazy { getDuration(this, uri) }
-    private val resultPath: String by lazy { filesDir.absolutePath + "/video_image" }
+    private val resultPath: String by lazy { dataDir.absolutePath + "/result.mp4" }
+
+    @Suppress("unused")
     private val modelPath: String by lazy { filesDir.absolutePath + "test_txt.txt" }
     private val frameCount: Int by lazy { getFrameCount(this, uri).toInt() }
     private val path: String by lazy { intent.getStringExtra(TrimmingActivity.VIDEO_PATH) }
     private val fps: Float by lazy { frameCount * 1000f / videoDuration }
-    private val uri: Uri by lazy { Uri.parse(path) }
+    private val imagePath: String by lazy { intent.getStringExtra(TrimmingActivity.IMAGE_PATH) }
+    private val frameCount: Int by lazy {
+        intent.getIntExtra(
+            TrimmingActivity.VIDEO_FRAME_COUNT,
+            0
+        )
+    }
+    private val videoDuration: Int by lazy {
+        intent.getIntExtra(
+            TrimmingActivity.VIDEO_DURATION,
+            0
+        )
+    }
+    private var frame: Int = 0
 
     companion object {
-        /**
-         * Current time of video in Unity.
-         */
-        var frame: Int = 0
-
-        /**
-         * List of effect
-         */
-        var effectList: MutableList<Effect> = mutableListOf()
-
         /**
          * Check the project is saved
          */
@@ -147,7 +150,9 @@ class ProjectActivity : AppCompatActivity() {
         mUnityPlayer.windowFocusChanged(hasFocus)
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// Unity data exchange.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private var unityDataBridge: UnityDataBridge? = null
 
@@ -170,7 +175,26 @@ class ProjectActivity : AppCompatActivity() {
         Log.d("Unity whoAmI", s)
     }
 
+    /**
+     * For unity play state update event handling.
+     */
+    @Suppress("unused")
+    fun playState(b: Boolean) {
+        project_play.isActivated = b
+    }
+
+    /**
+     * For unity play frame update event handling.
+     */
+    @Suppress("unused")
+    fun unityFrame(b: Int) {
+        frame = b
+        setCurrentTime(frame * videoDuration / frameCount)
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// Creation codes.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * [AppCompatActivity.onCreate]
@@ -180,14 +204,9 @@ class ProjectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
-
-//        modelPath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
-
+        window.navigationBarColor = getColor(R.color.Background)
         zoomLevel = float2DP(0.06f, resources)
-        val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
-        zoomRange = Range(0.004f, upperLimit)
-
-        playVideo()
+        project_play.setOnClickListener { unityDataBridge?.togglePlayState() }
 
         projectTimeLineView.path = imagePath
         projectTimeLineView.frameCount = frameCount
@@ -227,18 +246,6 @@ class ProjectActivity : AppCompatActivity() {
         builder.show()
     }
 
-    private fun playVideo() {
-        project_play.isSelected = true
-        project_play.isActivated = false
-        project_play.setOnClickListener {
-            if (it.isActivated) {
-                stopVideo()
-            } else {
-                startVideo()
-            }
-        }
-    }
-
     private fun startVideo() {
         if (project_play.isActivated) return
         project_play.isActivated = true
@@ -267,7 +274,8 @@ class ProjectActivity : AppCompatActivity() {
      * Stop video.
      */
     fun stopVideo() {
-        project_play.isActivated = false
+        if (project_play.isActivated)
+            unityDataBridge?.togglePlayState()
     }
 
     private fun tabInit() {
@@ -387,23 +395,30 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     private var posX1 = 0f
-    private var posX2 = 0f
+    private var posXAnchor = 0f
+    private var anchoredMs = 0
     private var mode = 0
     private var newDist = 0f
     private var oldDist = 0f
 
     // dp / time
     private var zoomLevel = 0f
-    private lateinit var zoomRange: Range<Float>
+    private val zoomRange: Range<Float> by lazy {
+        val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
+        Range(0.004f, upperLimit)
+    }
 
-    private fun slidingLayoutOnTouchEvent(event: MotionEvent?): Boolean {
-        when (event?.action?.and(MotionEvent.ACTION_MASK)) {
+    private fun slidingLayoutOnTouchEvent(event: MotionEvent): Boolean {
+        when (event.action.and(MotionEvent.ACTION_MASK)) {
             MotionEvent.ACTION_DOWN -> {
                 stopVideo()
                 posX1 = event.x
+                posXAnchor = event.x
+                anchoredMs = (1000 * frame / fps).roundToInt()
                 mode = 1
             }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> mode = 0
+            MotionEvent.ACTION_UP -> mode = 0
+            MotionEvent.ACTION_POINTER_UP -> mode = 1
             MotionEvent.ACTION_POINTER_DOWN -> {
                 mode = 2
                 newDist = distance(event)
@@ -411,18 +426,11 @@ class ProjectActivity : AppCompatActivity() {
             }
             MotionEvent.ACTION_MOVE -> {
                 if (mode == 1) {
-                    posX2 = event.x
-                    val deltaTime = (px2dp((posX2 - posX1), resources) / zoomLevel).roundToInt()
-                    val currentTime =
-                        when {
-                            (1000 * frame / fps).roundToInt() - deltaTime >= videoDuration -> videoDuration
-                            (1000 * frame / fps).roundToInt() - deltaTime < 0 -> 0
-                            else -> (1000 * frame / fps).roundToInt() - deltaTime
-                        }
-                    if (frame != (currentTime * fps / 1000).roundToInt()) {
-                        posX1 = posX2
-                        frame = (currentTime * fps / 1000).roundToInt()
-                    }
+                    val deltaPos = event.x - posXAnchor
+                    val deltaTime = (px2dp(deltaPos, resources) / zoomLevel).roundToInt()
+                    val currentTime = Range(0, videoDuration).clamp(anchoredMs - deltaTime)
+                    val currentFrame = (currentTime * fps / 1000).roundToInt()
+                    frame = currentFrame
                     setCurrentTime(currentTime)
                 } else if (mode == 2) {
                     newDist = distance(event)

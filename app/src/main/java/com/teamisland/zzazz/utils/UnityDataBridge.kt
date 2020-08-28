@@ -21,4 +21,9 @@ interface UnityDataBridge {
      * Retrieves video data.
      */
     fun retrieveMetadata(path: String, count: Int, fps: Float)
+
+    /**
+     * Toggles play state. If playing, it'll pause, vice versa.
+     */
+    fun togglePlayState()
 }
