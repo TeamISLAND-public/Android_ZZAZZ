@@ -1,7 +1,6 @@
 package com.teamisland.zzazz.utils
 
 import android.annotation.SuppressLint
-import android.app.ActivityOptions
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -20,7 +19,6 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
 import com.teamisland.zzazz.ui.TrimmingActivity
-import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -176,11 +174,11 @@ class LoadingDialog(context: Context, private val request: Int) :
                         )
                         putExtra(
                             TrimmingActivity.VIDEO_FRAME_COUNT,
-                            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
+                            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
                         )
                         putExtra(
                             TrimmingActivity.VIDEO_DURATION,
-                            (dataBinder.endMs - dataBinder.startMs + 1).toInt()
+                            (dataBinder.endMs - dataBinder.startMs).toInt()
                         )
                     }.also { startActivity(context, it, null) }
                     dismiss()
