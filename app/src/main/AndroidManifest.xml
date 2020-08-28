@@ -25,7 +25,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.teamisland.zzazz.fileprovider"
+            android:authorities="com.teamisland.zzazz.${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true"
             tools:replace="android:authorities">
@@ -62,8 +62,8 @@
         <activity
             android:name=".ui.ProjectActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"
             android:process=":unityplayer"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.ExportActivity"
