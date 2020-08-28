@@ -82,21 +82,6 @@ class ProjectActivity : AppCompatActivity() {
         const val PLAY_MANAGER: String = "PlayManager"
 
         /**
-         * Frame visualizer of effect object of video player in Unity.
-         */
-        const val FRAME_VISUALIZER: String = "FrameVisualizer"
-
-        /**
-         * Method name of setting video in Unity
-         */
-        const val SET_VIDEO: String = "setVideo"
-
-        /**
-         * Method name of reading test data in Unity
-         */
-        const val READ_DATA: String = "ReadData"
-
-        /**
          * Method name of exporting result video in Unity
          */
         const val EXPORT: String = "exportVideo"
@@ -170,9 +155,7 @@ class ProjectActivity : AppCompatActivity() {
         unityDataBridge = li
         li.isUserAGoat("hi")
         li.onSuccessfulAccept()
-        li.onFrameCountRetrieve(frameCount)
-        li.onPathRetrieve(imagePath)
-        li.onFrameRateRetrieve(fps)
+        li.retrieveMetadata(imagePath, frameCount, fps)
     }
 
     /**
@@ -202,8 +185,6 @@ class ProjectActivity : AppCompatActivity() {
         zoomLevel = float2DP(0.06f, resources)
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
-
-        UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelPath)
 
         playVideo()
 
@@ -245,22 +226,15 @@ class ProjectActivity : AppCompatActivity() {
         setCurrentTime(0)
 
         mUnityPlayer.setOnClickListener {
-            if (CustomAdapter.selectedEffect != null) {
-                val b = CustomAdapter.selectedEffect ?: return@setOnClickListener
+            CustomAdapter.selectedEffect?.let {
                 stopVideo()
                 frame = (projectTimeLineView.currentTime * fps / 1000).toInt()
 
-                b.isActivated = false
-                b.setBackgroundColor(Color.TRANSPARENT)
+                it.isActivated = false
+                it.setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
             }
         }
-
-        UnityPlayer.UnitySendMessage(
-            PLAY_MANAGER,
-            SET_VIDEO,
-            "$imagePath:$frameCount"
-        )
     }
 
     /**

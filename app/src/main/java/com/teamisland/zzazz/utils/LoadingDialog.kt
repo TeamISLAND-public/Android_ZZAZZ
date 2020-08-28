@@ -194,12 +194,6 @@ class LoadingDialog(context: Context, private val request: Int) :
             val captureFile = File(capturePath)
             if (!captureFile.exists())
                 captureFile.mkdir()
-
-            UnityPlayer.UnitySendMessage(
-                ProjectActivity.PLAY_MANAGER,
-                ProjectActivity.EXPORT,
-                "$imagePath:$capturePath"
-            )
         }
 
     /**
