@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ZZAZZ</string>
+
+    <!--    string of permission dialog-->
+    <string name="permission_title">접근 권한 안내</string>
+    <string name="permission_subtitle">ZZAZZ를 사용하시 위해\n다음 권한의 허용이 필요합니다.</string>
+    <string name="storage_permission">저장소</string>
+    <string name="camera_permission">카메라 (선택)</string>
+    <string name="storage_script">동영상 불러오기, 기기에 저장</string>
+    <string name="camera_script">동영상 촬영</string>
+    <string name="ok">확인</string>
+
+    <!--    string of setting dialog-->
+    <string name="setting_title">접근 권한 거부됨</string>
+    <string name="setting_storage_script">ZZAZZ를 사용하기 위해 저장소 접근 권한이 필요합니\n다. 설정으로 이동해서 "허용"을 체크해 주세요.</string>
+    <string name="setting_video_script">ZZAZZ에서 동영상을 찍기 위해 카메라 접근 권한이 필\n요합니다. 설정으로 이동해서 "허용"을 체크해 주세요.</string>
+    <string name="setting">설정으로 이동</string>
+
 <!--    TODO translating in to korean-->
     <!--    string of introactivity-->
     <string name="intro1">Super cool,\nbut also\nsuper easy!</string>

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="256dp"
     android:layout_height="160dp"
-    android:background="@drawable/project_alert_dialog_box"
+    android:background="@drawable/dialog_background"
     android:orientation="vertical">
 
     <TextView
@@ -35,17 +35,20 @@
         app:layout_constraintTop_toBottomOf="@+id/textView6"
         tools:ignore="SpUsage" />
 
-    <androidx.constraintlayout.widget.Guideline
+    <View
         android:id="@+id/guideline3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="80dp"
+        android:background="#9fff"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="80dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
+    <Button
         android:id="@+id/goBack"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="@null"
         android:fontFamily="@font/archivo_bold"
         android:gravity="center"
         android:text="Go back to trim"
@@ -57,10 +60,20 @@
         app:layout_constraintTop_toTopOf="@+id/guideline3"
         tools:ignore="SpUsage" />
 
-    <TextView
+    <View
+        android:id="@+id/guideline2"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginBottom="40dp"
+        android:background="#9fff"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <Button
         android:id="@+id/stayHere"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="@null"
         android:fontFamily="@font/archivo_regular"
         android:gravity="center"
         android:text="Cancel"
@@ -71,12 +84,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline2"
         tools:ignore="SpUsage" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="120dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

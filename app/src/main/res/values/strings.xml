@@ -1,6 +1,21 @@
 <resources>
     <string name="app_name">ZZAZZ</string>
 
+    <!--    string of permission dialog-->
+    <string name="permission_title">Access Right Notice</string>
+    <string name="permission_subtitle">To use ZZAZZ, you should allow\naccess to the following permissions.</string>
+    <string name="storage_permission">Storage</string>
+    <string name="camera_permission">Camera (Optional)</string>
+    <string name="storage_script">Load videos, Save videos</string>
+    <string name="camera_script">Take videos</string>
+    <string name="ok">Okay</string>
+
+    <!--    string of setting dialog-->
+    <string name="setting_title">Permission Denied</string>
+    <string name="setting_storage_script">ZZAZZ needs access right to your storage for all the\nfeatures. Go to setting and check "Allow".</string>
+    <string name="setting_video_script">ZZAZZ needs access right to your camera to take\nvideos. Go to setting and check "Allow".</string>
+    <string name="setting">Go to setting</string>
+
     <!--    string of introactivity-->
     <string name="intro1">Super cool,\nbut also\nsuper easy!</string>
     <string name="intro2">Let\'s\nspice up\nyour videos.</string>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="Background">#FF070707</color>
-    <color name="DialogBackground">#B2070707</color>
+    <color name="DialogBackground">#2B2B2B</color>
+    <color name="LoadingBackground">#CC070707</color>
     <color name="ZZAZZWhite">#E5FFFFFF</color>
     <color name="ActivityTitle">#E6FFFFFF</color>
     <color name="ContentsText80">#CCFFFFFF</color>
