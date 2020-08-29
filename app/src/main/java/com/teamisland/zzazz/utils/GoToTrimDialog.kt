@@ -10,7 +10,7 @@ import android.view.Gravity
 import com.teamisland.zzazz.R
 import kotlinx.android.synthetic.main.dialog_totrim.*
 
-class GoTpTrimDialog(context: Context?, val run_function: () -> Unit) : AlertDialog(context) {
+class GoToTrimDialog(context: Context?, val run_function: () -> Unit) : AlertDialog(context) {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
