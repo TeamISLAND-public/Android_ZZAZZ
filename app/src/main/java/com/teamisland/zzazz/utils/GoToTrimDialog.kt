@@ -15,7 +15,7 @@ class GoToTrimDialog(context: Context?, val run_function: () -> Unit) : AlertDia
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.dialog_ToProject_alert)
+        setContentView(R.layout.dialog_totrim)
 
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         window?.setGravity(Gravity.CENTER)
