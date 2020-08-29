@@ -11,11 +11,11 @@
     <string name="camera_script">Take videos</string>
     <string name="ok">Okay</string>
 
-    <!--    string of setting dialog-->
+    <!--    string of going to setting dialog-->
     <string name="setting_title">Permission Denied</string>
     <string name="setting_storage_script">ZZAZZ needs access right to your storage for all the\nfeatures. Go to setting and check "Allow".</string>
     <string name="setting_video_script">ZZAZZ needs access right to your camera to take\nvideos. Go to setting and check "Allow".</string>
-    <string name="setting">Go to setting</string>
+    <string name="to_setting">Go to setting</string>
 
     <!--    string of intro activity-->
     <string name="intro1">Super cool,\nbut also\nsuper easy!</string>
@@ -32,6 +32,12 @@
     <string name="one_frame_advance">+1Frame</string>
     <string name="one_frame_retreat">-1Frame</string>
     <string name="start_trim">Drag to select a range.</string>
+
+    <!--    string of going to trim dialog-->
+    <string name="alert_title">Go back to trim?</string>
+    <string name="alert_script">The ongoing history will disappear.</string>
+    <string name="to_trim">Go back to trim</string>
+    <string name="cancel">Cancel</string>
 
     <!--    string of project activity-->
     <string name="project_title">PROJECT</string>

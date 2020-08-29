@@ -5,7 +5,8 @@
     android:layout_width="256dp"
     android:layout_height="160dp"
     android:background="@drawable/dialog_background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".utils.GoTpTrimDialog">
 
     <TextView
         android:id="@+id/textView6"
@@ -13,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="22dp"
         android:fontFamily="@font/archivo_semibold"
-        android:text="Go back to trim?"
+        android:text="@string/alert_title"
         android:textColor="@color/White"
         android:textSize="14dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -27,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:fontFamily="@font/archivo_regular"
-        android:text="The ongoing history will disappear."
+        android:text="@string/alert_script"
         android:textColor="#9fff"
         android:textSize="10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -51,7 +52,7 @@
         android:background="@null"
         android:fontFamily="@font/archivo_bold"
         android:gravity="center"
-        android:text="Go back to trim"
+        android:text="@string/to_trim"
         android:textColor="@color/PointColor"
         android:textSize="14dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
@@ -76,7 +77,7 @@
         android:background="@null"
         android:fontFamily="@font/archivo_regular"
         android:gravity="center"
-        android:text="Cancel"
+        android:text="@string/cancel"
         android:textColor="@color/context_white_btn_text"
         android:textSize="14dp"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -50,7 +50,7 @@
         android:layout_height="40dp"
         android:background="@null"
         android:fontFamily="@font/archivo_semibold"
-        android:text="@string/setting"
+        android:text="@string/to_setting"
         android:textAllCaps="false"
         android:textColor="@color/PointColor"
         android:textSize="14sp"

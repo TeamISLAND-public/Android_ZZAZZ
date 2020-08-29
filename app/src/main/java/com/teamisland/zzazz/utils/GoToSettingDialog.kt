@@ -12,7 +12,7 @@ import android.provider.Settings
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.core.content.ContextCompat.startActivity
 import com.teamisland.zzazz.R
-import kotlinx.android.synthetic.main.setting_dialog.*
+import kotlinx.android.synthetic.main.dialog_tosetting.*
 
 
 /**
@@ -43,7 +43,7 @@ class GoToSettingDialog(
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.setting_dialog)
+        setContentView(R.layout.dialog_tosetting)
         (window ?: return).setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         script.text =

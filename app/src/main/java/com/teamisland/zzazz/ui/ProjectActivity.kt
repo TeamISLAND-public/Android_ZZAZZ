@@ -266,7 +266,7 @@ class ProjectActivity : AppCompatActivity() {
      * [AppCompatActivity.onBackPressed]
      */
     override fun onBackPressed() {
-        val builder = ProjectAlertDialog(this) { super.onBackPressed() }
+        val builder = GoTpTrimDialog(this) { super.onBackPressed() }
         builder.create()
         builder.show()
     }

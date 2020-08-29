@@ -8,7 +8,6 @@ import android.text.style.RelativeSizeSpan
 import androidx.appcompat.app.AppCompatActivity
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.CustomTypefaceSpan
-import com.teamisland.zzazz.utils.UnitConverter.float2SP
 import kotlinx.android.synthetic.main.activity_permission.*
 
 /**
@@ -40,7 +39,7 @@ class PermissionActivity : AppCompatActivity() {
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         spannable.setSpan(
-            RelativeSizeSpan(6 / 7.toFloat()),
+            RelativeSizeSpan(6 / 7f),
             cameraPermission.length,
             cameraPermission.length + optional.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
