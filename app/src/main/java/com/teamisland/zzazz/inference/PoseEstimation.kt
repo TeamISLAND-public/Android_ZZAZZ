@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.SystemClock
 import android.util.Log
+import com.teamisland.zzazz.utils.LoadingDialog
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

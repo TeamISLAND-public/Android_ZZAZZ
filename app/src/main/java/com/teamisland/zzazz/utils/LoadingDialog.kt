@@ -7,7 +7,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.ColorDrawable
-import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -22,7 +21,6 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
 import com.teamisland.zzazz.ui.TrimmingActivity
-import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
 import com.teamisland.zzazz.inference.PoseEstimation
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.loading_dialog.*
@@ -47,6 +45,7 @@ class LoadingDialog(context: Context, private val request: Int) :
     // Variable for trim
     private var dataBinder: ITrimmingData? = null
     private var uri: Uri? = null
+    private var poseEstimation = PoseEstimation(context)
 
     // Variable for export
     private var fps by Delegates.notNull<Float>()
@@ -169,6 +168,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             FFmpegDelegate.trimVideo(inPath, dataBinder.startMs, dataBinder.endMs, outPath) { i ->
                 if (i == Config.RETURN_CODE_SUCCESS) {
                     FFmpeg.execute("-i $inPath -ss ${dataBinder.startMs} -t ${dataBinder.endMs - dataBinder.startMs} ${context.filesDir.absolutePath}/audio.mp3")
+                    inferenceVideo(dataBinder, parentPath)
                     Intent(context, ProjectActivity::class.java).apply {
                         putExtra(
                             TrimmingActivity.AUDIO_PATH,
@@ -190,14 +190,11 @@ class LoadingDialog(context: Context, private val request: Int) :
                 }
             }
             Log.d("putExtra", "%d".format((dataBinder.endMs - dataBinder.startMs + 1).toInt()))
-            inferenceVideo(dataBinder, parentPath)
             dismiss()
         }
 
-    private fun inferenceVideo(dataBinder: ITrimmingData, path: String): Job =
-        CoroutineScope(Dispatchers.IO).launch {
+    private fun inferenceVideo(dataBinder: ITrimmingData, path: String){
             Log.d("path", "%s".format(path))
-            lateinit var poseEstimation: PoseEstimation
             val bitmapList = ArrayList<Bitmap?>()
             val frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
             bitmapList.clear()
@@ -208,22 +205,17 @@ class LoadingDialog(context: Context, private val request: Int) :
             for (i in 0 until frameCount) {
                 var bitmap: Bitmap? =
                     BitmapFactory.decodeFile(path + "/img%08d.png".format(i + 1))
-                if (bitmap != null)
+                if (bitmap == null)
                     Log.d("bitmap", "has no bit map")
                 bitmapList.add(bitmap)
-                Log.d("bitmap", "%s".format(bitmap.toString()))
+                if (bitmap != null) {
+                    Log.d("bitmap_test", String.format("size: %d %d", bitmap.rowBytes, bitmap.height))
+//                    poseEstimation.estimatePose(bitmap)
+                    poseEstimation.estimatePose(Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888))
+                }
             }
-//                        }
-//                    } catch (e: Throwable) {
-//                        Thread.getDefaultUncaughtExceptionHandler()
-//                            ?.uncaughtException(Thread.currentThread(), e)
-//                    }
-//                }
-//            })
-
-            Log.d("BitmapList", "%s".format(bitmapList.toString()))
-//            poseEstimation = PoseEstimation(this)
-//            poseEstimation.estimatePose(bitmap)
+            Log.d("arraylistsize", "%d".format(bitmapList.size))
+            Log.d("frame_count", "%d".format(frameCount))
         }
 
         @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
