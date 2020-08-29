@@ -8,6 +8,5 @@
     <color name="ContentsText80">#CCFFFFFF</color>
     <color name="ContentsText40">#66FFFFFF</color>
     <color name="White">#FFFFFFFF</color>
-    <color name="Black">#FF000000</color>
     <color name="PointColor">#FFFF3898</color>
 </resources>

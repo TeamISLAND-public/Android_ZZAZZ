@@ -20,8 +20,13 @@ abstract class ZoomableView @JvmOverloads constructor(
     var videoLength: Int = 17860
 
     /**
-     * Current time in ms. Note that current time will be located at the horizontal center of the view.
-     * @exception IllegalArgumentException When the input is out of range : [0, [videoLength]]
+     * Frame Count of the video.
+     */
+    var frameCount: Int = 0
+
+    /**
+     * Current frame. Note that current frame will be located at the horizontal center of the view.
+     * @exception IllegalArgumentException When the input is out of range : [0, [frameCount]]
      */
     var currentTime: Int = 3770
         set(value) {
@@ -32,7 +37,7 @@ abstract class ZoomableView @JvmOverloads constructor(
         }
 
     /**
-     * Distance between start to end time marker in px.
+     * Distance between start to end frame marker in px.
      */
     var pixelInterval: Float = 0f
         set(value) {

@@ -72,12 +72,6 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing" />
         <activity
-            android:name=".utils.SaveProjectActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Translucent"
-            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
-        <activity
             android:name=".ui.ExportActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" />
