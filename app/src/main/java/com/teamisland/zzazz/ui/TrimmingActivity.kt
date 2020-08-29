@@ -1,12 +1,9 @@
 package com.teamisland.zzazz.ui
 
 import android.annotation.SuppressLint
-<<<<<<< HEAD
-import android.content.Intent
-import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.graphics.Bitmap
-=======
->>>>>>> 3b7fb8850a60aa3e503ca2961500b47519e7da16
+//import android.content.Intent
+//import android.content.pm.PackageManager.PERMISSION_GRANTED
+//import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
@@ -194,8 +191,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         setContentView(R.layout.activity_trimming)
         window.navigationBarColor = getColor(R.color.Background)
 
-        val modelName = "test_txt.txt"
-        testModelFile = File(filesDir, modelName)
         // Set click handlers.
         backButton.setOnClickListener { onBackPressed() }
 

@@ -176,16 +176,12 @@ class ProjectActivity : AppCompatActivity() {
         resultPath = dataDir.absolutePath + "/result.mp4"
         imagePath = intent.getStringExtra(TrimmingActivity.IMAGE_PATH)
         frameCount = intent.getIntExtra(TrimmingActivity.VIDEO_FRAME_COUNT, 0)
-//        modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
         videoDuration = intent.getIntExtra(TrimmingActivity.VIDEO_DURATION, 0)
         fps = frameCount / (videoDuration / 1000f)
 
         zoomLevel = float2DP(0.06f, resources)
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
-
-        modelpath = filesDir.absolutePath + "/test_txt.txt"
-        UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelpath)
 
         playVideo()
 

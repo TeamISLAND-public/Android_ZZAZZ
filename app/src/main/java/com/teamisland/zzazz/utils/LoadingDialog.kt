@@ -4,7 +4,10 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.ColorDrawable
+import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -19,6 +22,8 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
 import com.teamisland.zzazz.ui.TrimmingActivity
+import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
+import com.teamisland.zzazz.inference.PoseEstimation
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +35,7 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
 /**
@@ -145,7 +151,6 @@ class LoadingDialog(context: Context, private val request: Int) :
                 output?.flush()
                 output?.close()
             } else
-                FFmpeg.cancel()
             dismiss()
         }
     }
@@ -182,14 +187,46 @@ class LoadingDialog(context: Context, private val request: Int) :
                             (dataBinder.endMs - dataBinder.startMs + 1).toInt()
                         )
                     }.also { startActivity(context, it, null) }
-                    dismiss()
                 }
             }
+            Log.d("putExtra", "%d".format((dataBinder.endMs - dataBinder.startMs + 1).toInt()))
+            inferenceVideo(dataBinder, parentPath)
+            dismiss()
         }
 
-    private fun inferenceVideo(string: String): Job =
+    private fun inferenceVideo(dataBinder: ITrimmingData, path: String): Job =
+        CoroutineScope(Dispatchers.IO).launch {
+            Log.d("path", "%s".format(path))
+            lateinit var poseEstimation: PoseEstimation
+            val bitmapList = ArrayList<Bitmap?>()
+            val frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
+            bitmapList.clear()
+//            BackgroundExecutor.cancelAll("", true)
+//            BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
+//                override fun execute() {
+//                    try {
+            for (i in 0 until frameCount) {
+                var bitmap: Bitmap? =
+                    BitmapFactory.decodeFile(path + "/img%08d.png".format(i + 1))
+                if (bitmap != null)
+                    Log.d("bitmap", "has no bit map")
+                bitmapList.add(bitmap)
+                Log.d("bitmap", "%s".format(bitmap.toString()))
+            }
+//                        }
+//                    } catch (e: Throwable) {
+//                        Thread.getDefaultUncaughtExceptionHandler()
+//                            ?.uncaughtException(Thread.currentThread(), e)
+//                    }
+//                }
+//            })
 
-    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+            Log.d("BitmapList", "%s".format(bitmapList.toString()))
+//            poseEstimation = PoseEstimation(this)
+//            poseEstimation.estimatePose(bitmap)
+        }
+
+        @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private fun exportVideo(): Job =
         CoroutineScope(Dispatchers.Default).launch {
             File(context.filesDir.absolutePath + "/result.mp4").delete()
