@@ -112,7 +112,7 @@ class LoadingDialog(context: Context, private val request: Int) :
         super.onCreate(savedInstanceState)
         setContentView(R.layout.loading_dialog)
         setCancelable(false)
-        window?.setBackgroundDrawable(ColorDrawable(getColor(context, R.color.DialogBackground)))
+        window?.setBackgroundDrawable(ColorDrawable(getColor(context, R.color.LoadingBackground)))
         window?.setGravity(Gravity.CENTER)
 
         Glide.with(context).load(R.drawable.loading).into(load_gif)

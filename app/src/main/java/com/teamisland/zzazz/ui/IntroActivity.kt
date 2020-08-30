@@ -3,6 +3,7 @@ package com.teamisland.zzazz.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.MotionEvent
@@ -11,7 +12,9 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.GoToSettingDialog
 import com.teamisland.zzazz.utils.PermissionManager
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import kotlinx.android.synthetic.main.activity_intro.*
@@ -48,9 +51,25 @@ class IntroActivity : AppCompatActivity() {
                 startActivityForResult(this, requestCode)
             }
         } else if (requestCode == TAKE_VIDEO) {
-            Intent(MediaStore.ACTION_VIDEO_CAPTURE).also {
-                startActivityForResult(it, requestCode)
-            }
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.CAMERA
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                if (!shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
+                    val dialog =
+                        GoToSettingDialog(this, this, permissionManager, GoToSettingDialog.CAMERA)
+                    dialog.create()
+                    dialog.show()
+                } else
+                    requestPermissions(arrayOf(android.Manifest.permission.CAMERA), TAKE_VIDEO)
+            } else
+                Intent(MediaStore.ACTION_VIDEO_CAPTURE).also {
+                    startActivityForResult(
+                        it,
+                        requestCode
+                    )
+                }
         }
     }
 
@@ -146,7 +165,7 @@ class IntroActivity : AppCompatActivity() {
     }
 
     private fun checkPermission() {
-        if (permissionManager.checkPermission())
+        if (!permissionManager.checkPermission())
             permissionManager.requestPermission()
     }
 
@@ -158,8 +177,13 @@ class IntroActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (!permissionManager.permissionResult(requestCode, grantResults))
-            permissionManager.requestPermission()
+        if (requestCode == TAKE_VIDEO)
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (!permissionManager.permissionResult(requestCode, permissions, grantResults)) {
+            val dialog = GoToSettingDialog(this, this, permissionManager, GoToSettingDialog.STORAGE)
+            dialog.create()
+            dialog.show()
+        }
     }
 
     private fun setPosition(
