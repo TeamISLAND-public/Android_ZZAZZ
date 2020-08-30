@@ -1,10 +1,9 @@
-package com.teamisland.zzazz.inference
+package com.teamisland.zzazz.utils.inference
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.SystemClock
 import android.util.Log
-import com.teamisland.zzazz.utils.LoadingDialog
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -19,6 +18,9 @@ enum class Device {
     GPU,
 }
 
+/**
+ * this BodyPart JointNumber should be equal to the number of inference result
+ */
 enum class BodyPart {
     NOSE,
     LEFT_EYE,
@@ -35,26 +37,23 @@ enum class BodyPart {
     RIGHT_HIP,
     LEFT_KNEE,
     RIGHT_KNEE,
-    LEFT_ANKLE,
-    RIGHT_ANKLE
+//    LEFT_ANKLE,
+//    RIGHT_ANKLE
 }
 
 class Position {
-    var x: Int = 0
-    var y: Int = 0
-    var z: Int = 0
+    var x: Float = 0F
+    var y: Float = 0F
+    var z: Float = 0F
 }
 
 class KeyPoint {
-    var bodyPart: BodyPart =
-        BodyPart.NOSE
+    var bodyPart: BodyPart = BodyPart.NOSE
     var position: Position = Position()
-    var score: Float = 0.0f
 }
 
 class Person {
     var keyPoints = listOf<KeyPoint>()
-    var score: Float = 0.0f
 }
 
 /**
@@ -182,7 +181,7 @@ class PoseEstimation(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun estimatePose(bitmap: Bitmap) {
+    fun estimatePose(bitmap: Bitmap): Person {
         val estimationStartTimeNanoSeconds = SystemClock.elapsedRealtimeNanos()
         val inputArray = arrayOf(initInputArray(bitmap))
         Log.i(
@@ -212,10 +211,51 @@ class PoseEstimation(
         val width = heatmap[0][0].size
         val numKeypoints = heatmap[0][0][0].size
 
+        print(heatmap)
         Log.i(
             "zzazz_core",
             String.format("Size: %d %d %d", height, width, numKeypoints)
         )
+        // Finds the (row, col) locations of where the keypoints are most likely to be.
+        val keypointPositions = Array(numKeypoints) { Triple(0F, 0F, 0F) }
+        for (keypoint in 0 until numKeypoints) {
+            var maxVal = heatmap[0][0][0][keypoint]
+            var maxRow = 0
+            var maxCol = 0
+            for (row in 0 until height) {
+                for (col in 0 until width) {
+                    if (heatmap[0][row][col][keypoint] > maxVal) {
+                        maxVal = heatmap[0][row][col][keypoint]
+                        maxRow = row
+                        maxCol = col
+                    }
+                }
+            }
+            keypointPositions[keypoint] = Triple(locationX[0][maxRow][maxCol][keypoint],
+                locationY[0][maxRow][maxCol][keypoint],
+                locationZ[0][maxRow][maxCol][keypoint])
+        }
+
+        // Calculating cam_matrix TO DO
+        val xCoords = FloatArray(numKeypoints)
+        val yCoords = FloatArray(numKeypoints)
+        val zCoords = FloatArray(numKeypoints)
+        keypointPositions.forEachIndexed { idx, position ->
+            zCoords[idx] = position.third / (width - 1).toFloat()
+            yCoords[idx] = position.second / (height - 1).toFloat()
+            xCoords[idx] = position.first / (width - 1).toFloat()
+        }
+
+        val person = Person()
+        val keypointList = Array(numKeypoints) { KeyPoint() }
+        enumValues<BodyPart>().forEachIndexed { idx, it ->
+            keypointList[idx].bodyPart = it
+            keypointList[idx].position.x = xCoords[idx]
+            keypointList[idx].position.y = yCoords[idx]
+            keypointList[idx].position.z = zCoords[idx]
+        }
+        person.keyPoints = keypointList.toList()
+        return person
     }
 
     override fun close() {

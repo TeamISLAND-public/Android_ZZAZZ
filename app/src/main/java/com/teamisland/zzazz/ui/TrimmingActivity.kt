@@ -19,8 +19,8 @@ import com.google.android.exoplayer2.util.Util
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.ITrimmingData
-import com.teamisland.zzazz.inference.PoseEstimation
-import com.teamisland.zzazz.utils.LoadingDialog
+import com.teamisland.zzazz.utils.inference.PoseEstimation
+import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.*
 import java.io.File

@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.dialog
 
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -21,7 +21,12 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
 import com.teamisland.zzazz.ui.TrimmingActivity
-import com.teamisland.zzazz.inference.PoseEstimation
+import com.teamisland.zzazz.utils.AbsolutePathRetriever
+import com.teamisland.zzazz.utils.FFmpegDelegate
+import com.teamisland.zzazz.utils.ITrimmingData
+import com.teamisland.zzazz.utils.inference.PoseEstimation
+import com.teamisland.zzazz.utils.inference.Person
+import com.teamisland.zzazz.utils.inference.BodyPart
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +38,6 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
 /**
@@ -46,6 +50,8 @@ class LoadingDialog(context: Context, private val request: Int) :
     private var dataBinder: ITrimmingData? = null
     private var uri: Uri? = null
     private var poseEstimation = PoseEstimation(context)
+    private var height = 256
+    private var width = 256
 
     // Variable for export
     private var fps by Delegates.notNull<Float>()
@@ -194,14 +200,9 @@ class LoadingDialog(context: Context, private val request: Int) :
         }
 
     private fun inferenceVideo(dataBinder: ITrimmingData, path: String){
-            Log.d("path", "%s".format(path))
             val bitmapList = ArrayList<Bitmap?>()
             val frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
             bitmapList.clear()
-//            BackgroundExecutor.cancelAll("", true)
-//            BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
-//                override fun execute() {
-//                    try {
             for (i in 0 until frameCount) {
                 var bitmap: Bitmap? =
                     BitmapFactory.decodeFile(path + "/img%08d.png".format(i + 1))
@@ -209,13 +210,21 @@ class LoadingDialog(context: Context, private val request: Int) :
                     Log.d("bitmap", "has no bit map")
                 bitmapList.add(bitmap)
                 if (bitmap != null) {
-                    Log.d("bitmap_test", String.format("size: %d %d", bitmap.rowBytes, bitmap.height))
-//                    poseEstimation.estimatePose(bitmap)
-                    poseEstimation.estimatePose(Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888))
+                    Log.d(
+                        "bitmap_test", String.format(
+                            "size: %d %d",
+                            bitmap.rowBytes,
+                            bitmap.height
+                        )
+                    )
+                    var resized = Bitmap.createScaledBitmap(bitmap, width, height, true)
+                    var person = poseEstimation.estimatePose(resized)
+                    Log.i(
+                        "zzazz_core_toString",
+                        person.toString()
+                    )
                 }
             }
-            Log.d("arraylistsize", "%d".format(bitmapList.size))
-            Log.d("frame_count", "%d".format(frameCount))
         }
 
         @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")

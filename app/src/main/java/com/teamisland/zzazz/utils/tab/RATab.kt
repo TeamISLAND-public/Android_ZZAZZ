@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.tab
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,9 +8,9 @@ import androidx.fragment.app.Fragment
 import com.teamisland.zzazz.R
 
 /**
- * Left Leg Tab
+ * Right Arm tab
  */
-class LLTab : Fragment() {
+class RATab : Fragment() {
 
     /**
      * [Fragment.onCreateView]

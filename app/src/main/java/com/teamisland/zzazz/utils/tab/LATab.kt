@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.tab
 
 import android.os.Bundle
 import android.view.LayoutInflater

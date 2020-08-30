@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.view
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -30,6 +30,7 @@ import android.media.ThumbnailUtils.extractThumbnail
 import android.util.AttributeSet
 import android.view.View
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.UnitConverter
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
 import kotlin.math.roundToInt
 

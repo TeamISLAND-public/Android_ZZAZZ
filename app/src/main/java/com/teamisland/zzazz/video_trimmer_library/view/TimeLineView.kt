@@ -37,6 +37,7 @@ import android.view.MotionEvent
 import android.view.View
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.*
+import com.teamisland.zzazz.utils.view.CurrentPositionView
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
 import kotlin.math.ceil
 

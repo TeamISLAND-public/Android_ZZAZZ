@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.dialog
 
 import android.app.AlertDialog
 import android.content.Context

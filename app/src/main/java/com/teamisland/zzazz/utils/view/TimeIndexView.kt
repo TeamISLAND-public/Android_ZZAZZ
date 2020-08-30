@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.view
 
 import android.content.Context
 import android.graphics.Canvas

@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.view
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.ITrimmingData
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 
 /**
