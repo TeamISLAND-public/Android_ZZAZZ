@@ -134,6 +134,7 @@ class LoadingDialog(context: Context, private val request: Int) :
 
         cancel.setOnClickListener {
             job.cancel()
+            percentage = 0
             if (request == SAVE) {
                 input?.close()
                 output?.flush()
@@ -164,7 +165,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             val end = dataBinder.endMs / 1000.0
             Thread { FFmpeg.execute("-i $inPath -ss $start -t ${end - start} $outPath") }.start()
 
-            val command = "logcat -d -v process mobile-ffmpeg:I *:S"
+            val command = "logcat -d -v process -t 1 mobile-ffmpeg:I *:S"
             val find = "frame"
             val pid = android.os.Process.myPid()
             var process = Runtime.getRuntime().exec(command)
@@ -172,7 +173,6 @@ class LoadingDialog(context: Context, private val request: Int) :
             var currentLine: String?
 
             while (percentage < 100) {
-                yield()
                 currentLine = reader.readLine()
                 if (currentLine == null) {
                     process = Runtime.getRuntime().exec(command)
@@ -181,7 +181,6 @@ class LoadingDialog(context: Context, private val request: Int) :
                 }
                 if (currentLine.contains(java.lang.String.valueOf(pid))) {
                     if (currentLine.contains("$find=")) {
-                        Log.d("asdf", currentLine)
                         val arr1 = currentLine.split("$find=")
                         val arr2 = arr1[1].trim().split(" ")
 
@@ -192,8 +191,9 @@ class LoadingDialog(context: Context, private val request: Int) :
                         progress.text = String.format("%02d", percentage) + "%"
                     }
                 }
+                yield()
             }
-            
+
             FFmpeg.execute("-i $inPath -ss ${dataBinder.startMs} -t ${dataBinder.endMs - dataBinder.startMs} ${context.filesDir.absolutePath}/audio.mp3")
             Intent(context, ProjectActivity::class.java).apply {
                 putExtra(
