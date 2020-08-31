@@ -53,7 +53,7 @@ class KeyPoint {
 }
 
 class Person {
-    var keyPoints = listOf<KeyPoint>()
+    var keyPoints: List<KeyPoint> = listOf()
 }
 
 /**
