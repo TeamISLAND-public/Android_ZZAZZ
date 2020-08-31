@@ -69,7 +69,7 @@ class Person {
  */
 class PoseEstimation(
     val context: Context,
-    val filename: String = "movnect.tflite",
+    val filename: String = "randinit.tflite",
     val device: Device = Device.CPU
 ) : AutoCloseable {
     var lastInferenceTimeNanoSeconds: Long = -1
@@ -119,7 +119,12 @@ class PoseEstimation(
         )
         inputBuffer.order(ByteOrder.nativeOrder())
         inputBuffer.rewind()
-
+        Log.i(
+            "zzazz_core",
+            String.format(
+                "******** shape %d %d %d %d %d", batchSize, bytesPerChannel, bitmap.height, bitmap.width, inputChannels
+            )
+        )
         val mean = 128.0f
         val std = 128.0f
         val intValues = IntArray(bitmap.width * bitmap.height)
@@ -132,51 +137,46 @@ class PoseEstimation(
         return inputBuffer
     }
 
-    private fun initOutputMap(interpreter: Interpreter): HashMap<Int, Any> {
+    private fun initOutputMap(): HashMap<Int, Any> {
         val outputMap = HashMap<Int, Any>()
+        val arrayShape = arrayOf(1, 32, 32, 21)
 
-        val heatmapShape = arrayOf(1, 64, 64, 15)
-        Log.i(
-            "zzazz_core",
-            String.format(
-                "******** shape %d %d %d %d", heatmapShape[0], heatmapShape[1], heatmapShape[2], heatmapShape[3]
-            )
-        )
+        val heatmapShape = arrayShape
+
         outputMap[0] = Array(heatmapShape[0]) { // 1
-            Array(heatmapShape[1]) { // 14
-                Array(heatmapShape[2]) { // 14
-                    FloatArray(heatmapShape[3]) // 96
+            Array(heatmapShape[1]) {            // 32
+                Array(heatmapShape[2]) {        // 32
+                    FloatArray(heatmapShape[3]) // 21
                 }
             }
         }
 
-        val locationXShape = arrayOf(1, 64, 64, 15)
-        outputMap[1] = Array(locationXShape[0]) { // 1
-            Array(locationXShape[1]) { // 14
-                Array(locationXShape[2]) { // 14
-                    FloatArray(locationXShape[3]) // 96
+        val locationXShape = arrayShape
+        outputMap[1] = Array(locationXShape[0]) {   // 1
+            Array(locationXShape[1]) {              // 32
+                Array(locationXShape[2]) {          // 32
+                    FloatArray(locationXShape[3])   // 21
                 }
             }
         }
 
-        val locationYShape = arrayOf(1, 64, 64, 15)
-        outputMap[2] = Array(locationYShape[0]) { // 1
-            Array(locationYShape[1]) { // 14
-                Array(locationYShape[2]) { // 14
-                    FloatArray(locationYShape[3]) // 96
+        val locationYShape = arrayShape
+        outputMap[2] = Array(locationYShape[0]) {   // 1
+            Array(locationYShape[1]) {              // 32
+                Array(locationYShape[2]) {          // 32
+                    FloatArray(locationYShape[3])   // 21
                 }
             }
         }
 
-        val locationZShape = arrayOf(1, 64, 64, 15)
-        outputMap[3] = Array(locationZShape[0]) { // 1
-            Array(locationZShape[1]) { // 14
-                Array(locationZShape[2]) { // 14
-                    FloatArray(locationZShape[3]) // 96
+        val locationZShape = arrayShape
+        outputMap[3] = Array(locationZShape[0]) {   // 1
+            Array(locationZShape[1]) {              // 32
+                Array(locationZShape[2]) {          // 32
+                    FloatArray(locationZShape[3])   // 21
                 }
             }
         }
-
         return outputMap
     }
 
@@ -192,7 +192,7 @@ class PoseEstimation(
             )
         )
 
-        val outputMap = initOutputMap(getInterpreter())
+        val outputMap = initOutputMap()
 
         val inferenceStartTimeNanoSeconds = SystemClock.elapsedRealtimeNanos()
         getInterpreter().runForMultipleInputsOutputs(inputArray, outputMap)
@@ -211,11 +211,8 @@ class PoseEstimation(
         val width = heatmap[0][0].size
         val numKeypoints = heatmap[0][0][0].size
 
-        print(heatmap)
-        Log.i(
-            "zzazz_core",
-            String.format("Size: %d %d %d", height, width, numKeypoints)
-        )
+        Log.i("zzazz_core", String.format("Size: %d %d %d", height, width, numKeypoints))
+
         // Finds the (row, col) locations of where the keypoints are most likely to be.
         val keypointPositions = Array(numKeypoints) { Triple(0F, 0F, 0F) }
         for (keypoint in 0 until numKeypoints) {

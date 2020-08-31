@@ -210,7 +210,7 @@ class LoadingDialog(context: Context, private val request: Int) :
                 progress.text = String.format("%02d", percentage) + "%"
                 yield()
             }
-            
+
             inferenceVideo(dataBinder, parentPath)
 
             FFmpeg.execute("-i $inPath -ss ${dataBinder.startMs} -t ${dataBinder.endMs - dataBinder.startMs} ${context.filesDir.absolutePath}/audio.mp3")
@@ -253,8 +253,16 @@ class LoadingDialog(context: Context, private val request: Int) :
                 var person = poseEstimation.estimatePose(resized)
                 Log.i(
                     "zzazz_core_toString",
-                    person.toString()
+                    person.keyPoints.toString()
                 )
+                Log.i("zzazz_core", String.format("Size: %s %s %s %s %s",
+                    person.keyPoints[0].bodyPart.toString(),
+                    person.keyPoints[0].position.toString(),
+                    person.keyPoints[0].position.x.toString(),
+                    person.keyPoints[1].bodyPart.toString(),
+                    person.keyPoints[1].position.x.toString()
+                    ))
+
             }
         }
     }
