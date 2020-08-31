@@ -69,8 +69,8 @@ class Person {
  */
 class PoseEstimation(
     val context: Context,
-    val filename: String = "movnect.tflite",
-    val device: Device = Device.CPU
+    private val filename: String = "movnect.tflite",
+    private val device: Device = Device.CPU
 ) : AutoCloseable {
     private var lastInferenceTimeNanoSeconds: Long = -1
 
