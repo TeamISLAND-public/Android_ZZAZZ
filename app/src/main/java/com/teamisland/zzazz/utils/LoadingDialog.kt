@@ -12,6 +12,7 @@ import android.view.Gravity
 import android.view.Window
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.content.ContextCompat.startActivity
+import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
 import com.bumptech.glide.Glide
 import com.teamisland.zzazz.R
@@ -134,7 +135,6 @@ class LoadingDialog(context: Context, private val request: Int) :
 
         cancel.setOnClickListener {
             job.cancel()
-            percentage = 0
             if (request == SAVE) {
                 input?.close()
                 output?.flush()
@@ -163,7 +163,12 @@ class LoadingDialog(context: Context, private val request: Int) :
 
             val start = dataBinder.startMs / 1000.0
             val end = dataBinder.endMs / 1000.0
-            Thread { FFmpeg.execute("-i $inPath -ss $start -t ${end - start} $outPath") }.start()
+            Thread {
+                FFmpegDelegate.exec("-i $inPath -ss $start -t ${end - start} $outPath") {
+                    if (it == Config.RETURN_CODE_SUCCESS)
+                        percentage = 100
+                }
+            }.start()
 
             val command = "logcat -d -v process -t 1 mobile-ffmpeg:I *:S"
             val find = "frame"
@@ -172,6 +177,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             var reader = BufferedReader(InputStreamReader(process.inputStream))
             var currentLine: String?
 
+            percentage = 0
             while (percentage < 100) {
                 currentLine = reader.readLine()
                 if (currentLine == null) {
@@ -188,9 +194,9 @@ class LoadingDialog(context: Context, private val request: Int) :
                             percentage = 100 * arr2[0].toInt() / frameCount
                         else
                             continue
-                        progress.text = String.format("%02d", percentage) + "%"
                     }
                 }
+                progress.text = String.format("%02d", percentage) + "%"
                 yield()
             }
 

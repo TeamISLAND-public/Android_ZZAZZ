@@ -3,6 +3,7 @@ package com.teamisland.zzazz.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
 import java.io.File
 
@@ -34,5 +35,14 @@ object FFmpegDelegate {
         val res = BitmapFactory.decodeFile(trimmedVideoFile, option)
         file.delete()
         return res
+    }
+
+    /**
+     * @param command   FFmpeg command
+     * @param callback  Callback after execution
+     */
+    fun exec(command: String, callback: (Int) -> Unit) {
+        FFmpeg.execute(command)
+        callback(Config.getLastReturnCode())
     }
 }
