@@ -72,8 +72,7 @@ class PoseEstimation(
     val filename: String = "movnect.tflite",
     val device: Device = Device.CPU
 ) : AutoCloseable {
-    var lastInferenceTimeNanoSeconds: Long = -1
-        private set
+    private var lastInferenceTimeNanoSeconds: Long = -1
 
     private var interpreter: Interpreter? = null
     private var gpuDelegate: GpuDelegate? = null
