@@ -240,10 +240,10 @@ class PoseEstimation(
         val xCoords = FloatArray(numKeypoints)
         val yCoords = FloatArray(numKeypoints)
         val zCoords = FloatArray(numKeypoints)
-        keypointPositions.forEachIndexed { idx, position ->
-            zCoords[idx] = position.third / (width - 1).toFloat()
-            yCoords[idx] = position.second / (height - 1).toFloat()
-            xCoords[idx] = position.first / (width - 1).toFloat()
+        keypointPositions.forEachIndexed { idx, (first, second, third) ->
+            zCoords[idx] = third / (width - 1).toFloat()
+            yCoords[idx] = second / (height - 1).toFloat()
+            xCoords[idx] = first / (width - 1).toFloat()
         }
 
         val person = Person()
