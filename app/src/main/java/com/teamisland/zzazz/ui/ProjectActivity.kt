@@ -21,7 +21,7 @@ import com.teamisland.zzazz.utils.*
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.UnitConverter.px2dp
 import com.teamisland.zzazz.utils.dialog.LoadingDialog
-import com.teamisland.zzazz.utils.dialog.ProjectAlertDialog
+import com.teamisland.zzazz.utils.dialog.GoToTrimDialog
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
@@ -266,7 +266,7 @@ class ProjectActivity : AppCompatActivity() {
      * [AppCompatActivity.onBackPressed]
      */
     override fun onBackPressed() {
-        val builder = ProjectAlertDialog(this) { super.onBackPressed() }
+        val builder = GoToTrimDialog(this) { super.onBackPressed() }
         builder.create()
         builder.show()
     }

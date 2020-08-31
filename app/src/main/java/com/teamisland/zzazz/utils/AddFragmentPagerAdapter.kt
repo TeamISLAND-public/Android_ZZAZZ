@@ -23,12 +23,12 @@ class AddFragmentPagerAdapter(
      */
     override fun getItem(position: Int): Fragment {
         return when (position) {
-            0 -> HeadEffect(activity)
+            0 -> HeadTab(activity)
             1 -> LATab()
             2 -> RATab()
             3 -> LLTab()
             4 -> RLTab()
-            else -> HeadEffect(activity)
+            else -> HeadTab(activity)
         }
     }
 

@@ -3,12 +3,9 @@ package com.teamisland.zzazz.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Log
 import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
-import java.io.BufferedReader
 import java.io.File
-import java.io.InputStreamReader
 
 /**
  * Capsulizes FFmpeg jobs.
@@ -41,18 +38,11 @@ object FFmpegDelegate {
     }
 
     /**
-     * Trims video. Uses output seek for accuracy, so it can be little slow.
+     * @param command   FFmpeg command
+     * @param callback  Callback after execution
      */
-    fun trimVideo(
-        inPath: String,
-        startMs: Long,
-        endMs: Long,
-        outPath: String,
-        callback: (Int) -> Unit
-    ) {
-        val start = startMs / 1000.0
-        val end = endMs / 1000.0
-        FFmpeg.execute("-i $inPath -ss $start -t ${end - start} $outPath")
+    fun exec(command: String, callback: (Int) -> Unit) {
+        FFmpeg.execute(command)
         callback(Config.getLastReturnCode())
     }
 }

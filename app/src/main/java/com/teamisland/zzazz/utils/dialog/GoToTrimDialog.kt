@@ -8,14 +8,13 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Gravity
 import com.teamisland.zzazz.R
-import kotlinx.android.synthetic.main.activity_project_alertdialog.*
+import kotlinx.android.synthetic.main.dialog_totrim.*
 
-class ProjectAlertDialog(context: Context?, val run_function: () -> Unit) : AlertDialog(context) {
-
+class GoToTrimDialog(context: Context?, val run_function: () -> Unit) : AlertDialog(context) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_project_alertdialog)
+        setContentView(R.layout.dialog_totrim)
 
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         window?.setGravity(Gravity.CENTER)

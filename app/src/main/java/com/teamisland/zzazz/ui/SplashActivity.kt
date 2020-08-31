@@ -15,6 +15,8 @@ import java.io.File
  */
 class SplashActivity : AppCompatActivity() {
 
+    private val sharedPreferences by lazy { getSharedPreferences("Pref", MODE_PRIVATE) }
+
     /**
      * When the activity is created
      */
@@ -44,7 +46,18 @@ class SplashActivity : AppCompatActivity() {
 
             override fun onAnimationEnd(animation: Animation?) {
                 splash.visibility = View.GONE
-                Intent(this@SplashActivity, IntroActivity::class.java).also { startActivity(it) }
+
+                if (sharedPreferences.getBoolean("isFirstRun", true)) {
+                    Intent(
+                        this@SplashActivity,
+                        PermissionActivity::class.java
+                    ).also { startActivity(it) }
+                    sharedPreferences.edit().putBoolean("isFirstRun", false).apply()
+                } else
+                    Intent(
+                        this@SplashActivity,
+                        IntroActivity::class.java
+                    ).also { startActivity(it) }
                 finish()
             }
         })
