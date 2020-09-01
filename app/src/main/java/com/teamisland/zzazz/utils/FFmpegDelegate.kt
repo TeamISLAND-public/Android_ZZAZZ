@@ -41,8 +41,16 @@ object FFmpegDelegate {
      * @param command   FFmpeg command
      * @param callback  Callback after execution
      */
-    fun exec(command: String, callback: (Int) -> Unit) {
-        FFmpeg.execute(command)
+    fun trimVideo(
+        inPath: String,
+        startMs: Long,
+        endMs: Long,
+        outPath: String,
+        callback: (Int) -> Unit
+    ) {
+        val start = startMs / 1000.0
+        val end = endMs / 1000.0
+        FFmpeg.execute("-ss $start -i $inPath -t ${end - start} $outPath")
         callback(Config.getLastReturnCode())
     }
 
