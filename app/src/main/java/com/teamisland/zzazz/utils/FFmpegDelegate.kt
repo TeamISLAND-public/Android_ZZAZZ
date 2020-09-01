@@ -3,12 +3,9 @@ package com.teamisland.zzazz.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Log
 import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
-import java.io.BufferedReader
 import java.io.File
-import java.io.InputStreamReader
 
 /**
  * Capsulizes FFmpeg jobs.
@@ -61,13 +58,13 @@ object FFmpegDelegate {
      * @param outPath Should be .png & contains %08d.
      */
     fun extractFrames(
+        start: Double,
+        end: Double,
         inPath: String,
         outPath: String,
         callback: (Int) -> Unit
     ) {
-        Thread {
-            FFmpeg.execute("-i $inPath -vsync 0 $outPath")
-            callback(Config.getLastReturnCode())
-        }.start()
+        FFmpeg.execute("-ss $start -i $inPath -t ${end - start} $outPath")
+        callback(Config.getLastReturnCode())
     }
 }

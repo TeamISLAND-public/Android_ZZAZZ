@@ -15,6 +15,7 @@ class PermissionManager(private val context: Context, private val activity: Acti
     private val permissions = arrayOf(
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
         Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.CAMERA,
         Manifest.permission.INTERNET,
         Manifest.permission.VIBRATE
     )
@@ -27,7 +28,8 @@ class PermissionManager(private val context: Context, private val activity: Acti
      *
      * @return is every permissions are granted.
      */
-    public fun checkPermission(): Boolean {
+    fun checkPermission(): Boolean {
+        permissionList.clear()
         for (permission in permissions)
             if (ContextCompat.checkSelfPermission(
                     context,
@@ -36,28 +38,36 @@ class PermissionManager(private val context: Context, private val activity: Acti
             )
                 permissionList.add(permission)
 
-        if (permissionList.isEmpty())
-            return false
-        return true
+        if ((permissionList.size == 1 && permissionList[0] == Manifest.permission.CAMERA) || permissionList.isEmpty())
+            return true
+        return false
     }
 
     /**
      * Request the permissions to use an application.
      */
-    public fun requestPermission(): Unit =
-        ActivityCompat.requestPermissions(activity, permissionList.toTypedArray(), permissionResult)
+    fun requestPermission(): Unit =
+        ActivityCompat.requestPermissions(
+            activity,
+            permissionList.toTypedArray(),
+            permissionResult
+        )
 
     /**
      * Check a user permits an every permissions.
      */
-    public fun permissionResult(
+    fun permissionResult(
         requestCode: Int,
+        permissions: Array<out String>,
         grantResult: IntArray
     ): Boolean {
         if (requestCode == permissionResult && grantResult.isNotEmpty())
-            for (result in grantResult)
-                if (result == -1)
+            for (i in permissions.indices) {
+                if (permissions[i] == Manifest.permission.CAMERA)
+                    continue
+                if (grantResult[i] == -1)
                     return false
+            }
         return true
     }
 }

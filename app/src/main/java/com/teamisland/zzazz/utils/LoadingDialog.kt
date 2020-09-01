@@ -20,13 +20,8 @@ import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
 import com.teamisland.zzazz.ui.TrimmingActivity
 import kotlinx.android.synthetic.main.loading_dialog.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
+import kotlinx.coroutines.*
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.properties.Delegates
@@ -111,7 +106,7 @@ class LoadingDialog(context: Context, private val request: Int) :
         super.onCreate(savedInstanceState)
         setContentView(R.layout.loading_dialog)
         setCancelable(false)
-        window?.setBackgroundDrawable(ColorDrawable(getColor(context, R.color.DialogBackground)))
+        window?.setBackgroundDrawable(ColorDrawable(getColor(context, R.color.LoadingBackground)))
         window?.setGravity(Gravity.CENTER)
 
         Glide.with(context).load(R.drawable.loading).into(load_gif)
@@ -149,6 +144,8 @@ class LoadingDialog(context: Context, private val request: Int) :
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    @Suppress("BlockingMethodInNonBlockingContext")
     private fun trimVideo(dataBinder: ITrimmingData, uri: Uri): Job =
         CoroutineScope(Dispatchers.IO).launch {
             val inPath = AbsolutePathRetriever.getPath(context, uri) ?: return@launch
@@ -160,30 +157,65 @@ class LoadingDialog(context: Context, private val request: Int) :
                 val fileName = "img%08d.png"
                 File(parentFolder, fileName)
             }.absolutePath
-            FFmpegDelegate.trimVideo(inPath, dataBinder.startMs, dataBinder.endMs, outPath) { i ->
-                if (i == Config.RETURN_CODE_SUCCESS) {
-                    FFmpeg.execute("-i $inPath -ss ${dataBinder.startMs} -t ${dataBinder.endMs - dataBinder.startMs} ${context.filesDir.absolutePath}/audio.mp3")
-                    Intent(context, ProjectActivity::class.java).apply {
-                        putExtra(
-                            TrimmingActivity.AUDIO_PATH,
-                            context.filesDir.absolutePath + "/audio.mp3"
-                        )
-                        putExtra(
-                            TrimmingActivity.IMAGE_PATH,
-                            "${context.filesDir.absolutePath}/video_image"
-                        )
-                        putExtra(
-                            TrimmingActivity.VIDEO_FRAME_COUNT,
-                            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
-                        )
-                        putExtra(
-                            TrimmingActivity.VIDEO_DURATION,
-                            (dataBinder.endMs - dataBinder.startMs).toInt()
-                        )
-                    }.also { startActivity(context, it, null) }
-                    dismiss()
+            val frameCount =
+                (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
+
+            val start = dataBinder.startMs / 1000.0
+            val end = dataBinder.endMs / 1000.0
+            Thread {
+                FFmpegDelegate.extractFrames(start, end, inPath, outPath) {
+                    if (it == Config.RETURN_CODE_SUCCESS)
+                        percentage = 100
                 }
+            }.start()
+
+            val command = "logcat -d -v process -t 1 mobile-ffmpeg:I *:S"
+            val find = "frame"
+            val pid = android.os.Process.myPid()
+            var process = Runtime.getRuntime().exec(command)
+            var reader = BufferedReader(InputStreamReader(process.inputStream))
+            var currentLine: String?
+
+            percentage = 0
+            while (percentage < 100) {
+                currentLine = reader.readLine()
+                if (currentLine == null) {
+                    process = Runtime.getRuntime().exec(command)
+                    reader = BufferedReader(InputStreamReader(process.inputStream))
+                    continue
+                }
+                if (currentLine.contains(java.lang.String.valueOf(pid))) {
+                    if (currentLine.contains("$find=")) {
+                        val arr1 = currentLine.split("$find=")
+                        val arr2 = arr1[1].trim().split(" ")
+
+                        if (percentage < 100 * arr2[0].toInt() / frameCount)
+                            percentage = 100 * arr2[0].toInt() / frameCount
+                        else
+                            continue
+                    }
+                }
+                progress.text = String.format("%02d", percentage) + "%"
+                yield()
             }
+
+            FFmpeg.execute("-i $inPath -ss ${dataBinder.startMs} -t ${dataBinder.endMs - dataBinder.startMs} ${context.filesDir.absolutePath}/audio.mp3")
+            Intent(context, ProjectActivity::class.java).apply {
+                putExtra(
+                    TrimmingActivity.AUDIO_PATH,
+                    context.filesDir.absolutePath + "/audio.mp3"
+                )
+                putExtra(
+                    TrimmingActivity.IMAGE_PATH,
+                    "${context.filesDir.absolutePath}/video_image"
+                )
+                putExtra(TrimmingActivity.VIDEO_FRAME_COUNT, frameCount)
+                putExtra(
+                    TrimmingActivity.VIDEO_DURATION,
+                    (dataBinder.endMs - dataBinder.startMs + 1).toInt()
+                )
+            }.also { startActivity(context, it, null) }
+            dismiss()
         }
 
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
@@ -227,10 +259,10 @@ class LoadingDialog(context: Context, private val request: Int) :
     private fun saveVideo(): Job =
         CoroutineScope(Dispatchers.IO).launch {
             //Video name is depended by time
-            val time = System.currentTimeMillis()
-            val date = Date(time)
-            val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
-            val filename = nameFormat.format(date) + ".mp4"
+//            val time = System.currentTimeMillis()
+//            val date = Date(time)
+//            val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
+//            val filename = nameFormat.format(date) + ".mp4"
             dismiss()
         }
 }

@@ -13,7 +13,7 @@ import com.teamisland.zzazz.ui.ProjectActivity
 /**
  * Override [Fragment] for each tab
  */
-class HeadEffect(private val activity: ProjectActivity) : Fragment() {
+class HeadTab(private val activity: ProjectActivity) : Fragment() {
 
     /**
      * [Fragment.onCreateView]
