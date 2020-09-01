@@ -25,23 +25,31 @@ enum class Device {
  * this BodyPart JointNumber should be equal to the number of inference result
  */
 enum class BodyPart {
-    NOSE,
-    LEFT_EYE,
-    RIGHT_EYE,
-    LEFT_EAR,
-    RIGHT_EAR,
-    LEFT_SHOULDER,
+    HEAP_TOP,
+    NECK,
     RIGHT_SHOULDER,
-    LEFT_ELBOW,
     RIGHT_ELBOW,
-    LEFT_WRIST,
     RIGHT_WRIST,
-    LEFT_HIP,
+
+    LEFT_SHOULDER,
+    LEFT_ELBOW,
+    LEFT_WRIST,
     RIGHT_HIP,
-    LEFT_KNEE,
     RIGHT_KNEE,
-//    LEFT_ANKLE,
-//    RIGHT_ANKLE
+
+    RIGHT_ANKLE,
+    LEFT_HIP,
+    LEFT_KNEE,
+    LEFT_ANKLE,
+    PELVIS,
+
+    SPINE,
+    HEAD,
+    RIGHT_HAND,
+    LEFT_HAND,
+    RIGHT_TOE,
+
+    LEFT_TOE
 }
 
 @Parcelize
@@ -52,7 +60,7 @@ data class Position(
 
 @Parcelize
 data class KeyPoint(
-    var bodyPart: BodyPart = BodyPart.NOSE,
+    var bodyPart: BodyPart = BodyPart.HEAP_TOP,
     var position: Position = Position()) : Parcelable
 
 @Parcelize

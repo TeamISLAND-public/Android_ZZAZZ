@@ -186,9 +186,10 @@ class ProjectActivity : AppCompatActivity() {
         Log.i(
             "zzazz_core1",
             String.format(
-                "shape %d %s",
+                "shape %d %s %d",
                 modelOutput[1]!!.keyPoints.size, //21
-                modelOutput[0]!!.keyPoints[0].position.toString() //Position(x=0.13257)
+                modelOutput[0]!!.keyPoints[0].position.toString(), //Position(x=0.13257)
+                modelOutput.size
             )
         )
 

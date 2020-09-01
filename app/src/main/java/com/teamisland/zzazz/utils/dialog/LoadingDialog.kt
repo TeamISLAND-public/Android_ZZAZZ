@@ -24,6 +24,7 @@ import com.teamisland.zzazz.ui.TrimmingActivity
 import com.teamisland.zzazz.utils.AbsolutePathRetriever
 import com.teamisland.zzazz.utils.FFmpegDelegate
 import com.teamisland.zzazz.utils.ITrimmingData
+import com.teamisland.zzazz.utils.inference.JsonConverter
 import com.teamisland.zzazz.utils.inference.PoseEstimation
 import com.teamisland.zzazz.utils.inference.Person
 import com.unity3d.player.UnityPlayer
@@ -43,6 +44,8 @@ class LoadingDialog(context: Context, private val request: Int) :
     // Variable for trim
     private var dataBinder: ITrimmingData? = null
     private var uri: Uri? = null
+
+    // Variable for inference
     private var personList = ArrayList<Person?>()
     private var poseEstimation = PoseEstimation(context)
     private var height = 256
@@ -210,7 +213,12 @@ class LoadingDialog(context: Context, private val request: Int) :
                 progress.text = String.format("%02d", percentage) + "%"
                 yield()
             }
+
             inferenceVideo(dataBinder, parentPath)
+            JsonConverter.convert(personList, frameCount, context)
+//            Log.d("bitmap123", "%s".format(modeloutput[0].toString()))
+//            Log.d("bitmap123", "%s".format(modeloutput[1].toString()))
+//            Log.d("bitmap123", "%s".format(modeloutput[2].toString()))
 
             FFmpeg.execute("-i $inPath -ss ${dataBinder.startMs} -t ${dataBinder.endMs - dataBinder.startMs} ${context.filesDir.absolutePath}/audio.mp3")
             Intent(context, ProjectActivity::class.java).apply {
@@ -233,7 +241,6 @@ class LoadingDialog(context: Context, private val request: Int) :
         }
 
     private fun inferenceVideo(dataBinder: ITrimmingData, path: String){
-//        val personList = ArrayList<Person?>()
         val frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
         personList.clear()
         for (i in 0 until frameCount) {
