@@ -19,11 +19,9 @@ import com.google.android.exoplayer2.util.Util
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.ITrimmingData
-import com.teamisland.zzazz.utils.inference.PoseEstimation
 import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.*
-import java.io.File
 import java.util.concurrent.CancellationException
 import kotlin.coroutines.CoroutineContext
 
@@ -37,9 +35,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     private val videoUri: Uri by lazy { intent.getParcelableExtra(IntroActivity.VIDEO_URI)!! }
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
     internal val videoFrameCount: Long by lazy { GetVideoData.getFrameCount(this, videoUri) }
-
-    private lateinit var testModelFile: File
-    private lateinit var zzazzInference: PoseEstimation
 
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
@@ -274,9 +269,9 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         const val VIDEO_DURATION: String = "TRIMMED_DURATION"
 
         /**
-         * Path of the core model
+         * Result of the core model
          */
-        const val MODEL_PATH: String = "MODEL_PATH"
+        const val MODEL_OUTPUT: String = "MODEL_OUTPUT"
     }
 
     ////////// Coroutine codes.

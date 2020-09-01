@@ -2,8 +2,10 @@ package com.teamisland.zzazz.utils.inference
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Parcelable
 import android.os.SystemClock
 import android.util.Log
+import kotlinx.android.parcel.Parcelize
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -11,6 +13,7 @@ import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.GpuDelegate
+import java.io.Serializable
 
 enum class Device {
     CPU,
@@ -41,11 +44,19 @@ enum class BodyPart {
 //    RIGHT_ANKLE
 }
 
-data class Position(var x: Float = 0F, var y: Float = 0F, var z: Float = 0F)
+@Parcelize
+data class Position(
+    var x: Float = 0F,
+    var y: Float = 0F,
+    var z: Float = 0F) : Parcelable
 
-data class KeyPoint(var bodyPart: BodyPart = BodyPart.NOSE, var position: Position = Position())
+@Parcelize
+data class KeyPoint(
+    var bodyPart: BodyPart = BodyPart.NOSE,
+    var position: Position = Position()) : Parcelable
 
-data class Person(var keyPoints: List<KeyPoint> = listOf())
+@Parcelize
+data class Person(var keyPoints: List<KeyPoint> = listOf()) : Parcelable
 
 /**
  * ZZAZZ Core model class
@@ -60,7 +71,7 @@ data class Person(var keyPoints: List<KeyPoint> = listOf())
  */
 class PoseEstimation(
     val context: Context,
-    val filename: String = "randinit.tflite",
+    val filename: String = "lsp_trained_movnect.tflite",
     val device: Device = Device.CPU
 ) : AutoCloseable {
     private var lastInferenceTimeNanoSeconds: Long = -1
@@ -70,7 +81,6 @@ class PoseEstimation(
     private val NUM_LITE_THREADS = 4
 
     private fun loadModelFile(path: String, context: Context): MappedByteBuffer {
-        Log.d("%s".format(path), "zzazz")
         val fileDescriptor = context.assets.openFd(path)
         val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
         return inputStream.channel.map(

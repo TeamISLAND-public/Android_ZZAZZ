@@ -26,7 +26,6 @@ import com.teamisland.zzazz.utils.FFmpegDelegate
 import com.teamisland.zzazz.utils.ITrimmingData
 import com.teamisland.zzazz.utils.inference.PoseEstimation
 import com.teamisland.zzazz.utils.inference.Person
-import com.teamisland.zzazz.utils.inference.BodyPart
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.*
@@ -228,12 +227,13 @@ class LoadingDialog(context: Context, private val request: Int) :
                     TrimmingActivity.VIDEO_DURATION,
                     (dataBinder.endMs - dataBinder.startMs + 1).toInt()
                 )
+                putExtra(TrimmingActivity.MODEL_OUTPUT, personList as Serializable)
             }.also { startActivity(context, it, null) }
             dismiss()
         }
 
     private fun inferenceVideo(dataBinder: ITrimmingData, path: String){
-        val personList = ArrayList<Person?>()
+//        val personList = ArrayList<Person?>()
         val frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
         personList.clear()
         for (i in 0 until frameCount) {
@@ -247,6 +247,7 @@ class LoadingDialog(context: Context, private val request: Int) :
                 personList.add(person)
             }
         }
+
     }
 
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
