@@ -44,6 +44,7 @@ class LoadingDialog(context: Context, private val request: Int) :
     // Variable for trim
     private var dataBinder: ITrimmingData? = null
     private var uri: Uri? = null
+    private var personList = ArrayList<Person?>()
     private var poseEstimation = PoseEstimation(context)
     private var height = 256
     private var width = 256
@@ -210,7 +211,6 @@ class LoadingDialog(context: Context, private val request: Int) :
                 progress.text = String.format("%02d", percentage) + "%"
                 yield()
             }
-
             inferenceVideo(dataBinder, parentPath)
 
             FFmpeg.execute("-i $inPath -ss ${dataBinder.startMs} -t ${dataBinder.endMs - dataBinder.startMs} ${context.filesDir.absolutePath}/audio.mp3")
@@ -233,36 +233,18 @@ class LoadingDialog(context: Context, private val request: Int) :
         }
 
     private fun inferenceVideo(dataBinder: ITrimmingData, path: String){
-        val bitmapList = ArrayList<Bitmap?>()
+        val personList = ArrayList<Person?>()
         val frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
-        bitmapList.clear()
+        personList.clear()
         for (i in 0 until frameCount) {
             var bitmap: Bitmap? =
                 BitmapFactory.decodeFile(path + "/img%08d.png".format(i + 1))
             if (bitmap == null)
                 Log.d("bitmap", "has no bit map")
             if (bitmap != null) {
-                Log.d(
-                    "bitmap_test", String.format(
-                        "size: %d %d",
-                        bitmap.rowBytes,
-                        bitmap.height
-                    )
-                )
-                var resized = Bitmap.createScaledBitmap(bitmap, width, height, true)
-                var person = poseEstimation.estimatePose(resized)
-                Log.i(
-                    "zzazz_core_toString",
-                    person.keyPoints.toString()
-                )
-                Log.i("zzazz_core", String.format("Size: %s %s %s %s %s",
-                    person.keyPoints[0].bodyPart.toString(),
-                    person.keyPoints[0].position.toString(),
-                    person.keyPoints[0].position.x.toString(),
-                    person.keyPoints[1].bodyPart.toString(),
-                    person.keyPoints[1].position.x.toString()
-                    ))
-
+                val resized = Bitmap.createScaledBitmap(bitmap, width, height, true)
+                val person = poseEstimation.estimatePose(resized)
+                personList.add(person)
             }
         }
     }

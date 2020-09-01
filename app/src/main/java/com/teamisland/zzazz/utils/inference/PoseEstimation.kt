@@ -41,20 +41,11 @@ enum class BodyPart {
 //    RIGHT_ANKLE
 }
 
-class Position {
-    var x: Float = 0F
-    var y: Float = 0F
-    var z: Float = 0F
-}
+data class Position(var x: Float = 0F, var y: Float = 0F, var z: Float = 0F)
 
-class KeyPoint {
-    var bodyPart: BodyPart = BodyPart.NOSE
-    var position: Position = Position()
-}
+data class KeyPoint(var bodyPart: BodyPart = BodyPart.NOSE, var position: Position = Position())
 
-class Person {
-    var keyPoints = listOf<KeyPoint>()
-}
+data class Person(var keyPoints: List<KeyPoint> = listOf())
 
 /**
  * ZZAZZ Core model class
@@ -72,8 +63,7 @@ class PoseEstimation(
     val filename: String = "randinit.tflite",
     val device: Device = Device.CPU
 ) : AutoCloseable {
-    var lastInferenceTimeNanoSeconds: Long = -1
-        private set
+    private var lastInferenceTimeNanoSeconds: Long = -1
 
     private var interpreter: Interpreter? = null
     private var gpuDelegate: GpuDelegate? = null
@@ -237,10 +227,10 @@ class PoseEstimation(
         val xCoords = FloatArray(numKeypoints)
         val yCoords = FloatArray(numKeypoints)
         val zCoords = FloatArray(numKeypoints)
-        keypointPositions.forEachIndexed { idx, position ->
-            zCoords[idx] = position.third / (width - 1).toFloat()
-            yCoords[idx] = position.second / (height - 1).toFloat()
-            xCoords[idx] = position.first / (width - 1).toFloat()
+        keypointPositions.forEachIndexed { idx, (first, second, third) ->
+            zCoords[idx] = third / (width - 1).toFloat()
+            yCoords[idx] = second / (height - 1).toFloat()
+            xCoords[idx] = first / (width - 1).toFloat()
         }
 
         val person = Person()
