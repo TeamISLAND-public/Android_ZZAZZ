@@ -36,6 +36,7 @@ import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlin.properties.Delegates
 
 /**
  * Activity for make project
@@ -199,6 +200,8 @@ class ProjectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
         window.navigationBarColor = getColor(R.color.Background)
+
+        zoomLevel = float2DP(0.06f, resources)
 
         Log.i(
             "zzazz_core1",
@@ -426,7 +429,7 @@ class ProjectActivity : AppCompatActivity() {
     private var oldDist = 0f
 
     // dp / time
-    private var zoomLevel = float2DP(0.06f, resources)
+    private var zoomLevel by Delegates.notNull<Float>()
     private val zoomRange: Range<Float> by lazy {
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         Range(0.004f, upperLimit)
