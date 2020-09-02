@@ -244,7 +244,7 @@ class LoadingDialog(context: Context, private val request: Int) :
         val frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
         personList.clear()
         for (i in 0 until frameCount) {
-            var bitmap: Bitmap? =
+            val bitmap: Bitmap? =
                 BitmapFactory.decodeFile(path + "/img%08d.png".format(i + 1))
             if (bitmap == null)
                 Log.d("bitmap", "has no bit map")
