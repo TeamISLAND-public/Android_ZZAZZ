@@ -35,7 +35,7 @@ object JsonConverter {
         for (i in 0 until personList.size) {
             val frameOutput = JSONObject()
             val keyPointArray = JSONArray()
-            for (j in 0 until personList[0]!!.keyPoints.size) {
+            for (j in (personList[0] ?: return).keyPoints.indices) {
                 val keyPoints = JSONObject()
                 try {
                     keyPoints.put("x", (personList[i] ?: return).keyPoints[j].position.x)

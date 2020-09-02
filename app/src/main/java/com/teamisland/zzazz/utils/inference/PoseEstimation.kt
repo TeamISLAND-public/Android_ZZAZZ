@@ -88,6 +88,7 @@ class PoseEstimation(
     private var gpuDelegate: GpuDelegate? = null
     private val NUM_LITE_THREADS = 4
 
+
     private fun loadModelFile(path: String, context: Context): MappedByteBuffer {
         val fileDescriptor = context.assets.openFd(path)
         val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
@@ -210,10 +211,10 @@ class PoseEstimation(
             String.format("Interpreter took %.2f ms", 1.0f * lastInferenceTimeNanoSeconds / 1_000_000)
         )
 
-        val heatmap = outputMap[0] as Array<Array<Array<FloatArray>>>
-        val locationX = outputMap[1] as Array<Array<Array<FloatArray>>>
-        val locationY = outputMap[2] as Array<Array<Array<FloatArray>>>
-        val locationZ = outputMap[3] as Array<Array<Array<FloatArray>>>
+        val heatmap = outputMap[0] as QuadrupleFloatArray
+        val locationX = outputMap[1] as QuadrupleFloatArray
+        val locationY = outputMap[2] as QuadrupleFloatArray
+        val locationZ = outputMap[3] as QuadrupleFloatArray
 
         val height = heatmap[0].size
         val width = heatmap[0][0].size
@@ -270,3 +271,5 @@ class PoseEstimation(
         gpuDelegate = null
     }
 }
+
+private typealias QuadrupleFloatArray = Array<Array<Array<FloatArray>>>
