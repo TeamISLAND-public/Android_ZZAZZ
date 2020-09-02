@@ -36,6 +36,7 @@ import java.util.ArrayList
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlin.properties.Delegates
 
 /**
  * Activity for make project
@@ -205,7 +206,19 @@ class ProjectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
         window.navigationBarColor = getColor(R.color.Background)
+
         zoomLevel = float2DP(0.06f, resources)
+
+        Log.i(
+            "zzazz_core1",
+            String.format(
+                "shape %d %s %d",
+                modelOutput[1]!!.keyPoints.size, //21
+                modelOutput[0]!!.keyPoints[0].position.toString(), //Position(x=0.13257)
+                modelOutput.size
+            )
+        )
+
         project_play.setOnClickListener { unityDataBridge?.togglePlayState() }
 
         projectTimeLineView.path = imagePath
@@ -402,7 +415,7 @@ class ProjectActivity : AppCompatActivity() {
     private var oldDist = 0f
 
     // dp / time
-    private var zoomLevel = 0f
+    private var zoomLevel by Delegates.notNull<Float>()
     private val zoomRange: Range<Float> by lazy {
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         Range(0.004f, upperLimit)
