@@ -79,8 +79,8 @@ data class Person(var keyPoints: List<KeyPoint> = listOf()) : Parcelable
  */
 class PoseEstimation(
     val context: Context,
-    val filename: String = "lsp_trained_movnect.tflite",
-    val device: Device = Device.CPU
+    private val filename: String = "lsp_trained_movnect.tflite",
+    private val device: Device = Device.CPU
 ) : AutoCloseable {
     private var lastInferenceTimeNanoSeconds: Long = -1
 
