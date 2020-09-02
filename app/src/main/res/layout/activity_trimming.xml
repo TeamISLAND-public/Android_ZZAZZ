@@ -189,7 +189,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.teamisland.zzazz.utils.CurrentPositionView
+        <com.teamisland.zzazz.utils.view.CurrentPositionView
             android:id="@+id/currentPositionView"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -198,7 +198,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.teamisland.zzazz.utils.SelectedThumbView
+        <com.teamisland.zzazz.utils.view.SelectedThumbView
             android:id="@+id/selectedThumbView"
             android:layout_width="0dp"
             android:layout_height="0dp"

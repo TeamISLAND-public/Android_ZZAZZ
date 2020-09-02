@@ -16,9 +16,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.*
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
-import com.teamisland.zzazz.utils.UnitConverter.px2dp
+import com.teamisland.zzazz.utils.AddFragmentPagerAdapter
+import com.teamisland.zzazz.utils.CustomAdapter
+import com.teamisland.zzazz.utils.SaveProjectActivity
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.objects.UnitConverter.px2dp
+import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
+import com.teamisland.zzazz.utils.dialog.GoToTrimDialog
+import com.teamisland.zzazz.utils.dialog.LoadingDialog
+import com.teamisland.zzazz.utils.inference.Person
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
@@ -26,6 +32,7 @@ import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -51,6 +58,12 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     private val resultPath: String by lazy { dataDir.absolutePath + "/result.mp4" }
+
+    private val modelOutput: ArrayList<Person?> by lazy {
+        intent.getParcelableArrayListExtra<Person?>(
+            TrimmingActivity.MODEL_OUTPUT
+        )
+    }
 
     @Suppress("unused")
     private val modelPath: String by lazy { filesDir.absolutePath + "test_txt.txt" }
@@ -186,7 +199,17 @@ class ProjectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
         window.navigationBarColor = getColor(R.color.Background)
-        zoomLevel = float2DP(0.06f, resources)
+
+        Log.i(
+            "zzazz_core1",
+            String.format(
+                "shape %d %s %d",
+                modelOutput[1]!!.keyPoints.size, //21
+                modelOutput[0]!!.keyPoints[0].position.toString(), //Position(x=0.13257)
+                modelOutput.size
+            )
+        )
+
         project_play.setOnClickListener { unityDataBridge?.togglePlayState() }
 
         projectTimeLineView.path = imagePath
@@ -403,7 +426,7 @@ class ProjectActivity : AppCompatActivity() {
     private var oldDist = 0f
 
     // dp / time
-    private var zoomLevel = 0f
+    private var zoomLevel = float2DP(0.06f, resources)
     private val zoomRange: Range<Float> by lazy {
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         Range(0.004f, upperLimit)

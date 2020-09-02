@@ -6,7 +6,8 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.view.ZoomableView
 
 /**
  * Effect range & editor.

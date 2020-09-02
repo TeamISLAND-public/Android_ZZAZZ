@@ -4,6 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.teamisland.zzazz.ui.ProjectActivity
+import com.teamisland.zzazz.utils.tab.*
 
 /**
  * Override [FragmentStatePagerAdapter] to connect tab and fragment.

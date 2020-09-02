@@ -36,10 +36,10 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.IntRange
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.CurrentPositionView
-import com.teamisland.zzazz.utils.ITrimmingData
-import com.teamisland.zzazz.utils.SelectedThumbView
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.view.CurrentPositionView
+import com.teamisland.zzazz.utils.interfaces.ITrimmingData
+import com.teamisland.zzazz.utils.view.SelectedThumbView
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
 import kotlin.math.abs
 import kotlin.math.round
 

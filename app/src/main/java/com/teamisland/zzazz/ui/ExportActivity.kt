@@ -27,8 +27,8 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.GetVideoData
-import com.teamisland.zzazz.utils.LoadingDialog
+import com.teamisland.zzazz.utils.objects.GetVideoData
+import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import kotlinx.android.synthetic.main.activity_export.*
 import kotlinx.coroutines.*
 import java.io.File

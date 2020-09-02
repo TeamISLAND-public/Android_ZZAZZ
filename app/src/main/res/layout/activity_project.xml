@@ -109,7 +109,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <com.teamisland.zzazz.utils.TimeIndexView
+            <com.teamisland.zzazz.utils.view.TimeIndexView
                 android:id="@+id/timeIndexView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -118,7 +118,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.teamisland.zzazz.utils.ProjectTimeLineView
+            <com.teamisland.zzazz.utils.view.ProjectTimeLineView
                 android:id="@+id/projectTimeLineView"
                 android:layout_width="0dp"
                 android:layout_height="40dp"

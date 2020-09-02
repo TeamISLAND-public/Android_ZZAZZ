@@ -5,7 +5,7 @@
     android:layout_width="280dp"
     android:layout_height="136dp"
     android:background="@drawable/dialog_background"
-    tools:context=".utils.GoToSettingDialog">
+    tools:context=".utils.dialog.GoToSettingDialog">
 
     <TextView
         android:id="@+id/title"
