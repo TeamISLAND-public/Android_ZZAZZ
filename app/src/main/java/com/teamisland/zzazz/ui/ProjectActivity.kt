@@ -20,6 +20,9 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.*
 import com.teamisland.zzazz.utils.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.UnitConverter.px2dp
+import com.teamisland.zzazz.utils.dialog.LoadingDialog
+import com.teamisland.zzazz.utils.dialog.GoToTrimDialog
+import com.teamisland.zzazz.utils.inference.Person
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
@@ -27,6 +30,7 @@ import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.ArrayList
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -57,7 +61,7 @@ class ProjectActivity : AppCompatActivity() {
      */
     private lateinit var resultPath: String
     private lateinit var imagePath: String
-    private lateinit var modelpath: String
+    private lateinit var modelOutput: ArrayList<Person?>
     private var videoDuration = 0
     private var fps: Float = 0f
     private var frameCount by Delegates.notNull<Int>()
@@ -176,16 +180,24 @@ class ProjectActivity : AppCompatActivity() {
         resultPath = dataDir.absolutePath + "/result.mp4"
         imagePath = intent.getStringExtra(TrimmingActivity.IMAGE_PATH)
         frameCount = intent.getIntExtra(TrimmingActivity.VIDEO_FRAME_COUNT, 0)
-//        modelpath = intent.getStringExtra(TrimmingActivity.MODEL_PATH)
         videoDuration = intent.getIntExtra(TrimmingActivity.VIDEO_DURATION, 0)
+        modelOutput = intent.getSerializableExtra(TrimmingActivity.MODEL_OUTPUT) as ArrayList<Person?>
+
+        Log.i(
+            "zzazz_core1",
+            String.format(
+                "shape %d %s %d",
+                modelOutput[1]!!.keyPoints.size, //21
+                modelOutput[0]!!.keyPoints[0].position.toString(), //Position(x=0.13257)
+                modelOutput.size
+            )
+        )
+
         fps = frameCount / (videoDuration / 1000f)
 
         zoomLevel = float2DP(0.06f, resources)
         val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
         zoomRange = Range(0.004f, upperLimit)
-
-        modelpath = filesDir.absolutePath + "/test_txt.txt"
-        UnityPlayer.UnitySendMessage(FRAME_VISUALIZER, READ_DATA, modelpath)
 
         playVideo()
 

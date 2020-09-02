@@ -1,6 +1,9 @@
 package com.teamisland.zzazz.ui
 
 import android.annotation.SuppressLint
+//import android.content.Intent
+//import android.content.pm.PackageManager.PERMISSION_GRANTED
+//import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
@@ -16,10 +19,9 @@ import com.google.android.exoplayer2.util.Util
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.GetVideoData
 import com.teamisland.zzazz.utils.ITrimmingData
-import com.teamisland.zzazz.utils.LoadingDialog
+import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.*
-import java.io.File
 import java.util.concurrent.CancellationException
 import kotlin.coroutines.CoroutineContext
 
@@ -33,8 +35,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     private val videoUri: Uri by lazy { intent.getParcelableExtra(IntroActivity.VIDEO_URI)!! }
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
     internal val videoFrameCount: Long by lazy { GetVideoData.getFrameCount(this, videoUri) }
-
-    private lateinit var testModelFile: File
 
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
@@ -186,8 +186,6 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         setContentView(R.layout.activity_trimming)
         window.navigationBarColor = getColor(R.color.Background)
 
-        val modelName = "test_txt.txt"
-        testModelFile = File(filesDir, modelName)
         // Set click handlers.
         backButton.setOnClickListener { onBackPressed() }
 
@@ -271,9 +269,9 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         const val VIDEO_DURATION: String = "TRIMMED_DURATION"
 
         /**
-         * Path of the core model
+         * Result of the core model
          */
-        const val MODEL_PATH: String = "MODEL_PATH"
+        const val MODEL_OUTPUT: String = "MODEL_OUTPUT"
     }
 
     ////////// Coroutine codes.
