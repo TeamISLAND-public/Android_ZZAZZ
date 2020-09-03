@@ -34,7 +34,6 @@ import android.util.Log
 import android.view.View
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
-import kotlin.math.roundToInt
 
 /**
  * View for showing thumbnails of video by time.
@@ -43,9 +42,6 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
-    private val sampleMsQuantum: Int by lazy {
-        (videoLength * 90f / frameCount).roundToInt().coerceAtLeast(1)
-    }
     private val backgroundPaint = Paint().apply {
         color = resources.getColor(R.color.Background, null)
     }
@@ -96,8 +92,6 @@ open class ProjectTimeLineView @JvmOverloads constructor(
      */
     override fun onDraw(canvas: Canvas) {
         val originLocation = getPositionOfTime(0)
-
-        val fl = sampleMsQuantum * pxPerMs
 
         var x = if (originLocation > 0) originLocation else originLocation % height
 
