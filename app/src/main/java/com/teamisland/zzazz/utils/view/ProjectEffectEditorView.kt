@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.view
 
 import android.content.Context
 import android.graphics.Canvas
@@ -6,12 +6,12 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
 
 /**
  * Effect range & editor.
  */
-class ProjectEffectEditor @JvmOverloads constructor(
+class ProjectEffectEditorView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 

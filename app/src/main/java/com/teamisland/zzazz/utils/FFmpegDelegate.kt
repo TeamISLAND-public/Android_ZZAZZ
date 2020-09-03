@@ -38,23 +38,6 @@ object FFmpegDelegate {
     }
 
     /**
-     * @param command   FFmpeg command
-     * @param callback  Callback after execution
-     */
-    fun trimVideo(
-        inPath: String,
-        startMs: Long,
-        endMs: Long,
-        outPath: String,
-        callback: (Int) -> Unit
-    ) {
-        val start = startMs / 1000.0
-        val end = endMs / 1000.0
-        FFmpeg.execute("-ss $start -i $inPath -t ${end - start} $outPath")
-        callback(Config.getLastReturnCode())
-    }
-
-    /**
      * Extracts all frames in the video.
      * @param outPath Should be .png & contains %08d.
      */

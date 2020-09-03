@@ -52,7 +52,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     lateinit var path: String
 
     /**
-     *
+     * Get bitmap for every width & height change.
      */
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -69,7 +69,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
                 try {
-                    for (i in 0 until frameCount) {
+                    for (i in 1..frameCount) {
                         val s = path + "/img%08d.png".format(i + 1)
                         Log.d("image path", s)
                         var bitmap: Bitmap? =
