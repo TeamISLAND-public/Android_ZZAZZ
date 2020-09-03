@@ -28,6 +28,7 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
         window.navigationBarColor = getColor(R.color.Background)
 
+        // This is just for getting instance id of test device.
         FirebaseInstanceId.getInstance().instanceId
             .addOnCompleteListener(OnCompleteListener { task ->
                 if (!task.isSuccessful) {
