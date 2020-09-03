@@ -171,7 +171,7 @@ class LoadingDialog(context: Context, private val request: Int) :
                 File(parentFolder, fileName)
             }.absolutePath
             val frameCount =
-                (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
+                (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
 
             val start = dataBinder.startMs / 1000.0
             val end = dataBinder.endMs / 1000.0
