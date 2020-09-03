@@ -31,7 +31,6 @@ import android.view.View
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.utils.UnitConverter
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
-import kotlin.math.roundToInt
 
 /**
  * View for showing thumbnails of video by time.
@@ -92,8 +91,6 @@ open class ProjectTimeLineView @JvmOverloads constructor(
      */
     override fun onDraw(canvas: Canvas) {
         val originLocation = getPositionOfTime(0)
-
-        val fl = sampleMsQuantum * pxPerMs
 
         var x = if (originLocation > 0) originLocation else originLocation % height
 
