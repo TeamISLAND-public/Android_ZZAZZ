@@ -70,7 +70,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
             override fun execute() {
                 try {
                     for (i in 1..frameCount) {
-                        val s = path + "/img%08d.png".format(i + 1)
+                        val s = path + "/img%08d.png".format(i)
                         Log.d("image path", s)
                         var bitmap: Bitmap? =
                             BitmapFactory.decodeFile(s)
