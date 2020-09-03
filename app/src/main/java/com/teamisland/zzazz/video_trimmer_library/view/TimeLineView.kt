@@ -36,7 +36,10 @@ import android.util.Range
 import android.view.MotionEvent
 import android.view.View
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.*
+import com.teamisland.zzazz.utils.interfaces.ITrimmingData
+import com.teamisland.zzazz.utils.objects.AbsolutePathRetriever
+import com.teamisland.zzazz.utils.objects.FFmpegDelegate
+import com.teamisland.zzazz.utils.objects.UnitConverter
 import com.teamisland.zzazz.utils.view.CurrentPositionView
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
 import kotlin.math.ceil

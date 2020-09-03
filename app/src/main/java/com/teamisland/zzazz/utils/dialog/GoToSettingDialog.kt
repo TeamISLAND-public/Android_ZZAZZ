@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.dialog
 
 import android.app.Activity
 import android.app.Dialog
@@ -12,6 +12,7 @@ import android.provider.Settings
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.core.content.ContextCompat.startActivity
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.utils.PermissionManager
 import kotlinx.android.synthetic.main.dialog_tosetting.*
 
 

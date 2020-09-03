@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.objects
 
 import android.content.Context
 import android.media.MediaExtractor

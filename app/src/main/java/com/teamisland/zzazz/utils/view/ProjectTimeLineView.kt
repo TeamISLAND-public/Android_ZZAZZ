@@ -24,12 +24,15 @@
 package com.teamisland.zzazz.utils.view
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.media.ThumbnailUtils.extractThumbnail
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.UnitConverter
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
 
 /**
@@ -42,8 +45,6 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     private val backgroundPaint = Paint().apply {
         color = resources.getColor(R.color.Background, null)
     }
-
-    private var sampleMsQuantum = 50
 
     /**
      * Uri of target video.

@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.interfaces
 
 interface ITrimmingData {
     fun updateUI()

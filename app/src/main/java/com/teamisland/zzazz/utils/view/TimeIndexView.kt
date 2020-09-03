@@ -5,8 +5,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
-import com.teamisland.zzazz.utils.UnitConverter.float2SP
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2SP
 import java.util.*
 import kotlin.math.floor
 import kotlin.math.log

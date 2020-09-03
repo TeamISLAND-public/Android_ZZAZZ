@@ -3,8 +3,8 @@ package com.teamisland.zzazz.utils.view
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
-import com.teamisland.zzazz.utils.UnitConverter.px2dp
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.objects.UnitConverter.px2dp
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 

@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.objects
 
 import android.content.ContentUris
 import android.content.Context
@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream

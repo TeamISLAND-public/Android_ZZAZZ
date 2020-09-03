@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.tab
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ProjectActivity
+import com.teamisland.zzazz.utils.CustomAdapter
+import com.teamisland.zzazz.utils.ItemDecoration
 
 /**
  * Override [Fragment] for each tab

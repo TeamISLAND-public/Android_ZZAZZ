@@ -5,8 +5,6 @@ import android.app.Activity
 import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.util.Range
@@ -18,11 +16,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.*
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
-import com.teamisland.zzazz.utils.UnitConverter.px2dp
-import com.teamisland.zzazz.utils.dialog.LoadingDialog
+import com.teamisland.zzazz.utils.AddFragmentPagerAdapter
+import com.teamisland.zzazz.utils.CustomAdapter
+import com.teamisland.zzazz.utils.SaveProjectActivity
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.objects.UnitConverter.px2dp
+import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
 import com.teamisland.zzazz.utils.dialog.GoToTrimDialog
+import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import com.teamisland.zzazz.utils.inference.Person
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
@@ -31,8 +32,7 @@ import kotlinx.android.synthetic.main.custom_tab.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.io.File
-import java.util.ArrayList
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -60,10 +60,14 @@ class ProjectActivity : AppCompatActivity() {
 
     private val resultPath: String by lazy { dataDir.absolutePath + "/result.mp4" }
 
+    private val modelOutput: ArrayList<Person?> by lazy {
+        intent.getParcelableArrayListExtra<Person?>(
+            TrimmingActivity.MODEL_OUTPUT
+        )
+    }
+
     @Suppress("unused")
     private val modelPath: String by lazy { filesDir.absolutePath + "test_txt.txt" }
-    private val frameCount: Int by lazy { getFrameCount(this, uri).toInt() }
-    private val path: String by lazy { intent.getStringExtra(TrimmingActivity.VIDEO_PATH) }
     private val fps: Float by lazy { frameCount * 1000f / videoDuration }
     private val imagePath: String by lazy { intent.getStringExtra(TrimmingActivity.IMAGE_PATH) }
     private val frameCount: Int by lazy {
@@ -85,16 +89,6 @@ class ProjectActivity : AppCompatActivity() {
          * Check the project is saved
          */
         const val IS_SAVED: Int = 1
-
-        /**
-         * Play manager object of video player in Unity.
-         */
-        const val PLAY_MANAGER: String = "PlayManager"
-
-        /**
-         * Method name of exporting result video in Unity
-         */
-        const val EXPORT: String = "exportVideo"
     }
 
     /**
@@ -228,7 +222,27 @@ class ProjectActivity : AppCompatActivity() {
 
         tabInit()
 
-        gotoExportActivity.setOnClickListener { exportVideo() }
+//        save_project.setOnTouchListener { _, event ->
+//            when (event.action) {
+//                MotionEvent.ACTION_DOWN -> {
+//                    save_project.alpha = 0.5F
+//                }
+//
+//                MotionEvent.ACTION_UP -> {
+//                    stopVideo()
+//                    Intent(this, SaveProjectActivity::class.java).also {
+//                        startActivityForResult(it, IS_SAVED)
+//                    }
+//                    save_project.alpha = 1F
+//                }
+//            }
+//            true
+//        }
+
+        gotoExportActivity.setOnClickListener {
+            stopVideo()
+            exportVideo()
+        }
 
         back.setOnClickListener { onBackPressed() }
 

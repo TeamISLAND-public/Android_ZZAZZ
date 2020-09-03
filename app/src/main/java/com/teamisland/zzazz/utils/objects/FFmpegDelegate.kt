@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.objects
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -42,13 +42,13 @@ object FFmpegDelegate {
      * @param outPath Should be .png & contains %08d.
      */
     fun extractFrames(
+        start: Double,
+        end: Double,
         inPath: String,
         outPath: String,
         callback: (Int) -> Unit
     ) {
-        Thread {
-            FFmpeg.execute("-i $inPath -vsync 0 $outPath")
-            callback(Config.getLastReturnCode())
-        }.start()
+        FFmpeg.execute("-ss $start -i $inPath -t ${end - start} $outPath")
+        callback(Config.getLastReturnCode())
     }
 }

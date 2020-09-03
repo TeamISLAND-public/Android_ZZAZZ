@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 //import android.content.Intent
 //import android.content.pm.PackageManager.PERMISSION_GRANTED
 //import android.graphics.Bitmap
-import android.app.ActivityOptions
-import android.content.Intent
-import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
@@ -19,10 +16,9 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import com.google.android.material.snackbar.Snackbar
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.GetVideoData
-import com.teamisland.zzazz.utils.ITrimmingData
+import com.teamisland.zzazz.utils.objects.GetVideoData
+import com.teamisland.zzazz.utils.interfaces.ITrimmingData
 import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.*

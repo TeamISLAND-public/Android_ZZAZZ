@@ -11,8 +11,8 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.ITrimmingData
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.interfaces.ITrimmingData
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
 
 /**
  * Ranged seekbar with current position bar.

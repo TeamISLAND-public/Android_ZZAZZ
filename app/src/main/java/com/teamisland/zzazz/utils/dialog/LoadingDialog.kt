@@ -21,17 +21,15 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
 import com.teamisland.zzazz.ui.TrimmingActivity
-import com.teamisland.zzazz.utils.AbsolutePathRetriever
-import com.teamisland.zzazz.utils.FFmpegDelegate
-import com.teamisland.zzazz.utils.ITrimmingData
+import com.teamisland.zzazz.utils.objects.AbsolutePathRetriever
+import com.teamisland.zzazz.utils.objects.FFmpegDelegate
+import com.teamisland.zzazz.utils.interfaces.ITrimmingData
 import com.teamisland.zzazz.utils.inference.JsonConverter
-import com.teamisland.zzazz.utils.inference.PoseEstimation
 import com.teamisland.zzazz.utils.inference.Person
-import com.unity3d.player.UnityPlayer
+import com.teamisland.zzazz.utils.inference.PoseEstimation
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.*
 import java.io.*
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -178,7 +176,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             val start = dataBinder.startMs / 1000.0
             val end = dataBinder.endMs / 1000.0
             Thread {
-                FFmpegDelegate.exec("-i $inPath -ss $start -t ${end - start} $outPath") {
+                FFmpegDelegate.extractFrames(start, end, inPath, outPath) {
                     if (it == Config.RETURN_CODE_SUCCESS)
                         percentage = 50
                 }
@@ -240,8 +238,9 @@ class LoadingDialog(context: Context, private val request: Int) :
             dismiss()
         }
 
-    private fun inferenceVideo(dataBinder: ITrimmingData, path: String){
-        val frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
+    private fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
+        val frameCount =
+            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
         personList.clear()
         for (i in 0 until frameCount) {
             percentage += 100 * (i + 1) / frameCount
@@ -300,10 +299,10 @@ class LoadingDialog(context: Context, private val request: Int) :
     private fun saveVideo(): Job =
         CoroutineScope(Dispatchers.IO).launch {
             //Video name is depended by time
-            val time = System.currentTimeMillis()
-            val date = Date(time)
-            val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
-            val filename = nameFormat.format(date) + ".mp4"
+//            val time = System.currentTimeMillis()
+//            val date = Date(time)
+//            val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
+//            val filename = nameFormat.format(date) + ".mp4"
             dismiss()
         }
 }
