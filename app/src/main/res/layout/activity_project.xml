@@ -127,7 +127,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/timeIndexView" />
 
-            <com.teamisland.zzazz.utils.ProjectEffectEditor
+            <com.teamisland.zzazz.utils.view.ProjectEffectEditorView
                 android:id="@+id/projectEffectEditor"
                 android:layout_width="0dp"
                 android:layout_height="120dp"

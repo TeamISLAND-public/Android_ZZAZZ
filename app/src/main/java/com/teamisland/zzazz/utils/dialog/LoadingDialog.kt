@@ -178,7 +178,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             Thread {
                 FFmpegDelegate.extractFrames(start, end, inPath, outPath) {
                     if (it == Config.RETURN_CODE_SUCCESS)
-                        percentage = 100
+                        percentage = 50
                 }
             }.start()
 
@@ -190,7 +190,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             var currentLine: String?
 
             percentage = 0
-            while (percentage < 100) {
+            while (percentage < 50) {
                 currentLine = reader.readLine()
                 if (currentLine == null) {
                     process = Runtime.getRuntime().exec(command)
@@ -243,6 +243,8 @@ class LoadingDialog(context: Context, private val request: Int) :
             (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
         personList.clear()
         for (i in 0 until frameCount) {
+            percentage += 100 * (i + 1) / frameCount
+            progress.text = String.format("%02d%%", percentage)
             val bitmap: Bitmap? =
                 BitmapFactory.decodeFile(path + "/img%08d.png".format(i + 1))
             if (bitmap == null)
