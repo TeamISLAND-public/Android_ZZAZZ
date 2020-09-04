@@ -21,7 +21,7 @@ import com.teamisland.zzazz.utils.CustomAdapter
 import com.teamisland.zzazz.utils.SaveProjectActivity
 import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.objects.UnitConverter.px2dp
-import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
+import com.teamisland.zzazz.utils.UnityDataBridge
 import com.teamisland.zzazz.utils.dialog.GoToTrimDialog
 import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import com.teamisland.zzazz.utils.inference.Person
@@ -203,15 +203,15 @@ class ProjectActivity : AppCompatActivity() {
 
         zoomLevel = float2DP(0.06f, resources)
 
-        Log.i(
-            "zzazz_core1",
-            String.format(
-                "shape %d %s %d",
-                modelOutput[1]!!.keyPoints.size, //21
-                modelOutput[0]!!.keyPoints[0].position.toString(), //Position(x=0.13257)
-                modelOutput.size
-            )
-        )
+//        Log.i(
+//            "zzazz_core1",
+//            String.format(
+//                "shape %d %s %d",
+//                modelOutput[1]!!.keyPoints.size, //21
+//                modelOutput[0]!!.keyPoints[0].position.toString(), //Position(x=0.13257)
+//                modelOutput.size
+//            )
+//        )
 
         project_play.setOnClickListener { unityDataBridge?.togglePlayState() }
 

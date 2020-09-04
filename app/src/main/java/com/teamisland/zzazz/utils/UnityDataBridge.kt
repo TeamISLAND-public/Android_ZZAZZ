@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils.interfaces
+package com.teamisland.zzazz.utils
 
 
 /**
