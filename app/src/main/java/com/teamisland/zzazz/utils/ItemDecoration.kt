@@ -3,6 +3,7 @@ package com.teamisland.zzazz.utils
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import com.teamisland.zzazz.utils.objects.UnitConverter
 
 /**
  * Design of each effect items

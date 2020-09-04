@@ -17,8 +17,8 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.GetVideoData
-import com.teamisland.zzazz.utils.ITrimmingData
+import com.teamisland.zzazz.utils.objects.GetVideoData
+import com.teamisland.zzazz.utils.interfaces.ITrimmingData
 import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import kotlinx.android.synthetic.main.activity_trimming.*
 import kotlinx.coroutines.*
@@ -30,7 +30,9 @@ import kotlin.coroutines.CoroutineContext
  */
 class TrimmingActivity : AppCompatActivity(), CoroutineScope {
 
-    ////////// Class member declaration.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Fields.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private val videoUri: Uri by lazy { intent.getParcelableExtra(IntroActivity.VIDEO_URI)!! }
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
@@ -110,13 +112,15 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
-    ////////// IMPORTANT: data bind event handlers are here.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Data binding event handlers.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /** DO NOT USE [ITrimmingData.currentVideoPosition] HERE. */
     @Suppress("UNUSED_PARAMETER")
     internal fun onCurrentVideoPositionChanged(old: Long, new: Long) {
         player.seekTo(new)
-        dataBinder.updateUI()
+        currentPositionView.invalidate()
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -134,12 +138,16 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         dataBinder.currentVideoPosition = dataBinder.startMs
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// UI updaters.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     internal fun goProjectButtonEnableCheck(start: Long, end: Long) {
         val seekDur = end - start
         val lengthLimit = resources.getInteger(R.integer.length_limit)
-        gotoProjectActivity.isEnabled = (seekDur <= lengthLimit)
+        val b = seekDur <= lengthLimit
+        gotoProjectActivity.isEnabled = b
+        currentPositionView.isEligible = b
     }
 
     internal fun setButtonEnable() {
@@ -167,7 +175,9 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// Overrides.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * [AppCompatActivity.dispatchTouchEvent]
@@ -231,6 +241,10 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         dataBinder.updateUI()
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Misc.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+
     private fun moveSelectedFrameIndexBy(amount: Int) {
         player.playWhenReady = false
         when (rangeSeekBarView.currentThumbIndex) {
@@ -245,7 +259,9 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         dialog.show()
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// Companion codes.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     companion object {
         /**
@@ -274,7 +290,9 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         const val MODEL_OUTPUT: String = "MODEL_OUTPUT"
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// Coroutine codes.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private val job = Job()
 

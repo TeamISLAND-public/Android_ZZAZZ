@@ -11,8 +11,8 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.ITrimmingData
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.interfaces.ITrimmingData
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
 
 /**
  * Ranged seekbar with current position bar.
@@ -72,6 +72,8 @@ open class CurrentPositionView @JvmOverloads constructor(
     private var showMarkerPaint = true
 
     private fun getText(): String {
+        if (!isEligible)
+            return "Size too long."
         val pos = bindData.currentVideoPosition
         val totalSecond = pos / 1000
         val millisecond = (pos / 10) % 100
@@ -114,6 +116,15 @@ open class CurrentPositionView @JvmOverloads constructor(
         textView.visibility = GONE
         invalidate()
     }
+
+    /**
+     * If the trimming range is eligible.
+     */
+    var isEligible: Boolean = false
+        set(value) {
+            field = value
+            invalidate()
+        }
 
     /**
      * Draws the view.
