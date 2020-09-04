@@ -1,4 +1,4 @@
-package com.teamisland.zzazz.utils
+package com.teamisland.zzazz.utils.interfaces
 
 
 /**
@@ -23,7 +23,7 @@ interface UnityDataBridge {
     fun retrieveMetadata(path: String, count: Int, fps: Float)
 
     /**
-     * Toggles play state. If playing, it'll pause, vice versa.
+     * Sets play state.
      */
-    fun togglePlayState()
+    fun setPlayState(b: Boolean)
 }

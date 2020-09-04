@@ -16,22 +16,23 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.IMAGE_PATH
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.MODEL_OUTPUT
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_DURATION
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_FRAME_COUNT
 import com.teamisland.zzazz.utils.AddFragmentPagerAdapter
 import com.teamisland.zzazz.utils.CustomAdapter
 import com.teamisland.zzazz.utils.SaveProjectActivity
-import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
-import com.teamisland.zzazz.utils.objects.UnitConverter.px2dp
-import com.teamisland.zzazz.utils.UnityDataBridge
+import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
 import com.teamisland.zzazz.utils.dialog.GoToTrimDialog
 import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import com.teamisland.zzazz.utils.inference.Person
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.objects.UnitConverter.px2dp
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
@@ -61,27 +62,15 @@ class ProjectActivity : AppCompatActivity() {
     private val resultPath: String by lazy { dataDir.absolutePath + "/result.mp4" }
 
     private val modelOutput: ArrayList<Person?> by lazy {
-        intent.getParcelableArrayListExtra<Person?>(
-            TrimmingActivity.MODEL_OUTPUT
-        )
+        intent.getParcelableArrayListExtra<Person?>(MODEL_OUTPUT)
     }
 
     @Suppress("unused")
     private val modelPath: String by lazy { filesDir.absolutePath + "test_txt.txt" }
     private val fps: Float by lazy { frameCount * 1000f / videoDuration }
-    private val imagePath: String by lazy { intent.getStringExtra(TrimmingActivity.IMAGE_PATH) }
-    private val frameCount: Int by lazy {
-        intent.getIntExtra(
-            TrimmingActivity.VIDEO_FRAME_COUNT,
-            0
-        )
-    }
-    private val videoDuration: Int by lazy {
-        intent.getIntExtra(
-            TrimmingActivity.VIDEO_DURATION,
-            0
-        )
-    }
+    private val imagePath: String by lazy { intent.getStringExtra(IMAGE_PATH) }
+    private val frameCount: Int by lazy { intent.getIntExtra(VIDEO_FRAME_COUNT, 0) }
+    private val videoDuration: Int by lazy { intent.getIntExtra(VIDEO_DURATION, 0) }
     private var frame: Int = 0
 
     companion object {
@@ -213,7 +202,7 @@ class ProjectActivity : AppCompatActivity() {
 //            )
 //        )
 
-        project_play.setOnClickListener { unityDataBridge?.togglePlayState() }
+        project_play.setOnClickListener { unityDataBridge?.setPlayState(!project_play.isActivated) }
 
         projectTimeLineView.path = imagePath
         projectTimeLineView.frameCount = frameCount
@@ -274,35 +263,14 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     private fun startVideo() {
-        if (project_play.isActivated) return
-        project_play.isActivated = true
-
-        if (frame == frameCount - 1)
-            frame = 0
-
-        GlobalScope.launch {
-            var time = 1000 * frame / fps
-            while (project_play.isActivated) {
-                time += 50
-                frame = (time * fps / 1000).toInt()
-                if (frameCount <= frame) {
-                    frame = frameCount - 1
-                    setCurrentTime(time.toInt())
-                    stopVideo()
-                    break
-                }
-                setCurrentTime(time.toInt())
-                delay(50)
-            }
-        }
+        unityDataBridge?.setPlayState(true)
     }
 
     /**
      * Stop video.
      */
     fun stopVideo() {
-        if (project_play.isActivated)
-            unityDataBridge?.togglePlayState()
+        unityDataBridge?.setPlayState(false)
     }
 
     private fun tabInit() {
