@@ -13,7 +13,7 @@ import java.io.File
 object FFmpegDelegate {
 
     /**
-     * Gets bitmap of frame at the specified milliseconds.
+     * Gets bitmap of frame at specified millisecond.
      */
     fun getFrameAtMilliSeconds(
         context: Context,
@@ -27,7 +27,7 @@ object FFmpegDelegate {
         val file = File(parentFolder, fileName)
         val trimmedVideoFile = file.absolutePath
 
-        FFmpeg.execute("-ss ${milliSeconds / 1000.0} -i $path -filter:v scale=${width}:-1 -vframes 1 -y $trimmedVideoFile")
+        FFmpeg.execute("-ss ${milliSeconds / 1000.0} -i $path -filter:v scale=$width:-1 -vframes 1 -y $trimmedVideoFile")
         val option = BitmapFactory.Options().apply {
             outWidth = width
             inJustDecodeBounds = false
@@ -39,7 +39,7 @@ object FFmpegDelegate {
 
     /**
      * Extracts all frames in the video.
-     * @param outPath Should be .png & contains %08d.
+     * @param outPath Should be .png & contain %08d.
      */
     fun extractFrames(
         start: Double,
@@ -50,5 +50,13 @@ object FFmpegDelegate {
     ) {
         FFmpeg.execute("-ss $start -i $inPath -t ${end - start} $outPath")
         callback(Config.getLastReturnCode())
+    }
+
+    /**
+     * Extracts audio from given time range.
+     */
+    fun extractAudio(start: Double, end: Double, inPath: String, context: Context) {
+        val absolutePath = context.filesDir.absolutePath
+        FFmpeg.execute("-ss $start -i $inPath -t ${end - start} $absolutePath/audio.mp3")
     }
 }

@@ -1,6 +1,5 @@
 package com.teamisland.zzazz.utils.dialog
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -21,12 +20,12 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
 import com.teamisland.zzazz.ui.TrimmingActivity
-import com.teamisland.zzazz.utils.objects.AbsolutePathRetriever
-import com.teamisland.zzazz.utils.objects.FFmpegDelegate
-import com.teamisland.zzazz.utils.interfaces.ITrimmingData
 import com.teamisland.zzazz.utils.inference.JsonConverter
 import com.teamisland.zzazz.utils.inference.Person
 import com.teamisland.zzazz.utils.inference.PoseEstimation
+import com.teamisland.zzazz.utils.interfaces.ITrimmingData
+import com.teamisland.zzazz.utils.objects.AbsolutePathRetriever
+import com.teamisland.zzazz.utils.objects.FFmpegDelegate
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.*
 import java.io.*
@@ -113,7 +112,6 @@ class LoadingDialog(context: Context, private val request: Int) :
     /**
      * [Dialog.onCreate]
      */
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
@@ -123,7 +121,7 @@ class LoadingDialog(context: Context, private val request: Int) :
         window?.setGravity(Gravity.CENTER)
 
         Glide.with(context).load(R.drawable.loading).into(load_gif)
-        progress.text = String.format("%02d", percentage) + "%"
+        progress.text = String.format("%02d%%", percentage)
 
         val job: Job
         when (request) {
@@ -157,8 +155,6 @@ class LoadingDialog(context: Context, private val request: Int) :
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    @Suppress("BlockingMethodInNonBlockingContext")
     private fun trimVideo(dataBinder: ITrimmingData, uri: Uri): Job =
         CoroutineScope(Dispatchers.IO).launch {
             val inPath = AbsolutePathRetriever.getPath(context, uri) ?: return@launch
@@ -182,18 +178,17 @@ class LoadingDialog(context: Context, private val request: Int) :
                 }
             }.start()
 
-            val command = "logcat -d -v process -t 1 mobile-ffmpeg:I *:S"
             val find = "frame"
             val pid = android.os.Process.myPid()
-            var process = Runtime.getRuntime().exec(command)
+            var process = process()
             var reader = BufferedReader(InputStreamReader(process.inputStream))
             var currentLine: String?
 
             percentage = 0
             while (percentage < 50) {
-                currentLine = reader.readLine()
+                currentLine = readOneLine(reader)
                 if (currentLine == null) {
-                    process = Runtime.getRuntime().exec(command)
+                    process = process()
                     reader = BufferedReader(InputStreamReader(process.inputStream))
                     continue
                 }
@@ -202,13 +197,14 @@ class LoadingDialog(context: Context, private val request: Int) :
                         val arr1 = currentLine.split("$find=")
                         val arr2 = arr1[1].trim().split(" ")
 
-                        if (percentage < 100 * arr2[0].toInt() / frameCount)
-                            percentage = 100 * arr2[0].toInt() / frameCount
+                        val threshold = 50 * arr2[0].toInt() / frameCount
+                        if (percentage < threshold)
+                            percentage = threshold
                         else
                             continue
                     }
                 }
-                progress.text = String.format("%02d", percentage) + "%"
+                progress.text = String.format("%02d%%", percentage)
                 yield()
             }
 
@@ -218,7 +214,12 @@ class LoadingDialog(context: Context, private val request: Int) :
 //            Log.d("bitmap123", "%s".format(modeloutput[1].toString()))
 //            Log.d("bitmap123", "%s".format(modeloutput[2].toString()))
 
-            FFmpeg.execute("-i $inPath -ss ${dataBinder.startMs} -t ${dataBinder.endMs - dataBinder.startMs} ${context.filesDir.absolutePath}/audio.mp3")
+            FFmpegDelegate.extractAudio(
+                dataBinder.startMs / 1000.0,
+                dataBinder.endExcludeMs / 1000.0,
+                inPath,
+                context
+            )
             Intent(context, ProjectActivity::class.java).apply {
                 putExtra(
                     TrimmingActivity.AUDIO_PATH,
@@ -238,15 +239,20 @@ class LoadingDialog(context: Context, private val request: Int) :
             dismiss()
         }
 
+    private fun readOneLine(reader: BufferedReader) = reader.readLine()
+
+    private fun process() =
+        Runtime.getRuntime().exec("logcat -d -v process -t 1 mobile-ffmpeg:I *:S")
+
     private fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
         val frameCount =
-            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
+            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
         personList.clear()
-        for (i in 0 until frameCount) {
-            percentage += 100 * (i + 1) / frameCount
+        for (i in 1..frameCount) {
+            percentage += 50 * i / frameCount
             progress.text = String.format("%02d%%", percentage)
             val bitmap: Bitmap? =
-                BitmapFactory.decodeFile(path + "/img%08d.png".format(i + 1))
+                BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
             if (bitmap == null)
                 Log.d("bitmap", "has no bit map")
             if (bitmap != null) {
@@ -258,7 +264,6 @@ class LoadingDialog(context: Context, private val request: Int) :
 
     }
 
-    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private fun exportVideo(): Job =
         CoroutineScope(Dispatchers.Default).launch {
             File(context.filesDir.absolutePath + "/result.mp4").delete()
@@ -272,18 +277,16 @@ class LoadingDialog(context: Context, private val request: Int) :
     /**
      * Called in Unity.
      */
-    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "unused")
+    @Suppress("unused")
     fun encodeVideo() {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             // get result video
             Log.d("Export", "Convert the images to a video and Combine with audio.")
             FFmpeg.execute("-i $capturePath/img%08d.png -i $audioPath -r $fps -pix_fmt yuv420p $resultPath")
 
             File(audioPath).delete()
-            for (img in File(imagePath).listFiles())
-                img.delete()
-            for (img in File(capturePath).listFiles())
-                img.delete()
+            File(imagePath).listFiles()?.forEach { it.delete() }
+            File(capturePath).listFiles()?.forEach { it.delete() }
 //        File(videoPath).delete()
             dismiss()
             Intent(context, ExportActivity::class.java).apply {
@@ -294,8 +297,6 @@ class LoadingDialog(context: Context, private val request: Int) :
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
-    @SuppressLint("SetTextI18n", "SimpleDateFormat")
     private fun saveVideo(): Job =
         CoroutineScope(Dispatchers.IO).launch {
             //Video name is depended by time
