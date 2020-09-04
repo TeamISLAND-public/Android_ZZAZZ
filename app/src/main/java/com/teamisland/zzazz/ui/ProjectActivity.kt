@@ -10,7 +10,6 @@ import android.util.Log
 import android.util.Range
 import android.view.MotionEvent
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -23,15 +22,16 @@ import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_FRAME_COUNT
 import com.teamisland.zzazz.utils.AddFragmentPagerAdapter
 import com.teamisland.zzazz.utils.CustomAdapter
 import com.teamisland.zzazz.utils.SaveProjectActivity
-import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
 import com.teamisland.zzazz.utils.dialog.GoToTrimDialog
 import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import com.teamisland.zzazz.utils.inference.Person
+import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
 import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.objects.UnitConverter.px2dp
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
+import kotlinx.android.synthetic.main.custom_tab.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
 import java.util.*
 import kotlin.math.abs
@@ -274,61 +274,46 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     private fun tabInit() {
-        with(effect_tab) {
-            addTab(newTab().setCustomView(createTabView(getString(R.string.head_effect))))
-            addTab(newTab().setCustomView(createTabView(getString(R.string.left_arm_effect))))
-            addTab(newTab().setCustomView(createTabView(getString(R.string.right_arm_effect))))
-            addTab(newTab().setCustomView(createTabView(getString(R.string.left_leg_effect))))
-            addTab(newTab().setCustomView(createTabView(getString(R.string.right_leg_effect))))
+        val tabNameList = arrayOf(
+            getString(R.string.head_effect),
+            getString(R.string.left_arm_effect),
+            getString(R.string.right_arm_effect),
+            getString(R.string.left_leg_effect),
+            getString(R.string.right_leg_effect)
+        )
+        tabNameList.forEach {
+            with(effect_tab) { addTab(newTab().setCustomView(createTabView(it))) }
         }
 
-        val addPagerAdapter =
-            AddFragmentPagerAdapter(
-                supportFragmentManager,
-                5,
-                this
-            )
-        effect_view_pager.adapter = addPagerAdapter
+        effect_view_pager.adapter = AddFragmentPagerAdapter(supportFragmentManager, 5, this)
 
-        for (index in 1 until effect_tab.tabCount)
-            (effect_tab.getTabAt(index) ?: return).view.tab_text.setTextColor(
-                ContextCompat.getColor(
-                    applicationContext,
-                    R.color.ContentsText40
-                )
-            )
+        val archivoBold = ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+        val archivoRegular = ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
+        val white40Color = ContextCompat.getColor(applicationContext, R.color.ContentsText40)
+        val whiteColor = ContextCompat.getColor(applicationContext, R.color.White)
+
+        for (index in 1 until effect_tab.tabCount) {
+            effect_tab.getTabAt(index)?.view?.tab_text?.setTextColor(white40Color)
+        }
+
         val tabView = effect_tab.getTabAt(0)
-        (tabView ?: return).view.tab_text.apply {
-            setTextColor(
-                ContextCompat.getColor(
-                    applicationContext,
-                    R.color.White
-                )
-            )
-            typeface = ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+        tabView?.view?.tab_text?.apply {
+            setTextColor(whiteColor)
+            typeface = archivoBold
         }
+
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                effect_view_pager.currentItem = (tab ?: return).position
-                tab.view.tab_text.typeface =
-                    ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
-                tab.view.tab_text.setTextColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.White
-                    )
-                )
+                if (tab == null) return
+                effect_view_pager.currentItem = tab.position
+                tab.view.tab_text.typeface = archivoBold
+                tab.view.tab_text.setTextColor(whiteColor)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
-                (tab ?: return).view.tab_text.typeface =
-                    ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
-                tab.view.tab_text.setTextColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.ContentsText40
-                    )
-                )
+                if (tab == null) return
+                tab.view.tab_text.typeface = archivoRegular
+                tab.view.tab_text.setTextColor(white40Color)
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) = Unit
@@ -339,8 +324,7 @@ class ProjectActivity : AppCompatActivity() {
 
     private fun createTabView(tabName: String): View? {
         val tabView = View.inflate(applicationContext, R.layout.custom_tab, null)
-        val textView = tabView.findViewById<TextView>(R.id.tab_text)
-        textView.text = tabName
+        tab_text.text = tabName
         return tabView
     }
 
