@@ -10,11 +10,13 @@ import android.util.Log
 import android.util.Range
 import android.view.MotionEvent
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.AUDIO_PATH
 import com.teamisland.zzazz.ui.TrimmingActivity.Companion.IMAGE_PATH
 import com.teamisland.zzazz.ui.TrimmingActivity.Companion.MODEL_OUTPUT
 import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_DURATION
@@ -31,8 +33,8 @@ import com.teamisland.zzazz.utils.objects.UnitConverter.px2dp
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
-import kotlinx.android.synthetic.main.custom_tab.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
+import java.io.File
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
@@ -59,18 +61,32 @@ class ProjectActivity : AppCompatActivity() {
         mUnityPlayer.destroy()
     }
 
-    private val resultPath: String by lazy { dataDir.absolutePath + "/result.mp4" }
+    private val resultPath: String by lazy { filesDir.absolutePath + "/result.mp4" }
 
     private val modelOutput: ArrayList<Person?> by lazy {
         intent.getParcelableArrayListExtra<Person?>(MODEL_OUTPUT)
     }
 
     @Suppress("unused")
-    private val modelPath: String by lazy { filesDir.absolutePath + "test_txt.txt" }
+    private val modelPath: String by lazy { filesDir.absolutePath + "/test_txt.txt" }
+    private val capturePath: String by lazy { filesDir.absolutePath + "/capture_image" }
     private val fps: Float by lazy { frameCount * 1000f / videoDuration }
     private val imagePath: String by lazy { intent.getStringExtra(IMAGE_PATH) }
+    private val audioPath: String by lazy { intent.getStringExtra(AUDIO_PATH) }
     private val frameCount: Int by lazy { intent.getIntExtra(VIDEO_FRAME_COUNT, 0) }
     private val videoDuration: Int by lazy { intent.getIntExtra(VIDEO_DURATION, 0) }
+    private val dialog by lazy {
+        LoadingDialog(
+            this,
+            LoadingDialog.EXPORT,
+            capturePath,
+            audioPath,
+            frameCount,
+            fps,
+            resultPath,
+            unityDataBridge
+        )
+    }
     private var frame: Int = 0
 
     companion object {
@@ -146,9 +162,8 @@ class ProjectActivity : AppCompatActivity() {
     @Suppress("unused")
     fun accept(li: UnityDataBridge) {
         unityDataBridge = li
-        li.isUserAGoat("hi")
         li.onSuccessfulAccept()
-        li.retrieveMetadata(imagePath, frameCount, fps)
+        li.retrieveMetadata(imagePath, capturePath, frameCount, fps)
     }
 
     /**
@@ -174,6 +189,14 @@ class ProjectActivity : AppCompatActivity() {
     fun unityFrame(b: Int) {
         frame = b
         setCurrentTime(frame * videoDuration / frameCount)
+    }
+
+    /**
+     * For unity export frame update event handling.
+     */
+    @Suppress("unused")
+    fun exportFrame(frame: Int) {
+        dialog.update(50 * (frame + 1) / frameCount)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,10 +344,10 @@ class ProjectActivity : AppCompatActivity() {
         effect_view_pager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(effect_tab))
     }
 
-
     private fun createTabView(tabName: String): View? {
         val tabView = View.inflate(applicationContext, R.layout.custom_tab, null)
-        tab_text.text = tabName
+        val textView = tabView.findViewById<TextView>(R.id.tab_text)
+        textView.text = tabName
         return tabView
     }
 
@@ -334,9 +357,24 @@ class ProjectActivity : AppCompatActivity() {
 
     private fun exportVideo() {
         stopVideo()
-        val dialog = LoadingDialog(this, LoadingDialog.EXPORT, imagePath, fps, resultPath)
+        val captureFile = File(capturePath)
+        if (!captureFile.exists())
+            captureFile.mkdir()
         dialog.create()
         dialog.show()
+        UnityPlayer.UnitySendMessage("InteractionManager", "ExportImage", "")
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Code for exporting
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Encode captured images to video.
+     */
+    @Suppress("unused")
+    fun encodeVideo() {
+        dialog.encodeVideo()
     }
 
     /**

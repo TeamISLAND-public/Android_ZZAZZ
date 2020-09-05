@@ -59,4 +59,18 @@ object FFmpegDelegate {
         val absolutePath = context.filesDir.absolutePath
         FFmpeg.execute("-ss $start -i $inPath -t ${end - start} $absolutePath/audio.mp3")
     }
+
+    /**
+     * Export Video from given images and audio.
+     */
+    fun exportVideo(
+        capturePath: String,
+        audioPath: String,
+        fps: Float,
+        resultPath: String,
+        callback: (Int) -> Unit
+    ) {
+        FFmpeg.execute("-i $capturePath/img%08d.png -i $audioPath -r $fps -pix_fmt yuv420p $resultPath")
+        callback(Config.getLastReturnCode())
+    }
 }

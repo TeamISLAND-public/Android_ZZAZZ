@@ -13,17 +13,17 @@ interface UnityDataBridge {
     fun onSuccessfulAccept()
 
     /**
-     * Method for testing if the connection has been established.
-     */
-    fun isUserAGoat(any: Any)
-
-    /**
      * Retrieves video data.
      */
-    fun retrieveMetadata(path: String, count: Int, fps: Float)
+    fun retrieveMetadata(importPath: String, exportPath: String, count: Int, fps: Float)
 
     /**
      * Sets play state.
      */
     fun setPlayState(b: Boolean)
+
+    /**
+     * Cancel exporting in Unity.
+     */
+    fun cancelExporting()
 }

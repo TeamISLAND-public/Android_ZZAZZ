@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.Window
+import androidx.annotation.IntRange
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.content.ContextCompat.startActivity
 import com.arthenica.mobileffmpeg.Config
@@ -19,11 +20,16 @@ import com.bumptech.glide.Glide
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
-import com.teamisland.zzazz.ui.TrimmingActivity
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.AUDIO_PATH
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.IMAGE_PATH
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.MODEL_OUTPUT
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_DURATION
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_FRAME_COUNT
 import com.teamisland.zzazz.utils.inference.JsonConverter
 import com.teamisland.zzazz.utils.inference.Person
 import com.teamisland.zzazz.utils.inference.PoseEstimation
 import com.teamisland.zzazz.utils.interfaces.ITrimmingData
+import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
 import com.teamisland.zzazz.utils.objects.AbsolutePathRetriever
 import com.teamisland.zzazz.utils.objects.FFmpegDelegate
 import kotlinx.android.synthetic.main.loading_dialog.*
@@ -49,17 +55,20 @@ class LoadingDialog(context: Context, private val request: Int) :
     private var width = 256
 
     // Variable for export
+    private var frameCount by Delegates.notNull<Int>()
     private var fps by Delegates.notNull<Float>()
     private var resultPath: String = ""
     private var audioPath: String = ""
-    private var imagePath: String = ""
     private var capturePath: String = ""
+    private var unityDataBridge: UnityDataBridge? = null
+    private var isUnity = true
 
     // Variable for save
     private var input: InputStream? = null
     private var output: FileOutputStream? = null
 
     private var percentage: Int = 0
+    private var job: Job? = null
 
     /**
      * Constructor for [TRIM]
@@ -83,13 +92,19 @@ class LoadingDialog(context: Context, private val request: Int) :
     constructor(
         context: Context,
         request: Int,
-        imagePath: String,
+        capturePath: String,
+        audioPath: String,
+        frameCount: Int,
         fps: Float,
-        resultPath: String
+        resultPath: String,
+        unityDataBridge: UnityDataBridge?
     ) : this(context, request) {
-        this.imagePath = imagePath
+        this.capturePath = capturePath
+        this.audioPath = audioPath
+        this.frameCount = frameCount
         this.fps = fps
         this.resultPath = resultPath
+        this.unityDataBridge = unityDataBridge
     }
 
     companion object {
@@ -123,15 +138,15 @@ class LoadingDialog(context: Context, private val request: Int) :
         Glide.with(context).load(R.drawable.loading).into(load_gif)
         progress.text = String.format("%02d%%", percentage)
 
-        val job: Job
         when (request) {
             TRIM -> {
                 text.text = context.getString(R.string.trim_video)
                 job = trimVideo(dataBinder ?: return, uri ?: return)
             }
             EXPORT -> {
+                isUnity = true
                 text.text = context.getString(R.string.export_video)
-                job = exportVideo()
+                File(context.filesDir.absolutePath + "/result.mp4").delete()
             }
             SAVE -> {
                 text.text = context.getString(R.string.save_video)
@@ -144,13 +159,17 @@ class LoadingDialog(context: Context, private val request: Int) :
         }
 
         cancel.setOnClickListener {
-            job.cancel()
-            if (request == SAVE) {
-                input?.close()
-                output?.flush()
-                output?.close()
-            } else
-                FFmpeg.cancel()
+            if (!isUnity) {
+                (job ?: return@setOnClickListener).cancel()
+                if (request == SAVE) {
+                    input?.close()
+                    output?.flush()
+                    output?.close()
+                } else
+                    FFmpeg.cancel()
+            } else {
+                unityDataBridge?.cancelExporting()
+            }
             dismiss()
         }
     }
@@ -166,8 +185,7 @@ class LoadingDialog(context: Context, private val request: Int) :
                 val fileName = "img%08d.png"
                 File(parentFolder, fileName)
             }.absolutePath
-            val frameCount =
-                (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
+            frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
 
             val start = dataBinder.startMs / 1000.0
             val end = dataBinder.endMs / 1000.0
@@ -178,35 +196,7 @@ class LoadingDialog(context: Context, private val request: Int) :
                 }
             }.start()
 
-            val find = "frame"
-            val pid = android.os.Process.myPid()
-            var process = process()
-            var reader = BufferedReader(InputStreamReader(process.inputStream))
-            var currentLine: String?
-
-            percentage = 0
-            while (percentage < 50) {
-                currentLine = readOneLine(reader)
-                if (currentLine == null) {
-                    process = process()
-                    reader = BufferedReader(InputStreamReader(process.inputStream))
-                    continue
-                }
-                if (currentLine.contains(java.lang.String.valueOf(pid))) {
-                    if (currentLine.contains("$find=")) {
-                        val arr1 = currentLine.split("$find=")
-                        val arr2 = arr1[1].trim().split(" ")
-
-                        val threshold = 50 * arr2[0].toInt() / frameCount
-                        if (percentage < threshold)
-                            percentage = threshold
-                        else
-                            continue
-                    }
-                }
-                progress.text = String.format("%02d%%", percentage)
-                yield()
-            }
+            getPercentageFromFFmpeg(0)
 
             inferenceVideo(dataBinder, parentPath)
             JsonConverter.convert(personList, frameCount, context)
@@ -221,35 +211,21 @@ class LoadingDialog(context: Context, private val request: Int) :
                 context
             )
             Intent(context, ProjectActivity::class.java).apply {
-                putExtra(
-                    TrimmingActivity.AUDIO_PATH,
-                    context.filesDir.absolutePath + "/audio.mp3"
-                )
-                putExtra(
-                    TrimmingActivity.IMAGE_PATH,
-                    "${context.filesDir.absolutePath}/video_image"
-                )
-                putExtra(TrimmingActivity.VIDEO_FRAME_COUNT, frameCount)
-                putExtra(
-                    TrimmingActivity.VIDEO_DURATION,
-                    (dataBinder.endMs - dataBinder.startMs + 1).toInt()
-                )
-                putExtra(TrimmingActivity.MODEL_OUTPUT, personList as Serializable)
+                putExtra(IMAGE_PATH, context.filesDir.absolutePath + "/video_image")
+                putExtra(AUDIO_PATH, context.filesDir.absolutePath + "/audio.mp3")
+                putExtra(VIDEO_FRAME_COUNT, frameCount)
+                putExtra(VIDEO_DURATION, (dataBinder.endMs - dataBinder.startMs + 1).toInt())
+                putExtra(MODEL_OUTPUT, personList as Serializable)
             }.also { startActivity(context, it, null) }
             dismiss()
         }
-
-    private fun readOneLine(reader: BufferedReader) = reader.readLine()
-
-    private fun process() =
-        Runtime.getRuntime().exec("logcat -d -v process -t 1 mobile-ffmpeg:I *:S")
 
     private fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
         val frameCount =
             (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
         personList.clear()
         for (i in 1..frameCount) {
-            percentage += 50 * i / frameCount
+            percentage = 50 * i / frameCount + 50
             progress.text = String.format("%02d%%", percentage)
             val bitmap: Bitmap? =
                 BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
@@ -261,40 +237,39 @@ class LoadingDialog(context: Context, private val request: Int) :
                 personList.add(person)
             }
         }
-
     }
-
-    private fun exportVideo(): Job =
-        CoroutineScope(Dispatchers.Default).launch {
-            File(context.filesDir.absolutePath + "/result.mp4").delete()
-
-            capturePath = context.filesDir.absolutePath + "/capture_image"
-            val captureFile = File(capturePath)
-            if (!captureFile.exists())
-                captureFile.mkdir()
-        }
 
     /**
      * Called in Unity.
      */
-    @Suppress("unused")
     fun encodeVideo() {
-        CoroutineScope(Dispatchers.IO).launch {
-            // get result video
-            Log.d("Export", "Convert the images to a video and Combine with audio.")
-            FFmpeg.execute("-i $capturePath/img%08d.png -i $audioPath -r $fps -pix_fmt yuv420p $resultPath")
+        job = CoroutineScope(Dispatchers.IO).launch {
+            isUnity = false
+            Thread {
+                FFmpegDelegate.exportVideo(capturePath, audioPath, fps, resultPath) {
+                    if (it == Config.RETURN_CODE_SUCCESS)
+                        percentage = 100
+                }
+            }.start()
+
+            getPercentageFromFFmpeg(50)
 
             File(audioPath).delete()
-            File(imagePath).listFiles()?.forEach { it.delete() }
             File(capturePath).listFiles()?.forEach { it.delete() }
-//        File(videoPath).delete()
             dismiss()
             Intent(context, ExportActivity::class.java).apply {
-                Log.d("path", resultPath)
                 putExtra("RESULT", resultPath)
                 startActivity(context, this, null)
             }
         }
+    }
+
+    /**
+     * Update percentage.
+     */
+    fun update(@IntRange(from = 0, to = 100) percentage: Int) {
+        this.percentage = percentage
+        progress.text = String.format("%02d%%", percentage)
     }
 
     private fun saveVideo(): Job =
@@ -306,4 +281,40 @@ class LoadingDialog(context: Context, private val request: Int) :
 //            val filename = nameFormat.format(date) + ".mp4"
             dismiss()
         }
+
+    private fun readOneLine(reader: BufferedReader) = reader.readLine()
+
+    private fun process() =
+        Runtime.getRuntime().exec("logcat -d -v process -t 1 mobile-ffmpeg:I *:S")
+
+    private suspend fun getPercentageFromFFmpeg(startPercentage: Int) {
+        val find = "frame"
+        val pid = android.os.Process.myPid()
+        var process = process()
+        var reader = BufferedReader(InputStreamReader(process.inputStream))
+        var currentLine: String?
+
+        while (percentage < 50 + startPercentage) {
+            currentLine = readOneLine(reader)
+            if (currentLine == null) {
+                process = process()
+                reader = BufferedReader(InputStreamReader(process.inputStream))
+                continue
+            }
+            if (currentLine.contains(java.lang.String.valueOf(pid))) {
+                if (currentLine.contains("$find=")) {
+                    val arr1 = currentLine.split("$find=")
+                    val arr2 = arr1[1].trim().split(" ")
+
+                    val threshold = 50 * arr2[0].toInt() / frameCount + startPercentage
+                    if (percentage < threshold)
+                        percentage = threshold
+                    else
+                        continue
+                }
+            }
+            progress.text = String.format("%02d%%", percentage)
+            yield()
+        }
+    }
 }
