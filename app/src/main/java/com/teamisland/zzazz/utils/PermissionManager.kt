@@ -17,6 +17,7 @@ class PermissionManager(private val context: Context, private val activity: Acti
         Manifest.permission.READ_EXTERNAL_STORAGE,
         Manifest.permission.CAMERA,
         Manifest.permission.INTERNET,
+        Manifest.permission.ACCESS_NETWORK_STATE,
         Manifest.permission.VIBRATE
     )
 
