@@ -25,8 +25,8 @@ import com.teamisland.zzazz.utils.AbsolutePathRetriever
 import com.teamisland.zzazz.utils.FFmpegDelegate
 import com.teamisland.zzazz.utils.ITrimmingData
 import com.teamisland.zzazz.utils.inference.JsonConverter
-import com.teamisland.zzazz.utils.inference.PoseEstimation
 import com.teamisland.zzazz.utils.inference.Person
+import com.teamisland.zzazz.utils.inference.PoseEstimation
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.*
@@ -216,9 +216,6 @@ class LoadingDialog(context: Context, private val request: Int) :
 
             inferenceVideo(dataBinder, parentPath)
             JsonConverter.convert(personList, frameCount, context)
-//            Log.d("bitmap123", "%s".format(modeloutput[0].toString()))
-//            Log.d("bitmap123", "%s".format(modeloutput[1].toString()))
-//            Log.d("bitmap123", "%s".format(modeloutput[2].toString()))
 
             FFmpeg.execute("-i $inPath -ss ${dataBinder.startMs} -t ${dataBinder.endMs - dataBinder.startMs} ${context.filesDir.absolutePath}/audio.mp3")
             Intent(context, ProjectActivity::class.java).apply {
@@ -235,7 +232,6 @@ class LoadingDialog(context: Context, private val request: Int) :
                     TrimmingActivity.VIDEO_DURATION,
                     (dataBinder.endMs - dataBinder.startMs + 1).toInt()
                 )
-                putExtra(TrimmingActivity.MODEL_OUTPUT, personList as Serializable)
             }.also { startActivity(context, it, null) }
             dismiss()
         }
@@ -243,7 +239,27 @@ class LoadingDialog(context: Context, private val request: Int) :
     private fun inferenceVideo(dataBinder: ITrimmingData, path: String){
         val frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
         personList.clear()
-        for (i in 0 until frameCount) {
+        // Detecting initial bounding box
+        for (i in 0 until 3) {
+            val bitmap: Bitmap? =
+                BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
+            if (bitmap == null)
+                Log.d("bitmap", "has no bit map")
+            if (bitmap != null) {
+                val croppedBmp: Bitmap = Bitmap.createBitmap(
+                    bitmap,
+                    rectanglePositionX,
+                    rectanglePositionY,
+                    rectangleWidth,
+                    rectangleHeight
+                )
+                val resized = Bitmap.createScaledBitmap(bitmap, width, height, true)
+                val person = poseEstimation.estimatePose(resized)
+                personList.add(person)
+            }
+        }
+        // Tracking bounding box based on heatmap
+        for (i in 3 until frameCount) {
             val bitmap: Bitmap? =
                 BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
             if (bitmap == null)

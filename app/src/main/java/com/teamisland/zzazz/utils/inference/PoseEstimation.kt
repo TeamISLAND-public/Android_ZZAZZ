@@ -63,7 +63,10 @@ data class KeyPoint(
     var position: Position = Position()) : Parcelable
 
 @Parcelize
-data class Person(var keyPoints: List<KeyPoint> = listOf()) : Parcelable
+data class Person(
+    var keyPoints: List<KeyPoint> = listOf(),
+    var bBox: ArrayList<Int> = ArrayList()
+) : Parcelable
 
 /**
  * ZZAZZ Core model class
@@ -201,6 +204,7 @@ class PoseEstimation(
         )
 
         val outputMap = initOutputMap()
+        val person = Person()
 
         val inferenceStartTimeNanoSeconds = SystemClock.elapsedRealtimeNanos()
         getInterpreter().runForMultipleInputsOutputs(inputArray, outputMap)
@@ -264,6 +268,11 @@ class PoseEstimation(
                 locationZ[0][keypointRow][keypointCol][keypoint])
         }
 
+        person.bBox[0] = minCol
+        person.bBox[1] = maxCol
+        person.bBox[2] = minRow
+        person.bBox[3] = maxRow
+
         // Calculating cam_matrix TO DO
         val xCoords = FloatArray(numKeypoints)
         val yCoords = FloatArray(numKeypoints)
@@ -274,7 +283,6 @@ class PoseEstimation(
             zCoords[idx] = third / (width - 1).toFloat()
         }
 
-        val person = Person()
         val keypointList = Array(numKeypoints) { KeyPoint() }
         enumValues<BodyPart>().forEachIndexed { idx, it ->
             keypointList[idx].bodyPart = it

@@ -61,7 +61,6 @@ class ProjectActivity : AppCompatActivity() {
      */
     private lateinit var resultPath: String
     private lateinit var imagePath: String
-    private lateinit var modelOutput: ArrayList<Person?>
     private var videoDuration = 0
     private var fps: Float = 0f
     private var frameCount by Delegates.notNull<Int>()
@@ -181,17 +180,6 @@ class ProjectActivity : AppCompatActivity() {
         imagePath = intent.getStringExtra(TrimmingActivity.IMAGE_PATH)
         frameCount = intent.getIntExtra(TrimmingActivity.VIDEO_FRAME_COUNT, 0)
         videoDuration = intent.getIntExtra(TrimmingActivity.VIDEO_DURATION, 0)
-        modelOutput = intent.getSerializableExtra(TrimmingActivity.MODEL_OUTPUT) as ArrayList<Person?>
-
-        Log.i(
-            "zzazz_core1",
-            String.format(
-                "shape %d %s %d",
-                modelOutput[1]!!.keyPoints.size, //21
-                modelOutput[0]!!.keyPoints[0].position.toString(), //Position(x=0.13257)
-                modelOutput.size
-            )
-        )
 
         fps = frameCount / (videoDuration / 1000f)
 
