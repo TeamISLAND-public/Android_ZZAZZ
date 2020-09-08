@@ -130,7 +130,6 @@ class LoadingDialog(context: Context, private val activity: Activity, private va
         super.onCreate(savedInstanceState)
         setContentView(R.layout.loading_dialog)
         setCancelable(false)
-//        window?.setBackgroundDrawable(ColorDrawable(getColor(context, R.color.LoadingBackground)))
         val bitmap = ViewUtils.getScreenShot(activity.window.decorView.rootView)
         val realBitmap = Bitmap.createBitmap(
             bitmap,
