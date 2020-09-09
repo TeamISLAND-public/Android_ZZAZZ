@@ -24,9 +24,7 @@ import com.teamisland.zzazz.ui.TrimmingActivity
 import com.teamisland.zzazz.utils.AbsolutePathRetriever
 import com.teamisland.zzazz.utils.FFmpegDelegate
 import com.teamisland.zzazz.utils.ITrimmingData
-import com.teamisland.zzazz.utils.inference.JsonConverter
-import com.teamisland.zzazz.utils.inference.Person
-import com.teamisland.zzazz.utils.inference.PoseEstimation
+import com.teamisland.zzazz.utils.inference.*
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.*
@@ -215,7 +213,6 @@ class LoadingDialog(context: Context, private val request: Int) :
             }
 
             inferenceVideo(dataBinder, parentPath)
-            JsonConverter.convert(personList, frameCount, context)
 
             FFmpeg.execute("-i $inPath -ss ${dataBinder.startMs} -t ${dataBinder.endMs - dataBinder.startMs} ${context.filesDir.absolutePath}/audio.mp3")
             Intent(context, ProjectActivity::class.java).apply {
@@ -238,39 +235,53 @@ class LoadingDialog(context: Context, private val request: Int) :
 
     private fun inferenceVideo(dataBinder: ITrimmingData, path: String){
         val frameCount = (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
+        var currentBox = BBox(0, 0, 0, 0)
         personList.clear()
+
         // Detecting initial bounding box
-        for (i in 0 until 3) {
-            val bitmap: Bitmap? =
-                BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
+        // TODO: 9/9/2020 developers should not use like this mehod 
+        for (i in 1 until 3) {
+            val bitmap: Bitmap? = BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
             if (bitmap == null)
                 Log.d("bitmap", "has no bit map")
             if (bitmap != null) {
-                val croppedBmp: Bitmap = Bitmap.createBitmap(
+                // TODO: 9/9/2020 human detector
+                currentBox = BBox(0, 0, bitmap?.width, bitmap?.height)
+                val croppedBitmap: Bitmap = Bitmap.createBitmap(
                     bitmap,
-                    rectanglePositionX,
-                    rectanglePositionY,
-                    rectangleWidth,
-                    rectangleHeight
+                    currentBox.x,
+                    currentBox.y,
+                    currentBox.w,
+                    currentBox.h
                 )
-                val resized = Bitmap.createScaledBitmap(bitmap, width, height, true)
+                val resized = Bitmap.createScaledBitmap(croppedBitmap, width, height, true)
                 val person = poseEstimation.estimatePose(resized)
                 personList.add(person)
             }
-        }
-        // Tracking bounding box based on heatmap
-        for (i in 3 until frameCount) {
-            val bitmap: Bitmap? =
-                BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
-            if (bitmap == null)
-                Log.d("bitmap", "has no bit map")
-            if (bitmap != null) {
-                val resized = Bitmap.createScaledBitmap(bitmap, width, height, true)
-                val person = poseEstimation.estimatePose(resized)
-                personList.add(person)
-            }
+            Log.d("currentBox", "%d %d %d %d".format(currentBox.x, currentBox.y, currentBox.w, currentBox.h))
         }
 
+        // Tracking bounding box based on heatmap
+        for (i in 3 until frameCount) {
+            val bitmap: Bitmap? = BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
+            if (bitmap == null)
+                Log.d("bitmap", "has no bit map")
+            if (bitmap != null) {
+                currentBox = personList[i-2]?.let { BBoxTracker.convert(bitmap, it, currentBox) }!!
+                Log.d("currentBox", "%d %d %d %d %d".format(i, currentBox.x, currentBox.y, currentBox.w, currentBox.h))
+                val croppedBitmap: Bitmap = Bitmap.createBitmap(
+                    bitmap,
+                    currentBox.x,
+                    currentBox.y,
+                    currentBox.w,
+                    currentBox.h
+                )
+                val resized = Bitmap.createScaledBitmap(croppedBitmap, width, height, true)
+                val person = poseEstimation.estimatePose(resized)
+                personList.add(person)
+            }
+        }
+        JsonConverter.convert(personList, frameCount, context)
     }
 
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")

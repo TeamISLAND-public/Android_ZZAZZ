@@ -63,9 +63,15 @@ data class KeyPoint(
     var position: Position = Position()) : Parcelable
 
 @Parcelize
+data class BBox(var x: Int = 0,
+                var y: Int = 0,
+                var w: Int = 0,
+                var h: Int = 0) : Parcelable
+
+@Parcelize
 data class Person(
     var keyPoints: List<KeyPoint> = listOf(),
-    var bBox: ArrayList<Int> = ArrayList()
+    var bBox: BBox = BBox()
 ) : Parcelable
 
 /**
@@ -268,10 +274,10 @@ class PoseEstimation(
                 locationZ[0][keypointRow][keypointCol][keypoint])
         }
 
-        person.bBox[0] = minCol
-        person.bBox[1] = maxCol
-        person.bBox[2] = minRow
-        person.bBox[3] = maxRow
+        person.bBox.x = minCol
+        person.bBox.y = minRow
+        person.bBox.w = maxCol - minCol
+        person.bBox.h = maxRow - minRow
 
         // Calculating cam_matrix TO DO
         val xCoords = FloatArray(numKeypoints)
