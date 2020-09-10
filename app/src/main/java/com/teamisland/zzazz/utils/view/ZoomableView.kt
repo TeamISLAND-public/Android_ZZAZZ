@@ -29,9 +29,9 @@ abstract class ZoomableView @JvmOverloads constructor(
      * Current frame. Note that current frame will be located at the horizontal center of the view.
      * @exception IllegalArgumentException When the input is out of range : [0, [frameCount]]
      */
-    var currentTime: Int = 0
+    var currentFrame: Int = 0
         set(value) {
-            if (value !in 0..videoLength)
+            if (value !in 0 until frameCount)
                 throw IllegalArgumentException("Current time should be between 0 and the duration of the video, inclusive.")
             field = value
             sync()
@@ -47,21 +47,21 @@ abstract class ZoomableView @JvmOverloads constructor(
         }
 
     /**
-     * DP per millisecond.
+     * DP per frame.
      */
-    var dpPerMs: Float
-        get() = px2dp(pixelInterval / videoLength, resources)
+    var dpPerFrame: Float
+        get() = px2dp(pixelInterval / frameCount, resources)
         set(value) {
-            pixelInterval = float2DP(value, resources) * videoLength
+            pixelInterval = float2DP(value, resources) * frameCount
         }
 
     /**
-     * Pixel per millisecond.
+     * Pixel per frame.
      */
-    var pxPerMs: Float
-        get() = pixelInterval / videoLength
+    var pxPerFrame: Float
+        get() = pixelInterval / frameCount
         set(value) {
-            pixelInterval = value * videoLength
+            pixelInterval = value * frameCount
         }
 
     private fun sync() {
@@ -74,7 +74,7 @@ abstract class ZoomableView @JvmOverloads constructor(
      */
     private val pixelRange: ClosedFloatingPointRange<Float>
         get() {
-            val start = width / 2 - currentTime * pxPerMs
+            val start = width / 2 - currentFrame * pxPerFrame
             val end = start + pixelInterval
             return start..end
         }
@@ -82,18 +82,18 @@ abstract class ZoomableView @JvmOverloads constructor(
     /**
      * Range of valid time.
      */
-    val timeRange: IntRange
-        get() = 0..videoLength
+    private val frameRange: IntRange
+        get() = 0 until frameCount
 
     /**
      * Returns desired position of the input time.
-     * @param ms Time to be converted.
+     * @param frame Time to be converted.
      * @return Float value of pixel.
      * @exception IllegalArgumentException When the input is out of range.
      */
-    fun getPositionOfTime(ms: Int): Float {
-        if (ms !in timeRange) throw IllegalArgumentException("Invalid time: out of range.")
-        return (width / 2f + (ms - currentTime) * pxPerMs).coerceIn(pixelRange)
+    fun getPositionOfFrame(frame: Int): Float {
+        if (frame !in frameRange) throw IllegalArgumentException("Invalid time: out of range.")
+        return (width / 2f + (frame - currentFrame) * pxPerFrame).coerceIn(pixelRange)
     }
 
     /**
@@ -102,9 +102,9 @@ abstract class ZoomableView @JvmOverloads constructor(
      * @return Int value of corresponding millisecond.
      * @exception IllegalArgumentException When the input is out of range.
      */
-    fun getTimeOfPosition(px: Float): Int {
+    fun getFrameOfPosition(px: Float): Int {
         if (px !in pixelRange) throw IllegalArgumentException("Invalid position: out of range.")
-        return (currentTime + (px - width / 2f) / pxPerMs).roundToInt().coerceIn(timeRange)
+        return (currentFrame + (px - width / 2f) / pxPerFrame).roundToInt().coerceIn(frameRange)
     }
 
     /**

@@ -188,7 +188,7 @@ class ProjectActivity : AppCompatActivity() {
     @Suppress("unused")
     fun unityFrame(b: Int) {
         frame = b
-        setCurrentTime(frame * videoDuration / frameCount)
+        setCurrentFrame(frame)
     }
 
     /**
@@ -213,7 +213,7 @@ class ProjectActivity : AppCompatActivity() {
         setContentView(R.layout.activity_project)
         window.navigationBarColor = getColor(R.color.Background)
 
-        zoomLevel = float2DP(0.06f, resources)
+        zoomLevel = float2DP(2f, resources)
 
 //        Log.i(
 //            "zzazz_core1",
@@ -262,12 +262,12 @@ class ProjectActivity : AppCompatActivity() {
 
         video_frame.addView(mUnityPlayer)
 
-        setCurrentTime(0)
+        setCurrentFrame(0)
 
         mUnityPlayer.setOnClickListener {
             CustomAdapter.selectedEffect?.let {
                 stopVideo()
-                frame = (projectTimeLineView.currentTime * fps / 1000).roundToInt()
+                frame = (projectTimeLineView.currentFrame * fps / 1000).roundToInt()
 
                 it.isActivated = false
                 it.setBackgroundColor(Color.TRANSPARENT)
@@ -390,17 +390,17 @@ class ProjectActivity : AppCompatActivity() {
         }
     }
 
-    private fun setCurrentTime(ms: Int) {
-        projectTimeLineView.currentTime = ms
-        projectEffectEditor.currentTime = ms
-        timeIndexView.currentTime = ms
-        frame = (ms * fps / 1000).toInt()
+    private fun setCurrentFrame(frame: Int) {
+        projectTimeLineView.currentFrame = frame
+        projectEffectEditor.currentFrame = frame
+        timeIndexView.currentFrame = frame
+        this.frame = frame
     }
 
     private fun setZoomLevel() {
-        projectTimeLineView.dpPerMs = zoomLevel
-        projectEffectEditor.dpPerMs = zoomLevel
-        timeIndexView.dpPerMs = zoomLevel
+        projectTimeLineView.dpPerFrame = zoomLevel
+        projectEffectEditor.dpPerFrame = zoomLevel
+        timeIndexView.dpPerFrame = zoomLevel
     }
 
     private fun setLength() {
@@ -408,30 +408,29 @@ class ProjectActivity : AppCompatActivity() {
         projectEffectEditor.videoLength = videoDuration
         timeIndexView.videoLength = videoDuration
         projectTimeLineView.frameCount = frameCount
+        projectEffectEditor.frameCount = frameCount
         timeIndexView.frameCount = frameCount
     }
 
-    private var posX1 = 0f
     private var posXAnchor = 0f
-    private var anchoredMs = 0
+    private var anchoredFrame = 0
     private var mode = 0
     private var newDist = 0f
     private var oldDist = 0f
 
-    // dp / time
+    // dp / frame
     private var zoomLevel by Delegates.notNull<Float>()
     private val zoomRange: Range<Float> by lazy {
-        val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
-        Range(0.004f, upperLimit)
+        val upperLimit = max(zoomLevel, float2DP(15f, resources))
+        Range(2 / 15f, upperLimit)
     }
 
     private fun slidingLayoutOnTouchEvent(event: MotionEvent): Boolean {
         when (event.action.and(MotionEvent.ACTION_MASK)) {
             MotionEvent.ACTION_DOWN -> {
                 stopVideo()
-                posX1 = event.x
                 posXAnchor = event.x
-                anchoredMs = (1000 * frame / fps).roundToInt()
+                anchoredFrame = frame
                 mode = 1
             }
             MotionEvent.ACTION_UP -> mode = 0
@@ -445,10 +444,9 @@ class ProjectActivity : AppCompatActivity() {
                 if (mode == 1) {
                     val deltaPos = event.x - posXAnchor
                     val deltaTime = (px2dp(deltaPos, resources) / zoomLevel).roundToInt()
-                    val currentTime = Range(0, videoDuration).clamp(anchoredMs - deltaTime)
-                    val currentFrame = (currentTime * fps / 1000).roundToInt()
-                    frame = currentFrame
-                    setCurrentTime(currentTime)
+                    frame = Range(0, frameCount - 1).clamp(anchoredFrame - deltaTime)
+                    setCurrentFrame(frame)
+                    unityDataBridge?.setFrame(frame)
                 } else if (mode == 2) {
                     newDist = distance(event)
                     zoomLevel = zoomRange.clamp(zoomLevel * newDist / oldDist)
