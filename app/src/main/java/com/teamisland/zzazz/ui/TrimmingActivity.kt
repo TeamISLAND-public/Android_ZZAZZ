@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.teamisland.zzazz.R
+import com.teamisland.zzazz.ui.IntroActivity.Companion.VIDEO_URI
 import com.teamisland.zzazz.utils.objects.GetVideoData
 import com.teamisland.zzazz.utils.interfaces.ITrimmingData
 import com.teamisland.zzazz.utils.dialog.LoadingDialog
@@ -34,7 +35,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     ////////// Fields.
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private val videoUri: Uri by lazy { intent.getParcelableExtra(IntroActivity.VIDEO_URI)!! }
+    private val videoUri: Uri by lazy { intent.getParcelableExtra(VIDEO_URI)!! }
     internal val videoDuration: Int by lazy { GetVideoData.getDuration(this, videoUri) }
     internal val videoFrameCount: Long by lazy { GetVideoData.getFrameCount(this, videoUri) }
 

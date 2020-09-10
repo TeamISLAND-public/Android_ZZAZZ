@@ -51,6 +51,12 @@ class SplashActivity : AppCompatActivity() {
             for (image in it)
                 image.delete()
         }
+        val captures = File(filesDir, "/capture_image")
+        captures.listFiles()?.let {
+            for (image in it)
+                image.delete()
+        }
+        File(filesDir, "result.mp4").delete()
 
         val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
         fadeOut.startOffset = 1000

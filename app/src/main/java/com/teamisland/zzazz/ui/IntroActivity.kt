@@ -226,8 +226,7 @@ class IntroActivity : AppCompatActivity() {
         if (videoUri != null) {
             Intent(this, TrimmingActivity::class.java).apply {
                 putExtra(VIDEO_URI, videoUri)
-                startActivity(this)
-            }
+            }.also { startActivity(it) }
         }
     }
 }
