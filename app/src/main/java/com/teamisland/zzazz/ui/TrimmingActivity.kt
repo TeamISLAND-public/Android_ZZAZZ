@@ -255,7 +255,7 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun startTrimming() {
-        val dialog = LoadingDialog(this, LoadingDialog.TRIM, dataBinder, videoUri)
+        val dialog = LoadingDialog(this, this, LoadingDialog.TRIM, dataBinder, videoUri)
         dialog.create()
         dialog.show()
     }

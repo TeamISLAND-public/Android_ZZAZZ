@@ -1,18 +1,18 @@
 package com.teamisland.zzazz.utils.dialog
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.Window
 import androidx.annotation.IntRange
-import androidx.core.content.ContextCompat.getColor
 import androidx.core.content.ContextCompat.startActivity
 import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
@@ -30,8 +30,7 @@ import com.teamisland.zzazz.utils.inference.Person
 import com.teamisland.zzazz.utils.inference.PoseEstimation
 import com.teamisland.zzazz.utils.interfaces.ITrimmingData
 import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
-import com.teamisland.zzazz.utils.objects.AbsolutePathRetriever
-import com.teamisland.zzazz.utils.objects.FFmpegDelegate
+import com.teamisland.zzazz.utils.objects.*
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.*
 import java.io.*
@@ -41,7 +40,7 @@ import kotlin.properties.Delegates
 /**
  * Dialog for loading
  */
-class LoadingDialog(context: Context, private val request: Int) :
+class LoadingDialog(context: Context, private val activity: Activity, private val request: Int) :
     Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
 
     // Variable for trim
@@ -75,13 +74,11 @@ class LoadingDialog(context: Context, private val request: Int) :
      */
     constructor(
         context: Context,
+        activity: Activity,
         request: Int,
         dataBinder: ITrimmingData,
         uri: Uri
-    ) : this(
-        context,
-        request
-    ) {
+    ) : this(context, activity, request) {
         this.dataBinder = dataBinder
         this.uri = uri
     }
@@ -91,14 +88,15 @@ class LoadingDialog(context: Context, private val request: Int) :
      */
     constructor(
         context: Context,
+        activity: Activity,
         request: Int,
         capturePath: String,
+        resultPath: String,
         audioPath: String,
         frameCount: Int,
         fps: Float,
-        resultPath: String,
         unityDataBridge: UnityDataBridge?
-    ) : this(context, request) {
+    ) : this(context, activity, request) {
         this.capturePath = capturePath
         this.audioPath = audioPath
         this.frameCount = frameCount
@@ -132,7 +130,18 @@ class LoadingDialog(context: Context, private val request: Int) :
         super.onCreate(savedInstanceState)
         setContentView(R.layout.loading_dialog)
         setCancelable(false)
-        window?.setBackgroundDrawable(ColorDrawable(getColor(context, R.color.LoadingBackground)))
+//        window?.setBackgroundDrawable(ColorDrawable(getColor(context, R.color.LoadingBackground)))
+        val bitmap = ViewUtils.getScreenShot(activity.window.decorView.rootView)
+        val realBitmap = Bitmap.createBitmap(
+            bitmap,
+            0,
+            DeviceInfo.getStatusBarHeight(context.resources),
+            bitmap.width,
+            DeviceInfo.getHeight(activity)
+        )
+        bitmap.recycle()
+        val blurBitmap = Blur.getBlur(context, realBitmap, 25f)
+        window?.setBackgroundDrawable(BitmapDrawable(context.resources, blurBitmap))
         window?.setGravity(Gravity.CENTER)
 
         Glide.with(context).load(R.drawable.loading).into(load_gif)

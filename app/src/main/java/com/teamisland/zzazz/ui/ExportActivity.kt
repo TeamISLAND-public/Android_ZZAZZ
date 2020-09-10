@@ -27,8 +27,8 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.objects.GetVideoData
 import com.teamisland.zzazz.utils.dialog.LoadingDialog
+import com.teamisland.zzazz.utils.objects.GetVideoData
 import kotlinx.android.synthetic.main.activity_export.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -281,10 +281,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
     )
     private fun videoSave() {
-        val dialog = LoadingDialog(
-            this,
-            LoadingDialog.SAVE
-        )
+        val dialog = LoadingDialog(this, this, LoadingDialog.SAVE)
         dialog.create()
         dialog.show()
 

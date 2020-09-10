@@ -78,12 +78,13 @@ class ProjectActivity : AppCompatActivity() {
     private val dialog by lazy {
         LoadingDialog(
             this,
+            this,
             LoadingDialog.EXPORT,
             capturePath,
+            resultPath,
             audioPath,
             frameCount,
             fps,
-            resultPath,
             unityDataBridge
         )
     }
