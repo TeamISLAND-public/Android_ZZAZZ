@@ -262,8 +262,6 @@ class ProjectActivity : AppCompatActivity() {
 
         video_frame.addView(mUnityPlayer)
 
-        setCurrentFrame(0)
-
         mUnityPlayer.setOnClickListener {
             CustomAdapter.selectedEffect?.let {
                 stopVideo()
@@ -395,6 +393,7 @@ class ProjectActivity : AppCompatActivity() {
         projectEffectEditor.currentFrame = frame
         timeIndexView.currentFrame = frame
         this.frame = frame
+        unityDataBridge?.setFrame(frame)
     }
 
     private fun setZoomLevel() {
@@ -446,7 +445,6 @@ class ProjectActivity : AppCompatActivity() {
                     val deltaTime = (px2dp(deltaPos, resources) / zoomLevel).roundToInt()
                     frame = Range(0, frameCount - 1).clamp(anchoredFrame - deltaTime)
                     setCurrentFrame(frame)
-                    unityDataBridge?.setFrame(frame)
                 } else if (mode == 2) {
                     newDist = distance(event)
                     zoomLevel = zoomRange.clamp(zoomLevel * newDist / oldDist)
