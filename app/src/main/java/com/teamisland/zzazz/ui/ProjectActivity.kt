@@ -265,7 +265,7 @@ class ProjectActivity : AppCompatActivity() {
         mUnityPlayer.setOnClickListener {
             CustomAdapter.selectedEffect?.let {
                 stopVideo()
-                frame = (projectTimeLineView.currentFrame * fps / 1000).roundToInt()
+                frame = projectTimeLineView.currentFrame
 
                 it.isActivated = false
                 it.setBackgroundColor(Color.TRANSPARENT)
@@ -443,7 +443,7 @@ class ProjectActivity : AppCompatActivity() {
                 if (mode == 1) {
                     val deltaPos = event.x - posXAnchor
                     val deltaTime = (px2dp(deltaPos, resources) / zoomLevel).roundToInt()
-                    frame = Range(0, frameCount - 1).clamp(anchoredFrame - deltaTime)
+                    frame = (anchoredFrame - deltaTime).coerceIn(0, frameCount - 1)
                     setCurrentFrame(frame)
                 } else if (mode == 2) {
                     newDist = distance(event)
