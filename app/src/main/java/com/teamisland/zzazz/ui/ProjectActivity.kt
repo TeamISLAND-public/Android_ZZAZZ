@@ -94,6 +94,11 @@ class ProjectActivity : AppCompatActivity() {
          * Check the project is saved
          */
         const val IS_SAVED: Int = 1
+
+        /**
+         * Path of the result video.
+         */
+        const val RESULT: String = "RESULT"
     }
 
     /**
@@ -362,6 +367,7 @@ class ProjectActivity : AppCompatActivity() {
             captureFile.mkdir()
         dialog.create()
         dialog.show()
+        dialog.activate()
         UnityPlayer.UnitySendMessage("InteractionManager", "ExportImage", "")
     }
 

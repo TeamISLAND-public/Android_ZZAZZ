@@ -75,6 +75,14 @@ object FFmpegDelegate {
     }
 
     /**
+     * Copy the video from the inputPath to outputPath.
+     */
+    fun copyVideo(inputPath: String, outputPath: String, callback: (Int) -> Unit) {
+        FFmpeg.execute("-i $inputPath $outputPath")
+        callback(Config.getLastReturnCode())
+    }
+
+    /**
      *
      */
     fun printFrameCount(path: String) {
