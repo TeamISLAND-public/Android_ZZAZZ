@@ -14,9 +14,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.GoToSettingDialog
+import com.teamisland.zzazz.utils.dialog.GoToSettingDialog
 import com.teamisland.zzazz.utils.PermissionManager
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
 import kotlinx.android.synthetic.main.activity_intro.*
 import java.util.*
 
@@ -226,8 +226,7 @@ class IntroActivity : AppCompatActivity() {
         if (videoUri != null) {
             Intent(this, TrimmingActivity::class.java).apply {
                 putExtra(VIDEO_URI, videoUri)
-                startActivity(this)
-            }
+            }.also { startActivity(it) }
         }
     }
 }

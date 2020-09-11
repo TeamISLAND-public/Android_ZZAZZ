@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "410280958501",
+    "firebase_url": "https://zzazz-64475.firebaseio.com",
+    "project_id": "zzazz-64475",
+    "storage_bucket": "zzazz-64475.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:410280958501:android:d562edabe94ea1c28fbdcc",
+        "android_client_info": {
+          "package_name": "com.teamisland.zzazz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "410280958501-3fhq9lpin3dg2nm3u9m7sv79vs6m54fm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASdQLAaTj1D2q2yISUoJS1oLEAsTG_9_E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "410280958501-3fhq9lpin3dg2nm3u9m7sv79vs6m54fm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

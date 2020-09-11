@@ -2,10 +2,13 @@ package com.teamisland.zzazz.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.iid.FirebaseInstanceId
 import com.teamisland.zzazz.R
 import kotlinx.android.synthetic.main.activity_splash.*
 import java.io.File
@@ -25,6 +28,18 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
         window.navigationBarColor = getColor(R.color.Background)
 
+        // This is just for getting instance id of test device.
+        FirebaseInstanceId.getInstance().instanceId
+            .addOnCompleteListener(OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w("token", "getInstanceId failed", task.exception)
+                    return@OnCompleteListener
+                }
+
+                // Get token
+                Log.d("asdfasdf", task.result?.token ?: return@OnCompleteListener)
+            })
+
         val files = filesDir
         files.listFiles()?.let {
             for (file in it)
@@ -36,6 +51,12 @@ class SplashActivity : AppCompatActivity() {
             for (image in it)
                 image.delete()
         }
+        val captures = File(filesDir, "/capture_image")
+        captures.listFiles()?.let {
+            for (image in it)
+                image.delete()
+        }
+        File(filesDir, "result.mp4").delete()
 
         val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
         fadeOut.startOffset = 1000

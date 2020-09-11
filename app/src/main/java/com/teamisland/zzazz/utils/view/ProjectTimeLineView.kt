@@ -23,16 +23,17 @@
  */
 package com.teamisland.zzazz.utils.view
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.media.ThumbnailUtils.extractThumbnail
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.UnitConverter
 import com.teamisland.zzazz.video_trimmer_library.utils.BackgroundExecutor
-import kotlin.math.roundToInt
 
 /**
  * View for showing thumbnails of video by time.
@@ -41,11 +42,8 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ZoomableView(context, attrs, defStyleAttr) {
 
-    private val backgroundPaint = Paint()
-    private var sampleMsQuantum = 50
-
-    init {
-        backgroundPaint.color = resources.getColor(R.color.Background, null)
+    private val backgroundPaint = Paint().apply {
+        color = resources.getColor(R.color.Background, null)
     }
 
     /**
@@ -54,39 +52,28 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     lateinit var path: String
 
     /**
-     * [View.onSizeChanged]
+     * Get bitmap for every width & height change.
      */
-    override fun onSizeChanged(w: Int, h: Int, oldW: Int, oldH: Int) {
-        super.onSizeChanged(w, h, oldW, oldH)
-        if (w != oldW)
-            getBitmap(h)
-    }
-
-    override fun updateOnSync() {
-        timeInterval = (frameCount * currentTime / pixelInterval).toInt()
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        getBitmap()
     }
 
     internal val bitmapList = ArrayList<Bitmap?>()
 
-    private var timeInterval: Int = 0
-
-    private fun getBitmap(viewHeight: Int) {
+    private fun getBitmap() {
+        val viewHeight = height
         bitmapList.clear()
-        sampleMsQuantum =
-            (videoLength * 90f / frameCount).roundToInt()
-                .coerceAtLeast(1)
 
-        val numThumbs = width / viewHeight
         BackgroundExecutor.cancelAll("", true)
         BackgroundExecutor.execute(object : BackgroundExecutor.Task("", 0L, "") {
             override fun execute() {
                 try {
-                    for (i in 0 until numThumbs) {
-                        var frame = (frameCount * i / numThumbs.toFloat()).roundToInt()
-                        if (frame >= frameCount)
-                            frame = frameCount - 1
+                    for (i in 1..frameCount) {
+                        val s = path + "/img%08d.png".format(i)
+                        Log.d("image path", s)
                         var bitmap: Bitmap? =
-                            BitmapFactory.decodeFile(path + "/img%08d.png".format(frame + 1))
+                            BitmapFactory.decodeFile(s)
                         if (bitmap != null)
                             bitmap = extractThumbnail(bitmap, viewHeight, viewHeight)
                         bitmapList.add(bitmap)
@@ -103,41 +90,27 @@ open class ProjectTimeLineView @JvmOverloads constructor(
     /**
      * [View.onDraw]
      */
-    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
-        if (bitmapList.size == 0) return
         val originLocation = getPositionOfTime(0)
 
-        val fl = sampleMsQuantum * pxPerMs
-
-        var x =
-            if (originLocation > 0) originLocation else originLocation % height
+        var x = if (originLocation > 0) originLocation else originLocation % height
 
         val endPoint = pixelInterval + originLocation
 
         while (x < width && x < endPoint) {
-            val temp = ((x - originLocation) / fl).roundToInt().coerceIn(0, bitmapList.size - 1)
-            bitmapList[temp]?.let { canvas.drawBitmap(it, x, 0f, null) }
+            try {
+                val index = ((x - originLocation) * bitmapList.size / pixelInterval).toInt()
+                    .coerceAtMost(bitmapList.size - 1)
+                bitmapList[index]?.let { canvas.drawBitmap(it, x, 0f, null) }
+            } catch (e: Throwable) {
+                Log.e(
+                    "ProjectTimeLineView",
+                    "Drawing bitmap failed. Position $x error $e"
+                )
+            }
             x += height
         }
 
-        canvas.drawRect(
-            endPoint,
-            0f,
-            endPoint + height,
-            height.toFloat(),
-            backgroundPaint
-        )
-
-        val linePaint = Paint()
-        linePaint.color = Color.WHITE
-        linePaint.strokeWidth = UnitConverter.float2DP(1f, resources)
-        canvas.drawLine(
-            (width / 2).toFloat(),
-            0f,
-            (width / 2).toFloat(),
-            height.toFloat(),
-            linePaint
-        )
+        canvas.drawRect(endPoint, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
     }
 }

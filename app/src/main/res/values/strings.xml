@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">ZZAZZ</string>
+    <string name="default_notification_channel_id">chanelID</string>
+    <string name="default_notification_channel_name">Test</string>
 
     <!--    string of permission dialog-->
     <string name="permission_title">Access Right Notice</string>

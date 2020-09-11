@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
 import android.util.Range
@@ -17,20 +16,26 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.*
-import com.teamisland.zzazz.utils.UnitConverter.float2DP
-import com.teamisland.zzazz.utils.UnitConverter.px2dp
-import com.teamisland.zzazz.utils.dialog.LoadingDialog
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.AUDIO_PATH
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.IMAGE_PATH
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.MODEL_OUTPUT
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_DURATION
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_FRAME_COUNT
+import com.teamisland.zzazz.utils.AddFragmentPagerAdapter
+import com.teamisland.zzazz.utils.CustomAdapter
+import com.teamisland.zzazz.utils.SaveProjectActivity
 import com.teamisland.zzazz.utils.dialog.GoToTrimDialog
+import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import com.teamisland.zzazz.utils.inference.Person
+import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
+import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
+import com.teamisland.zzazz.utils.objects.UnitConverter.px2dp
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.util.ArrayList
+import java.io.File
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -56,60 +61,39 @@ class ProjectActivity : AppCompatActivity() {
         mUnityPlayer.destroy()
     }
 
-    /**
-     * Path of result video
-     */
-    private lateinit var resultPath: String
-    private lateinit var imagePath: String
-    private var videoDuration = 0
-    private var fps: Float = 0f
-    private var frameCount by Delegates.notNull<Int>()
+    private val resultPath: String by lazy { filesDir.absolutePath + "/result.mp4" }
 
-    //    private lateinit var video: BitmapVideo
-//    private lateinit var bitmapList: List<Bitmap>
-//    private var startFrame by Delegates.notNull<Int>()
-//    private var endFrame by Delegates.notNull<Int>()
+    private val modelOutput: ArrayList<Person?> by lazy {
+        intent.getParcelableArrayListExtra<Person?>(MODEL_OUTPUT)
+    }
+
+    @Suppress("unused")
+    private val modelPath: String by lazy { filesDir.absolutePath + "/test_txt.txt" }
+    private val capturePath: String by lazy { filesDir.absolutePath + "/capture_image" }
+    private val fps: Float by lazy { frameCount * 1000f / videoDuration }
+    private val imagePath: String by lazy { intent.getStringExtra(IMAGE_PATH) }
+    private val audioPath: String by lazy { intent.getStringExtra(AUDIO_PATH) }
+    private val frameCount: Int by lazy { intent.getIntExtra(VIDEO_FRAME_COUNT, 0) }
+    private val videoDuration: Int by lazy { intent.getIntExtra(VIDEO_DURATION, 0) }
+    private val dialog by lazy {
+        LoadingDialog(
+            this,
+            LoadingDialog.EXPORT,
+            capturePath,
+            audioPath,
+            frameCount,
+            fps,
+            resultPath,
+            unityDataBridge
+        )
+    }
+    private var frame: Int = 0
 
     companion object {
-        /**
-         * Current time of video in Unity.
-         */
-        var frame: Int = 0
-
-        /**
-         * List of effect
-         */
-        var effectList: MutableList<Effect> = mutableListOf()
-
         /**
          * Check the project is saved
          */
         const val IS_SAVED: Int = 1
-
-        /**
-         * Play manager object of video player in Unity.
-         */
-        const val PLAY_MANAGER: String = "PlayManager"
-
-        /**
-         * Frame visualizer of effect object of video player in Unity.
-         */
-        const val FRAME_VISUALIZER: String = "FrameVisualizer"
-
-        /**
-         * Method name of setting video in Unity
-         */
-        const val SET_VIDEO: String = "setVideo"
-
-        /**
-         * Method name of reading test data in Unity
-         */
-        const val READ_DATA: String = "ReadData"
-
-        /**
-         * Method name of exporting result video in Unity
-         */
-        const val EXPORT: String = "exportVideo"
     }
 
     /**
@@ -166,6 +150,59 @@ class ProjectActivity : AppCompatActivity() {
         mUnityPlayer.windowFocusChanged(hasFocus)
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Unity data exchange.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private var unityDataBridge: UnityDataBridge? = null
+
+    /**
+     * Used for unity interface accepting.
+     */
+    @Suppress("unused")
+    fun accept(li: UnityDataBridge) {
+        unityDataBridge = li
+        li.onSuccessfulAccept()
+        li.retrieveMetadata(imagePath, capturePath, frameCount, fps)
+    }
+
+    /**
+     * Used for unity message sending test.
+     */
+    @Suppress("unused")
+    fun whoAmI(s: String) {
+        Log.d("Unity whoAmI", s)
+    }
+
+    /**
+     * For unity play state update event handling.
+     */
+    @Suppress("unused")
+    fun playState(b: Boolean) {
+        project_play.isActivated = b
+    }
+
+    /**
+     * For unity play frame update event handling.
+     */
+    @Suppress("unused")
+    fun unityFrame(b: Int) {
+        frame = b
+        setCurrentTime(frame * videoDuration / frameCount)
+    }
+
+    /**
+     * For unity export frame update event handling.
+     */
+    @Suppress("unused")
+    fun exportFrame(frame: Int) {
+        dialog.update(50 * (frame + 1) / frameCount)
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Creation codes.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * [AppCompatActivity.onCreate]
      */
@@ -176,18 +213,19 @@ class ProjectActivity : AppCompatActivity() {
         setContentView(R.layout.activity_project)
         window.navigationBarColor = getColor(R.color.Background)
 
-        resultPath = dataDir.absolutePath + "/result.mp4"
-        imagePath = intent.getStringExtra(TrimmingActivity.IMAGE_PATH)
-        frameCount = intent.getIntExtra(TrimmingActivity.VIDEO_FRAME_COUNT, 0)
-        videoDuration = intent.getIntExtra(TrimmingActivity.VIDEO_DURATION, 0)
-
-        fps = frameCount / (videoDuration / 1000f)
-
         zoomLevel = float2DP(0.06f, resources)
-        val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
-        zoomRange = Range(0.004f, upperLimit)
 
-        playVideo()
+//        Log.i(
+//            "zzazz_core1",
+//            String.format(
+//                "shape %d %s %d",
+//                modelOutput[1]!!.keyPoints.size, //21
+//                modelOutput[0]!!.keyPoints[0].position.toString(), //Position(x=0.13257)
+//                modelOutput.size
+//            )
+//        )
+
+        project_play.setOnClickListener { unityDataBridge?.setPlayState(!project_play.isActivated) }
 
         projectTimeLineView.path = imagePath
         projectTimeLineView.frameCount = frameCount
@@ -227,41 +265,15 @@ class ProjectActivity : AppCompatActivity() {
         setCurrentTime(0)
 
         mUnityPlayer.setOnClickListener {
-            if (CustomAdapter.selectedEffect != null) {
+            CustomAdapter.selectedEffect?.let {
                 stopVideo()
                 frame = (projectTimeLineView.currentTime * fps / 1000).roundToInt()
 
-                (CustomAdapter.selectedEffect ?: return@setOnClickListener).isActivated = false
-                (CustomAdapter.selectedEffect
-                    ?: return@setOnClickListener).setBackgroundColor(Color.TRANSPARENT)
+                it.isActivated = false
+                it.setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
-
-                val bitmap =
-                    (ContextCompat.getDrawable(this, R.drawable.back) as BitmapDrawable).bitmap
-                val point = Effect.Point(30, 30)
-                val dataArrayList: MutableList<Effect.Data> = mutableListOf()
-
-                // for test
-                for (i in 0 until 30) {
-                    dataArrayList.add(Effect.Data(bitmap, point, 30, 30))
-                }
-                effectList.add(
-                    Effect(
-                        frame,
-                        frame + 29,
-                        0,
-                        0xFFFFFF,
-                        dataArrayList
-                    )
-                )
             }
         }
-
-        UnityPlayer.UnitySendMessage(
-            PLAY_MANAGER,
-            SET_VIDEO,
-            "$imagePath:$frameCount"
-        )
     }
 
     /**
@@ -273,127 +285,64 @@ class ProjectActivity : AppCompatActivity() {
         builder.show()
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private fun playVideo() {
-        project_play.isSelected = true
-        project_play.isActivated = false
-        project_play.setOnClickListener {
-            if (it.isActivated) {
-                stopVideo()
-            } else {
-                startVideo()
-            }
-        }
-    }
-
     private fun startVideo() {
-        if (project_play.isActivated) return
-        project_play.isActivated = true
-
-        if (frame == frameCount - 1)
-            frame = 0
-
-        GlobalScope.launch {
-            var time = 1000 * frame / fps
-            while (project_play.isActivated) {
-                time += 50
-                frame = (time * fps / 1000).toInt()
-                if (frameCount <= frame) {
-                    frame = frameCount - 1
-                    setCurrentTime(time.toInt())
-                    stopVideo()
-                    break
-                }
-                setCurrentTime(time.toInt())
-                delay(50)
-            }
-        }
+        unityDataBridge?.setPlayState(true)
     }
 
     /**
      * Stop video.
      */
     fun stopVideo() {
-        project_play.isActivated = false
+        unityDataBridge?.setPlayState(false)
     }
 
     private fun tabInit() {
-        with(effect_tab) {
-            addTab(
-                effect_tab.newTab().setCustomView(createTabView(getString(R.string.head_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.left_arm_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.right_arm_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.left_leg_effect)))
-            )
-            addTab(
-                effect_tab.newTab()
-                    .setCustomView(createTabView(getString(R.string.right_leg_effect)))
-            )
+        val tabNameList = arrayOf(
+            getString(R.string.head_effect),
+            getString(R.string.left_arm_effect),
+            getString(R.string.right_arm_effect),
+            getString(R.string.left_leg_effect),
+            getString(R.string.right_leg_effect)
+        )
+        tabNameList.forEach {
+            with(effect_tab) { addTab(newTab().setCustomView(createTabView(it))) }
         }
 
-        val addPagerAdapter =
-            AddFragmentPagerAdapter(
-                supportFragmentManager,
-                5,
-                this
-            )
-        effect_view_pager.adapter = addPagerAdapter
+        effect_view_pager.adapter = AddFragmentPagerAdapter(supportFragmentManager, 5, this)
 
-        for (index in 1 until effect_tab.tabCount)
-            (effect_tab.getTabAt(index) ?: return).view.tab_text.setTextColor(
-                ContextCompat.getColor(
-                    applicationContext,
-                    R.color.ContentsText40
-                )
-            )
+        val archivoBold = ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+        val archivoRegular = ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
+        val white40Color = ContextCompat.getColor(applicationContext, R.color.ContentsText40)
+        val whiteColor = ContextCompat.getColor(applicationContext, R.color.White)
+
+        for (index in 1 until effect_tab.tabCount) {
+            effect_tab.getTabAt(index)?.view?.tab_text?.setTextColor(white40Color)
+        }
+
         val tabView = effect_tab.getTabAt(0)
-        (tabView ?: return).view.tab_text.apply {
-            setTextColor(
-                ContextCompat.getColor(
-                    applicationContext,
-                    R.color.White
-                )
-            )
-            typeface = ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
+        tabView?.view?.tab_text?.apply {
+            setTextColor(whiteColor)
+            typeface = archivoBold
         }
+
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                effect_view_pager.currentItem = (tab ?: return).position
-                tab.view.tab_text.typeface =
-                    ResourcesCompat.getFont(applicationContext, R.font.archivo_bold)
-                tab.view.tab_text.setTextColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.White
-                    )
-                )
+                if (tab == null) return
+                effect_view_pager.currentItem = tab.position
+                tab.view.tab_text.typeface = archivoBold
+                tab.view.tab_text.setTextColor(whiteColor)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
-                (tab ?: return).view.tab_text.typeface =
-                    ResourcesCompat.getFont(applicationContext, R.font.archivo_regular)
-                tab.view.tab_text.setTextColor(
-                    ContextCompat.getColor(
-                        applicationContext,
-                        R.color.ContentsText40
-                    )
-                )
+                if (tab == null) return
+                tab.view.tab_text.typeface = archivoRegular
+                tab.view.tab_text.setTextColor(white40Color)
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) = Unit
         })
         effect_view_pager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(effect_tab))
     }
-
 
     private fun createTabView(tabName: String): View? {
         val tabView = View.inflate(applicationContext, R.layout.custom_tab, null)
@@ -403,14 +352,29 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     private fun saveProject() {
-
+        /* no-op */
     }
 
     private fun exportVideo() {
         stopVideo()
-        val dialog = LoadingDialog(this, LoadingDialog.EXPORT, imagePath, fps, resultPath)
+        val captureFile = File(capturePath)
+        if (!captureFile.exists())
+            captureFile.mkdir()
         dialog.create()
         dialog.show()
+        UnityPlayer.UnitySendMessage("InteractionManager", "ExportImage", "")
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Code for exporting
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Encode captured images to video.
+     */
+    @Suppress("unused")
+    fun encodeVideo() {
+        dialog.encodeVideo()
     }
 
     /**
@@ -426,41 +390,52 @@ class ProjectActivity : AppCompatActivity() {
         }
     }
 
-    private fun setCurrentTime(index: Int) {
-        projectTimeLineView.currentTime = index
-        timeIndexView.currentTime = index
+    private fun setCurrentTime(ms: Int) {
+        projectTimeLineView.currentTime = ms
+        projectEffectEditor.currentTime = ms
+        timeIndexView.currentTime = ms
+        frame = (ms * fps / 1000).toInt()
     }
 
     private fun setZoomLevel() {
         projectTimeLineView.dpPerMs = zoomLevel
+        projectEffectEditor.dpPerMs = zoomLevel
         timeIndexView.dpPerMs = zoomLevel
     }
 
     private fun setLength() {
         projectTimeLineView.videoLength = videoDuration
+        projectEffectEditor.videoLength = videoDuration
         timeIndexView.videoLength = videoDuration
         projectTimeLineView.frameCount = frameCount
         timeIndexView.frameCount = frameCount
     }
 
     private var posX1 = 0f
-    private var posX2 = 0f
+    private var posXAnchor = 0f
+    private var anchoredMs = 0
     private var mode = 0
     private var newDist = 0f
     private var oldDist = 0f
 
     // dp / time
-    private var zoomLevel = 0f
-    private lateinit var zoomRange: Range<Float>
+    private var zoomLevel by Delegates.notNull<Float>()
+    private val zoomRange: Range<Float> by lazy {
+        val upperLimit = max(zoomLevel, float2DP(0.015f, resources) * fps)
+        Range(0.004f, upperLimit)
+    }
 
-    private fun slidingLayoutOnTouchEvent(event: MotionEvent?): Boolean {
-        when (event?.action?.and(MotionEvent.ACTION_MASK)) {
+    private fun slidingLayoutOnTouchEvent(event: MotionEvent): Boolean {
+        when (event.action.and(MotionEvent.ACTION_MASK)) {
             MotionEvent.ACTION_DOWN -> {
                 stopVideo()
                 posX1 = event.x
+                posXAnchor = event.x
+                anchoredMs = (1000 * frame / fps).roundToInt()
                 mode = 1
             }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> mode = 0
+            MotionEvent.ACTION_UP -> mode = 0
+            MotionEvent.ACTION_POINTER_UP -> mode = 1
             MotionEvent.ACTION_POINTER_DOWN -> {
                 mode = 2
                 newDist = distance(event)
@@ -468,18 +443,11 @@ class ProjectActivity : AppCompatActivity() {
             }
             MotionEvent.ACTION_MOVE -> {
                 if (mode == 1) {
-                    posX2 = event.x
-                    val deltaTime = (px2dp((posX2 - posX1), resources) / zoomLevel).roundToInt()
-                    val currentTime =
-                        when {
-                            (1000 * frame / fps).roundToInt() - deltaTime >= videoDuration -> videoDuration
-                            (1000 * frame / fps).roundToInt() - deltaTime < 0 -> 0
-                            else -> (1000 * frame / fps).roundToInt() - deltaTime
-                        }
-                    if (frame != (currentTime * fps / 1000).roundToInt()) {
-                        posX1 = posX2
-                        frame = (currentTime * fps / 1000).roundToInt()
-                    }
+                    val deltaPos = event.x - posXAnchor
+                    val deltaTime = (px2dp(deltaPos, resources) / zoomLevel).roundToInt()
+                    val currentTime = Range(0, videoDuration).clamp(anchoredMs - deltaTime)
+                    val currentFrame = (currentTime * fps / 1000).roundToInt()
+                    frame = currentFrame
                     setCurrentTime(currentTime)
                 } else if (mode == 2) {
                     newDist = distance(event)
