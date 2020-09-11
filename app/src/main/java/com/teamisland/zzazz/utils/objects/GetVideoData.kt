@@ -6,6 +6,7 @@ import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT
 import android.net.Uri
+import com.teamisland.zzazz.utils.objects.FFmpegDelegate.printFrameCount
 
 /**
  * Video data query.
@@ -37,9 +38,15 @@ object GetVideoData {
     fun getFrameCount(context: Context, uri: Uri): Long {
         val mediaMediaExtractor = MediaMetadataRetriever()
         mediaMediaExtractor.setDataSource(context, uri)
-        val res = mediaMediaExtractor.extractMetadata(METADATA_KEY_VIDEO_FRAME_COUNT)!!.toLong()
-        mediaMediaExtractor.release()
-        return res
+        return try {
+            mediaMediaExtractor.extractMetadata(METADATA_KEY_VIDEO_FRAME_COUNT)!!.toLong()
+        } catch (e: NullPointerException) {
+            val path = AbsolutePathRetriever.getPathAnyway(context, uri)
+            printFrameCount(path)
+            1L
+        } finally {
+            mediaMediaExtractor.release()
+        }
     }
 
     /**

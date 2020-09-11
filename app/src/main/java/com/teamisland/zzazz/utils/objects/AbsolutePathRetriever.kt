@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import androidx.core.net.toFile
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -127,24 +128,23 @@ internal object AbsolutePathRetriever {
         return "com.android.providers.media.documents" == uri.authority
     }
 
-    fun getPathAnyway(context: Context, uri: Uri): String? {
+    fun getPathAnyway(context: Context, uri: Uri): String {
         return try {
             getPath(context, uri)
         } catch (e: Exception) {
             getPathFromUri(context, uri)
-        }
+        } ?: throw AccessDeniedException(uri.toFile())
     }
 
     private fun getPathFromUri(context: Context, uri: Uri): String? {
-        val inputStream: InputStream
-        var filePath: String? = null
-        if (uri.authority != null) {
-            inputStream = context.contentResolver.openInputStream(uri)!!
-            val photoFile: File = createTemporalFileFrom(context, inputStream)
-            filePath = photoFile.path
-            inputStream.close()
+        return uri.authority?.let {
+            context.contentResolver.openInputStream(uri)?.let {
+                val photoFile: File? = createTemporalFileFrom(context, it)
+                val filePath = photoFile?.path
+                it.close()
+                filePath
+            }
         }
-        return filePath
     }
 
     private fun createTemporalFileFrom(context: Context, inputStream: InputStream): File {

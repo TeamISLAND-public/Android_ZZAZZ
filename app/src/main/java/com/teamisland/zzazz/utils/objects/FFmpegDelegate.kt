@@ -73,4 +73,11 @@ object FFmpegDelegate {
         FFmpeg.execute("-i $capturePath/img%08d.png -i $audioPath -r $fps -pix_fmt yuv420p $resultPath")
         callback(Config.getLastReturnCode())
     }
+
+    /**
+     *
+     */
+    fun printFrameCount(path: String) {
+        FFmpeg.execute("-i $path -map 0:v:0 -c copy -f null -")
+    }
 }
