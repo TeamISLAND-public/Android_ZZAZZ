@@ -47,8 +47,8 @@ object BBoxTracker {
                       yBufferedCandidate : Int,
                       wBufferedCandidate : Int,
                       hBufferedCandidate : Int): BBox {
-        var imageWidth = bitmap.width
-        var imageHeight = bitmap.height
+        val imageWidth = bitmap.width
+        val imageHeight = bitmap.height
 
         var x : Int = xBufferedCandidate
         var y : Int = yBufferedCandidate

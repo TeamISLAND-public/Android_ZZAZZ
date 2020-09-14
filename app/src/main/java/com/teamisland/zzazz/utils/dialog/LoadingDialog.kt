@@ -217,7 +217,7 @@ class LoadingDialog(context: Context, private val request: Int) :
 
     private fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
         val frameCount =
-            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex + 1).toInt()
+            (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
         var currentBox = BBox(0, 0, 0, 0)
         personList.clear()
 
@@ -229,7 +229,7 @@ class LoadingDialog(context: Context, private val request: Int) :
                 Log.d("bitmap", "has no bit map")
             if (bitmap != null) {
                 // TODO: 9/9/2020 human detector
-                currentBox = BBox(0, 0, bitmap?.width, bitmap?.height)
+                currentBox = BBox(0, 0, bitmap.width, bitmap.height)
                 val croppedBitmap: Bitmap = Bitmap.createBitmap(
                     bitmap,
                     currentBox.x,
@@ -248,13 +248,13 @@ class LoadingDialog(context: Context, private val request: Int) :
         }
 
         // Tracking bounding box based on heatmap
-        for (i in 3 until frameCount) {
+        for (i in 3..frameCount) {
             val bitmap: Bitmap? = BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
             if (bitmap == null)
                 Log.d("bitmap", "has no bit map")
             if (bitmap != null) {
                 currentBox =
-                    personList[i - 2]?.let { BBoxTracker.convert(bitmap, it, currentBox) }!!
+                    personList[i - 2]?.let { BBoxTracker.convert(bitmap, it, currentBox) } ?: return
                 Log.d(
                     "currentBox",
                     "%d %d %d %d %d".format(
