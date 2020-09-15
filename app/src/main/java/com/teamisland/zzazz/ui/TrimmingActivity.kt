@@ -1,9 +1,6 @@
 package com.teamisland.zzazz.ui
 
 import android.annotation.SuppressLint
-//import android.content.Intent
-//import android.content.pm.PackageManager.PERMISSION_GRANTED
-//import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent

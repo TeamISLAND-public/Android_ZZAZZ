@@ -13,7 +13,6 @@ import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.GpuDelegate
-import java.io.Serializable
 
 enum class Device {
     CPU,
@@ -64,7 +63,16 @@ data class KeyPoint(
     var position: Position = Position()) : Parcelable
 
 @Parcelize
-data class Person(var keyPoints: List<KeyPoint> = listOf()) : Parcelable
+data class BBox(var x: Int = 0,
+                var y: Int = 0,
+                var w: Int = 0,
+                var h: Int = 0) : Parcelable
+
+@Parcelize
+data class Person(
+    var keyPoints: List<KeyPoint> = listOf(),
+    var bBox: BBox = BBox()
+) : Parcelable
 
 /**
  * ZZAZZ Core model class
@@ -202,6 +210,7 @@ class PoseEstimation(
         )
 
         val outputMap = initOutputMap()
+        val person = Person()
 
         val inferenceStartTimeNanoSeconds = SystemClock.elapsedRealtimeNanos()
         getInterpreter().runForMultipleInputsOutputs(inputArray, outputMap)
@@ -220,39 +229,66 @@ class PoseEstimation(
         val width = heatmap[0][0].size
         val numKeypoints = heatmap[0][0][0].size
 
-        Log.i("zzazz_core", String.format("Size: %d %d %d", height, width, numKeypoints))
+        Log.i("zzazz_core", String.format("Size: %d %d %d %d",heatmap.size, height, width, numKeypoints))
 
         // Finds the (row, col) locations of where the keypoints are most likely to be.
         val keypointPositions = Array(numKeypoints) { Triple(0F, 0F, 0F) }
+
+        // Find also max and min point of total keypoints
+        var minRow = height
+        var maxRow = 0
+        var minCol = width
+        var maxCol = 0
+
         for (keypoint in 0 until numKeypoints) {
             var maxVal = heatmap[0][0][0][keypoint]
-            var maxRow = 0
-            var maxCol = 0
+            var keypointRow = 0
+            var keypointCol = 0
             for (row in 0 until height) {
                 for (col in 0 until width) {
                     if (heatmap[0][row][col][keypoint] > maxVal) {
                         maxVal = heatmap[0][row][col][keypoint]
-                        maxRow = row
-                        maxCol = col
+                        keypointRow = row
+                        keypointCol = col
                     }
                 }
             }
-            keypointPositions[keypoint] = Triple(locationX[0][maxRow][maxCol][keypoint],
-                locationY[0][maxRow][maxCol][keypoint],
-                locationZ[0][maxRow][maxCol][keypoint])
+
+            if (minRow >= keypointRow){
+                minRow = keypointRow
+            }
+            if (maxRow < keypointRow){
+                maxRow = keypointRow
+            }
+            if (minCol >= keypointCol){
+                minCol = keypointCol
+            }
+            if (maxCol < keypointCol){
+                maxCol = keypointCol
+            }
+
+            Log.i("bbox_tracking", String.format("Size: %d %d %d %d",minCol, minRow, maxCol, maxRow))
+
+            keypointPositions[keypoint] = Triple(locationX[0][keypointRow][keypointCol][keypoint],
+                locationY[0][keypointRow][keypointCol][keypoint],
+                locationZ[0][keypointRow][keypointCol][keypoint])
         }
+
+        person.bBox.x = minCol
+        person.bBox.y = minRow
+        person.bBox.w = maxCol - minCol
+        person.bBox.h = maxRow - minRow
 
         // Calculating cam_matrix TO DO
         val xCoords = FloatArray(numKeypoints)
         val yCoords = FloatArray(numKeypoints)
         val zCoords = FloatArray(numKeypoints)
         keypointPositions.forEachIndexed { idx, (first, second, third) ->
-            zCoords[idx] = third / (width - 1).toFloat()
-            yCoords[idx] = second / (height - 1).toFloat()
             xCoords[idx] = first / (width - 1).toFloat()
+            yCoords[idx] = second / (height - 1).toFloat()
+            zCoords[idx] = third / (width - 1).toFloat()
         }
 
-        val person = Person()
         val keypointList = Array(numKeypoints) { KeyPoint() }
         enumValues<BodyPart>().forEachIndexed { idx, it ->
             keypointList[idx].bodyPart = it
