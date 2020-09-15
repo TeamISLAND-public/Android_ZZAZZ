@@ -6,7 +6,10 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.*
+import android.os.Build
+import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.animation.Animation
@@ -27,8 +30,11 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.utils.objects.GetVideoData
+import com.teamisland.zzazz.ui.ProjectActivity.Companion.RESULT
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_FRAME_COUNT
 import com.teamisland.zzazz.utils.dialog.LoadingDialog
+import com.teamisland.zzazz.utils.dialog.LoadingDialog.Companion.SAVE
+import com.teamisland.zzazz.utils.objects.GetVideoData
 import kotlinx.android.synthetic.main.activity_export.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -40,8 +46,10 @@ import kotlin.math.hypot
  */
 class ExportActivity : AppCompatActivity(), CoroutineScope {
 
-    private lateinit var uri: Uri
     internal var duration: Int = 0
+    private val path: String by lazy { intent.getStringExtra(RESULT) }
+    private val frameCount: Int by lazy { intent.getIntExtra(VIDEO_FRAME_COUNT, 0) }
+    private val uri: Uri by lazy { Uri.parse(path) }
 
     private val dataSourceFactory: DataSource.Factory by lazy {
         DefaultDataSourceFactory(this, Util.getUserAgent(this, "PlayerSample"))
@@ -79,9 +87,6 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_export)
         window.navigationBarColor = getColor(R.color.Background)
-
-        val path = intent.getStringExtra("RESULT")
-        uri = Uri.parse(path)
 
         videoInit()
 
@@ -281,16 +286,11 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
         "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS"
     )
     private fun videoSave() {
-        val dialog = LoadingDialog(
-            this,
-            LoadingDialog.SAVE
-        )
+        val dialog = LoadingDialog(this, SAVE, frameCount)
         dialog.create()
         dialog.show()
-
-        // after saved
-        GlobalScope.launch {
-            Handler().post {
+        CoroutineScope(Dispatchers.Main).launch {
+            dialog.play {
                 save.background =
                     ContextCompat.getDrawable(this@ExportActivity, R.drawable.check)
                 val finRadius = hypot((save.width * 2).toDouble(), save.height.toDouble())

@@ -1,6 +1,8 @@
 package com.teamisland.zzazz.utils.dialog
 
+import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -8,6 +10,8 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.Gravity
 import android.view.Window
@@ -20,6 +24,7 @@ import com.bumptech.glide.Glide
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
+import com.teamisland.zzazz.ui.ProjectActivity.Companion.RESULT
 import com.teamisland.zzazz.ui.TrimmingActivity.Companion.AUDIO_PATH
 import com.teamisland.zzazz.ui.TrimmingActivity.Companion.IMAGE_PATH
 import com.teamisland.zzazz.ui.TrimmingActivity.Companion.MODEL_OUTPUT
@@ -30,11 +35,15 @@ import com.teamisland.zzazz.utils.inference.Person
 import com.teamisland.zzazz.utils.inference.PoseEstimation
 import com.teamisland.zzazz.utils.interfaces.ITrimmingData
 import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
-import com.teamisland.zzazz.utils.objects.AbsolutePathRetriever
+import com.teamisland.zzazz.utils.objects.AbsolutePathRetriever.getPath
 import com.teamisland.zzazz.utils.objects.FFmpegDelegate
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.*
-import java.io.*
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStreamReader
+import java.io.Serializable
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -62,10 +71,6 @@ class LoadingDialog(context: Context, private val request: Int) :
     private var capturePath: String = ""
     private var unityDataBridge: UnityDataBridge? = null
     private var isUnity = true
-
-    // Variable for save
-    private var input: InputStream? = null
-    private var output: FileOutputStream? = null
 
     private var percentage: Int = 0
     private var job: Job? = null
@@ -107,6 +112,17 @@ class LoadingDialog(context: Context, private val request: Int) :
         this.unityDataBridge = unityDataBridge
     }
 
+    /**
+     * Constructor for [SAVE]
+     */
+    constructor(
+        context: Context,
+        request: Int,
+        frameCount: Int
+    ) : this(context, request) {
+        this.frameCount = frameCount
+    }
+
     companion object {
         /**
          * Trim video.
@@ -138,6 +154,20 @@ class LoadingDialog(context: Context, private val request: Int) :
         Glide.with(context).load(R.drawable.loading).into(load_gif)
         progress.text = String.format("%02d%%", percentage)
 
+        cancel.setOnClickListener {
+            if (!isUnity) {
+                (job ?: return@setOnClickListener).cancel()
+                FFmpeg.cancel()
+            } else
+                unityDataBridge?.cancelExporting()
+            dismiss()
+        }
+    }
+
+    /**
+     * Activate [request]
+     */
+    fun activate() {
         when (request) {
             TRIM -> {
                 text.text = context.getString(R.string.trim_video)
@@ -157,26 +187,25 @@ class LoadingDialog(context: Context, private val request: Int) :
                 return
             }
         }
-
-        cancel.setOnClickListener {
-            if (!isUnity) {
-                (job ?: return@setOnClickListener).cancel()
-                if (request == SAVE) {
-                    input?.close()
-                    output?.flush()
-                    output?.close()
-                } else
-                    FFmpeg.cancel()
-            } else {
-                unityDataBridge?.cancelExporting()
-            }
-            dismiss()
-        }
     }
+
+    /**
+     * @param callback after loading.
+     */
+    suspend fun play(callback: () -> Unit) {
+        activate()
+        job?.join()
+
+        callback()
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Trim the video.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private fun trimVideo(dataBinder: ITrimmingData, uri: Uri): Job =
         CoroutineScope(Dispatchers.IO).launch {
-            val inPath = AbsolutePathRetriever.getPath(context, uri) ?: return@launch
+            val inPath = getPath(context, uri) ?: return@launch
             val parentPath = context.filesDir.absolutePath + "/video_image"
             val outPath = run {
                 val parentFolder = File(parentPath)
@@ -196,7 +225,7 @@ class LoadingDialog(context: Context, private val request: Int) :
                 }
             }.start()
 
-            getPercentageFromFFmpeg(0)
+            getPercentageFromFFmpeg(0, 50)
 
             inferenceVideo(dataBinder, parentPath)
             JsonConverter.convert(personList, frameCount, context)
@@ -239,6 +268,10 @@ class LoadingDialog(context: Context, private val request: Int) :
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Export the video.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * Called in Unity.
      */
@@ -252,49 +285,88 @@ class LoadingDialog(context: Context, private val request: Int) :
                 }
             }.start()
 
-            getPercentageFromFFmpeg(50)
+            getPercentageFromFFmpeg(50, 100)
 
-            File(audioPath).delete()
-            File(capturePath).listFiles()?.forEach { it.delete() }
-            dismiss()
             Intent(context, ExportActivity::class.java).apply {
-                putExtra("RESULT", resultPath)
+                putExtra(RESULT, resultPath)
+                putExtra(VIDEO_FRAME_COUNT, frameCount)
                 startActivity(context, this, null)
             }
+            dismiss()
         }
     }
 
-    /**
-     * Update percentage.
-     */
-    fun update(@IntRange(from = 0, to = 100) percentage: Int) {
-        this.percentage = percentage
-        progress.text = String.format("%02d%%", percentage)
-    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Save the video.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    @SuppressLint("SimpleDateFormat")
     private fun saveVideo(): Job =
         CoroutineScope(Dispatchers.IO).launch {
             //Video name is depended by time
-//            val time = System.currentTimeMillis()
-//            val date = Date(time)
-//            val nameFormat = SimpleDateFormat("yyyyMMdd_HHmmss")
-//            val filename = nameFormat.format(date) + ".mp4"
+            val time = System.currentTimeMillis()
+            val date = Date(time)
+            val nameFormat = SimpleDateFormat("MMddHHmmss")
+            val filename = nameFormat.format(date) + ".mp4"
+
+            val contentValues = ContentValues()
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
+                contentValues.put(
+                    MediaStore.Files.FileColumns.RELATIVE_PATH,
+                    Environment.DIRECTORY_DCIM + "/ZZAZZ"
+                )
+            contentValues.put(MediaStore.Files.FileColumns.DISPLAY_NAME, filename)
+            contentValues.put(MediaStore.Files.FileColumns.MIME_TYPE, "video/*")
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
+                contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 1)
+
+            val outputUri =
+                context.contentResolver.insert(
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    contentValues
+                )
+
+            val path = getPath(context, outputUri ?: return@launch)
+
+            Thread {
+                FFmpegDelegate.copyVideo("${context.filesDir.absolutePath}/result.mp4",
+                    path ?: return@Thread
+                ) {
+                    if (it == Config.RETURN_CODE_SUCCESS)
+                        percentage = 100
+                }
+            }.start()
+
+            getPercentageFromFFmpeg(0, 100)
+
+            contentValues.clear()
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
+                contentValues.put(MediaStore.Files.FileColumns.IS_PENDING, 0)
+            context.contentResolver.update(outputUri, contentValues, null, null)
             dismiss()
         }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////// Control percentage.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private fun readOneLine(reader: BufferedReader) = reader.readLine()
 
     private fun process() =
         Runtime.getRuntime().exec("logcat -d -v process -t 1 mobile-ffmpeg:I *:S")
 
-    private suspend fun getPercentageFromFFmpeg(startPercentage: Int) {
+    /**
+     * @param start means a start point of a percentage
+     * @param end means a end point of a percentage
+     */
+    private suspend fun getPercentageFromFFmpeg(start: Int, end: Int) {
         val find = "frame"
         val pid = android.os.Process.myPid()
         var process = process()
         var reader = BufferedReader(InputStreamReader(process.inputStream))
         var currentLine: String?
 
-        while (percentage < 50 + startPercentage) {
+        while (percentage < end) {
             currentLine = readOneLine(reader)
             if (currentLine == null) {
                 process = process()
@@ -306,7 +378,8 @@ class LoadingDialog(context: Context, private val request: Int) :
                     val arr1 = currentLine.split("$find=")
                     val arr2 = arr1[1].trim().split(" ")
 
-                    val threshold = 50 * arr2[0].toInt() / frameCount + startPercentage
+                    val threshold =
+                        (end - start) * arr2[0].toInt() / frameCount + start
                     if (percentage < threshold)
                         percentage = threshold
                     else
@@ -316,5 +389,13 @@ class LoadingDialog(context: Context, private val request: Int) :
             progress.text = String.format("%02d%%", percentage)
             yield()
         }
+    }
+
+    /**
+     * Update percentage.
+     */
+    fun update(@IntRange(from = 0, to = 100) percentage: Int) {
+        this.percentage = percentage
+        progress.text = String.format("%02d%%", percentage)
     }
 }
