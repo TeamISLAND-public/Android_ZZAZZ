@@ -273,7 +273,7 @@ class LoadingDialog(context: Context, private val request: Int) :
                 "currentBox",
                 "%d %d %d %d".format(currentBox.x, currentBox.y, currentBox.w, currentBox.h)
             )
-            percentage = 50 + (100f * i / frameCount).toInt()
+            percentage = 50 + (50f * i / frameCount).toInt()
             progress.text = String.format("%02d%%", percentage)
             yield()
         }
