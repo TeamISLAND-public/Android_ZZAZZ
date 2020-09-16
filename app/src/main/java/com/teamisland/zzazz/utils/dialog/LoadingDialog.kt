@@ -1,4 +1,3 @@
-
 package com.teamisland.zzazz.utils.dialog
 
 import android.annotation.SuppressLint
@@ -69,7 +68,7 @@ class LoadingDialog(context: Context, private val request: Int) :
     private var audioPath: String = ""
     private var capturePath: String = ""
     private var unityDataBridge: UnityDataBridge? = null
-    private var isUnity = true
+    private var isUnity = false
 
     private var percentage: Int = 0
     private var job: Job? = null
@@ -244,14 +243,14 @@ class LoadingDialog(context: Context, private val request: Int) :
             dismiss()
         }
 
-    private fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
+    private suspend fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
         val frameCount =
             (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
         var currentBox = BBox(0, 0, 0, 0)
         personList.clear()
 
         // Detecting initial bounding box
-        // TODO: 9/9/2020 developers should not use like this mehod
+        // TODO: 9/9/2020 developers should not use like this method
         for (i in 1 until 3) {
             val bitmap: Bitmap? = BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
             if (bitmap == null)
@@ -274,6 +273,9 @@ class LoadingDialog(context: Context, private val request: Int) :
                 "currentBox",
                 "%d %d %d %d".format(currentBox.x, currentBox.y, currentBox.w, currentBox.h)
             )
+            percentage = 50 + (100f * i / frameCount).toInt()
+            progress.text = String.format("%02d%%", percentage)
+            yield()
         }
 
         // Tracking bounding box based on heatmap
@@ -305,6 +307,9 @@ class LoadingDialog(context: Context, private val request: Int) :
                 val person = poseEstimation.estimatePose(resized)
                 personList.add(person)
             }
+            percentage = 50 + (100f * i.toFloat() / frameCount).toInt()
+            progress.text = String.format("%02d%%", percentage)
+            yield()
         }
         JsonConverter.convert(personList, frameCount, context)
     }
@@ -370,7 +375,8 @@ class LoadingDialog(context: Context, private val request: Int) :
             val path = getPath(context, outputUri ?: return@launch)
 
             Thread {
-                FFmpegDelegate.copyVideo("${context.filesDir.absolutePath}/result.mp4",
+                FFmpegDelegate.copyVideo(
+                    "${context.filesDir.absolutePath}/result.mp4",
                     path ?: return@Thread
                 ) {
                     if (it == Config.RETURN_CODE_SUCCESS)
