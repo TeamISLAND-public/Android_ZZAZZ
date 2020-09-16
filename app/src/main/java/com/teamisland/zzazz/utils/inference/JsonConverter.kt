@@ -13,24 +13,22 @@ import java.io.FileWriter
  */
 object JsonConverter {
     fun convert(personList: ArrayList<Person?>, frameCount: Int, context: Context) {
-        if (frameCount != personList.size + 1) {
+        if (frameCount != personList.size + 1)
             Log.d(
                 "framecount", "framecount does not match %d %d".format(
                     frameCount,
                     personList.size
                 )
             )
-        }
 
-        val parentPath = context.filesDir.absolutePath + "/inference_result"
         val fileName = "inference.txt"
-        val file = File(parentPath + fileName)
+        val file = File(context.filesDir.absolutePath, fileName)
 
-        if(file.exists()){
+        if (file.exists())
             file.delete()
-        }
 
         val writer = FileWriter(file, true)
+        writer.write("frame_count : $frameCount\n")
 
         for (i in 0 until personList.size) {
             val frameOutput = JSONObject()

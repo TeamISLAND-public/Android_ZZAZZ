@@ -15,7 +15,13 @@ interface UnityDataBridge {
     /**
      * Retrieves video data.
      */
-    fun retrieveMetadata(importPath: String, exportPath: String, count: Int, fps: Float)
+    fun retrieveMetadata(
+        importPath: String,
+        exportPath: String,
+        count: Int,
+        fps: Float,
+        inferencePath: String
+    )
 
     /**
      * Sets play state.
