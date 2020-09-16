@@ -307,7 +307,7 @@ class LoadingDialog(context: Context, private val request: Int) :
                 val person = poseEstimation.estimatePose(resized)
                 personList.add(person)
             }
-            percentage = 50 + (100f * i.toFloat() / frameCount).toInt()
+            percentage = 50 + (50f * i.toFloat() / frameCount).toInt()
             progress.text = String.format("%02d%%", percentage)
             yield()
         }
