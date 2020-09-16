@@ -46,7 +46,9 @@ object JsonConverter {
             }
             frameOutput.put("frameNumber", i)
             frameOutput.put("keypoints", keyPointArray)
+            Log.d("framecount and keypointarray", "framecount does not match %d %s".format(i, keyPointArray.toString()))
             writer.write(frameOutput.toString() + "\n")
         }
+        writer.close()
     }
 }
