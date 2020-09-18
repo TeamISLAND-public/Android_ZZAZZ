@@ -63,8 +63,9 @@ class ProjectActivity : AppCompatActivity() {
 
     private val resultPath: String by lazy { filesDir.absolutePath + "/result.mp4" }
 
-    private val modelOutput: ArrayList<Person?> by lazy {
-        intent.getParcelableArrayListExtra<Person?>(MODEL_OUTPUT)
+    @Suppress("unused")
+    private val modelOutput: ArrayList<Person> by lazy {
+        intent.getParcelableArrayListExtra(MODEL_OUTPUT)
     }
 
     @Suppress("unused")

@@ -56,7 +56,7 @@ class LoadingDialog(context: Context, private val request: Int) :
     private var uri: Uri? = null
 
     // Variable for inference
-    private var personList = ArrayList<Person?>()
+    private var personList = ArrayList<Person>()
     private var poseEstimation = PoseEstimation(context)
     private var height = 256
     private var width = 256
@@ -271,7 +271,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             }
             Log.d(
                 "currentBox",
-                "%d %d %d %d".format(currentBox.x, currentBox.y, currentBox.w, currentBox.h)
+                "${currentBox.x} ${currentBox.y} ${currentBox.w} ${currentBox.h}"
             )
             percentage = 50 + (50f * i / frameCount).toInt()
             progress.text = String.format("%02d%%", percentage)
@@ -285,7 +285,7 @@ class LoadingDialog(context: Context, private val request: Int) :
                 Log.d("bitmap", "has no bit map")
             if (bitmap != null) {
                 currentBox =
-                    personList[i - 2]?.let { BBoxTracker.convert(bitmap, it, currentBox) } ?: return
+                    personList[i - 2].let { BBoxTracker.convert(bitmap, it, currentBox) }
                 Log.d(
                     "currentBox",
                     "%d %d %d %d %d".format(
