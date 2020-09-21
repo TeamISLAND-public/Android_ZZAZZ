@@ -169,7 +169,13 @@ class ProjectActivity : AppCompatActivity() {
     fun accept(li: UnityDataBridge) {
         unityDataBridge = li
         li.onSuccessfulAccept()
-        li.retrieveMetadata(imagePath, capturePath, frameCount, fps)
+        li.retrieveMetadata(
+            imagePath,
+            capturePath,
+            frameCount,
+            fps,
+            filesDir.absolutePath + "/inference.txt"
+        )
     }
 
     /**
