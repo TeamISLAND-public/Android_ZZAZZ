@@ -49,6 +49,7 @@ internal object JsonConverter {
                 frameOutput.put("keypoints", keyPointArray)
                 writer.write(frameOutput.toString() + "\n")
             }
+            writer.close()
         }
     }
 }
