@@ -51,9 +51,9 @@ class ProjectEffectEditorView @JvmOverloads constructor(
      * Time in ms where left knob is pointing.
      */
     var leftKnobTime: Int
-        get() = getTimeOfPosition(leftKnobPosition)
+        get() = getFrameOfPosition(leftKnobPosition)
         set(value) {
-            leftKnobPosition = getPositionOfTime(value)
+            leftKnobPosition = getPositionOfFrame(value)
             invalidate()
         }
 
@@ -61,9 +61,9 @@ class ProjectEffectEditorView @JvmOverloads constructor(
      * Time in ms where right knob is pointing.
      */
     var rightKnobTime: Int
-        get() = getTimeOfPosition(rightKnobPosition)
+        get() = getFrameOfPosition(rightKnobPosition)
         set(value) {
-            rightKnobPosition = getPositionOfTime(value)
+            rightKnobPosition = getPositionOfFrame(value)
             invalidate()
         }
 

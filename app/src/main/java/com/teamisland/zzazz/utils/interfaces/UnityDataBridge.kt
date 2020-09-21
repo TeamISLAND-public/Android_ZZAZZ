@@ -26,4 +26,9 @@ interface UnityDataBridge {
      * Cancel exporting in Unity.
      */
     fun cancelExporting()
+
+    /**
+     * Sets frame.
+     */
+    fun setFrame(frame: Int)
 }
