@@ -1,8 +1,5 @@
 package com.teamisland.zzazz.utils.interfaces
 
-import com.teamisland.zzazz.utils.inference.Person
-import java.util.ArrayList
-
 
 /**
  * !!! IMPORTANT !!! KEEP SAME SIGNATURE WITH UNITY: AndroidDataBridge.
@@ -23,7 +20,8 @@ interface UnityDataBridge {
         exportPath: String,
         count: Int,
         fps: Float,
-        inferencePath: String)
+        inferencePath: String
+    )
 
     /**
      * Sets play state.
@@ -34,4 +32,9 @@ interface UnityDataBridge {
      * Cancel exporting in Unity.
      */
     fun cancelExporting()
+
+    /**
+     * Sets frame.
+     */
+    fun setFrame(frame: Int)
 }

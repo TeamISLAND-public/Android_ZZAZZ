@@ -1,4 +1,3 @@
-
 package com.teamisland.zzazz.utils.dialog
 
 import android.annotation.SuppressLint
@@ -68,7 +67,7 @@ class LoadingDialog(context: Context, private val request: Int) :
     private var audioPath: String = ""
     private var capturePath: String = ""
     private var unityDataBridge: UnityDataBridge? = null
-    private var isUnity = true
+    private var isUnity = false
 
     private var percentage: Int = 0
     private var job: Job? = null
@@ -243,7 +242,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             dismiss()
         }
 
-    private fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
+    private suspend fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
         val frameCount =
             (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
         personList.clear()
@@ -259,6 +258,8 @@ class LoadingDialog(context: Context, private val request: Int) :
                 personList.add(person)
             }
             bBoxList.add(BBoxTracker.currentBox)
+            percentage = 50 + (50f * i / frameCount).toInt()
+            progress.text = String.format("%02d%%", percentage)
         }
         JsonConverter.convert(personList, bBoxList, frameCount, context)
     }
@@ -324,7 +325,8 @@ class LoadingDialog(context: Context, private val request: Int) :
             val path = getPath(context, outputUri ?: return@launch)
 
             Thread {
-                FFmpegDelegate.copyVideo("${context.filesDir.absolutePath}/result.mp4",
+                FFmpegDelegate.copyVideo(
+                    "${context.filesDir.absolutePath}/result.mp4",
                     path ?: return@Thread
                 ) {
                     if (it == Config.RETURN_CODE_SUCCESS)

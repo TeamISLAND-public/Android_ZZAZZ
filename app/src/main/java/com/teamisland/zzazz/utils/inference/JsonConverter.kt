@@ -11,7 +11,7 @@ import java.io.FileWriter
 /**
  * JsonConverter
  */
-object JsonConverter {
+internal object JsonConverter {
     fun convert(personList: ArrayList<Person>, bBoxList: ArrayList<BBox>, frameCount: Int, context: Context) {
         if (frameCount != personList.size + 1)
             Log.d(

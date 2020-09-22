@@ -23,7 +23,7 @@ class TimeIndexView @JvmOverloads constructor(
     private val textSize = float2DP(8f, resources)
     private val max = float2SP(120f, resources)
     private val downPower = 2f
-    private var timeInterval: Int = 0
+    private var frameInterval: Int = 0
 
     init {
         paint.typeface = resources.getFont(R.font.archivo_regular)
@@ -32,8 +32,16 @@ class TimeIndexView @JvmOverloads constructor(
     }
 
     override fun updateOnSync() {
-        timeInterval = downPower.pow(floor(log(max, downPower) - log(pxPerMs, downPower))).toInt()
-            .coerceAtLeast(1)
+        frameInterval =
+            downPower.pow(
+                floor(
+                    log(
+                        max,
+                        downPower
+                    ) - log(pxPerFrame * videoLength / frameCount / 1000, downPower)
+                )
+            ).toInt()
+                .coerceAtLeast(1)
     }
 
     private fun getTimeText(ms: Int, printDecimals: Boolean): String {
@@ -62,24 +70,39 @@ class TimeIndexView @JvmOverloads constructor(
      * Draws the view.
      */
     override fun onDraw(canvas: Canvas) {
-        if (timeInterval <= 0) {
+        if (frameInterval <= 0) {
             val temp = paint.color
             paint.color = 0xffffc200.toInt()
-            canvas.drawText("timeInterval: $timeInterval", width / 2f, textSize + paddingTop, paint)
+            canvas.drawText(
+                "frameInterval: $frameInterval",
+                width / 2f,
+                textSize + paddingTop,
+                paint
+            )
             paint.color = temp
             return
         }
-        val decimal = timeInterval < 1000
-        val currentTimeStep = currentTime - (currentTime % timeInterval)
+        val decimal = frameInterval < 1000
+        val currentFrameStep = currentFrame - (currentFrame % frameInterval)
 
-        for (i in (currentTimeStep - timeInterval) downTo 0 step timeInterval) {
-            val desiredXPos = getPositionOfTime(i)
-            canvas.drawText(getTimeText(i, decimal), desiredXPos, textSize + paddingTop, paint)
+        for (i in (currentFrameStep - frameInterval) downTo 0 step frameInterval) {
+            val desiredXPos = getPositionOfFrame(i)
+            canvas.drawText(
+                getTimeText(i * videoLength / frameCount, decimal),
+                desiredXPos,
+                textSize + paddingTop,
+                paint
+            )
             if (desiredXPos < -max) break
         }
-        for (i in currentTimeStep..videoLength step timeInterval) {
-            val desiredXPos = getPositionOfTime(i)
-            canvas.drawText(getTimeText(i, decimal), desiredXPos, textSize + paddingTop, paint)
+        for (i in currentFrameStep until frameCount step frameInterval) {
+            val desiredXPos = getPositionOfFrame(i)
+            canvas.drawText(
+                getTimeText(i * videoLength / frameCount, decimal),
+                desiredXPos,
+                textSize + paddingTop,
+                paint
+            )
             if (desiredXPos > width + max) break
         }
     }

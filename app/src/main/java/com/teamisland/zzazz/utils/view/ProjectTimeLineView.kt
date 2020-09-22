@@ -91,7 +91,7 @@ open class ProjectTimeLineView @JvmOverloads constructor(
      * [View.onDraw]
      */
     override fun onDraw(canvas: Canvas) {
-        val originLocation = getPositionOfTime(0)
+        val originLocation = getPositionOfFrame(0)
 
         var x = if (originLocation > 0) originLocation else originLocation % height
 
