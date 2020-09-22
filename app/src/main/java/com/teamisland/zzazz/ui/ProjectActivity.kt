@@ -173,8 +173,7 @@ class ProjectActivity : AppCompatActivity() {
             capturePath,
             frameCount,
             fps,
-            filesDir.absolutePath + "/inference.txt"
-        )
+            filesDir.absolutePath + "/inference.txt")
     }
 
     /**

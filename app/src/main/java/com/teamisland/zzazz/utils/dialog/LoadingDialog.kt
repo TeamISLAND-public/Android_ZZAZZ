@@ -57,10 +57,9 @@ class LoadingDialog(context: Context, private val request: Int) :
     private var uri: Uri? = null
 
     // Variable for inference
-    private var personList = ArrayList<Person?>()
+    private var personList = ArrayList<Person>()
+    private var bBoxList = ArrayList<BBox>()
     private var poseEstimation = PoseEstimation(context)
-    private var height = 256
-    private var width = 256
 
     // Variable for export
     private var frameCount by Delegates.notNull<Int>()
@@ -247,66 +246,21 @@ class LoadingDialog(context: Context, private val request: Int) :
     private fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
         val frameCount =
             (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
-        var currentBox = BBox(0, 0, 0, 0)
         personList.clear()
+        bBoxList.clear()
 
         // Detecting initial bounding box
         // TODO: 9/9/2020 developers should not use like this mehod
-        for (i in 1 until 3) {
-            val bitmap: Bitmap? = BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
-            if (bitmap == null)
-                Log.d("bitmap", "has no bit map")
-            if (bitmap != null) {
-                // TODO: 9/9/2020 human detector
-                currentBox = BBox(0, 0, bitmap.width, bitmap.height)
-                val croppedBitmap: Bitmap = Bitmap.createBitmap(
-                    bitmap,
-                    currentBox.x,
-                    currentBox.y,
-                    currentBox.w,
-                    currentBox.h
-                )
-                val resized = Bitmap.createScaledBitmap(croppedBitmap, width, height, true)
-                val person = poseEstimation.estimatePose(resized)
+        for (i in 0..frameCount) {
+            Log.d("currentBox", "%s".format(BBoxTracker.currentBox.toString()))
+            val resized = BBoxTracker.track(path, i, personList)
+            val person = resized?.let { poseEstimation.estimatePose(it) }
+            if (person != null) {
                 personList.add(person)
             }
-            Log.d(
-                "currentBox",
-                "%d %d %d %d".format(currentBox.x, currentBox.y, currentBox.w, currentBox.h)
-            )
+            bBoxList.add(BBoxTracker.currentBox)
         }
-
-        // Tracking bounding box based on heatmap
-        for (i in 3..frameCount) {
-            val bitmap: Bitmap? = BitmapFactory.decodeFile(path + "/img%08d.png".format(i))
-            if (bitmap == null)
-                Log.d("bitmap", "has no bit map")
-            if (bitmap != null) {
-                currentBox =
-                    personList[i - 2]?.let { BBoxTracker.convert(bitmap, it, currentBox) } ?: return
-                Log.d(
-                    "currentBox",
-                    "%d %d %d %d %d".format(
-                        i,
-                        currentBox.x,
-                        currentBox.y,
-                        currentBox.w,
-                        currentBox.h
-                    )
-                )
-                val croppedBitmap: Bitmap = Bitmap.createBitmap(
-                    bitmap,
-                    currentBox.x,
-                    currentBox.y,
-                    currentBox.w,
-                    currentBox.h
-                )
-                val resized = Bitmap.createScaledBitmap(croppedBitmap, width, height, true)
-                val person = poseEstimation.estimatePose(resized)
-                personList.add(person)
-            }
-        }
-        JsonConverter.convert(personList, frameCount, context)
+        JsonConverter.convert(personList, bBoxList, frameCount, context)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
