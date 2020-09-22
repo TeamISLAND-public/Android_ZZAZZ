@@ -33,6 +33,7 @@ internal object JsonConverter {
         for (i in 0 until personList.size) {
             val frameOutput = JSONObject()
             val keyPointArray = JSONArray()
+            val boundingBoxArray = JSONArray()
             val boundingBox = JSONObject()
 
             boundingBox.put("x_",bBoxList[i].x)
@@ -51,10 +52,11 @@ internal object JsonConverter {
                 }
                 keyPointArray.put(keyPoints)
             }
+            boundingBoxArray.put(boundingBox)
+
             frameOutput.put("frameNumber", i)
-            frameOutput.put("boundingBox", boundingBox)
+            frameOutput.put("boundingBox", boundingBoxArray)
             frameOutput.put("keypoints", keyPointArray)
-            Log.d("framecount and keypointarray", "framecount does not match %d %s".format(i, keyPointArray.toString()))
             writer.write(frameOutput.toString() + "\n")
         }
         writer.close()
