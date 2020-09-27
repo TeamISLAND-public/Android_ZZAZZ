@@ -36,10 +36,10 @@ internal object JsonConverter {
             val boundingBoxArray = JSONArray()
             val boundingBox = JSONObject()
 
-            boundingBox.put("x_",bBoxList[i].x)
-            boundingBox.put("y_",bBoxList[i].y)
-            boundingBox.put("w_",bBoxList[i].w)
-            boundingBox.put("h_",bBoxList[i].h)
+            boundingBox.put("x",bBoxList[i].x)
+            boundingBox.put("y",bBoxList[i].y)
+            boundingBox.put("z",bBoxList[i].w)
+            boundingBox.put("w",bBoxList[i].h)
 
             for (j in (personList[0] ?: return).keyPoints.indices) {
                 val keyPoints = JSONObject()
