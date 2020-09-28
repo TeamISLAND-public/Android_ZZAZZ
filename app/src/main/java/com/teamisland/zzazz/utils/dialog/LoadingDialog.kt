@@ -249,7 +249,6 @@ class LoadingDialog(context: Context, private val request: Int) :
         bBoxList.clear()
 
         // Detecting initial bounding box
-        // TODO: 9/9/2020 developers should not use like this mehod
         for (i in 0..frameCount) {
             Log.d("currentBox", "%s".format(BBoxTracker.currentBox.toString()))
             val resized = BBoxTracker.track(path, i, personList)
