@@ -250,7 +250,7 @@ class LoadingDialog(context: Context, private val request: Int) :
 
         // Detecting initial bounding box
         for (i in 0..frameCount) {
-            Log.d("currentBox", "%s".format(BBoxTracker.currentBox.toString()))
+            Log.d("currentBox", BBoxTracker.currentBox.toString())
             val resized = BBoxTracker.track(path, i, personList)
             val person = resized?.let { poseEstimation.estimatePose(it) }
             if (person != null) {
