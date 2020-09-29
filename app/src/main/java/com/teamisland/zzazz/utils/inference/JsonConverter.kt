@@ -43,13 +43,9 @@ internal object JsonConverter {
 
             for (j in (personList[0] ?: return).keyPoints.indices) {
                 val keyPoints = JSONObject()
-                try {
-                    keyPoints.put("x", personList[i].keyPoints[j].position.x)
-                    keyPoints.put("y", personList[i].keyPoints[j].position.y)
-                    keyPoints.put("z", personList[i].keyPoints[j].position.z)
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                }
+                keyPoints.put("x", personList[i].keyPoints[j].position.x)
+                keyPoints.put("y", personList[i].keyPoints[j].position.y)
+                keyPoints.put("z", personList[i].keyPoints[j].position.z)
                 keyPointArray.put(keyPoints)
             }
             boundingBoxArray.put(boundingBox)
