@@ -202,7 +202,7 @@ class PoseEstimation(
         val estimationStartTimeNanoSeconds = SystemClock.elapsedRealtimeNanos()
         val inputArray = arrayOf(initInputArray(bitmap))
         Log.i(
-            "zzazz_core",
+            "estimation_time",
             String.format(
                 "Scaling to [-1, 1] took %.2f ms",
                 1.0f * (SystemClock.elapsedRealtimeNanos() - estimationStartTimeNanoSeconds) / 1_000_000
@@ -216,7 +216,7 @@ class PoseEstimation(
         getInterpreter().runForMultipleInputsOutputs(inputArray, outputMap)
         lastInferenceTimeNanoSeconds = SystemClock.elapsedRealtimeNanos() - inferenceStartTimeNanoSeconds
         Log.i(
-            "zzazz_core",
+            "estimation_time",
             String.format("Interpreter took %.2f ms", 1.0f * lastInferenceTimeNanoSeconds / 1_000_000)
         )
 
@@ -228,8 +228,6 @@ class PoseEstimation(
         val height = heatmap[0].size
         val width = heatmap[0][0].size
         val numKeypoints = heatmap[0][0][0].size
-
-        Log.i("zzazz_core", String.format("Size: %d %d %d %d",heatmap.size, height, width, numKeypoints))
 
         // Finds the (row, col) locations of where the keypoints are most likely to be.
         val keypointPositions = Array(numKeypoints) { Triple(0F, 0F, 0F) }
@@ -266,9 +264,6 @@ class PoseEstimation(
             if (maxCol < keypointCol){
                 maxCol = keypointCol
             }
-
-            Log.i("bbox_tracking", String.format("Size: %d %d %d %d",minCol, minRow, maxCol, maxRow))
-
             keypointPositions[keypoint] = Triple(locationX[0][keypointRow][keypointCol][keypoint],
                 locationY[0][keypointRow][keypointCol][keypoint],
                 locationZ[0][keypointRow][keypointCol][keypoint])
