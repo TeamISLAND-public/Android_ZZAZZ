@@ -5,8 +5,6 @@ import android.app.Dialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -137,6 +135,8 @@ class LoadingDialog(context: Context, private val request: Int) :
         const val SAVE: Int = 2
     }
 
+    private val formatString = "%02d%%"
+
     /**
      * [Dialog.onCreate]
      */
@@ -149,7 +149,7 @@ class LoadingDialog(context: Context, private val request: Int) :
         window?.setGravity(Gravity.CENTER)
 
         Glide.with(context).load(R.drawable.loading).into(load_gif)
-        progress.text = String.format("%02d%%", percentage)
+        progress.text = String.format(formatString, percentage)
 
         cancel.setOnClickListener {
             if (!isUnity) {
@@ -242,7 +242,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             dismiss()
         }
 
-    private suspend fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
+    private fun inferenceVideo(dataBinder: ITrimmingData, path: String) {
         val frameCount =
             (dataBinder.rangeExclusiveEndIndex - dataBinder.rangeStartIndex).toInt()
         personList.clear()
@@ -258,7 +258,7 @@ class LoadingDialog(context: Context, private val request: Int) :
             }
             bBoxList.add(BBoxTracker.currentBox)
             percentage = 50 + (50f * i / frameCount).toInt()
-            progress.text = String.format("%02d%%", percentage)
+            progress.text = String.format(formatString, percentage)
         }
         JsonConverter.convert(personList, bBoxList, frameCount, context)
     }
@@ -369,20 +369,18 @@ class LoadingDialog(context: Context, private val request: Int) :
                 reader = BufferedReader(InputStreamReader(process.inputStream))
                 continue
             }
-            if (currentLine.contains(java.lang.String.valueOf(pid))) {
-                if (currentLine.contains("$find=")) {
-                    val arr1 = currentLine.split("$find=")
-                    val arr2 = arr1[1].trim().split(" ")
+            if (currentLine.contains(java.lang.String.valueOf(pid)) && currentLine.contains("$find=")) {
+                val arr1 = currentLine.split("$find=")
+                val arr2 = arr1[1].trim().split(" ")
 
-                    val threshold =
-                        (end - start) * arr2[0].toInt() / frameCount + start
-                    if (percentage < threshold)
-                        percentage = threshold
-                    else
-                        continue
-                }
+                val threshold =
+                    (end - start) * arr2[0].toInt() / frameCount + start
+                if (percentage < threshold)
+                    percentage = threshold
+                else
+                    continue
             }
-            progress.text = String.format("%02d%%", percentage)
+            progress.text = String.format(formatString, percentage)
             yield()
         }
     }
@@ -392,6 +390,6 @@ class LoadingDialog(context: Context, private val request: Int) :
      */
     fun update(@IntRange(from = 0, to = 100) percentage: Int) {
         this.percentage = percentage
-        progress.text = String.format("%02d%%", percentage)
+        progress.text = String.format(formatString, percentage)
     }
 }

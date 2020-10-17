@@ -157,11 +157,9 @@ internal object BackgroundExecutor {
     }
 
     abstract class Task(val id: String?, delay: Long, val serial: String?) : Runnable {
-        //        private var id: String? = null
         internal var remainingDelay: Long = 0
         private val targetTimeMillis: Long /* since epoch */
 
-        //        private var serial: String? = null
         internal var executionAsked: Boolean = false
         internal var future: Future<*>? = null
 
@@ -180,16 +178,10 @@ internal object BackgroundExecutor {
         internal val managed = AtomicBoolean()
 
         init {
-//            if ("" != id) {
-//                this.id = id
-//            }
             if (delay > 0) {
                 remainingDelay = delay
                 targetTimeMillis = System.currentTimeMillis() + delay
             } else targetTimeMillis = 0L
-//            if ("" != serial) {
-//                this.serial = serial
-//            }
         }
 
         override fun run() {

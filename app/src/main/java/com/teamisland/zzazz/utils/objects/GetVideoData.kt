@@ -22,10 +22,8 @@ object GetVideoData {
         for (i in 0 until mediaExtractor.trackCount) {
             val format = mediaExtractor.getTrackFormat(i)
             val mime = format.getString(MediaFormat.KEY_MIME)!!
-            if (mime.startsWith("video/")) {
-                if (format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
-                    videoFps = format.getInteger(MediaFormat.KEY_FRAME_RATE)
-                }
+            if (mime.startsWith("video/") && format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+                videoFps = format.getInteger(MediaFormat.KEY_FRAME_RATE)
             }
         }
         mediaExtractor.release()

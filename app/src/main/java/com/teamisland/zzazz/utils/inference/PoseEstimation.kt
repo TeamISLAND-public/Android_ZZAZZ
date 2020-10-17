@@ -6,13 +6,13 @@ import android.os.Parcelable
 import android.os.SystemClock
 import android.util.Log
 import kotlinx.android.parcel.Parcelize
+import org.tensorflow.lite.Interpreter
+import org.tensorflow.lite.gpu.GpuDelegate
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
-import org.tensorflow.lite.Interpreter
-import org.tensorflow.lite.gpu.GpuDelegate
 
 enum class Device {
     CPU,
@@ -55,18 +55,22 @@ enum class BodyPart {
 data class Position(
     var x: Float = 0F,
     var y: Float = 0F,
-    var z: Float = 0F) : Parcelable
+    var z: Float = 0F
+) : Parcelable
 
 @Parcelize
 data class KeyPoint(
     var bodyPart: BodyPart = BodyPart.HEAP_TOP,
-    var position: Position = Position()) : Parcelable
+    var position: Position = Position()
+) : Parcelable
 
 @Parcelize
-data class BBox(var x: Int = 0,
-                var y: Int = 0,
-                var w: Int = 0,
-                var h: Int = 0) : Parcelable
+data class BBox(
+    var x: Int = 0,
+    var y: Int = 0,
+    var w: Int = 0,
+    var h: Int = 0
+) : Parcelable
 
 @Parcelize
 data class Person(
@@ -94,7 +98,6 @@ class PoseEstimation(
 
     private var interpreter: Interpreter? = null
     private var gpuDelegate: GpuDelegate? = null
-    private val NUM_LITE_THREADS = 4
 
 
     private fun loadModelFile(path: String, context: Context): MappedByteBuffer {
@@ -104,14 +107,14 @@ class PoseEstimation(
             FileChannel.MapMode.READ_ONLY, fileDescriptor.startOffset, fileDescriptor.declaredLength
         )
     }
+
     private fun getInterpreter(): Interpreter {
         if (interpreter != null) {
             return interpreter!!
         }
         val options = Interpreter.Options()
-        options.setNumThreads(NUM_LITE_THREADS)
+        options.setNumThreads(Companion.NUM_LITE_THREADS)
         when (device) {
-            Device.CPU -> {}
             Device.GPU -> {
                 gpuDelegate = GpuDelegate()
                 options.addDelegate(gpuDelegate)
@@ -139,7 +142,12 @@ class PoseEstimation(
         Log.i(
             "zzazz_core",
             String.format(
-                "******** shape %d %d %d %d %d", batchSize, bytesPerChannel, bitmap.height, bitmap.width, inputChannels
+                "******** shape %d %d %d %d %d",
+                batchSize,
+                bytesPerChannel,
+                bitmap.height,
+                bitmap.width,
+                inputChannels
             )
         )
         val mean = 128.0f
@@ -158,39 +166,34 @@ class PoseEstimation(
         val outputMap = HashMap<Int, Any>()
         val arrayShape = arrayOf(1, 32, 32, 21)
 
-        val heatmapShape = arrayShape
-
-        outputMap[0] = Array(heatmapShape[0]) { // 1
-            Array(heatmapShape[1]) {            // 32
-                Array(heatmapShape[2]) {        // 32
-                    FloatArray(heatmapShape[3]) // 21
+        outputMap[0] = Array(arrayShape[0]) { // 1
+            Array(arrayShape[1]) {            // 32
+                Array(arrayShape[2]) {        // 32
+                    FloatArray(arrayShape[3]) // 21
                 }
             }
         }
 
-        val locationXShape = arrayShape
-        outputMap[1] = Array(locationXShape[0]) {   // 1
-            Array(locationXShape[1]) {              // 32
-                Array(locationXShape[2]) {          // 32
-                    FloatArray(locationXShape[3])   // 21
+        outputMap[1] = Array(arrayShape[0]) {   // 1
+            Array(arrayShape[1]) {              // 32
+                Array(arrayShape[2]) {          // 32
+                    FloatArray(arrayShape[3])   // 21
                 }
             }
         }
 
-        val locationYShape = arrayShape
-        outputMap[2] = Array(locationYShape[0]) {   // 1
-            Array(locationYShape[1]) {              // 32
-                Array(locationYShape[2]) {          // 32
-                    FloatArray(locationYShape[3])   // 21
+        outputMap[2] = Array(arrayShape[0]) {   // 1
+            Array(arrayShape[1]) {              // 32
+                Array(arrayShape[2]) {          // 32
+                    FloatArray(arrayShape[3])   // 21
                 }
             }
         }
 
-        val locationZShape = arrayShape
-        outputMap[3] = Array(locationZShape[0]) {   // 1
-            Array(locationZShape[1]) {              // 32
-                Array(locationZShape[2]) {          // 32
-                    FloatArray(locationZShape[3])   // 21
+        outputMap[3] = Array(arrayShape[0]) {   // 1
+            Array(arrayShape[1]) {              // 32
+                Array(arrayShape[2]) {          // 32
+                    FloatArray(arrayShape[3])   // 21
                 }
             }
         }
@@ -214,10 +217,14 @@ class PoseEstimation(
 
         val inferenceStartTimeNanoSeconds = SystemClock.elapsedRealtimeNanos()
         getInterpreter().runForMultipleInputsOutputs(inputArray, outputMap)
-        lastInferenceTimeNanoSeconds = SystemClock.elapsedRealtimeNanos() - inferenceStartTimeNanoSeconds
+        lastInferenceTimeNanoSeconds =
+            SystemClock.elapsedRealtimeNanos() - inferenceStartTimeNanoSeconds
         Log.i(
             "estimation_time",
-            String.format("Interpreter took %.2f ms", 1.0f * lastInferenceTimeNanoSeconds / 1_000_000)
+            String.format(
+                "Interpreter took %.2f ms",
+                1.0f * lastInferenceTimeNanoSeconds / 1_000_000
+            )
         )
 
         val heatmap = outputMap[0] as QuadrupleFloatArray
@@ -251,22 +258,16 @@ class PoseEstimation(
                     }
                 }
             }
+            minRow = minRow.coerceAtMost(keypointRow)
+            maxRow = maxRow.coerceAtLeast(keypointRow)
+            minCol = minCol.coerceAtMost(keypointCol)
+            maxCol = maxCol.coerceAtLeast(keypointCol)
 
-            if (minRow >= keypointRow){
-                minRow = keypointRow
-            }
-            if (maxRow < keypointRow){
-                maxRow = keypointRow
-            }
-            if (minCol >= keypointCol){
-                minCol = keypointCol
-            }
-            if (maxCol < keypointCol){
-                maxCol = keypointCol
-            }
-            keypointPositions[keypoint] = Triple(locationX[0][keypointRow][keypointCol][keypoint],
+            keypointPositions[keypoint] = Triple(
+                locationX[0][keypointRow][keypointCol][keypoint],
                 locationY[0][keypointRow][keypointCol][keypoint],
-                locationZ[0][keypointRow][keypointCol][keypoint])
+                locationZ[0][keypointRow][keypointCol][keypoint]
+            )
         }
 
         person.bBox.x = minCol
@@ -300,6 +301,10 @@ class PoseEstimation(
         interpreter = null
         gpuDelegate?.close()
         gpuDelegate = null
+    }
+
+    companion object {
+        private const val NUM_LITE_THREADS = 4
     }
 }
 
