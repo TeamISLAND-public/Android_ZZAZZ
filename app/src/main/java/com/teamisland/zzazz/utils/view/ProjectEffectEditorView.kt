@@ -95,10 +95,12 @@ class ProjectEffectEditorView @JvmOverloads constructor(
         canvas.restore()
     }
 
+    private val threshold = float2DP(20f, resources)
+
     private fun getNearBy(x: Float): Int {
         val d1 = abs(leftKnobPosition - x)
         val d2 = abs(rightKnobPosition - x)
-        if (min(d1, d2) > float2DP(10f, resources)) return -1
+        if (min(d1, d2) > threshold) return -1
         return if (d1 > d2) 1 else 0
     }
 
