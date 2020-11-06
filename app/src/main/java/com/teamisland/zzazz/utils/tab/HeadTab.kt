@@ -21,9 +21,9 @@ class HeadTab(private val activity: ProjectActivity) : Fragment() {
      * [Fragment.onCreateView]
      */
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         val view = layoutInflater.inflate(R.layout.add_tab, container, false)
         val listView = view.findViewById<RecyclerView>(R.id.effect_list)

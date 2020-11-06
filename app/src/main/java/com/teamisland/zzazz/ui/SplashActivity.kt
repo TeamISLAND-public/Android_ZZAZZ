@@ -8,7 +8,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.installations.FirebaseInstallations
 import com.teamisland.zzazz.R
 import kotlinx.android.synthetic.main.activity_splash.*
 import java.io.File
@@ -18,7 +18,7 @@ import java.io.File
  */
 class SplashActivity : AppCompatActivity() {
 
-    private val sharedPreferences by lazy { getSharedPreferences("Pref", MODE_PRIVATE) }
+    internal val sharedPreferences by lazy { getSharedPreferences("Pref", MODE_PRIVATE) }
 
     /**
      * When the activity is created
@@ -29,7 +29,7 @@ class SplashActivity : AppCompatActivity() {
         window.navigationBarColor = getColor(R.color.Background)
 
         // This is just for getting instance id of test device.
-        FirebaseInstanceId.getInstance().instanceId
+        FirebaseInstallations.getInstance().id
             .addOnCompleteListener(OnCompleteListener { task ->
                 if (!task.isSuccessful) {
                     Log.w("token", "getInstanceId failed", task.exception)
@@ -37,7 +37,7 @@ class SplashActivity : AppCompatActivity() {
                 }
 
                 // Get token
-                Log.d("asdfasdf", task.result?.token ?: return@OnCompleteListener)
+                Log.d("asdfasdf", task.result)
             })
 
         val files = filesDir

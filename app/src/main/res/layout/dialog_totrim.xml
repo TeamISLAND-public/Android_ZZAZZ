@@ -6,7 +6,7 @@
     android:layout_height="160dp"
     android:background="@drawable/dialog_background"
     android:orientation="vertical"
-    tools:context=".utils.GoTpTrimDialog">
+    tools:context=".utils.dialog.GoToTrimDialog">
 
     <TextView
         android:id="@+id/textView6"
@@ -23,7 +23,6 @@
         tools:ignore="SpUsage" />
 
     <TextView
-        android:id="@+id/alert"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"

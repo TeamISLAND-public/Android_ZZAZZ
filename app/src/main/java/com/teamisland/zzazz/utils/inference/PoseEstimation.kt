@@ -14,9 +14,21 @@ import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 
+/**
+ *
+ */
 enum class Device {
+    /**
+     *
+     */
     CPU,
+    /**
+     *
+     */
     NNAPI,
+    /**
+     *
+     */
     GPU,
 }
 
@@ -24,57 +36,165 @@ enum class Device {
  * this BodyPart JointNumber should be equal to the number of inference result
  */
 enum class BodyPart {
+    /**
+     *
+     */
     HEAP_TOP,
+    /**
+     *
+     */
     NECK,
+    /**
+     *
+     */
     RIGHT_SHOULDER,
+    /**
+     *
+     */
     RIGHT_ELBOW,
+    /**
+     *
+     */
     RIGHT_WRIST,
 
+    /**
+     *
+     */
     LEFT_SHOULDER,
+    /**
+     *
+     */
     LEFT_ELBOW,
+    /**
+     *
+     */
     LEFT_WRIST,
+    /**
+     *
+     */
     RIGHT_HIP,
+    /**
+     *
+     */
     RIGHT_KNEE,
 
+    /**
+     *
+     */
     RIGHT_ANKLE,
+    /**
+     *
+     */
     LEFT_HIP,
+    /**
+     *
+     */
     LEFT_KNEE,
+    /**
+     *
+     */
     LEFT_ANKLE,
+    /**
+     *
+     */
     PELVIS,
 
+    /**
+     *
+     */
     SPINE,
+    /**
+     *
+     */
     HEAD,
+    /**
+     *
+     */
     RIGHT_HAND,
+    /**
+     *
+     */
     LEFT_HAND,
+    /**
+     *
+     */
     RIGHT_TOE,
 
+    /**
+     *
+     */
     LEFT_TOE
 }
 
+/**
+ *
+ */
 @Parcelize
 data class Position(
+    /**
+     *
+     */
     var x: Float = 0F,
+    /**
+     *
+     */
     var y: Float = 0F,
+    /**
+     *
+     */
     var z: Float = 0F
 ) : Parcelable
 
+/**
+ *
+ */
 @Parcelize
 data class KeyPoint(
+    /**
+     *
+     */
     var bodyPart: BodyPart = BodyPart.HEAP_TOP,
+    /**
+     *
+     */
     var position: Position = Position()
 ) : Parcelable
 
+/**
+ *
+ */
 @Parcelize
 data class BBox(
+    /**
+     *
+     */
     var x: Int = 0,
+    /**
+     *
+     */
     var y: Int = 0,
+    /**
+     *
+     */
     var w: Int = 0,
+    /**
+     *
+     */
     var h: Int = 0
 ) : Parcelable
 
+/**
+ *
+ */
 @Parcelize
 data class Person(
+    /**
+     *
+     */
     var keyPoints: List<KeyPoint> = listOf(),
+    /**
+     *
+     */
     var bBox: BBox = BBox()
 ) : Parcelable
 
@@ -113,15 +233,12 @@ class PoseEstimation(
             return interpreter!!
         }
         val options = Interpreter.Options()
-        options.setNumThreads(Companion.NUM_LITE_THREADS)
-        when (device) {
-            Device.GPU -> {
-                gpuDelegate = GpuDelegate()
-                options.addDelegate(gpuDelegate)
-            }
-            Device.NNAPI -> {
-                options.setUseNNAPI(true)
-            }
+        options.setNumThreads(NUM_LITE_THREADS)
+        if (device == Device.GPU) {
+            gpuDelegate = GpuDelegate()
+            options.addDelegate(gpuDelegate)
+        } else if (device == Device.NNAPI) {
+            options.setUseNNAPI(true)
         }
         interpreter = Interpreter(loadModelFile(filename, context), options)
         return interpreter!!
@@ -200,6 +317,9 @@ class PoseEstimation(
         return outputMap
     }
 
+    /**
+     *
+     */
     @Suppress("UNCHECKED_CAST")
     fun estimatePose(bitmap: Bitmap): Person {
         val estimationStartTimeNanoSeconds = SystemClock.elapsedRealtimeNanos()
@@ -296,6 +416,9 @@ class PoseEstimation(
         return person
     }
 
+    /**
+     *
+     */
     override fun close() {
         interpreter?.close()
         interpreter = null

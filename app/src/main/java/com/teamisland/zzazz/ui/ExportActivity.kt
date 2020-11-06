@@ -47,7 +47,7 @@ import kotlin.math.hypot
 class ExportActivity : AppCompatActivity(), CoroutineScope {
 
     internal var duration: Int = 0
-    private val path: String by lazy { intent.getStringExtra(RESULT) }
+    private val path: String by lazy { intent.getStringExtra(RESULT) ?: "" }
     private val frameCount: Int by lazy { intent.getIntExtra(VIDEO_FRAME_COUNT, 0) }
     private val uri: Uri by lazy { Uri.parse(path) }
 
@@ -66,7 +66,7 @@ class ExportActivity : AppCompatActivity(), CoroutineScope {
 
     //This is for video is end
     //When video is end, preview will start from first
-    private var end = false
+    internal var end = false
 
     /**
      * When restart the activity start preview like onCreate.

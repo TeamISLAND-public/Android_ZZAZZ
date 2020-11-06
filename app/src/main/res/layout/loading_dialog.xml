@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".utils.LoadingDialog">
+    tools:context=".utils.dialog.LoadingDialog">
 
     <ImageView
         android:id="@+id/load_gif"
@@ -14,6 +14,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="TODO"
         app:layout_constraintVertical_bias="0.3803" />
 
     <TextView
@@ -28,6 +29,7 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        android:textIsSelectable="false"
         app:layout_constraintTop_toBottomOf="@id/load_gif" />
 
     <TextView
@@ -42,6 +44,7 @@
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        android:textIsSelectable="false"
         app:layout_constraintTop_toBottomOf="@id/progress" />
 
     <ImageButton
@@ -53,6 +56,7 @@
         android:src="@drawable/ic_cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="TODO"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

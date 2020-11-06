@@ -143,7 +143,8 @@
                 android:background="@color/Background"
                 android:src="@drawable/ic_preview_button"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="TODO" />
 
             <View
                 android:layout_width="1dp"

@@ -15,8 +15,8 @@
 
     <!--    string of going to setting dialog-->
     <string name="setting_title">Permission Denied</string>
-    <string name="setting_storage_script">ZZAZZ needs access right to your storage for all the\nfeatures. Go to setting and check "Allow".</string>
-    <string name="setting_video_script">ZZAZZ needs access right to your camera to take\nvideos. Go to setting and check "Allow".</string>
+    <string name="setting_storage_script">ZZAZZ needs access right to your storage for all the\nfeatures. Go to setting and check “Allow”.</string>
+    <string name="setting_video_script">ZZAZZ needs access right to your camera to take\nvideos. Go to setting and check “Allow”.</string>
     <string name="to_setting">Go to setting</string>
 
     <!--    string of intro activity-->
@@ -60,14 +60,10 @@
     <string name="save_text">Save</string>
     <string name="saved_text">Saved</string>
     <string name="share_text">Share</string>
-    <string name="file_name">ZZAZZ</string>
 
     <!--    string of loading dialog-->
     <string name="trim_video">Getting ready for a project!</string>
-    <string name="apply_effect">Applying the effect!</string>
     <string name="export_video">Exporting your work!</string>
     <string name="save_video">Saving your work!</string>
-
-    <string name="game_view_content_description" translatable="false">Game view</string>
 
 </resources>

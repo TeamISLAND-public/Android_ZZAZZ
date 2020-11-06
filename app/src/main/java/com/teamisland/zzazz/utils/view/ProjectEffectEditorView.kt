@@ -1,5 +1,6 @@
 package com.teamisland.zzazz.utils.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -53,6 +54,7 @@ class ProjectEffectEditorView @JvmOverloads constructor(
     /**
      * Time in ms where left knob is pointing.
      */
+    @Suppress("unused")
     var leftKnobTime: Int
         get() = getFrameOfPosition(leftKnobPosition)
         set(value) {
@@ -63,6 +65,7 @@ class ProjectEffectEditorView @JvmOverloads constructor(
     /**
      * Time in ms where right knob is pointing.
      */
+    @Suppress("unused")
     var rightKnobTime: Int
         get() = getFrameOfPosition(rightKnobPosition)
         set(value) {
@@ -115,6 +118,10 @@ class ProjectEffectEditorView @JvmOverloads constructor(
             else leftKnobPosition = value.coerceAtMost(rightKnobPosition)
         }
 
+    /**
+     * Knob edit listener
+     */
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {

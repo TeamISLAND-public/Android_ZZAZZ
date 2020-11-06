@@ -82,7 +82,7 @@ internal object BackgroundExecutor {
             task.executionAsked = true
             future = directExecute(task, task.remainingDelay)
         }
-        if ((task.id != null || task.serial != null) && !task.managed.get()) {
+        if (!((task.id == null && task.serial == null) || task.managed.get())) {
             /* keep task */
             task.future = future
             TASKS.add(task)
@@ -98,11 +98,9 @@ internal object BackgroundExecutor {
      * `false` otherwise
      */
     private fun hasSerialRunning(serial: String): Boolean {
-        for (task in TASKS) {
-            if (task.executionAsked && serial == task.serial) {
+        for (task in TASKS)
+            if (task.executionAsked && serial == task.serial)
                 return true
-            }
-        }
         return false
     }
 
@@ -115,11 +113,9 @@ internal object BackgroundExecutor {
      */
     internal fun take(serial: String): Task? {
         val len = TASKS.size
-        for (i in 0 until len) {
-            if (serial == TASKS[i].serial) {
+        for (i in 0 until len)
+            if (serial == TASKS[i].serial)
                 return TASKS.removeAt(i)
-            }
-        }
         return null
     }
 

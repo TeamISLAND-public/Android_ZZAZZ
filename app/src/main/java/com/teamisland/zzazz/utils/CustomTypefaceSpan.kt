@@ -25,7 +25,7 @@ class CustomTypefaceSpan(family: String?, private val newType: Typeface) : Typef
     }
 
     companion object {
-        private fun applyCustomTypeFace(paint: Paint, tf: Typeface) {
+        internal fun applyCustomTypeFace(paint: Paint, tf: Typeface) {
             val oldStyle: Int
             val old: Typeface = paint.typeface
             oldStyle = old.style

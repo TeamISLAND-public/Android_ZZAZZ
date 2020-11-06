@@ -1,6 +1,5 @@
 package com.teamisland.zzazz.ui
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentCallbacks2
 import android.content.Intent
@@ -16,11 +15,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
-import com.teamisland.zzazz.ui.TrimmingActivity.Companion.AUDIO_PATH
-import com.teamisland.zzazz.ui.TrimmingActivity.Companion.IMAGE_PATH
 import com.teamisland.zzazz.ui.TrimmingActivity.Companion.MODEL_OUTPUT
-import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_DURATION
-import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_FRAME_COUNT
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_DATA
 import com.teamisland.zzazz.utils.AddFragmentPagerAdapter
 import com.teamisland.zzazz.utils.CustomAdapter
 import com.teamisland.zzazz.utils.SaveProjectActivity
@@ -30,16 +26,16 @@ import com.teamisland.zzazz.utils.inference.Person
 import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
 import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
 import com.teamisland.zzazz.utils.objects.UnitConverter.px2dp
+import com.teamisland.zzazz.utils.VideoDataContainer
+import com.teamisland.zzazz.utils.view.ZoomableView
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
 import java.io.File
-import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
-import kotlin.properties.Delegates
 
 /**
  * Activity for make project
@@ -53,35 +49,33 @@ class ProjectActivity : AppCompatActivity() {
         })
     }
 
-    /**
-     * Destroys the activity and finishes ongoing coroutines.
-     */
-    override fun onDestroy() {
-        super.onDestroy()
-        mUnityPlayer.destroy()
-    }
-
     private val resultPath: String by lazy { filesDir.absolutePath + "/result.mp4" }
 
     @Suppress("unused")
     private val modelOutput: ArrayList<Person> by lazy {
-        intent.getParcelableArrayListExtra(MODEL_OUTPUT)
+        intent.getParcelableArrayListExtra(MODEL_OUTPUT) ?: ArrayList()
     }
 
     @Suppress("unused")
     private val modelPath: String by lazy { filesDir.absolutePath + "/test_txt.txt" }
     private val capturePath: String by lazy { filesDir.absolutePath + "/capture_image" }
     private val fps: Float by lazy { frameCount * 1000f / videoDuration }
-    private val imagePath: String by lazy { intent.getStringExtra(IMAGE_PATH) }
-    private val audioPath: String by lazy { intent.getStringExtra(AUDIO_PATH) }
-    private val frameCount: Int by lazy { intent.getIntExtra(VIDEO_FRAME_COUNT, 0) }
-    private val videoDuration: Int by lazy { intent.getIntExtra(VIDEO_DURATION, 0) }
-    private val dialog by lazy {
+
+    private val videoData: VideoDataContainer by lazy { intent.getParcelableExtra(VIDEO_DATA)!! }
+
+    private val zoomableListeners = ArrayList<ZoomableView>()
+
+    private val frameCount: Int
+        get() = videoData.frameCount
+    private val videoDuration: Int
+        get() = videoData.videoDuration
+
+    private val dialog: LoadingDialog by lazy {
         LoadingDialog(
             this,
             LoadingDialog.EXPORT,
             capturePath,
-            audioPath,
+            videoData.audioPath,
             frameCount,
             fps,
             resultPath,
@@ -89,6 +83,10 @@ class ProjectActivity : AppCompatActivity() {
         )
     }
     private var frame: Int = 0
+        set(value) {
+            field = value
+            setCurrentFrame(value)
+        }
 
     companion object {
         /**
@@ -100,6 +98,14 @@ class ProjectActivity : AppCompatActivity() {
          * Path of the result video.
          */
         const val RESULT: String = "RESULT"
+    }
+
+    /**
+     * Destroys the activity and finishes ongoing coroutines.
+     */
+    override fun onDestroy() {
+        super.onDestroy()
+        mUnityPlayer.destroy()
     }
 
     /**
@@ -170,7 +176,7 @@ class ProjectActivity : AppCompatActivity() {
         unityDataBridge = li
         li.onSuccessfulAccept()
         li.retrieveMetadata(
-            imagePath,
+            videoData.imagePath,
             capturePath,
             frameCount,
             fps,
@@ -200,7 +206,6 @@ class ProjectActivity : AppCompatActivity() {
     @Suppress("unused")
     fun unityFrame(b: Int) {
         frame = b
-        setCurrentFrame(frame)
     }
 
     /**
@@ -218,50 +223,25 @@ class ProjectActivity : AppCompatActivity() {
     /**
      * [AppCompatActivity.onCreate]
      */
-    @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "ControlFlowWithEmptyBody")
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_project)
         window.navigationBarColor = getColor(R.color.Background)
 
-        zoomLevel = float2DP(2f, resources)
+        zoomableListeners.add(projectTimeLineView)
+        zoomableListeners.add(projectEffectEditor)
+        zoomableListeners.add(timeIndexView)
+        zoomableListeners.add(projectEffectEditor)
 
-//        Log.i(
-//            "zzazz_core1",
-//            String.format(
-//                "shape %d %s %d",
-//                modelOutput[1]!!.keyPoints.size, //21
-//                modelOutput[0]!!.keyPoints[0].position.toString(), //Position(x=0.13257)
-//                modelOutput.size
-//            )
-//        )
+        zoomLevel = float2DP(2f, resources)
 
         project_play.setOnClickListener { unityDataBridge?.setPlayState(!project_play.isActivated) }
 
-        projectTimeLineView.path = imagePath
+        projectTimeLineView.path = videoData.imagePath
         projectTimeLineView.frameCount = frameCount
         setLength()
-        setZoomLevel()
 
         tabInit()
-
-//        save_project.setOnTouchListener { _, event ->
-//            when (event.action) {
-//                MotionEvent.ACTION_DOWN -> {
-//                    save_project.alpha = 0.5F
-//                }
-//
-//                MotionEvent.ACTION_UP -> {
-//                    stopVideo()
-//                    Intent(this, SaveProjectActivity::class.java).also {
-//                        startActivityForResult(it, IS_SAVED)
-//                    }
-//                    save_project.alpha = 1F
-//                }
-//            }
-//            true
-//        }
 
         gotoExportActivity.setOnClickListener {
             stopVideo()
@@ -270,7 +250,10 @@ class ProjectActivity : AppCompatActivity() {
 
         back.setOnClickListener { onBackPressed() }
 
-        sliding_view.setOnTouchListener { _, event -> slidingLayoutOnTouchEvent(event) }
+        sliding_view.setOnTouchListener { view, event ->
+            view.performClick()
+            slidingLayoutOnTouchEvent(event)
+        }
 
         video_frame.addView(mUnityPlayer)
 
@@ -314,8 +297,11 @@ class ProjectActivity : AppCompatActivity() {
             getString(R.string.left_leg_effect),
             getString(R.string.right_leg_effect)
         )
+
         tabNameList.forEach {
-            with(effect_tab) { addTab(newTab().setCustomView(createTabView(it))) }
+            val newTab = effect_tab.newTab()
+            newTab.customView = createTabView(it)
+            effect_tab.addTab(newTab)
         }
 
         effect_view_pager.adapter = AddFragmentPagerAdapter(supportFragmentManager, 5, this)
@@ -336,17 +322,17 @@ class ProjectActivity : AppCompatActivity() {
         }
 
         effect_tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                if (tab == null) return
+            override fun onTabSelected(tab: TabLayout.Tab) {
                 effect_view_pager.currentItem = tab.position
-                tab.view.tab_text.typeface = archivoBold
-                tab.view.tab_text.setTextColor(whiteColor)
+                val tabText = tab.view.tab_text
+                tabText.typeface = archivoBold
+                tabText.setTextColor(whiteColor)
             }
 
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-                if (tab == null) return
-                tab.view.tab_text.typeface = archivoRegular
-                tab.view.tab_text.setTextColor(white40Color)
+            override fun onTabUnselected(tab: TabLayout.Tab) {
+                val tabText = tab.view.tab_text
+                tabText.typeface = archivoRegular
+                tabText.setTextColor(white40Color)
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) = Unit
@@ -402,71 +388,80 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     private fun setCurrentFrame(frame: Int) {
-        projectTimeLineView.currentFrame = frame
-        projectEffectEditor.currentFrame = frame
-        timeIndexView.currentFrame = frame
+        for (zoomableListener in zoomableListeners)
+            zoomableListener.currentFrame = frame
+
         this.frame = frame
         unityDataBridge?.setFrame(frame)
     }
 
     private fun setZoomLevel() {
-        projectTimeLineView.dpPerFrame = zoomLevel
-        projectEffectEditor.dpPerFrame = zoomLevel
-        timeIndexView.dpPerFrame = zoomLevel
+        for (zoomableListener in zoomableListeners)
+            zoomableListener.dpPerFrame = zoomLevel
     }
 
     private fun setLength() {
-        projectTimeLineView.videoLength = videoDuration
-        projectEffectEditor.videoLength = videoDuration
-        timeIndexView.videoLength = videoDuration
-        projectTimeLineView.frameCount = frameCount
-        projectEffectEditor.frameCount = frameCount
-        timeIndexView.frameCount = frameCount
+        for (zoomableListener in zoomableListeners) {
+            zoomableListener.videoLength = videoDuration
+            zoomableListener.frameCount = frameCount
+        }
+    }
+
+    private enum class TouchState {
+        NONE,
+        CONTACT,
+        SLIDING
     }
 
     private var posXAnchor = 0f
     private var anchoredFrame = 0
-    private var mode = 0
+    private var mode = TouchState.NONE
     private var newDist = 0f
     private var oldDist = 0f
 
     // dp / frame
-    private var zoomLevel by Delegates.notNull<Float>()
+    private var zoomLevel = 0f
+        set(value) {
+            field = value
+            setZoomLevel()
+        }
     private val zoomRange: Range<Float> by lazy {
         val upperLimit = max(zoomLevel, float2DP(15f, resources))
         Range(2 / 15f, upperLimit)
     }
 
     private fun slidingLayoutOnTouchEvent(event: MotionEvent): Boolean {
-        when (event.action.and(MotionEvent.ACTION_MASK)) {
-            MotionEvent.ACTION_DOWN -> {
-                stopVideo()
-                posXAnchor = event.x
-                anchoredFrame = frame
-                mode = 1
-            }
-            MotionEvent.ACTION_UP -> mode = 0
-            MotionEvent.ACTION_POINTER_UP -> mode = 1
-            MotionEvent.ACTION_POINTER_DOWN -> {
-                mode = 2
-                newDist = distance(event)
-                oldDist = distance(event)
-            }
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> onTouchStart(event.x)
+            MotionEvent.ACTION_UP -> mode = TouchState.NONE
+            MotionEvent.ACTION_POINTER_UP -> mode = TouchState.CONTACT
+            MotionEvent.ACTION_POINTER_DOWN -> onSlidingStart(distance(event))
             MotionEvent.ACTION_MOVE -> {
-                if (mode == 1) {
+                if (mode == TouchState.CONTACT) {
                     val deltaPos = event.x - posXAnchor
                     val deltaTime = (px2dp(deltaPos, resources) / zoomLevel).roundToInt()
                     frame = (anchoredFrame - deltaTime).coerceIn(0, frameCount - 1)
-                    setCurrentFrame(frame)
-                } else if (mode == 2) {
+                } else if (mode == TouchState.SLIDING) {
                     newDist = distance(event)
                     zoomLevel = zoomRange.clamp(zoomLevel * newDist / oldDist)
-                    setZoomLevel()
                     oldDist = newDist
                 }
             }
         }
         return true
+    }
+
+    private fun onSlidingStart(distance: Float) {
+        newDist = distance
+        oldDist = distance
+        mode = TouchState.SLIDING
+    }
+
+    private fun onTouchStart(xPos: Float) {
+        stopVideo()
+        posXAnchor = xPos
+        anchoredFrame = frame
+        mode = TouchState.CONTACT
     }
 
     private fun distance(event: MotionEvent): Float = abs(event.getX(0) - event.getX(1))

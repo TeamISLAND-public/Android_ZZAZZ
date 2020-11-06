@@ -9,7 +9,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:src="@drawable/video_play" />
+        android:src="@drawable/video_play"
+        android:contentDescription="TODO" />
 
     <ImageButton
         android:id="@id/exo_pause"
@@ -17,6 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:src="@drawable/video_pause" />
+        android:src="@drawable/video_pause"
+        android:contentDescription="TODO" />
 
 </FrameLayout>

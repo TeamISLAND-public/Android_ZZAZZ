@@ -6,6 +6,7 @@ import android.util.TypedValue.*
 /**
  * Unit Converter
  */
+@Suppress("unused")
 object UnitConverter {
     /**
      * Converts given float to DP.

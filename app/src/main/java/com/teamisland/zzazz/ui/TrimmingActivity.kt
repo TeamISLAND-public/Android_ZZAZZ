@@ -266,22 +266,12 @@ class TrimmingActivity : AppCompatActivity(), CoroutineScope {
         /**
          * Path of the trimmed audio.
          */
-        const val AUDIO_PATH: String = "AUDIO_PATH"
-
-        /**
-         * Path of the folder which has images of trimmed video.
-         */
-        const val IMAGE_PATH: String = "IMAGE_PATH"
+        const val VIDEO_DATA: String = "VIDEO_DATA"
 
         /**
          * Frame count of the trimmed video.
          */
         const val VIDEO_FRAME_COUNT: String = "TRIMMED_FRAME_COUNT"
-
-        /**
-         * Duration of the trimmed video.
-         */
-        const val VIDEO_DURATION: String = "TRIMMED_DURATION"
 
         /**
          * Result of the core model

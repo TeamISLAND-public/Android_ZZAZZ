@@ -23,16 +23,15 @@ import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.ExportActivity
 import com.teamisland.zzazz.ui.ProjectActivity
 import com.teamisland.zzazz.ui.ProjectActivity.Companion.RESULT
-import com.teamisland.zzazz.ui.TrimmingActivity.Companion.AUDIO_PATH
-import com.teamisland.zzazz.ui.TrimmingActivity.Companion.IMAGE_PATH
 import com.teamisland.zzazz.ui.TrimmingActivity.Companion.MODEL_OUTPUT
-import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_DURATION
+import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_DATA
 import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_FRAME_COUNT
 import com.teamisland.zzazz.utils.inference.*
 import com.teamisland.zzazz.utils.interfaces.ITrimmingData
 import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
 import com.teamisland.zzazz.utils.objects.AbsolutePathRetriever.getPath
 import com.teamisland.zzazz.utils.objects.FFmpegDelegate
+import com.teamisland.zzazz.utils.VideoDataContainer
 import kotlinx.android.synthetic.main.loading_dialog.*
 import kotlinx.coroutines.*
 import java.io.BufferedReader
@@ -233,10 +232,15 @@ class LoadingDialog(context: Context, private val request: Int) :
                 context
             )
             Intent(context, ProjectActivity::class.java).apply {
-                putExtra(IMAGE_PATH, context.filesDir.absolutePath + "/video_image")
-                putExtra(AUDIO_PATH, context.filesDir.absolutePath + "/audio.mp3")
-                putExtra(VIDEO_FRAME_COUNT, frameCount)
-                putExtra(VIDEO_DURATION, (dataBinder.endMs - dataBinder.startMs + 1).toInt())
+                val absolutePath = context.filesDir.absolutePath
+                val videoDuration = (dataBinder.endMs - dataBinder.startMs + 1).toInt()
+                val a = VideoDataContainer(
+                    "$absolutePath/video_image",
+                    "$absolutePath/audio.mp3",
+                    frameCount,
+                    videoDuration
+                )
+                putExtra(VIDEO_DATA, a)
                 putExtra(MODEL_OUTPUT, personList as Serializable)
             }.also { startActivity(context, it, null) }
             dismiss()
