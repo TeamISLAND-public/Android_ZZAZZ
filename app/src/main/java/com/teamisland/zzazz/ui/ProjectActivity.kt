@@ -359,7 +359,7 @@ class ProjectActivity : AppCompatActivity() {
         dialog.create()
         dialog.show()
         dialog.activate()
-        UnityPlayer.UnitySendMessage("InteractionManager", "ExportImage", "")
+        unityDataBridge?.exportImage()
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////

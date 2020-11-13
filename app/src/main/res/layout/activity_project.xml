@@ -144,7 +144,7 @@
                 android:src="@drawable/ic_preview_button"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:contentDescription="TODO" />
+                android:contentDescription="@string/play_button" />
 
             <View
                 android:layout_width="1dp"

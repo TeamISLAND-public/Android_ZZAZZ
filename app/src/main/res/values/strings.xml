@@ -52,6 +52,7 @@
     <string name="save_project">Project Name</string>
     <string name="default_name">Project</string>
     <string name="go_back" translatable="false">Go back</string>
+    <string name="play_button">Play Button</string>
 
     <!--    string of export activity-->
     <string name="export_title">PREVIEW</string>

@@ -13,6 +13,7 @@ object BBoxTracker {
     private const val widthBuffer = 0.4
     private const val heightBuffer = 0.2
     private const val scale = inputsize / heatmapsize
+
     /**
      *
      */

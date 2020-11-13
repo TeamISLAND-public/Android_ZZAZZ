@@ -37,4 +37,14 @@ interface UnityDataBridge {
      * Sets frame.
      */
     fun setFrame(frame: Int)
+
+    /**
+     * Exports the current project.
+     */
+    fun exportImage()
+
+    /**
+     * Modifies the time of the current effect.
+     */
+    fun modifyRange(i: Int, startFrame: Int, endFrame: Int)
 }
