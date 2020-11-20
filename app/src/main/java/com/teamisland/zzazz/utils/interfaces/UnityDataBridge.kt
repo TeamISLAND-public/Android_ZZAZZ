@@ -2,7 +2,7 @@ package com.teamisland.zzazz.utils.interfaces
 
 
 /**
- * !!! IMPORTANT !!! KEEP SAME SIGNATURE WITH UNITY: AndroidDataBridge.
+ * !!! IMPORTANT !!! KEEP THE SAME SIGNATURE WITH UNITY: AndroidDataBridge.
  *
  * Interface between unity and android.
  */

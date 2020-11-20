@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.util.Range
-import android.view.MotionEvent
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -17,23 +16,19 @@ import com.google.android.material.tabs.TabLayout
 import com.teamisland.zzazz.R
 import com.teamisland.zzazz.ui.TrimmingActivity.Companion.MODEL_OUTPUT
 import com.teamisland.zzazz.ui.TrimmingActivity.Companion.VIDEO_DATA
-import com.teamisland.zzazz.utils.AddFragmentPagerAdapter
-import com.teamisland.zzazz.utils.CustomAdapter
-import com.teamisland.zzazz.utils.SaveProjectActivity
+import com.teamisland.zzazz.utils.*
 import com.teamisland.zzazz.utils.dialog.GoToTrimDialog
 import com.teamisland.zzazz.utils.dialog.LoadingDialog
 import com.teamisland.zzazz.utils.inference.Person
 import com.teamisland.zzazz.utils.interfaces.UnityDataBridge
+import com.teamisland.zzazz.utils.objects.UnitConverter
 import com.teamisland.zzazz.utils.objects.UnitConverter.float2DP
-import com.teamisland.zzazz.utils.objects.UnitConverter.px2dp
-import com.teamisland.zzazz.utils.VideoDataContainer
 import com.teamisland.zzazz.utils.view.ZoomableView
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_project.*
 import kotlinx.android.synthetic.main.custom_tab.view.*
 import java.io.File
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -216,6 +211,14 @@ class ProjectActivity : AppCompatActivity() {
         dialog.update(50 * (frame + 1) / frameCount)
     }
 
+    /**
+     * Encode captured images to video.
+     */
+    @Suppress("unused")
+    fun encodeVideo() {
+        dialog.encodeVideo()
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// Creation codes.
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,10 +231,7 @@ class ProjectActivity : AppCompatActivity() {
         setContentView(R.layout.activity_project)
         window.navigationBarColor = getColor(R.color.Background)
 
-        zoomableListeners.add(projectTimeLineView)
-        zoomableListeners.add(projectEffectEditor)
-        zoomableListeners.add(timeIndexView)
-        zoomableListeners.add(projectEffectEditor)
+        addZoomableViews()
 
         zoomLevel = float2DP(2f, resources)
 
@@ -252,7 +252,7 @@ class ProjectActivity : AppCompatActivity() {
 
         sliding_view.setOnTouchListener { view, event ->
             view.performClick()
-            slidingLayoutOnTouchEvent(event)
+            projectSlidingPanelController.handleEvent(event)
         }
 
         video_frame.addView(mUnityPlayer)
@@ -266,6 +266,15 @@ class ProjectActivity : AppCompatActivity() {
                 it.setBackgroundColor(Color.TRANSPARENT)
                 CustomAdapter.selectedEffect = null
             }
+        }
+    }
+
+    private fun addZoomableViews() {
+        zoomableListeners.apply {
+            add(projectTimeLineView)
+            add(projectEffectEditor)
+            add(timeIndexView)
+            add(projectEffectEditor)
         }
     }
 
@@ -290,7 +299,7 @@ class ProjectActivity : AppCompatActivity() {
     }
 
     private fun tabInit() {
-        val tabNameList = arrayOf(
+        val tabNames = arrayOf(
             getString(R.string.head_effect),
             getString(R.string.left_arm_effect),
             getString(R.string.right_arm_effect),
@@ -298,7 +307,7 @@ class ProjectActivity : AppCompatActivity() {
             getString(R.string.right_leg_effect)
         )
 
-        tabNameList.forEach {
+        tabNames.forEach {
             val newTab = effect_tab.newTab()
             newTab.customView = createTabView(it)
             effect_tab.addTab(newTab)
@@ -367,14 +376,6 @@ class ProjectActivity : AppCompatActivity() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Encode captured images to video.
-     */
-    @Suppress("unused")
-    fun encodeVideo() {
-        dialog.encodeVideo()
-    }
-
-    /**
      * [AppCompatActivity.onActivityResult]
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -407,17 +408,23 @@ class ProjectActivity : AppCompatActivity() {
         }
     }
 
-    private enum class TouchState {
-        NONE,
-        CONTACT,
-        SLIDING
-    }
-
-    private var posXAnchor = 0f
     private var anchoredFrame = 0
-    private var mode = TouchState.NONE
-    private var newDist = 0f
-    private var oldDist = 0f
+
+    private val projectSlidingPanelController: ProjectSlidingPanelController by lazy {
+        ProjectSlidingPanelController().apply {
+            onMove = { deltaPos ->
+                val deltaTime = (UnitConverter.px2dp(deltaPos, resources) / zoomLevel).roundToInt()
+                frame = (anchoredFrame - deltaTime).coerceIn(0, frameCount - 1)
+            }
+            onMultitouch = { newDist, oldDist ->
+                zoomLevel = zoomRange.clamp(zoomLevel * newDist / oldDist)
+            }
+            onTouchStart = {
+                stopVideo()
+                anchoredFrame = frame
+            }
+        }
+    }
 
     // dp / frame
     private var zoomLevel = 0f
@@ -425,44 +432,9 @@ class ProjectActivity : AppCompatActivity() {
             field = value
             setZoomLevel()
         }
+
     private val zoomRange: Range<Float> by lazy {
         val upperLimit = max(zoomLevel, float2DP(15f, resources))
         Range(2 / 15f, upperLimit)
     }
-
-    private fun slidingLayoutOnTouchEvent(event: MotionEvent): Boolean {
-        when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> onTouchStart(event.x)
-            MotionEvent.ACTION_UP -> mode = TouchState.NONE
-            MotionEvent.ACTION_POINTER_UP -> mode = TouchState.CONTACT
-            MotionEvent.ACTION_POINTER_DOWN -> onSlidingStart(distance(event))
-            MotionEvent.ACTION_MOVE -> {
-                if (mode == TouchState.CONTACT) {
-                    val deltaPos = event.x - posXAnchor
-                    val deltaTime = (px2dp(deltaPos, resources) / zoomLevel).roundToInt()
-                    frame = (anchoredFrame - deltaTime).coerceIn(0, frameCount - 1)
-                } else if (mode == TouchState.SLIDING) {
-                    newDist = distance(event)
-                    zoomLevel = zoomRange.clamp(zoomLevel * newDist / oldDist)
-                    oldDist = newDist
-                }
-            }
-        }
-        return true
-    }
-
-    private fun onSlidingStart(distance: Float) {
-        newDist = distance
-        oldDist = distance
-        mode = TouchState.SLIDING
-    }
-
-    private fun onTouchStart(xPos: Float) {
-        stopVideo()
-        posXAnchor = xPos
-        anchoredFrame = frame
-        mode = TouchState.CONTACT
-    }
-
-    private fun distance(event: MotionEvent): Float = abs(event.getX(0) - event.getX(1))
 }

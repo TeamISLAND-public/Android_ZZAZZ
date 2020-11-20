@@ -131,23 +131,23 @@ internal object BackgroundExecutor {
     fun cancelAll(id: String, mayInterruptIfRunning: Boolean) {
         for (i in TASKS.indices.reversed()) {
             val task = TASKS[i]
-            if (id == task.id) {
-                if (task.future != null) {
-                    (task.future ?: return).cancel(mayInterruptIfRunning)
-                    if (!task.managed.getAndSet(true)) {
-                        /*
-                         * the task has been submitted to the executor, but its
-                         * execution has not started yet, so that its run()
-                         * method will never call postExecute()
-                         */
-                        task.postExecute()
-                    }
-                } else if (task.executionAsked) {
-                    //Log.w(TAG, "A task with id " + task.id + " cannot be cancelled (the executor set does not support it)");
-                } else {
-                    /* this task has not been submitted to the executor */
-                    TASKS.removeAt(i)
+            if (id != task.id) continue
+            val future = task.future
+            if (future != null) {
+                future.cancel(mayInterruptIfRunning)
+                if (!task.managed.getAndSet(true)) {
+                    /*
+                     * the task has been submitted to the executor, but its
+                     * execution has not started yet, so that its run()
+                     * method will never call postExecute()
+                     */
+                    task.postExecute()
                 }
+            } else if (task.executionAsked) {
+                //Log.w(TAG, "A task with id " + task.id + " cannot be cancelled (the executor set does not support it)");
+            } else {
+                /* this task has not been submitted to the executor */
+                TASKS.removeAt(i)
             }
         }
     }
