@@ -74,7 +74,7 @@ object BBoxTracker {
             return bitmap
         }
         if (bitmap != null) {
-            if (i < 3) {
+            if (i < 30) {
                 // TODO: 9/9/2020 human detector
                 currentBox = BBox(0, 0, bitmap.width, bitmap.height)
                 val croppedBitmap: Bitmap = Bitmap.createBitmap(
@@ -88,7 +88,7 @@ object BBoxTracker {
                 return resized
 
             }
-            if (i >= 3) {
+            if (i >= 30) {
                 currentBox = convert(bitmap, personList[i - 2], currentBox)
                 val croppedBitmap: Bitmap = Bitmap.createBitmap(
                     bitmap,
